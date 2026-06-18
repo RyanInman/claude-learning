@@ -15,6 +15,7 @@ malformed subagent response is caught as a hard error instead of a silent gap.
 Usage:
     python3 render_report.py --findings .rule-review --map .rule-review/map.json
                              [--out rule-adherence-report.md] [--expect N]
+                             [--min-impact HIGH|MEDIUM|LOW]
 
 Exit codes: 0 ok · 2 validation error (bad/malformed/short findings) · 1 usage/IO.
 """
@@ -27,6 +28,7 @@ import sys
 
 RANK = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
 LEVELS = set(RANK)
+CONFIDENCE_MIN = 90  # findings less confident than this are suppressed from the report
 REQUIRED = ("title", "rule_file", "rule_text", "issue", "impact", "risk",
             "code_snippet", "suggested_fix")
 
@@ -60,6 +62,11 @@ def validate_finding(src, file, i, fnd):
         v = fnd.get(axis)
         if v is not None and v not in LEVELS:
             errs.append(f"{where}: {axis}={v!r} not one of HIGH|MEDIUM|LOW")
+    conf = fnd.get("confidence")
+    if conf is None:
+        errs.append(f"{where}: missing 'confidence' (integer 0-100)")
+    elif isinstance(conf, bool) or not isinstance(conf, (int, float)) or not 0 <= conf <= 100:
+        errs.append(f"{where}: confidence={conf!r} must be a number 0-100")
     return errs
 
 
@@ -106,24 +113,25 @@ def collect(findings_dir, expect):
 
 # --- render ------------------------------------------------------------------
 
-def title_block(mode, rules_n, files_reviewed, findings_n):
+def title_block(mode, rules_n, files_reviewed, findings_n, suppressed, min_impact, below_impact):
     return ("# Rule Adherence Report\n"
             f"Mode: {mode} · Rules: {rules_n} · Files reviewed: {files_reviewed} "
-            f"· Findings: {findings_n}")
+            f"· Findings: {findings_n} · Suppressed (<{CONFIDENCE_MIN}% conf): {suppressed}"
+            f" · Min impact: {min_impact} (excluded {below_impact})")
 
 
 def summary_table(flat):
     lines = ["## Summary (ranked by impact, then risk)",
-             "| # | File | Rule | Impact | Risk | Issue |",
-             "|---|------|------|--------|------|-------|"]
+             "| # | File | Rule | Impact | Risk | Conf | Issue |",
+             "|---|------|------|--------|------|------|-------|"]
     if not flat:
-        lines.append("| – | – | – | – | – | No violations found |")
+        lines.append("| – | – | – | – | – | – | No violations found |")
         return "\n".join(lines)
     for i, (file, f) in enumerate(flat, 1):
         rule = os.path.basename(f.get("rule_file", ""))
         issue = (f.get("title", "") or "").replace("|", "\\|")
         lines.append(f"| {i} | {file} | {rule} | {f.get('impact', '')} "
-                     f"| {f.get('risk', '')} | {issue} |")
+                     f"| {f.get('risk', '')} | {f.get('confidence', '')}% | {issue} |")
     return "\n".join(lines)
 
 
@@ -135,9 +143,10 @@ def fenced(lines_out, label, text, lang):
     lines_out.append("  ```")
 
 
-def render(mode, rules_n, files_reviewed, findings_n, flat, file_findings,
-           unmatched, meta):
-    out = [title_block(mode, rules_n, files_reviewed, findings_n), "",
+def render(mode, rules_n, files_reviewed, findings_n, suppressed, min_impact, below_impact,
+           flat, file_findings, unmatched, meta):
+    out = [title_block(mode, rules_n, files_reviewed, findings_n, suppressed,
+                       min_impact, below_impact), "",
            summary_table(flat), "", "## Findings by file"]
 
     by_file = {}
@@ -149,8 +158,8 @@ def render(mode, rules_n, files_reviewed, findings_n, flat, file_findings,
         lang = lang_for(file)
         for f in by_file[file]:
             loc = f"{file}:{f['line']}" if f.get("line") else file
-            out.append(f"#### [{f.get('impact')} impact / {f.get('risk')} risk] "
-                       f"{f.get('title', '')}")
+            out.append(f"#### [{f.get('impact')} impact / {f.get('risk')} risk "
+                       f"· {f.get('confidence')}% conf] {f.get('title', '')}")
             out.append(f"- Rule: `{f.get('rule_file', '')}` → \"{f.get('rule_text', '')}\"")
             out.append(f"- Issue: {f.get('issue', '')}")
             out.append("")
@@ -196,6 +205,9 @@ def main():
                     help="report path (default: rule-adherence-report.md in cwd)")
     ap.add_argument("--expect", type=int, default=None,
                     help="expected batch count; error if the dir holds a different number")
+    ap.add_argument("--min-impact", choices=["HIGH", "MEDIUM", "LOW"], default="MEDIUM",
+                    help="lowest impact to include (MEDIUM keeps HIGH+MEDIUM, drops LOW; "
+                         "LOW keeps all; HIGH keeps HIGH only). Default: MEDIUM")
     args = ap.parse_args()
 
     if not os.path.isdir(args.findings):
@@ -215,24 +227,32 @@ def main():
     rules_n = len(mp.get("global_rules", [])) + len(mp.get("path_scoped_rules", []))
     unmatched = mp.get("unmatched_files", [])
 
-    flat = []
+    min_rank = RANK[args.min_impact]
+    flat, suppressed, below_impact = [], 0, 0
     for entry in file_findings:
         for fnd in entry.get("findings", []):
+            if fnd.get("confidence", 0) < CONFIDENCE_MIN:
+                suppressed += 1
+                continue
+            if RANK.get(fnd.get("impact"), 3) > min_rank:
+                below_impact += 1
+                continue
             flat.append((entry["file"], fnd))
     flat.sort(key=lambda t: (RANK.get(t[1].get("impact"), 3),
                              RANK.get(t[1].get("risk"), 3),
                              t[0], t[1].get("title", "")))
 
     files_reviewed = len({e["file"] for e in file_findings})
-    report = render(mode, rules_n, files_reviewed, len(flat), flat,
-                    file_findings, unmatched, meta)
+    report = render(mode, rules_n, files_reviewed, len(flat), suppressed, args.min_impact,
+                    below_impact, flat, file_findings, unmatched, meta)
     try:
         with open(args.out, "w", encoding="utf-8") as fh:
             fh.write(report)
     except OSError as e:
         fail(f"cannot write {args.out}: {e}")
 
-    print(title_block(mode, rules_n, files_reviewed, len(flat)))
+    print(title_block(mode, rules_n, files_reviewed, len(flat), suppressed,
+                      args.min_impact, below_impact))
     print()
     print(summary_table(flat))
     print(f"\nFull report written to {args.out}")

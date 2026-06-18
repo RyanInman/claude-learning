@@ -219,6 +219,30 @@ def universe_staged(root):
 
 # --- main --------------------------------------------------------------------
 
+def emit(result, out_path):
+    """No --out: full JSON to stdout (back-compat). With --out: full JSON to the
+    file (render_report.py reads it), compact summary to stdout. The agent only
+    needs root/batches/notes to fan out; assignments never enters its context."""
+    full = json.dumps(result, indent=2)
+    if not out_path:
+        print(full)
+        return
+    with open(out_path, "w", encoding="utf-8") as fh:
+        fh.write(full)
+    print(json.dumps({
+        "mode": result["mode"],
+        "root": result["root"],
+        "counts": {
+            "rules": len(result["global_rules"]) + len(result["path_scoped_rules"]),
+            "files": len(result["assignments"]),
+            "unmatched": len(result["unmatched_files"]),
+            "batches": len(result["batches"]),
+        },
+        "batches": result["batches"],
+        "notes": result["notes"],
+    }, indent=2))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -227,6 +251,9 @@ def main():
                     help="audit mode: narrow the universe to this subdir (relative to root)")
     ap.add_argument("--root", default=None,
                     help="dir containing .claude/rules (default: git toplevel, else cwd)")
+    ap.add_argument("--out", default=None,
+                    help="write full JSON here and print a compact summary to stdout "
+                         "(keeps the per-file assignments array out of the agent's context)")
     args = ap.parse_args()
 
     root = args.root or repo_top(".") or os.getcwd()
@@ -235,11 +262,11 @@ def main():
 
     rules_dir = os.path.join(root, ".claude", "rules")
     if not os.path.isdir(rules_dir):
-        print(json.dumps({"mode": args.mode, "root": root, "global_rules": [],
-                          "path_scoped_rules": [], "assignments": [], "batches": [],
-                          "unmatched_files": [],
-                          "notes": [f"No .claude/rules/ found under {root}; nothing to check."]},
-                         indent=2))
+        result = {"mode": args.mode, "root": root, "global_rules": [],
+                  "path_scoped_rules": [], "assignments": [], "batches": [],
+                  "unmatched_files": [],
+                  "notes": [f"No .claude/rules/ found under {root}; nothing to check."]}
+        emit(result, args.out)
         return
 
     global_rules, scoped = [], []  # scoped: [(rule_path, compiled, globs)]
@@ -302,7 +329,7 @@ def main():
     batches = [{"rules": list(k), "files": sorted(v)}
                for k, v in sorted(by_ruleset.items(), key=lambda kv: kv[1])]
 
-    print(json.dumps({
+    result = {
         "mode": args.mode,
         "root": root,
         "global_rules": global_rules,
@@ -311,7 +338,8 @@ def main():
         "batches": batches,
         "unmatched_files": unmatched,
         "notes": notes,
-    }, indent=2))
+    }
+    emit(result, args.out)
 
 
 if __name__ == "__main__":

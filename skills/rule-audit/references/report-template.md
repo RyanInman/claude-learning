@@ -4,26 +4,29 @@ The report is rendered by `scripts/render_report.py`, not by hand. After every b
 `.rule-review/batch-<N>.json`, run:
 
 ```bash
-python3 <skill>/scripts/render_report.py --findings .rule-review --map .rule-review/map.json --expect <batch-count>
+python3 <skill>/scripts/render_report.py --findings .rule-review --map .rule-review/map.json --expect <batch-count> [--min-impact HIGH|MEDIUM|LOW]
 ```
 
 The script validates each findings file against the schema (exit 2 on a malformed or missing one),
-sorts findings by impact (HIGH→MEDIUM→LOW) then risk (HIGH→MEDIUM→LOW), writes the full report to
-`rule-adherence-report.md` in the cwd, and prints the title block + ranked Summary table to stdout.
-Relay that stdout; the file holds the detail. This is what the rendered file looks like:
+**suppresses any finding scored below 90% confidence** (counted in the header), **drops findings below
+the `--min-impact` threshold** (default `MEDIUM` excludes LOW; pass `--min-impact LOW` to include
+cosmetic findings — also counted in the header), sorts the rest by impact (HIGH→MEDIUM→LOW) then risk
+(HIGH→MEDIUM→LOW), writes the full report to `rule-adherence-report.md` in the cwd, and prints the title
+block + ranked Summary table to stdout. Relay that stdout; the file holds the detail. This is what the
+rendered file looks like:
 
 ```markdown
 # Rule Adherence Report
-Mode: audit · Rules: 2 · Files reviewed: 4 · Findings: 1
+Mode: audit · Rules: 2 · Files reviewed: 4 · Findings: 1 · Suppressed (<90% conf): 1 · Min impact: MEDIUM (excluded 0)
 
 ## Summary (ranked by impact, then risk)
-| # | File | Rule | Impact | Risk | Issue |
-|---|------|------|--------|------|-------|
-| 1 | src/api/handler.ts | api.md | HIGH | HIGH | Unvalidated request body written to DB |
+| # | File | Rule | Impact | Risk | Conf | Issue |
+|---|------|------|--------|------|------|-------|
+| 1 | src/api/handler.ts | api.md | HIGH | HIGH | 95% | Unvalidated request body written to DB |
 
 ## Findings by file
 ### src/api/handler.ts
-#### [HIGH impact / HIGH risk] Unvalidated request body written to DB
+#### [HIGH impact / HIGH risk · 95% conf] Unvalidated request body written to DB
 - Rule: `.claude/rules/api.md` → "Validate every handler's input against a shared schema before use."
 - Issue: req.body is passed straight to db.user.create without schema validation.
 

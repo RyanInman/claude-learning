@@ -1,122 +1,121 @@
 ---
 name: rule-audit
 description: >-
-  Use when the user wants to audit or review code for adherence to the project's `.claude/rules/*.md`
-  files — whether source files follow, or contradict, the path-scoped and globally-applied rules.
-  Trigger on "check my code against our rules", "audit rule adherence", "are we following our
-  .claude/rules", "review staged changes against the rules", "rule compliance report", or when someone
-  points at the rules and asks whether the codebase complies — even if they don't name a file. Do NOT
-  use to CREATE or edit rules (that is `rule-context-builder`), or for general code review unrelated to
-  `.claude/rules`.
+  Audit code for adherence to a project's `.claude/rules/*.md` — report where source files violate or
+  contradict the path-scoped and global rules. Trigger on "check my code against our rules", "audit
+  rule adherence", "are we following our .claude/rules", "review staged changes against the rules",
+  "rule compliance report", or any ask about whether the codebase complies with the rules — even if no
+  file is named. Do NOT use to CREATE or edit rules (use `rule-context-builder`), or for general code
+  review unrelated to `.claude/rules`.
 ---
 
 # Rule Adherence Review
 
-Audits source files against the project's `.claude/rules/*.md` and reports where they violate or
-contradict a rule. The counterpart to `rule-context-builder`: that skill *writes* rules, this one
-*checks compliance*.
+Audit source files against `.claude/rules/*.md` and report where they violate or contradict a rule.
+Counterpart to `rule-context-builder` (that skill writes rules; this one checks compliance).
 
-The whole job hinges on one thing being right: **which rules apply to which files.** A path-scoped
-rule (`paths:` glob in its frontmatter) governs only files its glob matches; a global rule (empty
-frontmatter) governs every file. Applying an API rule to a UI file — or skipping a file a glob covers
-— produces a wrong report. So that mapping is computed deterministically by `scripts/map_rules.py`,
-not guessed. The script also groups files that share an identical rule-set into **batches**, and you
-spawn one review subagent per batch. Each subagent reads its files in its own context and **writes its
-findings as JSON to a file**, so raw code never floods the main conversation; a second script
-(`scripts/render_report.py`) then aggregates those files into the ranked report — sort and formatting
-stay deterministic instead of being re-derived by the model each run (same fan-out/fan-in shape as
-`pattern-extractor`).
+Correctness hinges on **which rules apply to which files**: a path-scoped rule (`paths:` glob in its
+frontmatter) governs only files its glob matches; a global rule (empty frontmatter) governs every file.
+Misassigning a rule — or skipping a file a glob covers — produces a wrong report, so the mapping is
+computed deterministically by `scripts/map_rules.py`, never guessed. The script also groups files with
+an identical rule-set into **batches** — one review subagent per batch. Each subagent reads its files
+in its own context and writes findings as JSON to a file, keeping raw code out of the main
+conversation; `scripts/render_report.py` then aggregates those files into the ranked report, so sorting
+and formatting stay deterministic (same fan-out/fan-in shape as `pattern-extractor`).
 
-## Step 1 — Pick the mode
+## Step 1 — Scope the review (ask first)
 
-- **staged** — review only files in `git diff --cached` (a pre-commit / pre-PR check). Default here
-  when the user implies "before I commit/push" or "my changes".
-- **audit** — review every file matched by a rule's globs across the repo. Default when they say
-  "audit", "sweep the repo", "are we following our rules". Audit accepts an optional subdir to narrow
-  scope (e.g. "audit `src/api`").
+Confirm scope before running anything — a vague "check our rules" must not silently become a full-repo
+audit spawning many subagents. Confirm **what to review** (skip if the user already pinned it):
 
-If unclear, ask which one. Audit on a large repo spawns many subagents; staged is cheap and focused.
+- **staged** — files in `git diff --cached`; cheap pre-commit / pre-PR check. Default when they
+  imply "before I commit/push" or "my changes".
+- **audit** — files matched by rule globs. Default for "audit", "sweep the repo", "are we following
+  our rules". Negotiate the smallest useful scope: push `--path <subdir>` over the whole tree.
+  Full-repo audit is allowed only on explicit confirmation.
+
+Do not ask about impact threshold here. Subagents grade every level regardless, so it is purely a
+render-time filter — default to HIGH+MEDIUM and offer the LOW re-render in Step 4.
 
 ## Step 2 — Map rules to files
 
-Run once in the main context (it returns compact JSON, not file contents). Tee the output to
-`.rule-review/map.json` — `render_report.py` reads it back in Step 4 for the report header,
-`unmatched_files`, and rule count:
+Run once in main context. `--out` writes the full JSON to `.rule-review/map.json` (read back by
+`render_report.py` in Step 4 for the header, `unmatched_files`, and rule count) and prints a compact
+summary — `batches`, `notes`, and counts — to stdout, keeping the per-file `assignments` array out of
+the conversation:
 
 ```bash
 mkdir -p .rule-review
-python3 <skill>/scripts/map_rules.py --mode <staged|audit> [--path <subdir>] | tee .rule-review/map.json
+python3 <skill>/scripts/map_rules.py --mode <staged|audit> [--path <subdir>] --out .rule-review/map.json
 ```
 
-The script discovers `.claude/rules/*.md`, classifies each as global or path-scoped, resolves the
-file universe (`git diff --cached` for staged; tracked + untracked-not-ignored files for audit), and
-emits `assignments`, `batches`, `unmatched_files`, and `notes`. Read `notes` and act on them:
+It discovers `.claude/rules/*.md`, classifies each as global or path-scoped, resolves the file universe
+(`git diff --cached` for staged; tracked + untracked-not-ignored for audit), and emits `assignments`,
+`batches`, `unmatched_files`, and `notes`. Act on `notes`:
 
-- "No `.claude/rules/` found" → there is nothing to check. Tell the user and stop.
+- "No `.claude/rules/` found" → nothing to check; tell the user and stop.
 - "No staged files" → tell the user, suggest `--mode audit`, stop.
 - "Audit universe is N files" (large) → offer to narrow with `--path` before fanning out.
 
 ## Step 3 — Fan out one subagent per batch
 
-For each entry in `batches`, spawn a review subagent (run them in parallel; cap ~10 concurrent — see
-`superpowers:dispatching-parallel-agents`). Number the batches 0, 1, 2, … — each subagent writes to
-`.rule-review/batch-<N>.json`. Read each applicable rule file once yourself (they are small) so you can
-embed its text in the prompt — that keeps every subagent reviewing against identical rule text. Use
-this prompt shape:
+For each entry in `batches`, spawn a review subagent in parallel (cap ~10 concurrent — see
+`superpowers:dispatching-parallel-agents`). Number batches 0, 1, 2, …; each writes to
+`.rule-review/batch-<N>.json`. Pass the rule file paths from `batch.rules` (relative to root) and have
+the subagent read them itself — the files are static, so every subagent reads identical rule text
+without it passing through the main context. Use this shape:
 
 ```
 Review these files for adherence to the rules below. Root: <root from script output>.
 Files (relative to root): <batch.files>
 Read the full text of each file under the root before judging.
 
-Applicable rules:
---- .claude/rules/api.md ---
-<verbatim contents of that rule file>
---- .claude/rules/global.md ---
-<verbatim contents>
+Applicable rule files (read each in full before judging; paths relative to root):
+<batch.rules, one path per line>
 
-Read <skill>/references/rubric-and-schema.md for the ranking rubric and the exact JSON
-output schema. Review each file against ONLY the rules above — do not import rules that were
-not given to you. Report clean files with empty findings.
-Write the JSON object to `.rule-review/batch-<N>.json` with the Write tool, then return ONLY
-a one-line count (files reviewed, findings). Do not paste the JSON or any file contents.
+Read <skill>/references/rubric-and-schema.md for the ranking rubric and exact JSON output schema.
+Review each file against ONLY the rules listed above — do not import rules not given to you. Report clean
+files with empty findings. Write the JSON object to `.rule-review/batch-<N>.json` with the Write tool,
+then return ONLY a one-line count (rule files read, files reviewed, findings). Do not paste the JSON or any file contents.
 ```
 
-Each subagent writes the `file_findings` / `meta` JSON defined in `references/rubric-and-schema.md` to
-its `.rule-review/batch-<N>.json` and returns only counts — the findings never enter the main context.
+Each subagent writes the `file_findings` / `meta` JSON from `references/rubric-and-schema.md` and
+returns only counts — findings never enter the main context.
 
 ## Step 4 — Render the report (deterministic)
 
-Once every batch has written its `.rule-review/batch-<N>.json`, render the ranked report with the
-script — do not collect, sort, or format by hand:
+Once every batch has written its file, render the ranked report — do not collect, sort, or format by
+hand:
 
 ```bash
-python3 <skill>/scripts/render_report.py --findings .rule-review --map .rule-review/map.json --expect <batch-count>
+python3 <skill>/scripts/render_report.py --findings .rule-review --map .rule-review/map.json --expect <batch-count> [--min-impact HIGH|MEDIUM|LOW]
 ```
 
-It validates every findings file against the schema (a malformed or missing one is a hard error, exit
-2 — re-run that batch), sorts findings by impact (HIGH→MEDIUM→LOW) then risk, writes the full report to
+It validates each findings file against the schema (malformed or missing = hard error, exit 2 — re-run
+that batch), drops findings below `--min-impact` (default MEDIUM = keep HIGH+MEDIUM, exclude LOW; default
+HIGH+MEDIUM), sorts by impact (HIGH→MEDIUM→LOW) then risk, writes
 `rule-adherence-report.md` in the cwd, and prints the title block + ranked Summary table to stdout.
-Relay that stdout to the user; the file holds the per-file detail — rule + exact bullet + line,
-impact/risk, the offending code snippet, and an example fix when the fix is local. `unmatched_files`
-(from the map) and any meta-findings render automatically. See `references/report-template.md` for the
-output shape.
+Relay that stdout; the file holds per-file detail — rule, exact bullet, line, impact/risk, offending
+snippet, and a fix example when the fix is local. `unmatched_files` and meta-findings render
+automatically; see `references/report-template.md` for the output shape.
 
-Then clean up: `rm -rf .rule-review` (safe to gitignore).
+After relaying, offer the LOW re-render (the run already graded every level — no re-review needed):
+
+> Reported HIGH+MEDIUM. To include LOW (cosmetic) findings, re-render:
+> python3 <skill>/scripts/render_report.py --findings .rule-review --map .rule-review/map.json --expect <batch-count> --min-impact LOW
+
+Clean up only once the user has the report and declines the LOW re-render — the `.rule-review` dir must
+survive for it: `rm -rf .rule-review` (safe to gitignore).
 
 ## Gotchas
 
-- **Scope is the rubric's first rule.** The most common failure is a subagent flagging a file against a
-  rule that was never assigned to it (e.g. judging a UI file by an API rule). The script already did the
-  scoping; the prompt tells the subagent to honor it. Trust the mapping.
-- **Don't manufacture findings.** A clean file is a valid, valuable result. Empty `findings` is correct,
-  not a sign the review failed.
-- **Vague rules can't be mechanically checked.** "Write maintainable code" yields a meta-note, not a
-  pile of subjective violations. Say it can't be verified and move on.
-- **Don't guess at fixes.** Example fixes must use APIs/patterns already visible in the codebase (a
-  clean sibling file is the best template). If the right fix needs judgment or wider context, give a
-  prose direction instead — a wrong canned fix erodes trust in the whole report.
-- **Contradictory rules are a rules problem, not a code problem.** Surface them as meta-findings and
-  point the user to `rule-context-builder` to fix the rules.
-- **This skill reviews; it does not edit.** Report findings and suggested fixes; let the user decide
-  what to change.
+- **Trust the mapping.** The most common failure is a subagent flagging a file against a rule never
+  assigned to it (e.g. judging a UI file by an API rule). The script already scoped each file; the
+  prompt tells the subagent to honor it.
+- **A clean file is a valid result.** Empty `findings` is correct, not a sign the review failed.
+- **This skill reviews; it does not edit.** Report findings and suggested fixes; the user decides what
+  to change.
+- Subagent-side judgment — don't manufacture findings, treat vague or contradictory rules as
+  meta-findings (not per-file violations), never guess at fixes — lives in
+  `references/rubric-and-schema.md`. Contradictory rules are a rules problem: point the user to
+  `rule-context-builder` to reconcile them.

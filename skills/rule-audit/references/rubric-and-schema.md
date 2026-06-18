@@ -1,6 +1,6 @@
 # Rubric & Finding Schema (review subagent)
 
-You are reviewing files against a fixed set of rules handed to you in your prompt. Use this for how to
+You are reviewing files against a fixed set of rule files named in your prompt. Use this for how to
 grade a violation and the exact JSON shape to emit. The main agent renders the report from your JSON
 with a script, so the schema must be followed exactly.
 
@@ -27,6 +27,9 @@ a finding for this review (it may be a general code-quality issue, which is out 
   is uncomplyable until the rules are reconciled (see `rule-context-builder`). The fix belongs in the
   rules, not the code, so don't add LOW-impact noise to the per-file findings for it.
 - A file with no violations is a real, useful result. Report it as clean; do not manufacture findings.
+- **Only high-confidence violations reach the report.** Score each finding's `confidence` (0–100) that
+  the snippet genuinely breaks the quoted bullet; the renderer drops everything below 90. Report your
+  honest number — do not inflate a borderline call to clear the bar, and do not pad with guesses.
 
 ## Ranking rubric: impact x risk
 
@@ -76,6 +79,7 @@ one-line count (files reviewed, findings).** Do not paste the JSON or any file c
           "issue": "req.body is passed straight to db.user.create without schema validation.",
           "impact": "HIGH",
           "risk": "HIGH",
+          "confidence": 95,
           "code_snippet": "const body = req.body;\nreturn res.json(await db.user.create({ data: body }));",
           "suggested_fix": "Validate req.body with the shared schema before the DB call.",
           "fix_example": "const parsed = userSchema.safeParse(req.body);\nif (!parsed.success) return errorResponse(res, 400, \"invalid input\");\nreturn res.json(await db.user.create({ data: parsed.data }));"
@@ -91,11 +95,16 @@ one-line count (files reviewed, findings).** Do not paste the JSON or any file c
 ```
 
 Field rules (the renderer requires `title`, `rule_file`, `rule_text`, `issue`, `impact`, `risk`,
-`code_snippet`, `suggested_fix` on every finding — a missing one is a hard validation error):
+`confidence`, `code_snippet`, `suggested_fix` on every finding — a missing or malformed one is a hard
+validation error):
 - `rule_file` — the path the script reported (e.g. `.claude/rules/api.md`), so the report cites the source.
 - `rule_text` — the **exact bullet** the file violates, quoted. This is what makes a finding auditable.
 - `line` — best-effort line number in the reviewed file; omit or use `null` if not applicable.
 - `impact` / `risk` — exactly `HIGH` | `MEDIUM` | `LOW`.
+- `confidence` — integer 0–100: how sure you are the snippet **actually violates the quoted bullet**,
+  not how severe it is (that is `impact`). 90–100 = the code plainly breaks the rule with little room
+  for interpretation; below 90 = you are inferring intent, the rule is fuzzy, or you would need wider
+  context to be sure. The renderer suppresses anything below 90, so a low score removes the finding.
 - `issue` — one or two sentences: what in the file breaks the rule. Be concrete; no padding.
 - `code_snippet` — the **minimal offending lines copied verbatim** from the file (a few lines, not the
   whole function or file), so the reader sees the problem without opening the source. Reviewers act on

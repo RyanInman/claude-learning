@@ -4,16 +4,16 @@ The report is rendered by `scripts/render_report.py`, not by hand. After every b
 `.rule-review/batch-<N>.json`, run:
 
 ```bash
-python3 <skill>/scripts/render_report.py --findings .rule-review --map .rule-review/map.json --expect <batch-count> [--min-impact HIGH|MEDIUM|LOW]
+python3 <skill>/scripts/render_report.py --findings .rule-review --map .rule-review/map.json --expect <batch-count> [--reports-dir reports]
 ```
 
 The script validates each findings file against the schema (exit 2 on a malformed or missing one),
-**suppresses any finding scored below 90% confidence** (counted in the header), **drops findings below
-the `--min-impact` threshold** (default `MEDIUM` excludes LOW; pass `--min-impact LOW` to include
-cosmetic findings — also counted in the header), sorts the rest by impact (HIGH→MEDIUM→LOW) then risk
-(HIGH→MEDIUM→LOW), writes the full report to `rule-adherence-report.md` in the cwd, and prints the title
-block + ranked Summary table to stdout. Relay that stdout; the file holds the detail. This is what the
-rendered file looks like:
+**suppresses any finding scored below 90% confidence** (counted in the header), sorts the rest by impact
+(HIGH→MEDIUM→LOW) then risk (HIGH→MEDIUM→LOW), and writes **two** reports to `reports/`:
+`rule-adherence-high-medium.md` (HIGH+MEDIUM, the actionable set) and `rule-adherence-with-low.md` (adds
+LOW/cosmetic findings, also counted in each header). It prints the HIGH+MEDIUM title block + ranked
+Summary table plus both file paths to stdout. Relay that stdout; the files hold the detail. This is what
+each rendered file looks like:
 
 ```markdown
 # Rule Adherence Report

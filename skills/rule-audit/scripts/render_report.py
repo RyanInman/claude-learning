@@ -26,11 +26,10 @@ import json
 import os
 import sys
 
+from validate_findings import validate_finding  # shared schema check (no drift)
+
 RANK = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
-LEVELS = set(RANK)
 CONFIDENCE_MIN = 90  # findings less confident than this are suppressed from the report
-REQUIRED = ("title", "rule_file", "rule_text", "issue", "impact", "risk",
-            "code_snippet", "suggested_fix")
 
 LANG_BY_EXT = {
     ".ts": "ts", ".tsx": "tsx", ".js": "js", ".jsx": "jsx", ".py": "python",
@@ -52,23 +51,6 @@ def lang_for(path):
 
 
 # --- load + validate ---------------------------------------------------------
-
-def validate_finding(src, file, i, fnd):
-    where = f"{src}: finding #{i + 1} for {file}"
-    if not isinstance(fnd, dict):
-        return [f"{where}: not a JSON object"]
-    errs = [f"{where}: missing '{k}'" for k in REQUIRED if not fnd.get(k)]
-    for axis in ("impact", "risk"):
-        v = fnd.get(axis)
-        if v is not None and v not in LEVELS:
-            errs.append(f"{where}: {axis}={v!r} not one of HIGH|MEDIUM|LOW")
-    conf = fnd.get("confidence")
-    if conf is None:
-        errs.append(f"{where}: missing 'confidence' (integer 0-100)")
-    elif isinstance(conf, bool) or not isinstance(conf, (int, float)) or not 0 <= conf <= 100:
-        errs.append(f"{where}: confidence={conf!r} must be a number 0-100")
-    return errs
-
 
 def collect(findings_dir, expect):
     paths = sorted(p for p in glob.glob(os.path.join(findings_dir, "*.json"))
@@ -192,7 +174,34 @@ def render(mode, rules_n, files_reviewed, findings_n, suppressed, min_impact, be
     return "\n".join(out).rstrip() + "\n"
 
 
+# --- selection ---------------------------------------------------------------
+
+def select(file_findings, min_rank):
+    """Flatten + rank findings at or above min_rank, suppressing low-confidence
+    ones. Returns (sorted flat list, suppressed count, below-impact count)."""
+    flat, suppressed, below = [], 0, 0
+    for entry in file_findings:
+        for fnd in entry.get("findings", []):
+            if fnd.get("confidence", 0) < CONFIDENCE_MIN:
+                suppressed += 1
+                continue
+            if RANK.get(fnd.get("impact"), 3) > min_rank:
+                below += 1
+                continue
+            flat.append((entry["file"], fnd))
+    flat.sort(key=lambda t: (RANK.get(t[1].get("impact"), 3),
+                             RANK.get(t[1].get("risk"), 3),
+                             t[0], t[1].get("title", "")))
+    return flat, suppressed, below
+
+
 # --- main --------------------------------------------------------------------
+
+# Both reports are written every run so the user never has to re-render for LOW:
+# (min-impact label, filename). HIGH+MEDIUM is the primary echoed to stdout.
+REPORTS = [("MEDIUM", "rule-adherence-high-medium.md"),
+           ("LOW", "rule-adherence-with-low.md")]
+
 
 def main():
     ap = argparse.ArgumentParser(
@@ -201,13 +210,10 @@ def main():
                     help="dir holding one batch-<N>.json per review subagent")
     ap.add_argument("--map", dest="map_path", required=True,
                     help="map_rules.py JSON output (gives mode, rule count, unmatched_files)")
-    ap.add_argument("--out", default="rule-adherence-report.md",
-                    help="report path (default: rule-adherence-report.md in cwd)")
+    ap.add_argument("--reports-dir", default="reports",
+                    help="dir for the two report files (default: reports/ in cwd)")
     ap.add_argument("--expect", type=int, default=None,
                     help="expected batch count; error if the dir holds a different number")
-    ap.add_argument("--min-impact", choices=["HIGH", "MEDIUM", "LOW"], default="MEDIUM",
-                    help="lowest impact to include (MEDIUM keeps HIGH+MEDIUM, drops LOW; "
-                         "LOW keeps all; HIGH keeps HIGH only). Default: MEDIUM")
     args = ap.parse_args()
 
     if not os.path.isdir(args.findings):
@@ -220,42 +226,40 @@ def main():
 
     file_findings, meta, errors = collect(args.findings, args.expect)
     if errors:
-        fail("Findings JSON failed validation; report NOT written:\n  - "
+        fail("Findings JSON failed validation; reports NOT written:\n  - "
              + "\n  - ".join(errors), 2)
 
     mode = mp.get("mode", "?")
     rules_n = len(mp.get("global_rules", [])) + len(mp.get("path_scoped_rules", []))
     unmatched = mp.get("unmatched_files", [])
-
-    min_rank = RANK[args.min_impact]
-    flat, suppressed, below_impact = [], 0, 0
-    for entry in file_findings:
-        for fnd in entry.get("findings", []):
-            if fnd.get("confidence", 0) < CONFIDENCE_MIN:
-                suppressed += 1
-                continue
-            if RANK.get(fnd.get("impact"), 3) > min_rank:
-                below_impact += 1
-                continue
-            flat.append((entry["file"], fnd))
-    flat.sort(key=lambda t: (RANK.get(t[1].get("impact"), 3),
-                             RANK.get(t[1].get("risk"), 3),
-                             t[0], t[1].get("title", "")))
-
     files_reviewed = len({e["file"] for e in file_findings})
-    report = render(mode, rules_n, files_reviewed, len(flat), suppressed, args.min_impact,
-                    below_impact, flat, file_findings, unmatched, meta)
-    try:
-        with open(args.out, "w", encoding="utf-8") as fh:
-            fh.write(report)
-    except OSError as e:
-        fail(f"cannot write {args.out}: {e}")
 
-    print(title_block(mode, rules_n, files_reviewed, len(flat), suppressed,
-                      args.min_impact, below_impact))
+    try:
+        os.makedirs(args.reports_dir, exist_ok=True)
+    except OSError as e:
+        fail(f"cannot create {args.reports_dir}: {e}")
+
+    primary, paths = None, {}
+    for min_impact, fname in REPORTS:
+        flat, suppressed, below = select(file_findings, RANK[min_impact])
+        report = render(mode, rules_n, files_reviewed, len(flat), suppressed,
+                        min_impact, below, flat, file_findings, unmatched, meta)
+        path = os.path.join(args.reports_dir, fname)
+        try:
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(report)
+        except OSError as e:
+            fail(f"cannot write {path}: {e}")
+        paths[min_impact] = path
+        if min_impact == "MEDIUM":
+            primary = (flat, suppressed, below)
+
+    flat, suppressed, below = primary
+    print(title_block(mode, rules_n, files_reviewed, len(flat), suppressed, "MEDIUM", below))
     print()
     print(summary_table(flat))
-    print(f"\nFull report written to {args.out}")
+    print(f"\nHIGH+MEDIUM report: {paths['MEDIUM']}")
+    print(f"Full report incl. LOW: {paths['LOW']}")
 
 
 if __name__ == "__main__":

@@ -202,6 +202,30 @@ def _walk_audit(root, sub):
     return sorted(set(files))
 
 
+def file_size(root, rel):
+    try:
+        return os.path.getsize(os.path.join(root, rel))
+    except OSError:
+        return 0
+
+
+def split_by_size(sized, max_bytes):
+    """Greedy-pack (file, bytes) pairs into sub-batches whose total stays under
+    max_bytes, so no single review subagent gets an unreadable load. A file
+    bigger than the budget on its own still becomes its own batch (never split a
+    file). Input is pre-sorted; order is preserved."""
+    batches, cur, cur_bytes = [], [], 0
+    for f, sz in sized:
+        if cur and cur_bytes + sz > max_bytes:
+            batches.append(cur)
+            cur, cur_bytes = [], 0
+        cur.append((f, sz))
+        cur_bytes += sz
+    if cur:
+        batches.append(cur)
+    return batches
+
+
 def universe_staged(root):
     out = run_git(root, ["diff", "--cached", "--name-only", "--diff-filter=ACMR"])
     if out is None:
@@ -254,6 +278,10 @@ def main():
     ap.add_argument("--out", default=None,
                     help="write full JSON here and print a compact summary to stdout "
                          "(keeps the per-file assignments array out of the agent's context)")
+    ap.add_argument("--max-batch-bytes", type=int, default=80000,
+                    help="cap total source bytes per batch; a same-ruleset group larger "
+                         "than this splits into multiple batches (one subagent each). "
+                         "Default 80000.")
     args = ap.parse_args()
 
     root = args.root or repo_top(".") or os.getcwd()
@@ -321,13 +349,21 @@ def main():
         if rp not in matched_scoped:
             notes.append(f"{rp} (globs {g}) matched no files in scope — dead rule or wrong glob.")
 
-    # Batch files that share an identical applicable rule-set -> one subagent each.
+    # Batch files that share an identical applicable rule-set, then split each
+    # group by total source bytes so no subagent gets an oversized load -> one
+    # subagent per resulting batch.
     by_ruleset = {}
     for a in assignments:
         key = tuple(a["rules"])
         by_ruleset.setdefault(key, []).append(a["file"])
-    batches = [{"rules": list(k), "files": sorted(v)}
-               for k, v in sorted(by_ruleset.items(), key=lambda kv: kv[1])]
+    batches = []
+    for k, v in sorted(by_ruleset.items(), key=lambda kv: kv[1]):
+        sized = [(f, file_size(root, f)) for f in sorted(v)]
+        for group in split_by_size(sized, args.max_batch_bytes):
+            batches.append({"rules": list(k),
+                            "files": [f for f, _ in group],
+                            "n_files": len(group),
+                            "bytes": sum(sz for _, sz in group)})
 
     result = {
         "mode": args.mode,

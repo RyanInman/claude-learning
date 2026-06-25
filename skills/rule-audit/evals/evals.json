@@ -1,0 +1,34 @@
+{
+  "skill_name": "rule-audit",
+  "evals": [
+    {
+      "id": 0,
+      "name": "audit-basic",
+      "prompt": "Audit the code in this repo against its .claude/rules/ and give me a rule-adherence report. Work in the current directory.",
+      "expected_output": "Two reports under reports/: rule-adherence-high-medium.md and rule-adherence-with-low.md. handler.ts flagged for unvalidated req.body (api rule) and console.log (global); Button.tsx flagged for inline hex (ui rule); format.ts flagged for var + console.log (global); profile.ts reported clean.",
+      "files": ["evals/fixtures"],
+      "assertions": [
+        {"text": "reports/ contains exactly two files: rule-adherence-high-medium.md and rule-adherence-with-low.md", "type": "structure"},
+        {"text": "high-medium report contains no finding labelled 'LOW impact'", "type": "structure"},
+        {"text": "every finding in the high-medium report also appears in the with-low report (high-medium is a subset)", "type": "structure"},
+        {"text": "src/api/handler.ts is flagged for passing unvalidated req.body into a db call (api rule)", "type": "content"},
+        {"text": "src/ui/Button.tsx is flagged for an inline hex color (ui rule)", "type": "content"},
+        {"text": "src/api/profile.ts is NOT reported as a violation (it is clean)", "type": "content"}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "audit-advanced",
+      "prompt": "Audit this repository's source against the rules in .claude/rules/ and produce a rule-adherence report. Operate in the current directory.",
+      "expected_output": "Two reports under reports/. users.ts flagged for SQL string interpolation (api rule) and console.log; Card.tsx flagged for inline hex (components) and any type (global); math.ts flagged for logging side-effect (utils purity) and var (global); orders.ts, Modal.tsx, strings.ts reported clean. Mapping fans out into 3 batches (api/components/utils rulesets).",
+      "files": ["evals/fixtures-advanced"],
+      "assertions": [
+        {"text": "reports/ contains exactly two files: rule-adherence-high-medium.md and rule-adherence-with-low.md", "type": "structure"},
+        {"text": "src/api/users.ts is flagged for building SQL via string interpolation (api rule)", "type": "content"},
+        {"text": "src/components/Card.tsx is flagged for an inline hex color literal (components rule)", "type": "content"},
+        {"text": "src/utils/math.ts is flagged for a logging side-effect violating utility purity (utils rule)", "type": "content"},
+        {"text": "src/api/orders.ts, src/components/Modal.tsx and src/utils/strings.ts are NOT reported as violations (they are clean)", "type": "content"}
+      ]
+    }
+  ]
+}

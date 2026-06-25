@@ -1,0 +1,34 @@
+{
+  "file_findings": [
+    {
+      "file": "src/utils/format.ts",
+      "findings": [
+        {
+          "title": "Variable declared with `var` instead of `const`/`let`",
+          "rule_file": ".claude/rules/global.md",
+          "rule_text": "Use `const`/`let`, never `var`.",
+          "line": 2,
+          "issue": "Variable `out` is declared with `var` which is not allowed.",
+          "impact": "MEDIUM",
+          "risk": "HIGH",
+          "confidence": 100,
+          "code_snippet": "var out = n.toFixed(2);",
+          "suggested_fix": "Replace `var` with `const`.",
+          "fix_example": "const out = n.toFixed(2);"
+        },
+        {
+          "title": "console.log in committed code",
+          "rule_file": ".claude/rules/global.md",
+          "rule_text": "No `console.log` in committed code; use the project logger instead.",
+          "line": 3,
+          "issue": "console.log is used directly instead of the project logger.",
+          "impact": "LOW",
+          "risk": "HIGH",
+          "confidence": 100,
+          "code_snippet": "console.log(\"formatted\", out);",
+          "suggested_fix": "Replace console.log with the project logger."
+        }
+      ]
+    }
+  ]
+}

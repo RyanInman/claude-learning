@@ -75,7 +75,29 @@ guarantees, a skill for procedures, CLAUDE.md for conventions, a path-scoped rul
 locality. The point of the review is not "try harder next time" but "change the harness so
 this can't recur."
 
-### 5. Write the graded report
+### 5. Score each suggestion by confidence
+
+Before writing the report, assign every suggestion a **confidence score (1–10)**: how
+likely the change is to achieve its stated goal (the improvement it promises — faster
+session, lower cost, fewer tool errors, better triggering). Score the *suggestion*, not
+the severity of the problem. A high score means strong evidence in the signals plus a
+fix with a well-understood, direct causal path to the goal. A low score means weak or
+indirect evidence, or a fix whose payoff is speculative.
+
+Anchor the scale:
+- **10–8** — confirmed signal + fix with a direct, well-understood path to the goal.
+- **7–6** — plausible: real signal but indirect fix, or solid fix on a soft signal.
+- **5 and below** — speculative; don't surface unless asked.
+
+**Surfacing rule:**
+- Lead with **10s, 9s, and 8s** — these are the high-value, high-confidence changes.
+- If there are **no suggestions at 8+**, tell the user plainly that the most
+  high-value, high-confidence options have already been implemented, then show the **7s
+  and 6s** that exist (clearly marked as lower confidence) so they still have options.
+- If nothing scores 6 or above, say the session looks healthy and stop (see Gotchas:
+  a clean report is a valid result).
+
+### 6. Write the graded report
 
 Use the structure below. Keep it tight and prose-forward — a handful of findings that
 matter, each with evidence and a concrete fix, beats an exhaustive checklist. This is
@@ -92,12 +114,17 @@ Use this template:
 <2–4 sentences: the shape of the session from the metrics — length, peak context,
 cache health, tool activity, anything that defines it.>
 
-### Top findings (most impactful first)
+### Top findings (highest confidence first)
 
-**1. <Finding> — <OBVIOUS | SUBTLE | RARELY-CONSIDERED>**
+<Order by confidence score, descending. Lead with 8–10s. If there are none, open with:
+"The most high-value, high-confidence options have already been implemented — here are
+the lower-confidence options worth a look:" then list the 6–7s.>
+
+**1. <Finding> — confidence <N>/10 — <OBVIOUS | SUBTLE | RARELY-CONSIDERED>**
 - What I saw: <the specific metric/signal, with the number>
 - Why it matters: <one or two sentences>
 - Fix: <concrete change, ideally pointing at where it lives — hook / skill / CLAUDE.md / tool>
+- Why this score: <one line — the evidence strength and how direct the fix's path to the goal is>
 
 **2. ...**
 

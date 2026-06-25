@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "reports/ contains exactly two files: high-medium and with-low",
+      "passed": false,
+      "evidence": "Baseline produced a single report.md; no reports/ dir, no two-file split."
+    },
+    {
+      "text": "high-medium report contains no 'LOW impact' finding",
+      "passed": false,
+      "evidence": "No high-medium report exists; no impact ranking at all."
+    },
+    {
+      "text": "high-medium is a subset of with-low",
+      "passed": false,
+      "evidence": "No two-tier reports produced."
+    },
+    {
+      "text": "handler.ts flagged for unvalidated req.body (api rule)",
+      "passed": true,
+      "evidence": "Listed under src/api/handler.ts, api rule, req.body used directly."
+    },
+    {
+      "text": "Button.tsx flagged for inline hex (ui rule)",
+      "passed": true,
+      "evidence": "ui rule violation, two inline hex literals."
+    },
+    {
+      "text": "profile.ts NOT a violation",
+      "passed": true,
+      "evidence": "Listed under Clean files."
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 3,
+    "total": 6,
+    "pass_rate": 0.5
+  }
+}

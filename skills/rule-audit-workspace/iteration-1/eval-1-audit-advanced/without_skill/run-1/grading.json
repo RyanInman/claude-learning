@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "reports/ contains exactly two files: high-medium and with-low",
+      "passed": false,
+      "evidence": "Baseline produced single report.md; no two-tier split."
+    },
+    {
+      "text": "users.ts flagged for SQL string interpolation (api rule)",
+      "passed": true,
+      "evidence": "Violation #4 'SQL built by string interpolation'."
+    },
+    {
+      "text": "Card.tsx flagged for inline hex (components rule)",
+      "passed": true,
+      "evidence": "Component violation, inline hex '#e5e7eb'."
+    },
+    {
+      "text": "math.ts flagged for logging side-effect violating utility purity (utils rule)",
+      "passed": true,
+      "evidence": "Violation #3 'impure function \u2014 logging side effect'."
+    },
+    {
+      "text": "orders.ts, Modal.tsx, strings.ts NOT violations",
+      "passed": true,
+      "evidence": "All three marked CLEAN."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 1,
+    "total": 5,
+    "pass_rate": 0.8
+  }
+}

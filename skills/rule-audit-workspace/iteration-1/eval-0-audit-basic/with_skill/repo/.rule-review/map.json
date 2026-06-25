@@ -1,0 +1,87 @@
+{
+  "mode": "audit",
+  "root": "/Users/admin/claude-learning/skills/rule-audit-workspace/iteration-1/eval-0-audit-basic/with_skill/repo",
+  "global_rules": [
+    ".claude/rules/global.md"
+  ],
+  "path_scoped_rules": [
+    {
+      "file": ".claude/rules/api.md",
+      "globs": [
+        "src/api/**"
+      ]
+    },
+    {
+      "file": ".claude/rules/ui.md",
+      "globs": [
+        "src/ui/**"
+      ]
+    }
+  ],
+  "assignments": [
+    {
+      "file": "src/api/handler.ts",
+      "rules": [
+        ".claude/rules/global.md",
+        ".claude/rules/api.md"
+      ]
+    },
+    {
+      "file": "src/api/profile.ts",
+      "rules": [
+        ".claude/rules/global.md",
+        ".claude/rules/api.md"
+      ]
+    },
+    {
+      "file": "src/ui/Button.tsx",
+      "rules": [
+        ".claude/rules/global.md",
+        ".claude/rules/ui.md"
+      ]
+    },
+    {
+      "file": "src/utils/format.ts",
+      "rules": [
+        ".claude/rules/global.md"
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "rules": [
+        ".claude/rules/global.md",
+        ".claude/rules/api.md"
+      ],
+      "files": [
+        "src/api/handler.ts",
+        "src/api/profile.ts"
+      ],
+      "n_files": 2,
+      "bytes": 587
+    },
+    {
+      "rules": [
+        ".claude/rules/global.md",
+        ".claude/rules/ui.md"
+      ],
+      "files": [
+        "src/ui/Button.tsx"
+      ],
+      "n_files": 1,
+      "bytes": 135
+    },
+    {
+      "rules": [
+        ".claude/rules/global.md"
+      ],
+      "files": [
+        "src/utils/format.ts"
+      ],
+      "n_files": 1,
+      "bytes": 103
+    }
+  ],
+  "unmatched_files": [],
+  "notes": []
+}

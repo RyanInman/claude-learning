@@ -56,39 +56,59 @@ Everything below serves finding and fixing those.
    Read the actual files and scripts before reporting on them. Report only what
    you confirmed in the content — no guessing at what a script "probably" does.
 
-4. **Re-triage by real-world impact.** The script's severity is a starting
-   guess. Promote/demote based on consequence: anything that stops the skill
-   from triggering or that loads large content on every turn is HIGH regardless
-   of what the script said; pure style is LOW. Then **cut the low-impact
-   findings** unless the user asked for an exhaustive pass. Aim for the top 3–6
-   suggestions, not everything.
+4. **Score each suggestion by confidence (1–10).** The script's severity is a
+   mechanical starting guess; replace it with a confidence score that answers two
+   questions at once:
+   - **Will the fix actually do what it claims?** Will applying it work as
+     described, with no hidden breakage or guesswork? A confident rewrite of a
+     weak description scores high; a "maybe restructuring helps" hunch scores low.
+   - **Will it actually optimize the skill?** How much does it move the things
+     that matter — triggering, token cost, output quality? A change that stops a
+     dead skill from never firing is a 10; a cosmetic reword is a 3.
+
+   Multiply the two intuitions together: a suggestion only earns a high score if
+   you are *both* sure it works *and* sure it helps. High-likelihood-but-trivial
+   and high-impact-but-speculative both land mid-band, not top.
+
+   | Score | Meaning |
+   |-------|---------|
+   | 10    | Near-certain fix, large impact (e.g. fixes a non-triggering description) |
+   | 8–9   | High confidence, clear material gain |
+   | 6–7   | Plausible fix, moderate or uncertain payoff |
+   | ≤5    | Speculative, or correct-but-trivial — cut unless user asked for an exhaustive pass |
 
 5. **Write the review** in the format below.
 
 ## Output format
 
-Respond in chat (this is feedback to read, not a file to ship). Use this shape:
+Respond in chat (this is feedback to read, not a file to ship). Surface only the
+high-confidence suggestions and tag each with its score. Use this shape:
 
 ```
 ## Skill review: <name>
 
 **Verdict:** <one line — overall health + the single most important fix>
 
-### High-impact
-1. **<short title>** — <what's wrong and the concrete cost (triggering / tokens /
-   quality)>. <Why it matters in one clause.>
+### Surfaced (confidence 8–10)
+1. **[9] <short title>** — <what's wrong and the concrete cost (triggering /
+   tokens / quality)>. <Why it matters in one clause.>
    *Fix:* <specific, copy-pasteable change — show before -> after when useful.>
-
-### Worth doing
-- <medium-impact items, same shape, terser>
-
-### Optional / nits
-- <only if genuinely useful; otherwise omit this section entirely>
 ```
 
+**Which scores to surface:**
+- **Any suggestions scored 8–10:** show them, highest score first. These are the
+  changes you are confident will both work and meaningfully help.
+- **Nothing scored 8 or above:** the skill is already in good shape — say so
+  plainly in the verdict ("No high-confidence wins; the skill is already solid"),
+  then show the 6–7 band under a `### Lower-confidence polish (6–7)` heading so
+  the user still has options. Don't manufacture an 8 to fill the slot.
+- **Below 6:** cut, unless the user asked for an exhaustive pass.
+
+Each item leads with its score in brackets so the user can triage at a glance.
+
 Rules for the write-up:
-- **Lead with the highest-leverage fix.** If the description under-triggers,
-  that is almost always #1.
+- **Lead with the highest score.** If the description under-triggers, that fix is
+  almost always a 9–10 and goes first.
 - **Show, don't just tell.** For description and anti-pattern fixes, give the
   rewritten line, not a description of it.
 - **Explain the why, briefly.** "State the rule and the reason" applies to your

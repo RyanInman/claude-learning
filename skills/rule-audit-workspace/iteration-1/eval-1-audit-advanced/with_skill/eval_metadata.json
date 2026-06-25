@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "audit-advanced",
+  "prompt": "Audit this repository's source against the rules in .claude/rules/ and produce a rule-adherence report. Operate in the current directory.",
+  "assertions": [
+    "reports/ contains exactly two files: rule-adherence-high-medium.md and rule-adherence-with-low.md",
+    "src/api/users.ts is flagged for building SQL via string interpolation (api rule)",
+    "src/components/Card.tsx is flagged for an inline hex color literal (components rule)",
+    "src/utils/math.ts is flagged for a logging side-effect violating utility purity (utils rule)",
+    "src/api/orders.ts, src/components/Modal.tsx and src/utils/strings.ts are NOT reported as violations (they are clean)"
+  ]
+}

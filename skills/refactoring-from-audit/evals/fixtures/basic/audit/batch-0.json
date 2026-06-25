@@ -1,0 +1,65 @@
+{
+  "file_findings": [
+    {
+      "file": "mathutil.py",
+      "findings": [
+        {
+          "title": "Mutable default argument in accumulate",
+          "rule_file": ".claude/rules/python.md",
+          "rule_text": "Never use a mutable default argument; default to None and build inside the body.",
+          "line": 10,
+          "issue": "accumulate uses acc=[] as a default, which is shared across calls.",
+          "impact": "MEDIUM",
+          "risk": "MEDIUM",
+          "confidence": 96,
+          "code_snippet": "def accumulate(x, acc=[]):",
+          "suggested_fix": "Default acc to None and create a fresh list in the body.",
+          "fix_example": "def accumulate(x, acc=None):\n    if acc is None:\n        acc = []"
+        },
+        {
+          "title": "Deeply nested clamp logic",
+          "rule_file": ".claude/rules/python.md",
+          "rule_text": "Prefer flat expressions over nested if/else where a builtin expresses the intent.",
+          "line": 1,
+          "issue": "clamp nests if/else three deep where min/max would read clearer.",
+          "impact": "LOW",
+          "risk": "MEDIUM",
+          "confidence": 92,
+          "code_snippet": "    if x < lo:\n        return lo\n    else:\n        if x > hi:\n            return hi\n        else:\n            return x",
+          "suggested_fix": "Collapse to a single bounded expression with min and max, preserving the same results."
+        },
+        {
+          "title": "Dead zero-special-case in label",
+          "rule_file": ".claude/rules/python.md",
+          "rule_text": "Remove dead branches that duplicate the default path.",
+          "line": 16,
+          "issue": "The n == 0 branch looks redundant since str(n) would also handle it.",
+          "impact": "LOW",
+          "risk": "LOW",
+          "confidence": 91,
+          "code_snippet": "    if n == 0:\n        return \"zero\"",
+          "suggested_fix": "Delete the n == 0 branch and fall through to str(n).",
+          "fix_example": "    return str(n)"
+        }
+      ]
+    },
+    {
+      "file": "mathutil.py",
+      "findings": [
+        {
+          "title": "No shared input validator across modules",
+          "rule_file": ".claude/rules/python.md",
+          "rule_text": "Validate inputs through one shared validator used by every public function.",
+          "line": 1,
+          "issue": "Every public function validates ad hoc; there is no shared validator introduced across all modules.",
+          "impact": "HIGH",
+          "risk": "MEDIUM",
+          "confidence": 90,
+          "code_snippet": "def clamp(x, lo=0, hi=10):",
+          "suggested_fix": "Introduce a shared validator and route every public function across the codebase through it."
+        }
+      ]
+    }
+  ],
+  "meta": []
+}

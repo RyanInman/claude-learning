@@ -1,0 +1,23 @@
+{
+  "file_findings": [
+    {
+      "file": "src/ui/Button.tsx",
+      "findings": [
+        {
+          "title": "Inline hex color literals used instead of theme tokens",
+          "rule_file": ".claude/rules/ui.md",
+          "rule_text": "No inline hex color literals in components; use theme tokens from `theme.ts`.",
+          "line": 3,
+          "issue": "The button component uses hardcoded hex color values #3b82f6 and #ffffff directly in the style prop instead of referencing theme tokens.",
+          "impact": "MEDIUM",
+          "risk": "MEDIUM",
+          "confidence": 95,
+          "code_snippet": "<button style={{ background: \"#3b82f6\", color: \"#ffffff\" }}>{label}</button>",
+          "suggested_fix": "Replace inline hex colors with theme tokens from theme.ts.",
+          "fix_example": "const buttonStyle = { background: theme.colors.primary, color: theme.colors.text };\nreturn <button style={buttonStyle}>{label}</button>;"
+        }
+      ]
+    }
+  ],
+  "meta": []
+}

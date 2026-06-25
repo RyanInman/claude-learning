@@ -1,0 +1,54 @@
+{
+  "skill_name": "refactoring-from-audit",
+  "evals": [
+    {
+      "id": 0,
+      "name": "basic-apply",
+      "prompt": "I ran rule-audit on this little module and it dropped a report in the audit/ folder. Apply the fixes for me, but I do not want any behavior to change — the tests have to stay green. Here's the code in mathutil.py with test_mathutil.py and the findings in audit/batch-0.json.",
+      "expected_output": "Skill detects the unittest harness, runs a green baseline first, estimates effort per finding, applies the safe fixes (accumulate mutable default on haiku), asks before spending Opus on the high-effort 'shared validator' finding, applies the label fix but reverts it when test_label_zero fails, and reports a PASS zero-regression verdict with the final suite matching baseline.",
+      "files": ["evals/fixtures/basic"],
+      "assertions": [
+        {"text": "Runs the test suite to capture a baseline before editing any code", "type": "behavior"},
+        {"text": "Routes the low-effort mutable-default finding to haiku and the high-effort 'shared validator' finding to opus", "type": "behavior"},
+        {"text": "Uses AskUserQuestion to confirm cost before dispatching the high-effort finding on Opus", "type": "behavior"},
+        {"text": "Applies the label 'dead branch' fix, detects that test_label_zero now fails, and reverts that change rather than leaving it applied", "type": "behavior"},
+        {"text": "Final full test run equals the baseline (6 passing, zero new failures)", "type": "content"},
+        {"text": "Writes reports/refactor-summary.md with a PASS zero-regression verdict and the label finding marked reverted", "type": "structure"}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "no-report",
+      "prompt": "This mathutil.py file feels messy, can you refactor it to be cleaner? Keep it working.",
+      "expected_output": "There is no audit report, so the skill does not invent findings. It asks the user what specifically to refactor (or to point it at an audit report) rather than guessing changes it cannot verify against a report.",
+      "files": ["evals/fixtures/basic/mathutil.py", "evals/fixtures/basic/test_mathutil.py"],
+      "assertions": [
+        {"text": "Does not silently invent and apply refactors with no audit report behind them", "type": "behavior"},
+        {"text": "Asks the user what to refactor or to supply an audit report before changing code", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "scope-negotiation",
+      "prompt": "Apply everything in audit/batch-0.json to mathutil.py. Don't break the tests.",
+      "expected_output": "With multiple findings spanning effort tiers, the skill proposes a small first slice (e.g. highest impact/risk, or just the low-effort safe fixes) and confirms before fanning out, instead of blindly applying all four at once.",
+      "files": ["evals/fixtures/basic"],
+      "assertions": [
+        {"text": "Proposes a bounded first slice of findings and confirms scope before applying everything", "type": "behavior"},
+        {"text": "Still runs a baseline and verifies each applied change against the tests", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-net",
+      "prompt": "Apply the fixes in audit/batch-0.json to mathutil.py. There are no tests for this module yet. I need behavior to stay exactly the same.",
+      "expected_output": "There is no test harness, so the baseline cannot be green. Instead of just offering 'proceed unverified or stop', the skill recognizes it cannot prove zero regression against a non-existent suite and offers to build a characterization net first (write tests that lock current behavior, get them green, then refactor under them) as the recommended path. It does not blindly apply the fixes and claim behavior was preserved.",
+      "files": ["evals/fixtures/no-tests"],
+      "assertions": [
+        {"text": "Detects there is no usable test harness / cannot capture a green baseline", "type": "behavior"},
+        {"text": "Offers to build a characterization (golden-master/approval) net that locks current behavior before refactoring, presenting it as the recommended path rather than only proceed-unverified or stop", "type": "behavior"},
+        {"text": "Does not silently apply all fixes and assert behavior was preserved without any test verification", "type": "behavior"}
+      ]
+    }
+  ]
+}

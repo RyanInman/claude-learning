@@ -1,0 +1,39 @@
+{
+  "file_findings": [
+    {
+      "file": "src/api/handler.ts",
+      "findings": [
+        {
+          "title": "console.log in committed code",
+          "rule_file": ".claude/rules/global.md",
+          "rule_text": "No `console.log` in committed code; use the project logger instead.",
+          "line": 4,
+          "issue": "console.log used instead of project logger.",
+          "impact": "LOW",
+          "risk": "HIGH",
+          "confidence": 100,
+          "code_snippet": "console.log(\"creating user\", req.body);",
+          "suggested_fix": "Replace console.log with the project logger imported from ../logger.",
+          "fix_example": "logger.info(\"creating user\", req.body);"
+        },
+        {
+          "title": "Unvalidated request body written to DB",
+          "rule_file": ".claude/rules/api.md",
+          "rule_text": "Validate every handler's request body against a schema before using it. Never pass `req.body` straight into a database call.",
+          "line": 6,
+          "issue": "req.body passed directly to db.user.create without schema validation.",
+          "impact": "HIGH",
+          "risk": "HIGH",
+          "confidence": 100,
+          "code_snippet": "const body = req.body;\nreturn res.json(await db.user.create({ data: body }));",
+          "suggested_fix": "Validate req.body with a schema before the database call.",
+          "fix_example": "const parsed = userSchema.safeParse(req.body);\nif (!parsed.success) return res.status(400).json({ error: \"invalid\" });\nreturn res.json(await db.user.create({ data: parsed.data }));"
+        }
+      ]
+    },
+    {
+      "file": "src/api/profile.ts",
+      "findings": []
+    }
+  ]
+}

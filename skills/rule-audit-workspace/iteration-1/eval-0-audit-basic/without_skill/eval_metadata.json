@@ -1,0 +1,13 @@
+{
+  "eval_id": 0,
+  "eval_name": "audit-basic",
+  "prompt": "Audit the code in this repo against its .claude/rules/ and give me a rule-adherence report. Work in the current directory.",
+  "assertions": [
+    "reports/ contains exactly two files: rule-adherence-high-medium.md and rule-adherence-with-low.md",
+    "high-medium report contains no finding labelled 'LOW impact'",
+    "every finding in the high-medium report also appears in the with-low report (high-medium is a subset)",
+    "src/api/handler.ts is flagged for passing unvalidated req.body into a db call (api rule)",
+    "src/ui/Button.tsx is flagged for an inline hex color (ui rule)",
+    "src/api/profile.ts is NOT reported as a violation (it is clean)"
+  ]
+}

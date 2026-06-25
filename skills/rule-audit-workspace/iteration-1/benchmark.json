@@ -1,0 +1,246 @@
+{
+  "metadata": {
+    "skill_name": "rule-audit",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-06-19T23:03:57Z",
+    "evals_run": [
+      0,
+      1
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 162.1,
+        "tokens": 22361,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "reports/ contains exactly two files: high-medium and with-low",
+          "passed": true,
+          "evidence": "Both rule-adherence-high-medium.md and rule-adherence-with-low.md present under outputs/reports/."
+        },
+        {
+          "text": "high-medium report contains no 'LOW impact' finding",
+          "passed": true,
+          "evidence": "HM summary lists HIGH/MEDIUM/MEDIUM only; no LOW rows."
+        },
+        {
+          "text": "high-medium is a subset of with-low",
+          "passed": true,
+          "evidence": "HM 3 findings (handler HIGH, format var, Button hex) all appear in with-low (5 findings)."
+        },
+        {
+          "text": "handler.ts flagged for unvalidated req.body (api rule)",
+          "passed": true,
+          "evidence": "Finding #1 HIGH, api.md, 'Unvalidated request body written to DB'."
+        },
+        {
+          "text": "Button.tsx flagged for inline hex (ui rule)",
+          "passed": true,
+          "evidence": "ui.md finding, '#3b82f6'/'#ffffff'."
+        },
+        {
+          "text": "profile.ts NOT a violation",
+          "passed": true,
+          "evidence": "Listed under 'Clean files (no violations)'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 102.8,
+        "tokens": 22251,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "reports/ contains exactly two files: high-medium and with-low",
+          "passed": true,
+          "evidence": "Both files present under outputs/reports/."
+        },
+        {
+          "text": "users.ts flagged for SQL string interpolation (api rule)",
+          "passed": true,
+          "evidence": "Finding #2 HIGH api.md 'SQL built with string interpolation'."
+        },
+        {
+          "text": "Card.tsx flagged for inline hex (components rule)",
+          "passed": true,
+          "evidence": "components.md finding '#e5e7eb' inline hex."
+        },
+        {
+          "text": "math.ts flagged for logging side-effect violating utility purity (utils rule)",
+          "passed": true,
+          "evidence": "utils.md finding 'console.log used in utility function', purity violation."
+        },
+        {
+          "text": "orders.ts, Modal.tsx, strings.ts NOT violations",
+          "passed": true,
+          "evidence": "All three listed under 'Clean files (no violations)'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 3,
+        "failed": 3,
+        "total": 6,
+        "time_seconds": 31.6,
+        "tokens": 17826,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "reports/ contains exactly two files: high-medium and with-low",
+          "passed": false,
+          "evidence": "Baseline produced a single report.md; no reports/ dir, no two-file split."
+        },
+        {
+          "text": "high-medium report contains no 'LOW impact' finding",
+          "passed": false,
+          "evidence": "No high-medium report exists; no impact ranking at all."
+        },
+        {
+          "text": "high-medium is a subset of with-low",
+          "passed": false,
+          "evidence": "No two-tier reports produced."
+        },
+        {
+          "text": "handler.ts flagged for unvalidated req.body (api rule)",
+          "passed": true,
+          "evidence": "Listed under src/api/handler.ts, api rule, req.body used directly."
+        },
+        {
+          "text": "Button.tsx flagged for inline hex (ui rule)",
+          "passed": true,
+          "evidence": "ui rule violation, two inline hex literals."
+        },
+        {
+          "text": "profile.ts NOT a violation",
+          "passed": true,
+          "evidence": "Listed under Clean files."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 97.1,
+        "tokens": 18992,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "reports/ contains exactly two files: high-medium and with-low",
+          "passed": false,
+          "evidence": "Baseline produced single report.md; no two-tier split."
+        },
+        {
+          "text": "users.ts flagged for SQL string interpolation (api rule)",
+          "passed": true,
+          "evidence": "Violation #4 'SQL built by string interpolation'."
+        },
+        {
+          "text": "Card.tsx flagged for inline hex (components rule)",
+          "passed": true,
+          "evidence": "Component violation, inline hex '#e5e7eb'."
+        },
+        {
+          "text": "math.ts flagged for logging side-effect violating utility purity (utils rule)",
+          "passed": true,
+          "evidence": "Violation #3 'impure function \u2014 logging side effect'."
+        },
+        {
+          "text": "orders.ts, Modal.tsx, strings.ts NOT violations",
+          "passed": true,
+          "evidence": "All three marked CLEAN."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 132.45,
+        "stddev": 41.9314,
+        "min": 102.8,
+        "max": 162.1
+      },
+      "tokens": {
+        "mean": 22306.0,
+        "stddev": 77.7817,
+        "min": 22251,
+        "max": 22361
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.65,
+        "stddev": 0.2121,
+        "min": 0.5,
+        "max": 0.8
+      },
+      "time_seconds": {
+        "mean": 64.35,
+        "stddev": 46.3155,
+        "min": 31.6,
+        "max": 97.1
+      },
+      "tokens": {
+        "mean": 18409.0,
+        "stddev": 824.4865,
+        "min": 17826,
+        "max": 18992
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.35",
+      "time_seconds": "+68.1",
+      "tokens": "+3897"
+    }
+  },
+  "notes": []
+}

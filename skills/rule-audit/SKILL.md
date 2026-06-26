@@ -22,9 +22,18 @@ identical rule-set, then splits each group by total source bytes so no subagent 
 — one **batch** (one review subagent) per resulting group. Each subagent is a cheap `haiku` model that
 reads its files in its own context, writes findings as JSON, and validates that JSON with
 `scripts/validate_findings.py` before returning — so raw code stays out of the main conversation and a
-malformed file is caught where the subagent can still fix it, not at render time.
-`scripts/render_report.py` then aggregates the written files into two ranked reports, so sorting and
+malformed file is caught where the subagent can still fix it, not at render time. A second `haiku` pass
+then adversarially reviews each batch's JSON (Step 3.5), challenging every finding against the rule text
+and source to strip false positives and mis-citations before they reach the report — the reviewer is a
+fresh agent, not the one that wrote the findings, so it has no stake in defending them.
+`scripts/render_report.py` then aggregates the reviewed files into two ranked reports, so sorting and
 formatting stay deterministic (same fan-out/fan-in shape as `pattern-extractor`).
+
+## Step 0 — Exit plan mode if active
+
+This skill is execution-only (map → fan-out → render). There are no design decisions to make before
+running. If plan mode is active, call `ExitPlanMode` immediately — do not write a plan file, do not
+ask for approval. Then proceed to Step 1.
 
 ## Step 1 — Scope the review (ask first)
 
@@ -40,6 +49,11 @@ audit spawning many subagents. Confirm **what to review** (skip if the user alre
 Do not ask about impact threshold here. Subagents grade every level regardless, and Step 4 always
 writes both a HIGH+MEDIUM report and a full HIGH+MEDIUM+LOW report — no threshold decision needed.
 
+**Session hygiene:** a full-repo audit fans out 60+ batches twice and is context-heavy for the main
+session. Run it in its own fresh session (`/clear` first; do not chain it after an unrelated task). Keep
+per-wave dispatch narration terse — the dispatch prompts are short by design; do not re-summarize each
+wave. This keeps the main context small and avoids accuracy decay over a long run.
+
 ## Step 2 — Map rules to files
 
 Run once in main context. `--out` writes the full JSON to `.rule-review/map.json` (read back by
@@ -49,8 +63,11 @@ the conversation:
 
 ```bash
 mkdir -p .rule-review
-python3 <skill>/scripts/map_rules.py --mode <staged|audit> [--path <subdir>] [--max-batch-bytes N] --out .rule-review/map.json
+python3 <skill>/scripts/map_rules.py --mode <staged|audit> [--path <subdir>] [--max-batch-bytes N] --out .rule-review/map.json > /dev/null
 ```
+
+The `> /dev/null` suppresses stdout — all data is in `--out map.json` and the compact summary can
+exceed 40KB on large repos, bloating the main context with partial (truncated) data.
 
 It discovers `.claude/rules/*.md`, classifies each as global or path-scoped, resolves the file universe
 (`git diff --cached` for staged; tracked + untracked-not-ignored for audit), and emits `assignments`,
@@ -68,29 +85,48 @@ For each entry in `batches`, spawn a review subagent in parallel on the `haiku` 
 `model: haiku` to the Agent tool — the work is mechanical pattern-matching against given rules, so the
 cheap model is enough and keeps a wide fan-out affordable; cap ~10 concurrent — see
 `superpowers:dispatching-parallel-agents`). Number batches 0, 1, 2, …; each writes to
-`.rule-review/batch-<N>.json`. Pass the rule file paths from `batch.rules` (relative to root) and have
-the subagent read them itself — the files are static, so every subagent reads identical rule text
-without it passing through the main context. Use this shape:
+`.rule-review/batch-<N>.json`. The fixed prompt body lives in `assets/review_prompt.md`; the subagent
+self-fetches both its rule list and its file list from `map.json` (nothing is inlined by the main agent).
+Use this dispatch template:
 
 ```
-Review these files for adherence to the rules below. Root: <root from script output>.
-Files (relative to root): <batch.files>
-Read the full text of each file under the root before judging.
-
-Applicable rule files (read each in full before judging; paths relative to root):
-<batch.rules, one path per line>
-
-Read <skill>/references/rubric-and-schema.md for the ranking rubric and exact JSON output schema.
-Review each file against ONLY the rules listed above — do not import rules not given to you. Report clean
-files with empty findings. Write the JSON object to `.rule-review/batch-<N>.json` with the Write tool, then
-validate it: run `python3 <skill>/scripts/validate_findings.py .rule-review/batch-<N>.json`. If it exits
-non-zero, fix the reported problems and rewrite the file until it passes. Only then return ONLY a one-line
-count (rule files read, files reviewed, findings). Do not paste the JSON or any file contents.
+Rule-audit review batch <N>. ROOT=<root>. SKILL=<skill>. Read and follow <skill>/assets/review_prompt.md
+exactly, resolving <ROOT>=<root>, <N>=<N>, <SKILL>=<skill>. Your rules and file list are in
+<ROOT>/.rule-review/map.json under batches[<N>]. Return only the one-line count.
 ```
+
+**Do not embed file lists inline in the prompt.** The map.json stdout is often truncated at ~2KB in the
+tool preview, making inline lists unreliable. The self-fetching `python3 -c` command in the template lets
+each subagent read its own authoritative file list from disk.
+
+Dispatch all waves without waiting for prior-wave completions — the 10-concurrent cap is a rate limit,
+not a serialization requirement. Send all waves, then wait for ALL batch notifications before Step 3.5.
 
 Each subagent writes the `file_findings` / `meta` JSON from `references/rubric-and-schema.md`, confirms
 it passes `validate_findings.py`, and returns only counts — findings never enter the main context, and a
 malformed file is caught here (where the subagent still has the code in context) rather than at render.
+
+## Step 3.5 — Adversarially review each batch (haiku)
+
+A review subagent grading its own work has an incentive to over-report (a flagged finding looks like
+diligence). So after a batch's `batch-<N>.json` is written, spawn a **separate** `haiku` subagent — never
+the one that wrote it — to attack that JSON: every finding is guilty of being a false positive until the
+rule text and source prove otherwise. Spawn one reviewer per batch as its file lands; same ~10-concurrent
+cap. Each reviewer reads only its batch's JSON + that batch's rules + the cited files (all on disk), so
+the critique stays out of main context. The reviewer corrects `batch-<N>.json` **in place** and
+re-validates it, so Step 4 renders the reviewed set with no extra wiring.
+
+The fixed prompt body lives in `assets/adversarial_prompt.md`; the subagent self-fetches the applicable
+rule list from `map.json`. Use this dispatch template:
+
+```
+Rule-audit adversarial review batch <N>. ROOT=<root>. SKILL=<skill>. Read and follow
+<skill>/assets/adversarial_prompt.md exactly, resolving <ROOT>=<root>, <N>=<N>, <SKILL>=<skill>. The
+applicable rules are in <ROOT>/.rule-review/map.json under batches[<N>]['rules']. Return only the one-line count.
+```
+
+Wait for ALL reviewer notifications before Step 4. A reviewer that empties a batch to zero findings is a
+valid outcome (the original subagent over-reported); the file must still exist and validate.
 
 ## Step 4 — Render the reports (deterministic)
 

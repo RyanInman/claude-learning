@@ -13,13 +13,10 @@ Put this in every dispatch:
 > For each finding I give you, in order: apply exactly that one change and nothing
 > else. Preserve behavior — this is a refactor, not a feature change. Edit only the
 > lines the finding points at; do not reformat, rename, or "improve" adjacent code.
-> **Never edit a test file.** The tests are the net that proves you preserved
-> behavior; a test you changed to make it pass proves nothing, so a fix that only
-> goes green by touching a test is a failed fix — revert it. After each change, run
-> the changed file's tests and compare against the baseline with `diff_tests.py`.
-> If it prints PASS, `git commit` naming the finding; if it prints REGRESSED,
-> `git checkout -- <files>` to revert and move on (do not fix the fix). Report one
-> status line per finding: `applied` / `reverted: <test>` /
+> After each change, run the changed file's tests and compare against the baseline
+> with `diff_tests.py`. If it prints PASS, `git commit` naming the finding; if it
+> prints REGRESSED, `git checkout -- <files>` to revert and move on (do not fix the
+> fix). Report one status line per finding: `applied` / `reverted: <test>` /
 > `could-not-apply: <reason>`.
 
 ## Low effort → haiku
@@ -69,6 +66,39 @@ Read the handlers under src/api/ to map call sites first. Make the smallest
 change that satisfies the rule without altering response behavior.
 Test command: <cmd>
 [shared contract]
+```
+
+## Phase 4 adversary → sonnet (red-team the verification plan)
+
+Dispatched once per slice, before any safeguard is built. It does not touch code;
+it attacks the plan and returns upgrades. Give it the findings with their proposed
+`verify` methods and the baseline test command.
+
+```
+You are reviewing a verification plan for a behavior-preserving refactor. For each
+finding below I have chosen how I will confirm the fix is real and catches any
+regression. Your job is to find where that confirmation is weak or fake. Assume I
+am wrong until each method survives your attack.
+
+Findings + proposed verify methods:
+  f2  src/cart.ts  — verify: existing-tests
+  f7  src/pricing.ts — verify: new-test:pins discount rounding
+  f9  src/*.ts (rename oldFee→fee) — verify: check:`! grep -rn oldFee src/`
+  f11 src/ui/badge.tsx — verify: manual:spacing unchanged
+Baseline test command: <cmd>
+
+Attack each one:
+  - existing-tests: does the suite actually execute the finding's code path, or is
+    it untested code where a green run proves nothing? Name the test that covers it,
+    or say it doesn't exist.
+  - new-test: would this test still pass if the fix were reverted? Does it pin the
+    behavior the finding is about, or a side effect? Could it pass on broken output?
+  - check:<cmd>: too loose (matches old name in one file, misses another file or a
+    variant spelling) or too tight (misses the case the finding flags)?
+  - manual: could this be a scriptable check instead? If so give the command.
+
+Return per finding: `accepted` OR `weak: <why> → <stronger method>`. Flag nothing
+only if every method genuinely holds.
 ```
 
 ## Why one tier per agent, but one commit+test per finding

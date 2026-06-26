@@ -79,7 +79,14 @@ def _naive_yaml(fm_text):
         if re.match(r"^[A-Za-z0-9_-]+:", line):
             key, _, val = line.partition(":")
             key = key.strip()
-            out[key] = val.strip().strip('"').strip("'")
+            val = val.strip().strip('"').strip("'")
+            # A bare block-scalar indicator (>, |, >-, |-, >+, |+) is not the
+            # value -- the value is the indented lines that follow. Without this
+            # the indicator leaks into the field (e.g. a '>-' folded description
+            # falsely trips the angle-bracket check).
+            if re.fullmatch(r"[>|][+-]?", val):
+                val = ""
+            out[key] = val
         elif key and line.strip():  # continuation of a folded value
             out[key] = (str(out.get(key, "")) + " " + line.strip()).strip()
     return out

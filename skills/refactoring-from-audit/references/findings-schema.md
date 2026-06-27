@@ -53,5 +53,15 @@ After `estimate_effort.py` runs, each finding also carries `effort`
    radius) and tend to route to a stronger model — which is the safe direction.
    Prefer feeding the JSON when you have it.
 
-If `load_findings.py` exits 3 (zero findings after the confidence filter) or no
-report exists at all, do not invent work — ask the user what to refactor.
+## Scoping to a target (`--files`)
+
+Pass `--files <path...>` (files and/or directories) to keep only findings whose `file` is a
+target or sits under a target directory. Targets are normalized repo-relative against `root`,
+so absolute and relative paths behave identically. The filter runs *before* the confidence
+filter and `f1..fN` id assignment, so ids stay contiguous for the target. An empty scoped set
+exits 3 — the same "no findings" signal — which the skill's "no audit info for the target"
+branch keys on.
+
+If `load_findings.py` exits 3 (zero findings after scoping/confidence filtering) or no report
+exists at all, do not invent work — notify the developer and offer the Phase 1 options
+(provide a report, or run rule-audit scoped to the target).

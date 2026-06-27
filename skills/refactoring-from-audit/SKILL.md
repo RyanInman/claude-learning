@@ -1,24 +1,30 @@
 ---
 name: refactoring-from-audit
 description: >-
-  Apply an audit report's recommended fixes to code without changing behavior,
-  verifying every change against the test suite so zero regressions slip through.
-  Use whenever the user wants to act on an audit/review report — "apply the audit",
-  "fix the rule-audit findings", "refactor per this report", "clean up the violations
-  the audit flagged", "apply the suggested fixes but don't break anything", or pastes
-  audit findings and says "make these changes safely". Loads findings, confirms a test
-  harness, dispatches each fix to the cheapest capable model, re-runs tests after every
-  change reverting regressions. An audit report is MANDATORY — without one this skill
-  does not run; it stops and asks for a report. Do NOT use to produce an audit (that's
-  the rule-audit skill) or for open-ended "just refactor this" with no report.
+  Apply an audit/review report's recommended fixes to a scope of files without changing
+  behavior, verifying every change against the test suite so zero regressions slip through.
+  Takes two independent inputs — a report (the findings) and a scope (the files/area to
+  refactor); the user can arrive with a report, a scope, both, or neither, and the skill
+  routes a 2x2 over them. Use whenever the user wants to act on findings — "refactor this
+  file", "clean up src/api/foo.ts against our rules", "apply our rules to these files", "fix
+  the rule-audit findings in this dir", "refactor per this report", "apply the suggested
+  fixes but don't break anything", or pastes audit findings and says "make these changes
+  safely". Loads findings scoped to the scope plus the rules that apply to it, confirms a test
+  harness, dispatches each fix to the cheapest capable model, re-runs tests after every change
+  reverting regressions. With a scope but no report it offers to generate one by running
+  rule-audit scoped to those files; with neither it hands off to rule-audit for a full audit
+  then continues. Do NOT use to produce an audit (that's the rule-audit skill) or for
+  open-ended "just refactor this" with no report and no scope — that routes to rule-audit.
 ---
 
 # Refactoring from an audit
 
-Apply audit findings' fixes so code is cleaner but behaves identically. The
-guarantee that earns this skill its keep: **not one test that passed before may fail
-after.** Everything below makes that cheap and certain — deterministic scripts for
-mechanical parts, the cheapest model per fix, a test run after every change so a
+Apply an audit report's findings to a scope — a file or a list of files — so code is
+cleaner but behaves identically. The skill takes a report and a scope as independent inputs
+(Phase 0 routes a 2x2 over which you have). The guarantee that earns this skill its
+keep: **not one test that passed before may fail after.** Everything below makes
+that cheap and certain — deterministic scripts for mechanical parts, the cheapest
+model per fix, a test run after every change so a
 regression is caught and reverted the moment it appears, not at the end. But a green
 suite only guards behavior it covers: before touching a finding, decide how it'll be
 verified and build any missing safeguard first (Phase 4); after all fixes, re-confirm
@@ -32,43 +38,104 @@ log-reading.
 ## The loop at a glance
 
 ```
-0. load findings      → load_findings.py        → .refactor/findings.json
-1. confirm harness     → detect_harness.py + run_tests.py (baseline)
-2. negotiate scope     → pick a small first slice
-3. estimate effort     → estimate_effort.py      → effort + model per finding
-4. plan verification   → per finding pick: existing test · new characterization
-                         test · scripted check · manual style check; adversarial
-                         subagent red-teams the plan → build + commit the missing
-                         safeguards first, then re-baseline
-5+6. one agent per shape-group, run sequentially (shared working tree): per finding →
-                         apply → verify by the finding's method → diff_tests.py → green
-                         keep+commit · regressed revert
-7. confirm + report   → run_tests.py (full suite, gate of record) → walk the report,
-                         confirm every finding actually resolved (run manual/scripted
-                         checks) → write THREE report files (always):
-                         reports/refactor-summary.md   (issues addressed)
-                         reports/refactor-followup.md  (follow-up work remaining)
-                         reports/<original>.remaining.md (audit minus fixed findings)
+0. resolve inputs     → report? (user path or reports/rule-adherence-*.md, .rule-review/)
+                        scope?  (named file/dir) → route the 2x2 (Phase 0)
+                        neither → confirm → rule-audit (full) → Case 2
+1. get findings        → load_findings.py --files <scope>            → scoped findings.json
+                       → (no report) generate via rule-audit first, then load
+                       → map scope→.claude/rules/ via rule-audit/map_rules.py (rules ctx)
+2. confirm harness     → detect_harness.py + run_tests.py (baseline)
+   negotiate scope     → if the scoped set is large: AskUserQuestion a smaller first slice
+                         (top impact+risk / one file / one shape-group); else proceed
+3. estimate effort     → estimate_effort.py
+4. plan verification   → per-finding verify method + adversary
+5+6. dispatch + gate   → one agent per shape-group, per-finding gate
+7. confirm + report    → full suite + 3 report files
 ```
 
-## Phase 0 — Load the findings
+## Phase 0 — Resolve inputs and route
+
+This skill has two **independent** inputs: a **report** (the findings to act on) and a
+**scope** (the file(s)/area to refactor). The developer can arrive with either, both, or
+neither. Detect each, then route the 2x2:
+
+| | scope given | no scope |
+|---|---|---|
+| **report present** | **Case 1 (ideal)** — load the report scoped to the scope; negotiate down *if large*. | **Case 2** — ask the user for a scope, *suggesting candidate slices derived from the report*; then load scoped; negotiate if still large. |
+| **no report** | **Case 3** — notify there's no report; offer to run `rule-audit` on the scoped files first; after the report is produced, load it scoped, and *if the set is large* negotiate. | **Case 4** — nothing to refactor. Confirm, then run `rule-audit` (full audit); on completion continue as **Case 2**. |
+
+**Scope?** Did the user name file(s) or a dir? Resolve to a concrete set of repo-relative
+paths (the form `load_findings.py --files` and `map_rules.py` expect). A directory expands to
+the files under it. (Endpoint/route scopes aren't supported yet: there's no endpoint→file map
+here. Take the file(s) behind the endpoint instead — clean extension point, not built.)
+
+**Report?** A user-supplied path, or a known location: `reports/rule-adherence-high-medium.md`,
+`reports/rule-adherence-with-low.md`, `.rule-review/` (`batch-*.json`). These are exactly what
+`rule-audit` produces and what `load_findings.py` consumes.
+
+Route to a terminal action — no cell stops empty or invents findings:
+
+- **Case 1 (report + scope)** → Phase 1 loads the report scoped to the scope; proceed
+  (negotiation narrows it only if the scoped set is large).
+- **Case 2 (report, no scope)** → negotiation asks for a scope, suggesting candidate slices
+  derived from the loaded report; then Phase 1 loads `--files <chosen scope>`.
+- **Case 3 (scope, no report)** → Phase 1 notifies there's no report and offers to run
+  `rule-audit` scoped to the files first, then loads the produced report scoped.
+- **Case 4 (neither)** → the only "this skill has nothing to do" path: confirm with the user,
+  then invoke the `rule-audit` skill on the full audit universe; on completion re-enter as
+  **Case 2** (ask for a scope, suggesting slices from the fresh report).
+
+## Phase 1 — Get findings for the scope, plus rules context
+
+Two inputs feed the fixes: findings for the scope (what to change) and the rules that apply to
+it (the standard each change is held to). How the findings are obtained depends on the case
+routed in Phase 0; the rules context is gathered the same way in every case.
+
+**Cases 1 & 2 (report present).** Load the report scoped to the scope:
 
 ```bash
-python3 <skill>/scripts/load_findings.py <report> --out .refactor/findings.json
+python3 <skill>/scripts/load_findings.py <report> --files <scope...> --out .refactor/findings.json
 ```
 
-`<report>` is a rule-audit working dir (`.rule-review/`), a findings JSON, or a
-markdown report. See `references/findings-schema.md` for the canonical shape and
-input details.
+`<report>` is a rule-audit working dir (`.rule-review/`), a findings JSON, a markdown report,
+or a path the user supplies. `--files` narrows the report to the scope deterministically (raw
+findings stay out of context). See `references/findings-schema.md` for the canonical shape and
+input details. **Case 2** loads the *full* report first (no `--files`) so negotiation can
+derive candidate scopes from it, then re-loads `--files <chosen scope>` once the scope is
+picked.
 
-**No report, no work — hard requirement.** An audit report is the entry condition,
-not a nicety. If the user hasn't named one, the path doesn't resolve, or the script
-exits 3 (zero findings after the confidence filter), STOP. Don't proceed, improvise
-findings, or "just start refactoring." Ask for an audit report (`.rule-review/`,
-findings JSON, or markdown) and wait. A fix with no finding behind it has nothing to
-verify against and defeats the skill.
+**Case 3 (scope, no report).** Notify the developer plainly that there's no report for the
+scope, then offer to generate one with `rule-audit` scoped to the files: `--mode audit --path
+<narrowest common-ancestor>` (non-mutating), or stage the files and run `--mode staged` for a
+tidy file list with a clean index. Then load the produced report scoped:
 
-## Phase 1 — Confirm the test harness, capture the baseline
+```bash
+python3 <skill>/scripts/load_findings.py <produced report> --files <scope...> --out .refactor/findings.json
+```
+
+If the common ancestor is the repo root (the scope spans top-level dirs), prefer staged or one
+run per subtree — don't audit the whole repo to refactor a few files.
+
+**Rules context (all cases).** Map the scope files to the rules that govern them, so fix agents
+hold each change to the same standard the audit used. Reuse rule-audit's mapper (sibling
+skill):
+
+```bash
+python3 <rule-audit>/scripts/map_rules.py --mode audit --path <common-ancestor> --out .refactor/rule-map.json
+```
+
+Read the `assignments` for the scope files and collect the union of applicable rule files —
+hand those to the fix agents in Phase 5 alongside each finding's `rule_text`/`fix_example`.
+**Soft dependency:** rule-audit ships alongside this skill in this repo. If it isn't
+installed, fall back in-context: glob `.claude/rules/*.md` and match each rule's `paths:`
+frontmatter against the scope files.
+
+**No finding behind a fix = nothing to verify.** If a chosen path yields zero findings
+(`load_findings.py` exits 3, or the scoped set is empty) and the user declines to provide or
+generate a report, STOP. A fix with no finding behind it has nothing to verify against and
+defeats the skill.
+
+## Phase 2 — Confirm the test harness, capture the baseline
 
 The whole guarantee rests on a trustworthy baseline, so establish one first.
 
@@ -98,36 +165,31 @@ line + flags) and hand that exact string to every subagent and later gate. Re-de
 it per agent wastes the same minutes N times, and an agent that falls back to the
 default runtime reddens the tree for reasons unrelated to any fix.
 
-## Phase 2 — Negotiate a small scope
+## Negotiate the scope
 
-Audits often return many findings. Applying all blind spends a pile of tokens and
-still hands back a regression. **Always negotiate scope down** — default to the
-smallest slice that shows value, not the largest you can defend. Goal: keep per-slice
-review effort low so a human can check the result and a regression has nowhere to
-hide. Propose a small first slice: highest `impact`+`risk`, or one file, or one rule.
-Bound the work, show value, expand only if the user asks. State the slice and why
-before touching code.
+Negotiation is **conditional on size.** When the scoped finding set is small, treat it as one
+slice and proceed — no prompt. Only when the set is **large** (judgment against the batch-size
+table below, not a magic number) does the skill present an `AskUserQuestion` menu of candidate
+smaller slices. Which menu depends on the case:
 
-**If the user gives no scope direction, don't pick silently — surface the top 3
-common-sense slices with `AskUserQuestion`.** Derive them from the loaded findings,
-each kept small per the complexity rule below. Defaults to draw from:
+- **No scope yet (Case 2, or post-Case-4).** Present candidate slices *derived from the loaded
+  findings* — most-violated file, highest `impact`+`risk`, largest mechanical shape-group —
+  each labeled with its finding count + tier. The pick becomes the scope; re-load
+  `load_findings.py --files <pick>`. This is the "ask the user for a scope" step.
+- **Scope given but large (Cases 1 & 3).** Present candidate *sub-slices* of the scope the same
+  way; the pick narrows the working set.
+- **Scope given and already a tight slice.** Proceed, no prompt.
 
-- **Highest `impact`+`risk`** — the N findings that matter most, any file.
-- **One file / one rule** — every finding in the most-violated file, or all findings
-  for one rule. Tight blast radius, easy review.
-- **One mechanical shape-group** — the largest low-tier shape (e.g. all
-  relative-import→alias swaps). Big visible win, lowest regression risk.
+State the chosen slice and why before touching code, so a human can review each slice and a
+regression has nowhere to hide.
 
-Label each option with its finding count and tier so the user can weigh effort. After
-they pick, state the slice and why before touching code.
-
-**Scale batch size inversely with fix complexity.** Harder fix → fewer at once:
-complex changes carry more regression risk and need closer per-finding review, so a
-small batch keeps review tractable.
+**Scale batch size inversely with fix complexity.** Harder fix → fewer at once: complex changes
+carry more regression risk and need closer per-finding review, so a small batch keeps review
+tractable. This table is the yardstick for what "large" means and how to slice.
 
 - **low / haiku (mechanical, fix_example present):** large batches fine — a whole
   shape-group of 20-30 import swaps is one slice.
-- **medium / sonnet (reads target files, some judgment):** ~5-10 per slice, grouped
+- **medium / sonnet (reads scope files, some judgment):** ~5-10 per slice, grouped
   by shape.
 - **high / opus (public surface, cross-file ripple):** one or two at a time, each
   reviewed before the next. Never bulk a high-complexity queue.
@@ -223,11 +285,15 @@ without context-switching, and you pick the cheapest model the shape needs (30 i
 swaps is haiku, not opus). Effort tier picks the model; shape picks the queue.
 
 - **low → haiku.** The whole low queue + each fix_example + the test command. Mechanical.
-- **medium → sonnet.** The medium queue, plus permission to read the target files.
+- **medium → sonnet.** The medium queue, plus permission to read the scope files.
 - **high → opus, but ask first.** High-effort fixes touch public surfaces or ripple
   across files, and Opus costs more. Before dispatching the high queue, use
   `AskUserQuestion` to let the user approve the spend, skip, or defer. Don't reach for
   the expensive model on their behalf.
+
+Across all tiers, hand each agent the applicable `.claude/rules/` files gathered in Phase 1,
+alongside each finding's `rule_text`/`fix_example` — so a fix is held to the rule that
+flagged it, not just the snippet.
 
 **Run shape-group agents sequentially, one at a time, against the shared working
 tree.** Never run fix agents concurrently. Agents in one tree clash even on disjoint
@@ -345,6 +411,17 @@ three every time; if a section is empty, say so rather than omit the file.
 
 ## Gotchas
 
+- **The entry needs a report *or* a scope, not necessarily both.** With neither, the skill
+  hands off to `rule-audit` (Case 4) and continues — it does not stop empty or invent findings.
+  No findings for a scope never means "stop silently" or "make up findings" either: it routes
+  to the Phase 1 offer — take a report the user provides, or run rule-audit scoped to the
+  files. A fix with no finding behind it has nothing to verify against; only an explicit user
+  decline stops the run.
+- **rule-audit is a soft dependency.** Phase 1's rule mapping and the generate-when-missing
+  option call the sibling rule-audit skill (`map_rules.py`, `--mode audit`). Both skills ship
+  together in this repo. If rule-audit isn't installed, fall back in-context: glob
+  `.claude/rules/*.md` and match `paths:` frontmatter against the scope files; for findings,
+  ask the user for a report.
 - **A green baseline is non-negotiable for the guarantee.** `error: true` from
   `run_tests.py` means the command broke (e.g. test runner not installed), not zero
   failures. Treat it as no-harness, not green.

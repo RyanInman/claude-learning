@@ -23,7 +23,11 @@ Canonical output (written to --out, default .refactor/findings.json):
     ]
   }
 
-Exit: 0 found >=1 finding · 3 input parsed but zero findings · 1 usage/IO.
+Pass --files <path...> to scope findings to specific files and/or directories
+(matched repo-relative against root); the confidence filter and f1..fN id
+assignment then run over the scoped set, so ids stay contiguous for the target.
+
+Exit: 0 found >=1 finding · 3 input parsed/scoped to zero findings · 1 usage/IO.
 """
 
 import argparse
@@ -114,6 +118,8 @@ def main():
     ap.add_argument("input", help="rule-audit dir, findings JSON, or markdown report")
     ap.add_argument("--root", default=None, help="repo root (default: git toplevel or cwd)")
     ap.add_argument("--out", default=".refactor/findings.json", help="output path")
+    ap.add_argument("--files", nargs="+", default=None,
+                    help="scope findings to these files/dirs (repo-relative match against root)")
     ap.add_argument("--min-confidence", type=int, default=90,
                     help="drop findings below this confidence (default 90, matches rule-audit)")
     args = ap.parse_args()
@@ -130,6 +136,20 @@ def main():
     except (OSError, ValueError, json.JSONDecodeError) as e:
         print(f"error: {e}", file=sys.stderr)
         sys.exit(1)
+
+    if args.files:
+        # Normalize each target to repo-relative against root; finding `file`
+        # values are already repo-relative. A target that resolves to root
+        # itself (".") means "no narrowing" and matches everything.
+        targets = {os.path.normpath(os.path.relpath(os.path.abspath(t), root))
+                   for t in args.files}
+        def _in_scope(finding):
+            nf = os.path.normpath(finding.get("file") or "")
+            for t in targets:
+                if t in (".", "") or nf == t or nf.startswith(t + os.sep):
+                    return True
+            return False
+        findings = [f for f in findings if _in_scope(f)]
 
     kept = [f for f in findings if f["confidence"] >= args.min_confidence]
     for i, f in enumerate(kept, 1):

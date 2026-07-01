@@ -234,6 +234,15 @@ def test_allowed_tools_scoped_does_not_fire():
           not has_finding(data["findings"], "security", "info"))
 
 
+def test_allowed_tools_bash_star_is_broad():
+    # Bash(*) has the same risk shape as a bare Bash grant; exercised directly
+    # against the check function (same style as the exit-code expression test).
+    findings = []
+    audit.check_allowed_tools({"allowed-tools": "Bash(*)"}, findings)
+    check("allowed-tools: 'Bash(*)' treated as broad grant",
+          has_finding(findings, "security", "info"))
+
+
 def test_reasoning_extraction_is_high_and_exits_one():
     code, data = run_audit("reasoning-extraction")
     check("reasoning-extraction: exit code 1", code == 1)
@@ -248,6 +257,22 @@ def test_reasoning_explain_generic_does_not_fire():
     code, data = run_audit("reasoning-explain-ok")
     check("reasoning-explain-ok: no high 'anti-pattern' finding for generic 'explain your reasoning'",
           not has_finding(data["findings"], "anti-pattern", "high"))
+
+
+def test_reasoning_extraction_mirrored_direction():
+    # Noun-first phrasings (active or passive verb) must fire too; a noun-first
+    # sentence WITHOUT the internal/chain-of-thought qualifier must not.
+    # Exercised directly against the pattern (same style as the exit-code test).
+    pat = audit.REASONING_EXTRACTION_PATTERN
+    check("reasoning mirrored: 'Your internal reasoning should be included in the "
+          "final response.' fires",
+          bool(pat.search("Your internal reasoning should be included in the final response.")))
+    check("reasoning mirrored: 'The model's internal reasoning must be shown to the "
+          "user.' fires",
+          bool(pat.search("The model's internal reasoning must be shown to the user.")))
+    check("reasoning mirrored near-miss: 'Your reasoning should be included in the "
+          "summary.' does not fire (no internal/chain-of-thought qualifier)",
+          not pat.search("Your reasoning should be included in the summary."))
 
 
 def test_script_security_evil_script_flagged_fine_script_not():
@@ -265,6 +290,43 @@ def test_script_security_evil_script_flagged_fine_script_not():
               if f["location"] == "scripts/evil.py"))
     check("script-security: no 'security' finding for scripts/fine.py (env read, no network)",
           not any(f["location"] == "scripts/fine.py" for f in security_findings))
+
+
+def test_security_markers_base64_injection_unicode_flagged():
+    # The three injection-marker sub-patterns live in the fixture's own
+    # SKILL.md body (not under tests/fixtures/<name>/tests/), so the audit of
+    # the fixture folder scans them fine.
+    code, data = run_audit("security-markers")
+    check("security-markers: exit code 1", code == 1)
+    security_findings = [f for f in data["findings"] if f["category"] == "security"]
+    check("security-markers: base64-blob finding present",
+          any("base64" in f["message"] for f in security_findings))
+    check("security-markers: prompt-injection finding present",
+          any("prompt-injection" in f["message"] for f in security_findings))
+    check("security-markers: Unicode-smuggling finding names U+200B",
+          any("U+200B" in f["message"] for f in security_findings))
+
+
+def test_security_markers_near_miss_does_not_fire():
+    code, data = run_audit("security-markers-ok")
+    check("security-markers-ok: no 'security' finding (short base64-ish string, "
+          "ordinary 'ignore the previous section' wording, no control chars)",
+          not any(f["category"] == "security" for f in data["findings"]))
+
+
+def test_self_audit_clean():
+    # Codifies the self-audit gate: audit.py run against skill-reviewer itself
+    # (the skill this tests/ dir belongs to) must emit nothing above INFO and
+    # exit 0 -- so future regex edits can't silently break self-match avoidance.
+    skill_dir = TESTS_DIR.parent
+    buf = io.StringIO()
+    with redirect_stdout(buf):
+        code = audit.main([str(skill_dir), "--json"])
+    data = json.loads(buf.getvalue())
+    above_info = [f for f in data["findings"] if f["severity"] != "info"]
+    check("self-audit: no findings above INFO on skills/skill-reviewer",
+          above_info == [])
+    check("self-audit: exit code 0", code == 0)
 
 
 def test_exit_code_expression_info_only_and_mixed():
@@ -305,9 +367,14 @@ def main():
     test_trigger_phrase_density_in_report_header()
     test_allowed_tools_broad_bash_is_info_and_exits_zero()
     test_allowed_tools_scoped_does_not_fire()
+    test_allowed_tools_bash_star_is_broad()
     test_reasoning_extraction_is_high_and_exits_one()
     test_reasoning_explain_generic_does_not_fire()
+    test_reasoning_extraction_mirrored_direction()
     test_script_security_evil_script_flagged_fine_script_not()
+    test_security_markers_base64_injection_unicode_flagged()
+    test_security_markers_near_miss_does_not_fire()
+    test_self_audit_clean()
     test_exit_code_expression_info_only_and_mixed()
 
     print()

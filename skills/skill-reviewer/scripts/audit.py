@@ -86,15 +86,22 @@ TRIGGER_VERB_PATTERN = re.compile(
 
 # Show-your-thinking / reasoning-extraction (check 10): verbs that put reasoning
 # into the response text, within a short window of a phrase naming the internal
-# reasoning process. Mirrors the refusal doc's own phrasing ("reproduce its
-# internal reasoning in the response text"), not generic "explain your
-# reasoning" -- the noun list requires an "internal"/chain-of-thought qualifier
-# so ordinary reasoning explanations don't fire. Body + description only.
+# reasoning process -- in EITHER order. Forward: "echo your internal reasoning";
+# mirrored: "internal reasoning should be included/shown" (active or passive
+# verb forms). Mirrors the refusal doc's own phrasing ("reproduce its internal
+# reasoning in the response text"), not generic "explain your reasoning" -- the
+# noun list requires an "internal"/chain-of-thought qualifier so ordinary
+# reasoning explanations don't fire. Body + description only.
 _REASONING_VERBS = r"(?:echo|transcribe|reproduce|repeat|reveal|show|output|include)"
+_REASONING_VERBS_PASSIVE = (r"(?:echo(?:ed|es)?|transcrib(?:e|es|ed)|reproduc(?:e|es|ed)|"
+                             r"repeat(?:s|ed)?|reveal(?:s|ed)?|show(?:s|n|ed)?|"
+                             r"output(?:s|ted)?|includ(?:e|es|ed))")
 _REASONING_NOUNS = (r"(?:internal reasoning|chain[- ]of[- ]thought|thinking process|"
                      r"thought process|extended thinking|your thinking)")
 REASONING_EXTRACTION_PATTERN = re.compile(
-    rf"\b{_REASONING_VERBS}\b[^.\n]{{0,40}}\b{_REASONING_NOUNS}\b", re.IGNORECASE)
+    rf"\b{_REASONING_VERBS}\b[^.\n]{{0,40}}\b{_REASONING_NOUNS}\b"
+    rf"|\b{_REASONING_NOUNS}\b[^.\n]{{0,40}}\b{_REASONING_VERBS_PASSIVE}\b",
+    re.IGNORECASE)
 
 # Script security scan (check 13). Detection patterns are deliberately built so
 # their own literal text does not match itself when audit.py -- a script living
@@ -497,8 +504,8 @@ def compute_trigger_phrase_density(desc):
 
 
 def check_allowed_tools(fm, findings):
-    """Broad Bash grants ('Bash' with no command scoping, or a bare '*'
-    wildcard) widen the skill's security surface. Handles allowed-tools as a
+    """Broad Bash grants ('Bash' or 'Bash(*)' with no command scoping, or a
+    bare '*' wildcard) widen the skill's security surface. Handles allowed-tools as a
     YAML list, a comma-separated string, and the naive-YAML fallback's folded
     bullet-list string (e.g. '- Bash - Read(git:*)')."""
     raw = fm.get("allowed-tools")
@@ -509,13 +516,13 @@ def check_allowed_tools(fm, findings):
     else:
         text = re.sub(r"(?:^|\s)-\s+", ",", str(raw))
         entries = [e.strip() for e in text.split(",") if e.strip()]
-    if any(e in ("Bash", "*") for e in entries):
+    if any(e in ("Bash", "*", "Bash(*)") for e in entries):
         _add(findings, "info", "security",
              "allowed-tools grants unrestricted Bash (or a wildcard) instead "
              "of a scoped command list. Broad tool grants widen the skill's "
              "security surface.",
              "Scope the grant to the commands the skill actually needs, e.g. "
-             "'Bash(git:*)' instead of a bare 'Bash' or '*'.")
+             "'Bash(git:*)' instead of a bare 'Bash', 'Bash(*)', or '*'.")
 
 
 def check_reasoning_extraction(desc, body, findings):
@@ -589,9 +596,10 @@ def _scan_security_text(label, text, findings):
 def check_script_security(skill_dir, body, findings):
     """Scan SKILL.md's body and bundled scripts/ for env+network exfiltration
     shape, URL parameter interpolation, base64 blobs, prompt-injection
-    markers, and Unicode smuggling. tests/ fixtures are excluded (not shipped
-    skill content), and this scan only looks at scripts/ directly (matching
-    check_structure's script handling) -- never tests/."""
+    markers, and Unicode smuggling. Only direct children of scripts/ are
+    scanned (non-recursive glob, matching check_structure's script handling),
+    which is what keeps tests/ fixtures -- deliberately malicious, not shipped
+    skill content -- out of the scan."""
     _scan_security_text("SKILL.md", body, findings)
     scripts_dir = skill_dir / "scripts"
     if not scripts_dir.is_dir():
@@ -599,8 +607,6 @@ def check_script_security(skill_dir, body, findings):
     for pattern in ("*.py", "*.sh", "*.js"):
         for scr in sorted(scripts_dir.glob(pattern)):
             rel = scr.relative_to(skill_dir)
-            if "tests" in rel.parts:
-                continue
             try:
                 text = scr.read_text(encoding="utf-8", errors="replace")
             except OSError:

@@ -218,6 +218,55 @@ def test_trigger_phrase_density_in_report_header():
           "triggers    : 6" in report)
 
 
+def test_allowed_tools_broad_bash_is_info_and_exits_zero():
+    code, data = run_audit("allowed-tools-broad")
+    check("allowed-tools-broad: exit code 0 (info-only)", code == 0)
+    check("allowed-tools-broad: info 'security' finding present",
+          has_finding(data["findings"], "security", "info"))
+    check("allowed-tools-broad: message names broad Bash/wildcard grants",
+          any("unrestricted Bash" in f["message"] for f in data["findings"]
+              if f["category"] == "security"))
+
+
+def test_allowed_tools_scoped_does_not_fire():
+    code, data = run_audit("allowed-tools-scoped-ok")
+    check("allowed-tools-scoped-ok: no 'security' finding for a scoped Bash(git:*) grant",
+          not has_finding(data["findings"], "security", "info"))
+
+
+def test_reasoning_extraction_is_high_and_exits_one():
+    code, data = run_audit("reasoning-extraction")
+    check("reasoning-extraction: exit code 1", code == 1)
+    check("reasoning-extraction: high 'anti-pattern' finding present",
+          has_finding(data["findings"], "anti-pattern", "high"))
+    check("reasoning-extraction: message cites the refusals-and-fallback doc",
+          any("refusals-and-fallback" in f["message"] for f in data["findings"]
+              if f["category"] == "anti-pattern" and f["severity"] == "high"))
+
+
+def test_reasoning_explain_generic_does_not_fire():
+    code, data = run_audit("reasoning-explain-ok")
+    check("reasoning-explain-ok: no high 'anti-pattern' finding for generic 'explain your reasoning'",
+          not has_finding(data["findings"], "anti-pattern", "high"))
+
+
+def test_script_security_evil_script_flagged_fine_script_not():
+    code, data = run_audit("script-security")
+    check("script-security: exit code 1", code == 1)
+    security_findings = [f for f in data["findings"] if f["category"] == "security"]
+    check("script-security: at least one medium 'security' finding for scripts/evil.py",
+          any(f["severity"] == "medium" and f["location"] == "scripts/evil.py"
+              for f in security_findings))
+    check("script-security: env+network finding present for scripts/evil.py",
+          any("credential exfiltration" in f["message"] for f in security_findings
+              if f["location"] == "scripts/evil.py"))
+    check("script-security: URL-interpolation finding present for scripts/evil.py",
+          any("external endpoint" in f["message"] for f in security_findings
+              if f["location"] == "scripts/evil.py"))
+    check("script-security: no 'security' finding for scripts/fine.py (env read, no network)",
+          not any(f["location"] == "scripts/fine.py" for f in security_findings))
+
+
 def test_exit_code_expression_info_only_and_mixed():
     # No existing check emits an INFO finding yet (Task 3 adds the first ones),
     # so the info-only exit-code path is exercised directly against synthetic
@@ -254,6 +303,11 @@ def main():
     test_desc_do_not_does_not_fire()
     test_trigger_phrase_density_known_count()
     test_trigger_phrase_density_in_report_header()
+    test_allowed_tools_broad_bash_is_info_and_exits_zero()
+    test_allowed_tools_scoped_does_not_fire()
+    test_reasoning_extraction_is_high_and_exits_one()
+    test_reasoning_explain_generic_does_not_fire()
+    test_script_security_evil_script_flagged_fine_script_not()
     test_exit_code_expression_info_only_and_mixed()
 
     print()

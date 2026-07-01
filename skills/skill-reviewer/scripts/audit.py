@@ -84,6 +84,59 @@ FOSSIL_PATTERN = re.compile(
 TRIGGER_VERB_PATTERN = re.compile(
     r"\b(?:mentions?|asks?|says?|use\s+when(?:ever)?|triggers?)\b", re.IGNORECASE)
 
+# Show-your-thinking / reasoning-extraction (check 10): verbs that put reasoning
+# into the response text, within a short window of a phrase naming the internal
+# reasoning process. Mirrors the refusal doc's own phrasing ("reproduce its
+# internal reasoning in the response text"), not generic "explain your
+# reasoning" -- the noun list requires an "internal"/chain-of-thought qualifier
+# so ordinary reasoning explanations don't fire. Body + description only.
+_REASONING_VERBS = r"(?:echo|transcribe|reproduce|repeat|reveal|show|output|include)"
+_REASONING_NOUNS = (r"(?:internal reasoning|chain[- ]of[- ]thought|thinking process|"
+                     r"thought process|extended thinking|your thinking)")
+REASONING_EXTRACTION_PATTERN = re.compile(
+    rf"\b{_REASONING_VERBS}\b[^.\n]{{0,40}}\b{_REASONING_NOUNS}\b", re.IGNORECASE)
+
+# Script security scan (check 13). Detection patterns are deliberately built so
+# their own literal text does not match itself when audit.py -- a script living
+# under skills/skill-reviewer/scripts/ -- is part of the audited target during
+# the self-audit gate. See check_script_security() for the scan itself.
+_ENV_READ_PATTERN = re.compile(
+    r"os\.environ|\bos\.getenv\(|process\.env|\$[A-Z_][A-Z0-9_]{2,}\b")
+_NETWORK_CALL_PATTERN = re.compile(
+    r"requests\.|urllib\.|http\.client|fetch\(|curl\x20|wget\x20|socket\.")
+_URL_INTERP_PATTERN = re.compile(
+    r'https?://[^\s"\']*(?:\{[\w.]*\}|\$\{[\w.]*\}|\$[A-Z_][A-Z0-9_]*)'
+    r'|["\']https?://[^"\']*["\']\s*\+'
+    r'|\+\s*["\']?https?://',
+    re.IGNORECASE)
+_BASE64_PATTERN = re.compile(r"[A-Za-z0-9+/=]{80,}")
+# Prompt-injection marker (Snyk ToxicSkills taxonomy): built from two separate
+# string pieces rather than one literal so this line does not itself trip the
+# check it defines.
+_PROMPT_INJECTION_PATTERN = re.compile(
+    "ignore" + r"\s+(?:all\s+|any\s+)?(?:previous|prior|above)\s+" + "instructions",
+    re.IGNORECASE)
+# Zero-width/bidi control characters used for Unicode smuggling. Expressed as
+# numeric codepoint ranges (not a regex character class) so no literal
+# invisible character is ever embedded in audit.py's own source.
+_UNICODE_SMUGGLING_RANGES = (
+    (0x200B, 0x200F),  # zero-width space/joiners, LTR/RTL marks
+    (0x202A, 0x202E),  # bidi embedding/override controls
+    (0x2060, 0x2064),  # word joiner and invisible operators
+    (0xFEFF, 0xFEFF),  # byte-order mark / zero-width no-break space
+)
+
+
+def _find_unicode_smuggling(text):
+    """Return sorted 'U+XXXX' codepoints from text that fall in the smuggling
+    ranges above, deduped (one name per distinct codepoint, not per occurrence)."""
+    found = set()
+    for ch in text:
+        cp = ord(ch)
+        if any(lo <= cp <= hi for lo, hi in _UNICODE_SMUGGLING_RANGES):
+            found.add(f"U+{cp:04X}")
+    return sorted(found)
+
 
 def _add(findings, severity, category, message, suggestion, location="SKILL.md"):
     findings.append({
@@ -443,6 +496,118 @@ def compute_trigger_phrase_density(desc):
     return len(quoted) + len(verbs)
 
 
+def check_allowed_tools(fm, findings):
+    """Broad Bash grants ('Bash' with no command scoping, or a bare '*'
+    wildcard) widen the skill's security surface. Handles allowed-tools as a
+    YAML list, a comma-separated string, and the naive-YAML fallback's folded
+    bullet-list string (e.g. '- Bash - Read(git:*)')."""
+    raw = fm.get("allowed-tools")
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        return
+    if isinstance(raw, list):
+        entries = [str(e).strip() for e in raw if str(e).strip()]
+    else:
+        text = re.sub(r"(?:^|\s)-\s+", ",", str(raw))
+        entries = [e.strip() for e in text.split(",") if e.strip()]
+    if any(e in ("Bash", "*") for e in entries):
+        _add(findings, "info", "security",
+             "allowed-tools grants unrestricted Bash (or a wildcard) instead "
+             "of a scoped command list. Broad tool grants widen the skill's "
+             "security surface.",
+             "Scope the grant to the commands the skill actually needs, e.g. "
+             "'Bash(git:*)' instead of a bare 'Bash' or '*'.")
+
+
+def check_reasoning_extraction(desc, body, findings):
+    """Instructions to echo/transcribe/reproduce internal reasoning or
+    chain-of-thought into the response text. This is a documented refusal
+    category (reasoning_extraction), so severity is HIGH -- the one exception
+    to this script's otherwise-conservative severities. Generic 'explain your
+    reasoning' does not match: REASONING_EXTRACTION_PATTERN requires both a
+    put-it-in-the-response verb and an 'internal'/chain-of-thought-qualified
+    noun."""
+    text = f"{desc}\n{body}"
+    if REASONING_EXTRACTION_PATTERN.search(text):
+        _add(findings, "high", "anti-pattern",
+             "Instructs the model to put its internal reasoning or "
+             "chain-of-thought into the response text. This matches the "
+             "documented reasoning_extraction refusal category "
+             "(platform.claude.com/docs/en/build-with-claude/"
+             "refusals-and-fallback) and causes refusals or elevated "
+             "fallback to a larger model.",
+             "Remove the instruction to echo/transcribe/output internal "
+             "reasoning verbatim. If the user needs the rationale, ask for a "
+             "summary written for the response, not the literal internal "
+             "thought process.")
+
+
+def _scan_security_text(label, text, findings):
+    """Run the five script-security sub-checks (check 13) against one file's
+    text. At most one MED finding per sub-check per file -- occurrences are
+    not spammed individually."""
+    if _ENV_READ_PATTERN.search(text) and _NETWORK_CALL_PATTERN.search(text):
+        _add(findings, "medium", "security",
+             "Reads an environment variable and makes a network call in the "
+             "same file -- possible credential exfiltration pattern, verify "
+             "intent.",
+             "Confirm what value is read and where it is sent; avoid "
+             "combining secret reads with outbound requests in one script.",
+             location=label)
+    if _URL_INTERP_PATTERN.search(text):
+        _add(findings, "medium", "security",
+             "An http(s) URL interpolates a variable into its query/path -- "
+             "data may be sent to an external endpoint, verify what is "
+             "transmitted.",
+             "Confirm the interpolated value and destination are expected; "
+             "avoid building request URLs from unreviewed input.",
+             location=label)
+    if _BASE64_PATTERN.search(text):
+        _add(findings, "medium", "security",
+             "Contains a long base64-looking literal -- opaque payload, "
+             "decode and verify.",
+             "Decode the literal and confirm it is not an embedded payload "
+             "or exfiltrated data.",
+             location=label)
+    if _PROMPT_INJECTION_PATTERN.search(text):
+        _add(findings, "medium", "security",
+             "Contains phrasing that resembles a prompt-injection "
+             "instruction-override attempt -- pattern present, verify "
+             "intent.",
+             "Confirm this is not an attempt to override the caller's "
+             "instructions; remove or justify the phrasing.",
+             location=label)
+    codepoints = _find_unicode_smuggling(text)
+    if codepoints:
+        _add(findings, "medium", "security",
+             f"Contains zero-width/bidi control character(s) "
+             f"({', '.join(codepoints)}) -- pattern present, verify intent.",
+             "Remove the hidden Unicode control character(s); confirm "
+             "nothing is being smuggled into the visible text.",
+             location=label)
+
+
+def check_script_security(skill_dir, body, findings):
+    """Scan SKILL.md's body and bundled scripts/ for env+network exfiltration
+    shape, URL parameter interpolation, base64 blobs, prompt-injection
+    markers, and Unicode smuggling. tests/ fixtures are excluded (not shipped
+    skill content), and this scan only looks at scripts/ directly (matching
+    check_structure's script handling) -- never tests/."""
+    _scan_security_text("SKILL.md", body, findings)
+    scripts_dir = skill_dir / "scripts"
+    if not scripts_dir.is_dir():
+        return
+    for pattern in ("*.py", "*.sh", "*.js"):
+        for scr in sorted(scripts_dir.glob(pattern)):
+            rel = scr.relative_to(skill_dir)
+            if "tests" in rel.parts:
+                continue
+            try:
+                text = scr.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            _scan_security_text(str(rel), text, findings)
+
+
 SEV_ORDER = {"high": 0, "medium": 1, "low": 2, "info": 3}
 SEV_LABEL = {"high": "HIGH", "medium": "MED ", "low": "LOW ", "info": "INFO"}
 
@@ -514,6 +679,7 @@ def main(argv=None):
         name, desc = "", ""
     else:
         name, desc = check_frontmatter(fm, findings)
+        check_allowed_tools(fm, findings)
 
     n_lines, approx_tokens = check_body(body, findings)
     has_scripts, has_refs = check_structure(skill_dir, body, findings)
@@ -522,6 +688,8 @@ def main(argv=None):
     check_fossils(body, findings)
     check_name_redundancy(name, desc, findings)
     check_desc_shouting(desc, findings)
+    check_reasoning_extraction(desc, body, findings)
+    check_script_security(skill_dir, body, findings)
 
     when_to_use = str((fm or {}).get("when_to_use") or "").strip()
     metrics = {

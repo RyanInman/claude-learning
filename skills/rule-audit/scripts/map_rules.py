@@ -243,6 +243,15 @@ def universe_staged(root):
 
 # --- main --------------------------------------------------------------------
 
+def normalize_rule_token(token):
+    """Map a user-supplied rule token to a comparable basename. Accepts
+    'api.md', 'api', and '.claude/rules/api.md' -> 'api.md'."""
+    name = os.path.basename(token.strip())
+    if name and not name.endswith(".md"):
+        name += ".md"
+    return name
+
+
 def emit(result, out_path):
     """No --out: full JSON to stdout (back-compat). With --out: full JSON to the
     file (render_report.py reads it), compact summary to stdout. The agent only
@@ -282,6 +291,13 @@ def main():
                     help="cap total source bytes per batch; a same-ruleset group larger "
                          "than this splits into multiple batches (one subagent each). "
                          "Default 80000.")
+    ap.add_argument("--list-rules", action="store_true",
+                    help="discover and classify rules only (skip the file universe and "
+                         "batching); print a JSON inventory of global / path-scoped rules")
+    ap.add_argument("--rules", default=None,
+                    help="comma-separated rule names to restrict the audit to (match by "
+                         "basename, e.g. 'api.md', or the '.claude/rules/api.md' path form). "
+                         "Unknown names are reported as a note, not an error.")
     args = ap.parse_args()
 
     root = args.root or repo_top(".") or os.getcwd()
@@ -313,6 +329,25 @@ def main():
 
     if not global_rules and not scoped:
         notes.append("Rules dir exists but contains no rule files.")
+
+    if args.rules:
+        selected = {normalize_rule_token(t) for t in args.rules.split(",") if t.strip()}
+        known = {os.path.basename(rp) for rp in global_rules}
+        known |= {os.path.basename(rp) for (rp, _, _) in scoped}
+        global_rules = [rp for rp in global_rules if os.path.basename(rp) in selected]
+        scoped = [t for t in scoped if os.path.basename(t[0]) in selected]
+        for name in sorted(selected - known):
+            notes.append(f"Requested rule '{name}' not found in .claude/rules/; ignored.")
+
+    if args.list_rules:
+        print(json.dumps({
+            "mode": args.mode,
+            "root": root,
+            "global_rules": global_rules,
+            "path_scoped_rules": [{"file": rp, "globs": g} for (rp, _, g) in scoped],
+            "notes": notes,
+        }, indent=2))
+        return
 
     if args.mode == "staged":
         files, err = universe_staged(root)

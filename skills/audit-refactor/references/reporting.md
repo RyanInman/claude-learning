@@ -8,8 +8,8 @@ If a section is empty, say so in the file rather than omit the file.
 ## Contents
 - [File 1 — refactor-summary.md (issues addressed)](#file-1)
 - [File 2 — refactor-followup.md (follow-up work remaining)](#file-2)
-- [File 3 — <original-report-name>.remaining.md (audit minus fixes)](#file-3)
-- [Pruning rule: by (file, title), never by row number](#pruning-rule)
+- [File 3 — <original-report-name>.updated.<yy-mm-dd>.md (audit updated in place)](#file-3)
+- [Matching rule: by (file, title), never by row number](#matching-rule)
 
 ## File 1 — `reports/refactor-summary.md` (issues addressed) {#file-1}
 
@@ -31,23 +31,36 @@ Everything still owed, so the next run has an actionable backlog:
 Give each a one-line next step — the model to use, the safeguard to build, or the decision needed —
 so it's directly actionable rather than just a list of what's left.
 
-## File 3 — `reports/<original-report-name>.remaining.md` (the audit minus what's fixed) {#file-3}
+## File 3 — `reports/<original-report-name>.updated.<yy-mm-dd>.md` (the audit, updated in place) {#file-3}
 
-Copy the original report and remove every finding now `applied` *and* confirmed, preserving its
-structure: prune both the summary-table rows **and** the detail blocks. Update counts/headers to
-match. This is the input a future `refactoring-from-audit` run loads to continue where this one
-stopped, so it must stay a valid report.
+Name the file with `updated` and the run date in `yy-mm-dd` form (`date "+%y-%m-%d"`, e.g.
+`rule-adherence-high-medium.updated.26-07-01.md`), so successive continuation runs write distinct
+files rather than overwriting the prior one. Copy the original report and **mark** every finding now
+`applied` *and* confirmed — do **not** remove it. Two markers:
 
-Leave `reverted`/`skipped` findings **in** — they are still open work.
+- **addressed** — a fix was applied and confirmed;
+- **cleared** — the finding no longer applies (false positive, or made moot by another change).
 
-## Pruning rule: by `(file, title)`, never by row number {#pruning-rule}
+Mark a finding by prefixing its summary-table **Issue** cell **and** its detail-block heading with a
+bracketed tag: `[ADDRESSED]` or `[CLEARED]`. Keep the row and detail block otherwise intact, so the
+file stays a valid, loadable report and the full history stays visible. `load_findings.py` detects
+these tags and skips the finding, so a future run that loads this file sees only open work.
+
+Stamp the current date/time at the top of the file on an `Updated: <YYYY-MM-DD HH:MM>` line (run
+`date "+%Y-%m-%d %H:%M"` to get it), so each continuation run records when it last touched the audit.
+
+Leave `reverted`/`skipped` findings **untagged** — they are still open work and must reload as open
+findings next run.
+
+## Matching rule: by `(file, title)`, never by row number {#matching-rule}
 
 `load_findings.py` finding-ids (`f1..fN`) do **NOT** match the report's summary-table `#` column.
 The id is assigned in load order; the `#` is the audit's ranking; they diverge (e.g. `f39` can be
 table row 41). So:
 
-- Match rows to remove by their `(file, issue)` cells — the **same key** used to prune the detail
-  blocks. That keeps the table and the detail blocks consistent.
-- Dropping rows by `int(#) == int(id[1:])` deletes the wrong rows and leaves fixed findings in the
-  remaining report.
-- After pruning, verify **zero fixed titles remain** in either the table or the detail blocks.
+- Find the row/block to tag by its `(file, issue)` cells — the **same key** in the summary table
+  and the detail block. That tags both consistently.
+- Acting by `int(#) == int(id[1:])` tags the wrong rows and leaves fixed findings untagged (they
+  would reload as open work next run).
+- After marking, verify **every** addressed/cleared finding carries its tag in **both** the table
+  and its detail block, and no still-open finding was tagged by mistake.

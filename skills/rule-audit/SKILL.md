@@ -17,7 +17,9 @@ Counterpart to `rule-context-builder` (that skill writes rules; this one checks 
 Correctness hinges on **which rules apply to which files**: a path-scoped rule (`paths:` glob in its
 frontmatter) governs only files its glob matches; a global rule (empty frontmatter) governs every file.
 Misassigning a rule — or skipping a file a glob covers — produces a wrong report, so the mapping is
-computed deterministically by `scripts/map_rules.py`, never guessed. The script groups files with an
+computed deterministically by `scripts/map_rules.py`, never guessed. The review can target a subset of
+rules (Step 1 asks which); `map_rules.py --rules` then restricts the mapping to that selection so only
+chosen rules fan out. The script groups files with an
 identical rule-set, then splits each group by total source bytes so no subagent gets an oversized load
 — one **batch** (one review subagent) per resulting group. Each subagent is a cheap `haiku` model that
 reads its files in its own context, writes findings as JSON, and validates that JSON with
@@ -38,13 +40,43 @@ ask for approval. Then proceed to Step 1.
 ## Step 1 — Scope the review (ask first)
 
 Confirm scope before running anything — a vague "check our rules" must not silently become a full-repo
-audit spawning many subagents. Confirm **what to review** (skip if the user already pinned it):
+audit spawning many subagents. Three things to settle: **which rules**, **what file set** (staged vs
+audit), and — for global rules — **how wide**.
+
+### 1a — Discover the rules
+
+Run once in main context to get the rule inventory (skips the file universe and batching):
+
+```bash
+python3 <skill>/scripts/map_rules.py --mode audit --list-rules
+```
+
+It prints `global_rules`, `path_scoped_rules` (with globs), and `notes`. If `notes` reports no
+`.claude/rules/` was found (or the dir is empty) → there is nothing to check; tell the user and stop.
+
+### 1b — Ask which rules to audit
+
+Unless the user already named specific rules, ask with a single `AskUserQuestion` (multiSelect) — one
+option per discovered rule: label = filename, description = `global — applies to all files` or its
+globs. Invite "select all listed to audit everything." `AskUserQuestion` caps at 4 options: with >4
+rules, list the first 4 as options and have the question text note the total count and that `Other`
+accepts additional rule names (or `all`). Pass the chosen filenames to `--rules` (comma-separated) in
+Step 2; an unknown name there surfaces as a `note`, not a crash.
+
+### 1c — Pick the file set (staged vs audit)
 
 - **staged** — files in `git diff --cached`; cheap pre-commit / pre-PR check. Default when they
   imply "before I commit/push" or "my changes".
 - **audit** — files matched by rule globs. Default for "audit", "sweep the repo", "are we following
-  our rules". Negotiate the smallest useful scope: push `--path <subdir>` over the whole tree.
-  Full-repo audit is allowed only on explicit confirmation.
+  our rules".
+
+### 1d — Global-rule scope guard
+
+A global rule matches *every* file, so auditing one over a full `audit` universe fans out across the
+whole repo. If the selection includes a global rule **and** mode is `audit`, do not fan out repo-wide
+by default — ask (via `AskUserQuestion`) to narrow: a `--path <subdir>`, switch to `--mode staged`, or
+explicit confirmation of a full-repo audit. Path-scoped rules self-limit via their globs and skip this
+guard. Narrowing is opt-in; a full-repo audit remains a valid explicit choice.
 
 Do not ask about impact threshold here. Subagents grade every level regardless, and Step 4 always
 writes both a HIGH+MEDIUM report and a full HIGH+MEDIUM+LOW report — no threshold decision needed.
@@ -63,8 +95,12 @@ the conversation:
 
 ```bash
 mkdir -p .rule-review
-python3 <skill>/scripts/map_rules.py --mode <staged|audit> [--path <subdir>] [--max-batch-bytes N] --out .rule-review/map.json > /dev/null
+python3 <skill>/scripts/map_rules.py --mode <staged|audit> [--path <subdir>] [--max-batch-bytes N] --rules <selected> --out .rule-review/map.json > /dev/null
 ```
+
+`--rules <selected>` is the comma-separated filenames chosen in Step 1b; omit it only when the user
+opted to audit every rule. A filtered `map.json` carries just the selected rules, so subagents and the
+rendered `Rules: N` count follow the selection with no further wiring.
 
 The `> /dev/null` suppresses stdout — all data is in `--out map.json` and the compact summary can
 exceed 40KB on large repos, bloating the main context with partial (truncated) data.
@@ -78,6 +114,7 @@ stays bounded. Act on `notes`:
 - "No `.claude/rules/` found" → nothing to check; tell the user and stop.
 - "No staged files" → tell the user, suggest `--mode audit`, stop.
 - "Audit universe is N files" (large) → offer to narrow with `--path` before fanning out.
+- "Requested rule '…' not found" → a `--rules` name didn't match a rule file; re-check the selection.
 
 ## Step 3 — Fan out one subagent per batch
 

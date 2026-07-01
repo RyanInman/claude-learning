@@ -1,5 +1,5 @@
 ---
-name: refactoring-from-audit
+name: audit-refactor
 description: >-
   Apply an audit or rule-review report's recommended fixes to a scope of files WITHOUT changing
   behavior, re-running tests after every change so zero regressions slip through. Two independent
@@ -70,8 +70,10 @@ scopes unsupported (no endpoint→file map); take the file(s) behind the endpoin
 extension point, not built.
 
 **Report?** A user-supplied path, or a known location: `reports/rule-adherence-high-medium.md`,
-`reports/rule-adherence-with-low.md`, or a `.rule-review/` working dir (`batch-*.json`). Exactly
-what `rule-audit` produces and `load_findings.py` consumes.
+`reports/rule-adherence-with-low.md`, a prior run's `reports/*.updated.*.md` (a continuation report —
+same shape, with already-addressed findings tagged so `load_findings.py` skips them), or a
+`.rule-review/` working dir (`batch-*.json`). Exactly what `rule-audit` produces and
+`load_findings.py` consumes.
 
 ## Phase 1 — Get findings for the scope, plus rules context
 
@@ -87,7 +89,9 @@ python3 <skill>/scripts/load_findings.py <report> --files <scope...> --out .refa
 
 `<report>` may be a rule-audit working dir (`.rule-review/`), findings JSON, markdown report, or
 user-supplied path. `--files` narrows to scope deterministically, keeping raw findings out of
-context. Findings shape and input details: `references/findings-schema.md`.
+context. Findings a prior run already marked addressed/cleared (a `.updated.*.md` continuation report)
+are filtered out on load, so a continuation run sees only open work. Findings shape and input
+details: `references/findings-schema.md`.
 
 **Case 2** has no scope yet: load the *full* report first (no `--files`) so negotiation can derive
 candidate scopes, then re-load `--files <chosen scope>` once picked.
@@ -353,12 +357,17 @@ section is empty, say so rather than omit the file:
    finding `applied` and confirmed, with file, shape, model, verify method, PASS/FAIL.
 2. `reports/refactor-followup.md` — **follow-up work remaining**: `reverted`, `skipped`/`deferred`,
    applied-but-not-holding, and slices never attempted — each with a one-line next step.
-3. `reports/<original-report-name>.remaining.md` — **the audit minus what's fixed**: the input a
-   future `refactoring-from-audit` run loads to continue where this one stopped.
+3. `reports/<original-report-name>.updated.<yy-mm-dd>.md` — **the audit, updated in place**: a copy
+   of the original report with every fixed finding marked **addressed** (fix applied and confirmed)
+   or **cleared** (no longer applies), never removed, and an `Updated: <date time>` stamp at the top.
+   The filename says `updated` and carries the run date in `yy-mm-dd` form (`date "+%y-%m-%d"`), so
+   successive continuation runs land on distinct files instead of overwriting. The input a future
+   run loads to continue — `load_findings.py` skips the marked findings, so it sees only open work.
 
-Exact per-file contents, what stays vs gets pruned, and the **prune-by-`(file, title)`-not-row-number**
-rule (finding-ids `f1..fN` do NOT match the report's summary-table `#` column, so pruning by row
-number deletes the wrong findings): read `references/reporting.md` before writing the files.
+Exact per-file contents, the `[ADDRESSED]`/`[CLEARED]` status tags that mark a finding, and the
+**match-by-`(file, title)`-not-row-number** rule (finding-ids `f1..fN` do NOT match the report's
+summary-table `#` column, so acting by row number marks the wrong findings): read
+`references/reporting.md` before writing the files.
 
 ## Gotchas
 
@@ -417,4 +426,4 @@ number deletes the wrong findings): read `references/reporting.md` before writin
 - `references/findings-schema.md` — canonical findings shape + input details (Phase 1).
 - `references/effort-rubric.md` — effort-tier criteria (Phase 3).
 - `references/subagent-prompts.md` — fix-agent templates + contract, adversary template (Phases 4 & 5).
-- `references/reporting.md` — exact contents of the three Phase 7 report files + the pruning rule (Phase 7).
+- `references/reporting.md` — exact contents of the three Phase 7 report files + the matching rule (Phase 7).

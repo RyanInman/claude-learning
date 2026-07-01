@@ -56,6 +56,30 @@ BODY_TOKEN_RECOMMENDED_MAX = 5000
 # Caps-lock directive words we count to detect "the shouting file" anti-pattern.
 CAPS_DIRECTIVES = ["MUST", "ALWAYS", "NEVER", "DO NOT", "DON'T", "SHOULD NOT", "REQUIRED", "MANDATORY"]
 
+# Repeated-or menu chains ("use X or Y, or Z"), body-only. Corpus-validated at
+# 1.6% FP; do NOT broaden to the comma-list form ("X, Y, or Z") -- that variant
+# hits 22% of the corpus as ordinary English enumeration.
+MENU_PATTERN = re.compile(r"\bor\b[^.\n]{2,40},\s*or\b", re.IGNORECASE)
+
+# Time-sensitive "fossil" phrasing: a date paired with before/after/until/
+# deprecated in the same clause (keyword precedes the date, matching the
+# design examples "Before August 2025, ..." / "deprecated since 2024"). A bare
+# year or a changelog-style date line (no keyword nearby) does not match.
+_FOSSIL_MONTH = ("January|February|March|April|May|June|July|August|"
+                  "September|October|November|December")
+_FOSSIL_DATE = rf"(?:(?:{_FOSSIL_MONTH})\s+20\d\d|\b20\d\d\b)"
+FOSSIL_PATTERN = re.compile(
+    rf"\b(?:before|after|until|deprecated)\b[^.\n]{{0,40}}{_FOSSIL_DATE}",
+    re.IGNORECASE)
+
+# Trigger-phrase density: quoted example phrases plus trigger-verb mentions in
+# the description, counted as a metric (not a finding). Counting rule: each
+# double-quoted phrase counts once, and each occurrence of mention(s)/ask(s)/
+# say(s)/trigger(s)/"use when(ever)" counts once, via non-overlapping regex
+# scan (re.findall never double-counts a span).
+TRIGGER_VERB_PATTERN = re.compile(
+    r"\b(?:mentions?|asks?|says?|use\s+when(?:ever)?|triggers?)\b", re.IGNORECASE)
+
 
 def _add(findings, severity, category, message, suggestion, location="SKILL.md"):
     findings.append({
@@ -338,6 +362,83 @@ def check_name_matches_dir(name, skill_dir, findings):
              f"folder to '{name}'.")
 
 
+def check_menu(body, findings):
+    """Repeated 'or' option chains read as a menu instead of a clear default
+    path. Body-only -- references are allowed to quote menu examples."""
+    if MENU_PATTERN.search(body):
+        _add(findings, "low", "anti-pattern",
+             "Body reads as a repeated 'or' chain of options rather than a "
+             "clear default path.",
+             "Recommend one default tool/approach plus an escape hatch "
+             "instead of listing every option as an 'or' chain.")
+
+
+def check_fossils(body, findings):
+    """Dates paired with before/after/until/deprecated phrasing go stale.
+    Body-only -- best-practices.md quotes a fossil example deliberately."""
+    if FOSSIL_PATTERN.search(body):
+        _add(findings, "low", "anti-pattern",
+             "Body pairs a date with before/after/until/deprecated phrasing "
+             "-- time-sensitive content that will read as stale once the "
+             "date passes.",
+             "Move deprecated patterns into a collapsed 'Old patterns' note "
+             "or delete them.")
+
+
+def check_name_redundancy(name, desc, findings):
+    """Flags a description whose opening does little but restate the name.
+    Conservative: fires only when every non-trivial name token appears in a
+    short first sentence -- the 'WHEN without WHAT' half of the idea is a
+    judgment call and lives in best-practices.md instead."""
+    if not name or not desc:
+        return
+    tokens = [t for t in str(name).lower().split("-") if len(t) >= 3]
+    if not tokens:
+        return
+    # First sentence = up to the first sentence-ending punctuation followed by
+    # whitespace, so an abbreviation like "SKILL.md" (period with no trailing
+    # space) does not get mistaken for a sentence break.
+    first_sentence = re.split(r"(?<=[.!?])\s", desc.strip(), maxsplit=1)[0]
+    if len(first_sentence) >= 60:
+        return
+    lowered = first_sentence.lower()
+    if all(re.search(rf"\b{re.escape(tok)}\b", lowered) for tok in tokens):
+        _add(findings, "low", "description",
+             "Description opening restates the name instead of adding WHAT/"
+             "WHEN information.",
+             "Rewrite the opening to state what the skill does and when to "
+             "use it, rather than repeating the name.")
+
+
+def check_desc_shouting(desc, findings):
+    """ALL-CAPS directives in the description. Excludes 'Do NOT'/'DO NOT' --
+    the recommended negative-trigger idiom -- so 'Do NOT use this for X'
+    does not fire."""
+    if not desc:
+        return
+    count = 0
+    for word in CAPS_DIRECTIVES:
+        if word == "DO NOT":
+            continue
+        count += len(re.findall(rf"\b{re.escape(word)}\b", desc))
+    if count > 0:
+        _add(findings, "low", "description",
+             f"Description uses {count} ALL-CAPS directive word(s) "
+             "(MUST/ALWAYS/NEVER/...).",
+             "State the rule and the reason instead of shouting -- official "
+             "guidance discourages ALL-CAPS rigid language.")
+
+
+def compute_trigger_phrase_density(desc):
+    """Integer count of quoted example phrases + trigger-verb mentions in the
+    description. See TRIGGER_VERB_PATTERN for the counted verb forms."""
+    if not desc:
+        return 0
+    quoted = re.findall(r'"[^"]*"', desc)
+    verbs = TRIGGER_VERB_PATTERN.findall(desc)
+    return len(quoted) + len(verbs)
+
+
 SEV_ORDER = {"high": 0, "medium": 1, "low": 2, "info": 3}
 SEV_LABEL = {"high": "HIGH", "medium": "MED ", "low": "LOW ", "info": "INFO"}
 
@@ -410,14 +511,17 @@ def main(argv=None):
     n_lines, approx_tokens = check_body(body, findings)
     has_scripts, has_refs = check_structure(skill_dir, body, findings)
     check_name_matches_dir(name, skill_dir, findings)
+    check_menu(body, findings)
+    check_fossils(body, findings)
+    check_name_redundancy(name, desc, findings)
+    check_desc_shouting(desc, findings)
 
     when_to_use = str((fm or {}).get("when_to_use") or "").strip()
     metrics = {
         "description_chars": len(desc),
         "combined_listing_chars": len(desc) + len(when_to_use),
         "body_tokens": approx_tokens,
-        # Task 3 computes this from the reviewed-corpus trigger-phrase list.
-        "trigger_phrase_density": None,
+        "trigger_phrase_density": compute_trigger_phrase_density(desc),
     }
     check_listing_cap(metrics["combined_listing_chars"], findings)
 

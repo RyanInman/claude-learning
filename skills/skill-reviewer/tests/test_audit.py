@@ -77,8 +77,8 @@ def test_metrics_object_present_and_correct():
           metrics["body_tokens"] == data["approx_body_tokens"])
     check("metrics.combined_listing_chars equals description_chars (no when_to_use in fixture)",
           metrics["combined_listing_chars"] == metrics["description_chars"])
-    check("metrics.trigger_phrase_density is None (Task 3 computes it)",
-          metrics["trigger_phrase_density"] is None)
+    check("metrics.trigger_phrase_density is an int",
+          isinstance(metrics["trigger_phrase_density"], int))
 
 
 def test_cc_only_field_is_info_not_high():
@@ -128,6 +128,74 @@ def test_large_body_token_estimate_is_medium_and_exits_one():
           not has_finding(run_audit("clean")[1]["findings"], "size", "medium"))
 
 
+def test_menu_anti_pattern_is_low_and_exits_one():
+    code, data = run_audit("menu-anti-pattern")
+    check("menu-anti-pattern: exit code 1", code == 1)
+    check("menu-anti-pattern: low 'anti-pattern' finding present",
+          has_finding(data["findings"], "anti-pattern", "low"))
+    check("menu-anti-pattern: message names the 'or' chain",
+          any("'or' chain" in f["message"] for f in data["findings"]
+              if f["category"] == "anti-pattern"))
+
+
+def test_menu_comma_list_does_not_fire():
+    code, data = run_audit("menu-comma-list-ok")
+    check("menu-comma-list-ok: no 'anti-pattern' finding (ordinary 'X, Y, or Z' enumeration)",
+          not has_finding(data["findings"], "anti-pattern", "low"))
+
+
+def test_fossil_deprecated_is_low_and_exits_one():
+    code, data = run_audit("fossil-deprecated")
+    check("fossil-deprecated: exit code 1", code == 1)
+    check("fossil-deprecated: low 'anti-pattern' finding present",
+          has_finding(data["findings"], "anti-pattern", "low"))
+    check("fossil-deprecated: message mentions before/after/until/deprecated",
+          any("before/after/until/deprecated" in f["message"] for f in data["findings"]
+              if f["category"] == "anti-pattern"))
+
+
+def test_fossil_bare_year_does_not_fire():
+    code, data = run_audit("fossil-bare-year-ok")
+    check("fossil-bare-year-ok: no 'anti-pattern' finding (bare year, no fossil keyword)",
+          not has_finding(data["findings"], "anti-pattern", "low"))
+
+
+def test_name_redundancy_is_low_and_exits_one():
+    code, data = run_audit("csv-parser")
+    check("csv-parser: exit code 1", code == 1)
+    check("csv-parser: low 'description' finding present for name-redundancy",
+          any(f["category"] == "description" and f["severity"] == "low"
+              and "restates the name" in f["message"] for f in data["findings"]))
+
+
+def test_name_redundancy_long_sentence_does_not_fire():
+    code, data = run_audit("log-formatter-ok")
+    check("log-formatter-ok: no name-redundancy finding (first sentence >= 60 chars)",
+          not any(f["category"] == "description" and "restates the name" in f["message"]
+                  for f in data["findings"]))
+
+
+def test_desc_shouting_is_low_and_exits_one():
+    code, data = run_audit("desc-shouting")
+    check("desc-shouting: exit code 1", code == 1)
+    check("desc-shouting: low 'description' finding present for ALL-CAPS directives",
+          any(f["category"] == "description" and f["severity"] == "low"
+              and "ALL-CAPS directive" in f["message"] for f in data["findings"]))
+
+
+def test_desc_do_not_does_not_fire():
+    code, data = run_audit("desc-do-not-ok")
+    check("desc-do-not-ok: exit code 0 ('Do NOT' excluded, no other caps directives)", code == 0)
+    check("desc-do-not-ok: no ALL-CAPS directive finding",
+          not any("ALL-CAPS directive" in f["message"] for f in data["findings"]))
+
+
+def test_trigger_phrase_density_known_count():
+    code, data = run_audit("trigger-density")
+    check("trigger-density: metric value is 6 (2 quoted phrases + mentions/asks/says/trigger)",
+          data["metrics"]["trigger_phrase_density"] == 6)
+
+
 def test_exit_code_expression_info_only_and_mixed():
     # No existing check emits an INFO finding yet (Task 3 adds the first ones),
     # so the info-only exit-code path is exercised directly against synthetic
@@ -152,6 +220,15 @@ def main():
     test_name_dir_mismatch_is_medium_and_exits_one()
     test_large_body_token_estimate_is_medium_and_exits_one()
     test_metrics_object_present_and_correct()
+    test_menu_anti_pattern_is_low_and_exits_one()
+    test_menu_comma_list_does_not_fire()
+    test_fossil_deprecated_is_low_and_exits_one()
+    test_fossil_bare_year_does_not_fire()
+    test_name_redundancy_is_low_and_exits_one()
+    test_name_redundancy_long_sentence_does_not_fire()
+    test_desc_shouting_is_low_and_exits_one()
+    test_desc_do_not_does_not_fire()
+    test_trigger_phrase_density_known_count()
     test_exit_code_expression_info_only_and_mixed()
 
     print()

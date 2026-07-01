@@ -173,6 +173,25 @@ def test_fossil_bare_year_does_not_fire():
           not has_finding(data["findings"], "anti-pattern", "low"))
 
 
+def test_fossil_config_value_near_miss_does_not_fire():
+    # Corpus FPs: an ordinary numeric config default/table value that happens
+    # to look like a year, sitting near a fossil keyword ("before"/"flush").
+    pat = audit.FOSSIL_PATTERN
+    check("fossil near-miss: 'before process exit (default: 2000)' does not fire "
+          "(config value, not a year)",
+          not pat.search("before process exit (default: 2000)"))
+    check("fossil near-miss: '2000 | Milliseconds to flush events before' does not "
+          "fire (SDK options table row)",
+          not pat.search("`2000` | Milliseconds to flush events before"))
+    check("fossil genuine: 'Before August 2025, use the old API.' still fires",
+          bool(pat.search("Before August 2025, use the old API.")))
+    check("fossil genuine: 'deprecated since 2024' still fires",
+          bool(pat.search("deprecated since 2024")))
+    check("fossil month-name word-boundary: 'dismay 2024' does not fire "
+          "('May' must be a whole word, not a substring of 'dismay')",
+          not pat.search("dismay 2024, the situation changed"))
+
+
 def test_name_redundancy_is_low_and_exits_one():
     code, data = run_audit("csv-parser")
     check("csv-parser: exit code 1", code == 1)
@@ -273,6 +292,15 @@ def test_reasoning_extraction_mirrored_direction():
     check("reasoning mirrored near-miss: 'Your reasoning should be included in the "
           "summary.' does not fire (no internal/chain-of-thought qualifier)",
           not pat.search("Your reasoning should be included in the summary."))
+    check("reasoning mirrored near-miss: frontend-design planning-in-thinking "
+          "sentence does not fire (active verb 'show', no be-form + participle)",
+          not pat.search(
+              "Try to do a lot of this planning and iteration in your thinking, "
+              "and only show ideas to the user when you have higher confidence "
+              "it'll delight them."))
+    check("reasoning mirrored near-miss: 'explain your reasoning for each "
+          "finding' does not fire (no internal/chain-of-thought qualifier)",
+          not pat.search("explain your reasoning for each finding"))
 
 
 def test_script_security_evil_script_flagged_fine_script_not():
@@ -359,6 +387,7 @@ def main():
     test_fossil_reversed_order_is_low_and_exits_one()
     test_fossil_reversed_across_sentence_does_not_fire()
     test_fossil_bare_year_does_not_fire()
+    test_fossil_config_value_near_miss_does_not_fire()
     test_name_redundancy_is_low_and_exits_one()
     test_name_redundancy_long_sentence_does_not_fire()
     test_desc_shouting_is_low_and_exits_one()

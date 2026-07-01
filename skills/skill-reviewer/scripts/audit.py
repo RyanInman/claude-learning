@@ -66,10 +66,15 @@ MENU_PATTERN = re.compile(r"\bor\b[^.\n]{2,40},\s*or\b", re.IGNORECASE)
 # "deprecated since 2024" (keyword first) or "The 2024 API is deprecated"
 # (date first). Pairing must stay within one line/clause (no '.' or newline
 # crossed, 40-char window), so a bare year or a changelog-style date line
-# with no keyword nearby does not match.
+# with no keyword nearby does not match. The bare-year alternative is capped
+# to 2010-2039 (not \b20\d\d\b) -- corpus sweep showed the wide-open range
+# over-matching ordinary numeric config values ("default: 2000", a
+# milliseconds-flush setting) that have nothing to do with a calendar year.
+# The month-name alternative gets a leading \b too, so "May" only matches as
+# a whole word and not as a substring of another word (e.g. "dismay 2024").
 _FOSSIL_MONTH = ("January|February|March|April|May|June|July|August|"
                   "September|October|November|December")
-_FOSSIL_DATE = rf"(?:(?:{_FOSSIL_MONTH})\s+20\d\d|\b20\d\d\b)"
+_FOSSIL_DATE = rf"(?:\b(?:{_FOSSIL_MONTH})\s+20\d\d|\b20[123]\d\b)"
 _FOSSIL_KW = r"\b(?:before|after|until|deprecated)\b"
 FOSSIL_PATTERN = re.compile(
     rf"{_FOSSIL_KW}[^.\n]{{0,40}}{_FOSSIL_DATE}"
@@ -87,20 +92,25 @@ TRIGGER_VERB_PATTERN = re.compile(
 # Show-your-thinking / reasoning-extraction (check 10): verbs that put reasoning
 # into the response text, within a short window of a phrase naming the internal
 # reasoning process -- in EITHER order. Forward: "echo your internal reasoning";
-# mirrored: "internal reasoning should be included/shown" (active or passive
-# verb forms). Mirrors the refusal doc's own phrasing ("reproduce its internal
-# reasoning in the response text"), not generic "explain your reasoning" -- the
-# noun list requires an "internal"/chain-of-thought qualifier so ordinary
-# reasoning explanations don't fire. Body + description only.
+# mirrored: "internal reasoning should be included/shown". Mirrors the refusal
+# doc's own phrasing ("reproduce its internal reasoning in the response text"),
+# not generic "explain your reasoning" -- the noun list requires an
+# "internal"/chain-of-thought qualifier so ordinary reasoning explanations
+# don't fire. The mirrored branch additionally requires a linking be-form
+# (optionally preceded by a modal) directly before the passive participle --
+# a bare active verb near the noun ("...your thinking, and only show ideas...")
+# is not reasoning-extraction and must not fire just because "show" appears
+# somewhere in the same clause. Body + description only.
 _REASONING_VERBS = r"(?:echo|transcribe|reproduce|repeat|reveal|show|output|include)"
-_REASONING_VERBS_PASSIVE = (r"(?:echo(?:ed|es)?|transcrib(?:e|es|ed)|reproduc(?:e|es|ed)|"
-                             r"repeat(?:s|ed)?|reveal(?:s|ed)?|show(?:s|n|ed)?|"
-                             r"output(?:s|ted)?|includ(?:e|es|ed))")
+_REASONING_BE_FORM = r"(?:should|must|will|shall|to|may|might)?\s*(?:be|is|are|was|were|being|been)"
+_REASONING_PASSIVE_PARTICIPLES = (r"(?:shown|included|echoed|reproduced|revealed|output|"
+                                   r"repeated|transcribed)")
 _REASONING_NOUNS = (r"(?:internal reasoning|chain[- ]of[- ]thought|thinking process|"
                      r"thought process|extended thinking|your thinking)")
 REASONING_EXTRACTION_PATTERN = re.compile(
     rf"\b{_REASONING_VERBS}\b[^.\n]{{0,40}}\b{_REASONING_NOUNS}\b"
-    rf"|\b{_REASONING_NOUNS}\b[^.\n]{{0,40}}\b{_REASONING_VERBS_PASSIVE}\b",
+    rf"|\b{_REASONING_NOUNS}\b[^.\n]{{0,40}}{_REASONING_BE_FORM}"
+    rf"\s+(?:\w+\s+){{0,2}}?\b{_REASONING_PASSIVE_PARTICIPLES}\b",
     re.IGNORECASE)
 
 # Script security scan (check 13). Detection patterns are deliberately built so

@@ -290,7 +290,12 @@ SEV_ORDER = {"high": 0, "medium": 1, "low": 2, "info": 3}
 SEV_LABEL = {"high": "HIGH", "medium": "MED ", "low": "LOW ", "info": "INFO"}
 
 
-def render_report(name, desc, n_lines, approx_tokens, has_scripts, has_refs, findings):
+def _exit_code(findings):
+    """0 = clean or info-only, 1 = at least one high/medium/low finding."""
+    return 1 if any(f["severity"] != "info" for f in findings) else 0
+
+
+def render_report(name, desc, n_lines, approx_tokens, has_scripts, has_refs, metrics, findings):
     out = []
     out.append("=" * 64)
     out.append(f"SKILL AUDIT  ::  {name or '(unnamed)'}")
@@ -299,6 +304,8 @@ def render_report(name, desc, n_lines, approx_tokens, has_scripts, has_refs, fin
     out.append(f"  body        : {n_lines} lines  (~{approx_tokens} tokens once loaded)")
     out.append(f"  scripts/    : {'yes' if has_scripts else 'no'}")
     out.append(f"  references/ : {'yes' if has_refs else 'no'}")
+    out.append(f"  combined    : {metrics['combined_listing_chars']} chars "
+                "(description + when_to_use, feeds the listing-cap check)")
     out.append("")
 
     findings_sorted = sorted(findings, key=lambda f: SEV_ORDER.get(f["severity"], 9))
@@ -351,17 +358,27 @@ def main(argv=None):
     n_lines, approx_tokens = check_body(body, findings)
     has_scripts, has_refs = check_structure(skill_dir, body, findings)
 
+    when_to_use = str((fm or {}).get("when_to_use") or "").strip()
+    metrics = {
+        "description_chars": len(desc),
+        "combined_listing_chars": len(desc) + len(when_to_use),
+        "body_tokens": approx_tokens,
+        # Task 3 computes this from the reviewed-corpus trigger-phrase list.
+        "trigger_phrase_density": None,
+    }
+
     if args.json:
         print(json.dumps({
             "name": name, "description_chars": len(desc),
             "body_lines": n_lines, "approx_body_tokens": approx_tokens,
             "has_scripts": has_scripts, "has_references": has_refs,
+            "metrics": metrics,
             "findings": findings,
         }, indent=2))
     else:
-        print(render_report(name, desc, n_lines, approx_tokens, has_scripts, has_refs, findings))
+        print(render_report(name, desc, n_lines, approx_tokens, has_scripts, has_refs, metrics, findings))
 
-    return 1 if findings else 0
+    return _exit_code(findings)
 
 
 if __name__ == "__main__":

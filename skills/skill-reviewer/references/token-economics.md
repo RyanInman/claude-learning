@@ -15,6 +15,8 @@ you buy back intelligence.
 - [5. One skill, one job](#5-one-skill-one-job)
 - [6. Lost in the middle](#6-lost-in-the-middle)
 - [7. The triage questions](#7-the-triage-questions)
+- [8. Listing-budget overflow](#8-listing-budget-overflow)
+- [9. Compaction behavior](#9-compaction-behavior)
 
 ---
 
@@ -30,6 +32,10 @@ the body across a 30-turn session is ~6,000 line-turns of attention spent
 re-carrying the same text. The highest-impact token finding is almost always:
 **this content is loaded more often than it is needed.** The fix is to move it
 down the tier (body → reference) so it loads only when actually used.
+
+Spec recommends the body stay under 5,000 tokens alongside the 500-line
+guideline — a recommendation, not a hard limit. audit.py flags bodies over that
+at MED, worded "recommended" rather than a cap.
 
 Litmus test for any body line: *"If I deleted this, would the skill work worse?"*
 If not, it is not documentation — it is noise hiding the rules that matter.
@@ -110,7 +116,27 @@ For any instruction or section in a skill, ask in order:
   it to a reference (addressable, not resident).
 - **Would one example teach it faster than a paragraph?** → show, don't tell.
 - **Is this resident content earning its permanent seat?** → if not, cut it.
+- **Must this hold every time, no exceptions?** → hook, not prose.
+  Guarantee-shaped rules in a skill body are wishes; flag them.
 
 The closing discipline: don't fill the context, curate it. Keep the working set
 small enough that every token left in the room is fighting for the task in front
 of it.
+
+## 8. Listing-budget overflow
+
+Descriptions tax the shared listing budget (1% of context window, configurable
+via `skillListingBudgetFraction`) before any triggering; `when_to_use` counts
+toward the combined 1,536-char per-entry cap (configurable via
+`skillListingMaxDescChars`); overflow drops least-invoked skills' descriptions
+first. Symptom: skills silently stop triggering; `/doctor` diagnoses.
+Companion deterministic check: audit.py flags combined length > 1,536 (INFO).
+
+Source: code.claude.com/docs/en/skills.md
+
+## 9. Compaction behavior
+
+Invoked skill bodies are re-injected capped at 5,000 tokens per skill, 25,000
+tokens total, oldest dropped first (code.claude.com/docs/en/context-window.md)
+— front-load the body; rules past ~5k tokens vanish after compaction. Review
+criterion: does the body front-load what matters?

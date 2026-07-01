@@ -28,8 +28,8 @@ So a good description is deliberately, almost embarrassingly "pushy."
 A strong description has all of:
 - **Third person preferred, imperative acceptable.** "Reviews a SKILL.md and..."
   or "Use this skill when..." both work — skill-creator still documents
-  under-triggering and recommends being "a little bit 'pushy'"; no source
-  documents an over-triggering reversal on newer models.
+  under-triggering and recommends being "a little bit 'pushy'"; no Anthropic
+  source documents an over-triggering reversal on newer models.
 - **Both what AND when.** State what the skill does *and* the contexts/phrases
   that should fire it. All "when to use" info lives here, not in the body.
 - **Concrete trigger phrases, including synonyms.** Quote real user phrasing —
@@ -126,9 +126,9 @@ its own — only raise it if the name is genuinely vague enough to hurt discover
 - **Railroading / over-specification** (see §4).
 - **Doing many jobs.** A skill that straddles several purposes confuses the
   agent; one skill = one job. SkillsBench (arXiv:2602.12670): comprehensive
-  skills score **-2.9pp — worse than no skill at all** (lead with this);
-  curated average +16.6pp; 2-3 modules +18.6pp vs +5.9pp for 4+. Paper's terms
-  are "comprehensive/exhaustive bundles," not "monolithic."
+  skills score **-2.9pp — worse than no skill at all**; curated average
+  +16.6pp; 2-3 modules +18.6pp vs +5.9pp for 4+. Paper's terms are
+  "comprehensive/exhaustive bundles," not "monolithic."
 
 ## 6. Scripts for agents
 
@@ -158,10 +158,10 @@ author, doesn't run it.
 
 ## 8. Model-generation sensitivity
 
-As of mid-2026: "skills developed for prior models are often too prescriptive
-for Claude Fable 5 and can degrade output quality" (Fable 5 prompting guide,
-verbatim). Principle, stated generation-independently: newer models need less
-prescription — verify against the current migration guide.
+As of mid-2026, per the Fable 5 prompting guide (verbatim): "Skills developed
+for prior models are often too prescriptive for Claude Fable 5 and can degrade
+output quality." Principle, stated generation-independently: newer models need
+less prescription — verify against the current migration guide.
 - Reasoning-based ("Do X because Y causes Z") instructions preferred over rigid
   directives (agentskills.io + skill-creator).
 - Flag instructions telling the model to echo, transcribe, or reproduce its

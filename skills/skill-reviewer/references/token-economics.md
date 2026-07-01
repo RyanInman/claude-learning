@@ -129,14 +129,14 @@ Descriptions tax the shared listing budget (1% of context window, configurable
 via `skillListingBudgetFraction`) before any triggering; `when_to_use` counts
 toward the combined 1,536-char per-entry cap (configurable via
 `skillListingMaxDescChars`); overflow drops least-invoked skills' descriptions
-first. Symptom: skills silently stop triggering; `/doctor` diagnoses.
+first; symptom is skills silently not triggering; `/doctor` diagnoses.
 Companion deterministic check: audit.py flags combined length > 1,536 (INFO).
 
 Source: code.claude.com/docs/en/skills.md
 
 ## 9. Compaction behavior
 
-Invoked skill bodies are re-injected capped at 5,000 tokens per skill, 25,000
+Invoked skill bodies re-injected capped at 5,000 tokens per skill, 25,000
 tokens total, oldest dropped first (code.claude.com/docs/en/context-window.md)
 — front-load the body; rules past ~5k tokens vanish after compaction. Review
 criterion: does the body front-load what matters?

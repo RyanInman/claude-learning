@@ -62,14 +62,18 @@ CAPS_DIRECTIVES = ["MUST", "ALWAYS", "NEVER", "DO NOT", "DON'T", "SHOULD NOT", "
 MENU_PATTERN = re.compile(r"\bor\b[^.\n]{2,40},\s*or\b", re.IGNORECASE)
 
 # Time-sensitive "fossil" phrasing: a date paired with before/after/until/
-# deprecated in the same clause (keyword precedes the date, matching the
-# design examples "Before August 2025, ..." / "deprecated since 2024"). A bare
-# year or a changelog-style date line (no keyword nearby) does not match.
+# deprecated in the same clause, either order -- "Before August 2025, ..." /
+# "deprecated since 2024" (keyword first) or "The 2024 API is deprecated"
+# (date first). Pairing must stay within one line/clause (no '.' or newline
+# crossed, 40-char window), so a bare year or a changelog-style date line
+# with no keyword nearby does not match.
 _FOSSIL_MONTH = ("January|February|March|April|May|June|July|August|"
                   "September|October|November|December")
 _FOSSIL_DATE = rf"(?:(?:{_FOSSIL_MONTH})\s+20\d\d|\b20\d\d\b)"
+_FOSSIL_KW = r"\b(?:before|after|until|deprecated)\b"
 FOSSIL_PATTERN = re.compile(
-    rf"\b(?:before|after|until|deprecated)\b[^.\n]{{0,40}}{_FOSSIL_DATE}",
+    rf"{_FOSSIL_KW}[^.\n]{{0,40}}{_FOSSIL_DATE}"
+    rf"|{_FOSSIL_DATE}[^.\n]{{0,40}}{_FOSSIL_KW}",
     re.IGNORECASE)
 
 # Trigger-phrase density: quoted example phrases plus trigger-verb mentions in
@@ -459,6 +463,9 @@ def render_report(name, desc, n_lines, approx_tokens, has_scripts, has_refs, met
     out.append(f"  references/ : {'yes' if has_refs else 'no'}")
     out.append(f"  combined    : {metrics['combined_listing_chars']} chars "
                 "(description + when_to_use, feeds the listing-cap check)")
+    out.append(f"  triggers    : {metrics['trigger_phrase_density']} trigger "
+                "phrases/verbs in description (quoted phrases + "
+                "mentions/asks/says/use-when/trigger)")
     out.append("")
 
     findings_sorted = sorted(findings, key=lambda f: SEV_ORDER.get(f["severity"], 9))

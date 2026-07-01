@@ -154,6 +154,19 @@ def test_fossil_deprecated_is_low_and_exits_one():
               if f["category"] == "anti-pattern"))
 
 
+def test_fossil_reversed_order_is_low_and_exits_one():
+    code, data = run_audit("fossil-reversed")
+    check("fossil-reversed: exit code 1", code == 1)
+    check("fossil-reversed: low 'anti-pattern' finding present (date-then-keyword order)",
+          has_finding(data["findings"], "anti-pattern", "low"))
+
+
+def test_fossil_reversed_across_sentence_does_not_fire():
+    code, data = run_audit("fossil-reversed-ok")
+    check("fossil-reversed-ok: no 'anti-pattern' finding (year and keyword split by sentence boundary)",
+          not has_finding(data["findings"], "anti-pattern", "low"))
+
+
 def test_fossil_bare_year_does_not_fire():
     code, data = run_audit("fossil-bare-year-ok")
     check("fossil-bare-year-ok: no 'anti-pattern' finding (bare year, no fossil keyword)",
@@ -196,6 +209,15 @@ def test_trigger_phrase_density_known_count():
           data["metrics"]["trigger_phrase_density"] == 6)
 
 
+def test_trigger_phrase_density_in_report_header():
+    buf = io.StringIO()
+    with redirect_stdout(buf):
+        audit.main([str(FIXTURES_DIR / "trigger-density")])
+    report = buf.getvalue()
+    check("trigger-density: human report header shows the metric",
+          "triggers    : 6" in report)
+
+
 def test_exit_code_expression_info_only_and_mixed():
     # No existing check emits an INFO finding yet (Task 3 adds the first ones),
     # so the info-only exit-code path is exercised directly against synthetic
@@ -223,12 +245,15 @@ def main():
     test_menu_anti_pattern_is_low_and_exits_one()
     test_menu_comma_list_does_not_fire()
     test_fossil_deprecated_is_low_and_exits_one()
+    test_fossil_reversed_order_is_low_and_exits_one()
+    test_fossil_reversed_across_sentence_does_not_fire()
     test_fossil_bare_year_does_not_fire()
     test_name_redundancy_is_low_and_exits_one()
     test_name_redundancy_long_sentence_does_not_fire()
     test_desc_shouting_is_low_and_exits_one()
     test_desc_do_not_does_not_fire()
     test_trigger_phrase_density_known_count()
+    test_trigger_phrase_density_in_report_header()
     test_exit_code_expression_info_only_and_mixed()
 
     print()

@@ -81,6 +81,53 @@ def test_metrics_object_present_and_correct():
           metrics["trigger_phrase_density"] is None)
 
 
+def test_cc_only_field_is_info_not_high():
+    code, data = run_audit("cc-only-field")
+    check("cc-only-field: exit code 0 (info-only)", code == 0)
+    check("cc-only-field: info 'frontmatter' finding present",
+          has_finding(data["findings"], "frontmatter", "info"))
+    check("cc-only-field: message names the Claude Code-only phrase",
+          any("Claude Code-only field — fails upload to claude.ai/API" in f["message"]
+              for f in data["findings"]))
+    check("cc-only-field: no high 'frontmatter' finding for when_to_use",
+          not has_finding(data["findings"], "frontmatter", "high"))
+    check("clean fixture: no CC-only-field finding",
+          not has_finding(run_audit("clean")[1]["findings"], "frontmatter", "info"))
+
+
+def test_listing_cap_overflow_is_info_and_exits_zero():
+    code, data = run_audit("listing-cap-overflow")
+    check("listing-cap-overflow: exit code 0 (info-only)", code == 0)
+    check("listing-cap-overflow: info 'listing' finding present",
+          has_finding(data["findings"], "listing", "info"))
+    check("listing-cap-overflow: message names the 1,536 cap and /doctor",
+          any("1,536" in f["message"] and "/doctor" in f["suggestion"]
+              for f in data["findings"] if f["category"] == "listing"))
+    check("clean fixture: no listing-cap finding",
+          not has_finding(run_audit("clean")[1]["findings"], "listing", "info"))
+
+
+def test_name_dir_mismatch_is_medium_and_exits_one():
+    code, data = run_audit("name-dir-mismatch")
+    check("name-dir-mismatch: exit code 1", code == 1)
+    check("name-dir-mismatch: medium 'frontmatter' finding present",
+          has_finding(data["findings"], "frontmatter", "medium"))
+    check("clean fixture: name matches folder, no mismatch finding",
+          not has_finding(run_audit("clean")[1]["findings"], "frontmatter", "medium"))
+
+
+def test_large_body_token_estimate_is_medium_and_exits_one():
+    code, data = run_audit("large-body")
+    check("large-body: exit code 1", code == 1)
+    check("large-body: medium 'size' finding present",
+          has_finding(data["findings"], "size", "medium"))
+    check("large-body: message says 'recommended'",
+          any("recommended" in f["message"] for f in data["findings"]
+              if f["category"] == "size"))
+    check("clean fixture: body well under token ceiling, no size finding",
+          not has_finding(run_audit("clean")[1]["findings"], "size", "medium"))
+
+
 def test_exit_code_expression_info_only_and_mixed():
     # No existing check emits an INFO finding yet (Task 3 adds the first ones),
     # so the info-only exit-code path is exercised directly against synthetic
@@ -100,6 +147,10 @@ def main():
     test_clean_fixture_is_clean_and_exits_zero()
     test_missing_description_is_high_and_exits_one()
     test_short_description_is_medium_and_exits_one()
+    test_cc_only_field_is_info_not_high()
+    test_listing_cap_overflow_is_info_and_exits_zero()
+    test_name_dir_mismatch_is_medium_and_exits_one()
+    test_large_body_token_estimate_is_medium_and_exits_one()
     test_metrics_object_present_and_correct()
     test_exit_code_expression_info_only_and_mixed()
 

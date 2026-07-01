@@ -36,6 +36,23 @@ from pathlib import Path
 # fails on upload, so it is a hard (high) finding here too.
 ALLOWED_KEYS = {"name", "description", "license", "allowed-tools", "metadata", "compatibility"}
 
+# Claude Code-only frontmatter fields (code.claude.com/docs/en/skills.md). These
+# work in Claude Code but are rejected on upload to claude.ai/API -- report as
+# INFO rather than the harder "unexpected key" finding below.
+CC_ONLY_KEYS = {
+    "when_to_use", "argument-hint", "arguments", "disable-model-invocation",
+    "user-invocable", "disallowed-tools", "model", "effort", "context",
+    "agent", "hooks", "paths", "shell",
+}
+
+# Per-entry description cap for the Claude Code skill listing (configurable via
+# skillListingMaxDescChars). Overflow drops least-invoked skills' descriptions
+# whole, so it is worth flagging even though it can't fail upload.
+LISTING_CAP_CHARS = 1536
+
+# Recommended (not hard) body-token ceiling once a skill has triggered.
+BODY_TOKEN_RECOMMENDED_MAX = 5000
+
 # Caps-lock directive words we count to detect "the shouting file" anti-pattern.
 CAPS_DIRECTIVES = ["MUST", "ALWAYS", "NEVER", "DO NOT", "DON'T", "SHOULD NOT", "REQUIRED", "MANDATORY"]
 
@@ -94,12 +111,19 @@ def _naive_yaml(fm_text):
 
 def check_frontmatter(fm, findings):
     keys = set(fm.keys())
-    unexpected = keys - ALLOWED_KEYS
+    cc_only = keys & CC_ONLY_KEYS
+    unexpected = keys - ALLOWED_KEYS - CC_ONLY_KEYS
     if unexpected:
         _add(findings, "high", "frontmatter",
              f"Unexpected frontmatter key(s): {', '.join(sorted(unexpected))}. "
              f"These cause the skill to be rejected on upload.",
              f"Remove them. Allowed keys: {', '.join(sorted(ALLOWED_KEYS))}.")
+    if cc_only:
+        _add(findings, "info", "frontmatter",
+             f"{', '.join(sorted(cc_only))}: Claude Code-only field — fails upload "
+             "to claude.ai/API.",
+             "Keep only if this skill targets Claude Code exclusively; otherwise "
+             "remove it for a portable, uploadable SKILL.md.")
 
     # name
     name = fm.get("name")
@@ -188,6 +212,14 @@ def check_body(body, findings):
              f"SKILL.md body is {n_lines} lines (soft limit ~300). Approaching the "
              "point where splitting pays off.",
              "Consider moving domain-specific or rarely-used detail into references/.")
+
+    if approx_tokens > BODY_TOKEN_RECOMMENDED_MAX:
+        _add(findings, "medium", "size",
+             f"Body is ~{approx_tokens} tokens once loaded, over the "
+             f"{BODY_TOKEN_RECOMMENDED_MAX}-token recommended ceiling (not a hard "
+             "limit, but it competes with the live task in context).",
+             "Move detail into references/ (read on demand) and keep the body as "
+             "a lean index.")
 
     # @imports do not work in SKILL.md (only in CLAUDE.md).
     for i, line in enumerate(lines, 1):
@@ -286,6 +318,26 @@ def check_structure(skill_dir, body, findings):
     return has_scripts, has_refs
 
 
+def check_listing_cap(combined_chars, findings):
+    if combined_chars > LISTING_CAP_CHARS:
+        _add(findings, "info", "listing",
+             f"description + when_to_use is {combined_chars} chars, over the "
+             f"{LISTING_CAP_CHARS:,}-char per-entry listing cap. Overflow drops "
+             "least-invoked skills' descriptions whole from the listing.",
+             "Trim description/when_to_use, or run /doctor to check listing health.")
+
+
+def check_name_matches_dir(name, skill_dir, findings):
+    if not name:
+        return  # missing name is already a HIGH finding elsewhere
+    name = str(name).strip()
+    if name and name != skill_dir.name:
+        _add(findings, "medium", "frontmatter",
+             f"name '{name}' does not match parent directory '{skill_dir.name}'.",
+             f"Rename the frontmatter 'name' to '{skill_dir.name}', or rename the "
+             f"folder to '{name}'.")
+
+
 SEV_ORDER = {"high": 0, "medium": 1, "low": 2, "info": 3}
 SEV_LABEL = {"high": "HIGH", "medium": "MED ", "low": "LOW ", "info": "INFO"}
 
@@ -357,6 +409,7 @@ def main(argv=None):
 
     n_lines, approx_tokens = check_body(body, findings)
     has_scripts, has_refs = check_structure(skill_dir, body, findings)
+    check_name_matches_dir(name, skill_dir, findings)
 
     when_to_use = str((fm or {}).get("when_to_use") or "").strip()
     metrics = {
@@ -366,6 +419,7 @@ def main(argv=None):
         # Task 3 computes this from the reviewed-corpus trigger-phrase list.
         "trigger_phrase_density": None,
     }
+    check_listing_cap(metrics["combined_listing_chars"], findings)
 
     if args.json:
         print(json.dumps({

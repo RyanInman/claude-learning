@@ -28,8 +28,9 @@ Everything below serves finding and fixing those.
 
 1. **Locate the skill.** Find the folder containing `SKILL.md`. If the user
    pasted a SKILL.md inline, save it to a temp folder so the script can read it
-   (e.g. `mkdir -p /tmp/rev && cp <file> /tmp/rev/SKILL.md`). Note any
-   `scripts/`, `references/`, `assets/` alongside it.
+   (e.g. `mkdir -p /tmp/rev/<skill-name> && cp <file> /tmp/rev/<skill-name>/SKILL.md`
+   — audit checks that the folder name matches the skill's frontmatter name).
+   Note any `scripts/`, `references/`, `assets/` alongside it.
 
 2. **Run the deterministic audit first.** Everything measurable is already coded
    — do not eyeball line counts or frontmatter rules by hand:
@@ -44,14 +45,18 @@ Everything below serves finding and fixing those.
    handles its own errors and exits non-interactively.
 
 3. **Apply judgment the script can't.** The audit catches the countable things;
-   you catch the rest. Read the two reference files for the full criteria and the
-   *why* behind each, so your suggestions explain reasoning rather than assert
-   rules:
+   you catch the rest. Determine the skill's target platform first (Claude Code
+   vs claude.ai/API upload) — frontmatter validity and several criteria differ;
+   audit.py flags platform-specific fields as INFO. Read the two reference files
+   for the full criteria and the *why* behind each, so your suggestions explain
+   reasoning rather than assert rules:
    - `references/best-practices.md` — description/triggering quality, structure,
-     splitting, naming, examples-over-rules, and the anti-pattern catalog.
+     splitting, naming, examples-over-rules, anti-pattern catalog, eval-readiness,
+     model-generation sensitivity, invocation control, and security surface.
    - `references/token-economics.md` — the high-impact token moves: progressive
      disclosure, recurring vs one-time cost, compile-to-script, one-job +
-     negative triggers, lost-in-the-middle.
+     negative triggers, lost-in-the-middle, listing-budget overflow, and
+     compaction front-loading.
 
    Read the actual files and scripts before reporting on them. Report only what
    you confirmed in the content — no guessing at what a script "probably" does.

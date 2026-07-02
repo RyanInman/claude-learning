@@ -36,8 +36,123 @@ from pathlib import Path
 # fails on upload, so it is a hard (high) finding here too.
 ALLOWED_KEYS = {"name", "description", "license", "allowed-tools", "metadata", "compatibility"}
 
+# Claude Code-only frontmatter fields (code.claude.com/docs/en/skills.md). These
+# work in Claude Code but are rejected on upload to claude.ai/API -- report as
+# INFO rather than the harder "unexpected key" finding below.
+CC_ONLY_KEYS = {
+    "when_to_use", "argument-hint", "arguments", "disable-model-invocation",
+    "user-invocable", "disallowed-tools", "model", "effort", "context",
+    "agent", "hooks", "paths", "shell",
+}
+
+# Per-entry description cap for the Claude Code skill listing (configurable via
+# skillListingMaxDescChars). Overflow drops least-invoked skills' descriptions
+# whole, so it is worth flagging even though it can't fail upload.
+LISTING_CAP_CHARS = 1536
+
+# Recommended (not hard) body-token ceiling once a skill has triggered.
+BODY_TOKEN_RECOMMENDED_MAX = 5000
+
 # Caps-lock directive words we count to detect "the shouting file" anti-pattern.
 CAPS_DIRECTIVES = ["MUST", "ALWAYS", "NEVER", "DO NOT", "DON'T", "SHOULD NOT", "REQUIRED", "MANDATORY"]
+
+# Repeated-or menu chains ("use X or Y, or Z"), body-only. Corpus-validated at
+# 1.6% FP; do NOT broaden to the comma-list form ("X, Y, or Z") -- that variant
+# hits 22% of the corpus as ordinary English enumeration.
+MENU_PATTERN = re.compile(r"\bor\b[^.\n]{2,40},\s*or\b", re.IGNORECASE)
+
+# Time-sensitive "fossil" phrasing: a date paired with before/after/until/
+# deprecated in the same clause, either order -- "Before August 2025, ..." /
+# "deprecated since 2024" (keyword first) or "The 2024 API is deprecated"
+# (date first). Pairing must stay within one line/clause (no '.' or newline
+# crossed, 40-char window), so a bare year or a changelog-style date line
+# with no keyword nearby does not match. The bare-year alternative is capped
+# to 2010-2039 (not \b20\d\d\b) -- corpus sweep showed the wide-open range
+# over-matching ordinary numeric config values ("default: 2000", a
+# milliseconds-flush setting) that have nothing to do with a calendar year.
+# The month-name alternative gets a leading \b too, so "May" only matches as
+# a whole word and not as a substring of another word (e.g. "dismay 2024").
+_FOSSIL_MONTH = ("January|February|March|April|May|June|July|August|"
+                  "September|October|November|December")
+_FOSSIL_DATE = rf"(?:\b(?:{_FOSSIL_MONTH})\s+20\d\d|\b20[123]\d\b)"
+_FOSSIL_KW = r"\b(?:before|after|until|deprecated)\b"
+FOSSIL_PATTERN = re.compile(
+    rf"{_FOSSIL_KW}[^.\n]{{0,40}}{_FOSSIL_DATE}"
+    rf"|{_FOSSIL_DATE}[^.\n]{{0,40}}{_FOSSIL_KW}",
+    re.IGNORECASE)
+
+# Trigger-phrase density: quoted example phrases plus trigger-verb mentions in
+# the description, counted as a metric (not a finding). Counting rule: each
+# double-quoted phrase counts once, and each occurrence of mention(s)/ask(s)/
+# say(s)/trigger(s)/"use when(ever)" counts once, via non-overlapping regex
+# scan (re.findall never double-counts a span).
+TRIGGER_VERB_PATTERN = re.compile(
+    r"\b(?:mentions?|asks?|says?|use\s+when(?:ever)?|triggers?)\b", re.IGNORECASE)
+
+# Show-your-thinking / reasoning-extraction (check 10): verbs that put reasoning
+# into the response text, within a short window of a phrase naming the internal
+# reasoning process -- in EITHER order. Forward: "echo your internal reasoning";
+# mirrored: "internal reasoning should be included/shown". Mirrors the refusal
+# doc's own phrasing ("reproduce its internal reasoning in the response text"),
+# not generic "explain your reasoning" -- the noun list requires an
+# "internal"/chain-of-thought qualifier so ordinary reasoning explanations
+# don't fire. The mirrored branch additionally requires a linking be-form
+# (optionally preceded by a modal) directly before the passive participle --
+# a bare active verb near the noun ("...your thinking, and only show ideas...")
+# is not reasoning-extraction and must not fire just because "show" appears
+# somewhere in the same clause. Body + description only.
+_REASONING_VERBS = r"(?:echo|transcribe|reproduce|repeat|reveal|show|output|include)"
+_REASONING_BE_FORM = r"(?:should|must|will|shall|to|may|might)?\s*(?:be|is|are|was|were|being|been)"
+_REASONING_PASSIVE_PARTICIPLES = (r"(?:shown|included|echoed|reproduced|revealed|output|"
+                                   r"repeated|transcribed)")
+_REASONING_NOUNS = (r"(?:internal reasoning|chain[- ]of[- ]thought|thinking process|"
+                     r"thought process|extended thinking|your thinking)")
+REASONING_EXTRACTION_PATTERN = re.compile(
+    rf"\b{_REASONING_VERBS}\b[^.\n]{{0,40}}\b{_REASONING_NOUNS}\b"
+    rf"|\b{_REASONING_NOUNS}\b[^.\n]{{0,40}}{_REASONING_BE_FORM}"
+    rf"\s+(?:\w+\s+){{0,2}}?\b{_REASONING_PASSIVE_PARTICIPLES}\b",
+    re.IGNORECASE)
+
+# Script security scan (check 13). Detection patterns are deliberately built so
+# their own literal text does not match itself when audit.py -- a script living
+# under skills/skill-reviewer/scripts/ -- is part of the audited target during
+# the self-audit gate. See check_script_security() for the scan itself.
+_ENV_READ_PATTERN = re.compile(
+    r"os\.environ|\bos\.getenv\(|process\.env|\$[A-Z_][A-Z0-9_]{2,}\b")
+_NETWORK_CALL_PATTERN = re.compile(
+    r"requests\.|urllib\.|http\.client|fetch\(|curl\x20|wget\x20|socket\.")
+_URL_INTERP_PATTERN = re.compile(
+    r'https?://[^\s"\']*(?:\{[\w.]*\}|\$\{[\w.]*\}|\$[A-Z_][A-Z0-9_]*)'
+    r'|["\']https?://[^"\']*["\']\s*\+'
+    r'|\+\s*["\']?https?://',
+    re.IGNORECASE)
+_BASE64_PATTERN = re.compile(r"[A-Za-z0-9+/=]{80,}")
+# Prompt-injection marker (Snyk ToxicSkills taxonomy): built from two separate
+# string pieces rather than one literal so this line does not itself trip the
+# check it defines.
+_PROMPT_INJECTION_PATTERN = re.compile(
+    "ignore" + r"\s+(?:all\s+|any\s+)?(?:previous|prior|above)\s+" + "instructions",
+    re.IGNORECASE)
+# Zero-width/bidi control characters used for Unicode smuggling. Expressed as
+# numeric codepoint ranges (not a regex character class) so no literal
+# invisible character is ever embedded in audit.py's own source.
+_UNICODE_SMUGGLING_RANGES = (
+    (0x200B, 0x200F),  # zero-width space/joiners, LTR/RTL marks
+    (0x202A, 0x202E),  # bidi embedding/override controls
+    (0x2060, 0x2064),  # word joiner and invisible operators
+    (0xFEFF, 0xFEFF),  # byte-order mark / zero-width no-break space
+)
+
+
+def _find_unicode_smuggling(text):
+    """Return sorted 'U+XXXX' codepoints from text that fall in the smuggling
+    ranges above, deduped (one name per distinct codepoint, not per occurrence)."""
+    found = set()
+    for ch in text:
+        cp = ord(ch)
+        if any(lo <= cp <= hi for lo, hi in _UNICODE_SMUGGLING_RANGES):
+            found.add(f"U+{cp:04X}")
+    return sorted(found)
 
 
 def _add(findings, severity, category, message, suggestion, location="SKILL.md"):
@@ -94,12 +209,19 @@ def _naive_yaml(fm_text):
 
 def check_frontmatter(fm, findings):
     keys = set(fm.keys())
-    unexpected = keys - ALLOWED_KEYS
+    cc_only = keys & CC_ONLY_KEYS
+    unexpected = keys - ALLOWED_KEYS - CC_ONLY_KEYS
     if unexpected:
         _add(findings, "high", "frontmatter",
              f"Unexpected frontmatter key(s): {', '.join(sorted(unexpected))}. "
              f"These cause the skill to be rejected on upload.",
              f"Remove them. Allowed keys: {', '.join(sorted(ALLOWED_KEYS))}.")
+    if cc_only:
+        _add(findings, "info", "frontmatter",
+             f"{', '.join(sorted(cc_only))}: Claude Code-only field — fails upload "
+             "to claude.ai/API.",
+             "Keep only if this skill targets Claude Code exclusively; otherwise "
+             "remove it for a portable, uploadable SKILL.md.")
 
     # name
     name = fm.get("name")
@@ -188,6 +310,14 @@ def check_body(body, findings):
              f"SKILL.md body is {n_lines} lines (soft limit ~300). Approaching the "
              "point where splitting pays off.",
              "Consider moving domain-specific or rarely-used detail into references/.")
+
+    if approx_tokens > BODY_TOKEN_RECOMMENDED_MAX:
+        _add(findings, "medium", "size",
+             f"Body is ~{approx_tokens} tokens once loaded, over the "
+             f"{BODY_TOKEN_RECOMMENDED_MAX}-token recommended ceiling (not a hard "
+             "limit, but it competes with the live task in context).",
+             "Move detail into references/ (read on demand) and keep the body as "
+             "a lean index.")
 
     # @imports do not work in SKILL.md (only in CLAUDE.md).
     for i, line in enumerate(lines, 1):
@@ -286,6 +416,214 @@ def check_structure(skill_dir, body, findings):
     return has_scripts, has_refs
 
 
+def check_listing_cap(combined_chars, findings):
+    if combined_chars > LISTING_CAP_CHARS:
+        _add(findings, "info", "listing",
+             f"description + when_to_use is {combined_chars} chars, over the "
+             f"{LISTING_CAP_CHARS:,}-char per-entry listing cap. Overflow drops "
+             "least-invoked skills' descriptions whole from the listing.",
+             "Trim description/when_to_use, or run /doctor to check listing health.")
+
+
+def check_name_matches_dir(name, skill_dir, findings):
+    if not name:
+        return  # missing name is already a HIGH finding elsewhere
+    name = str(name).strip()
+    if name and name != skill_dir.name:
+        _add(findings, "medium", "frontmatter",
+             f"name '{name}' does not match parent directory '{skill_dir.name}'.",
+             f"Rename the frontmatter 'name' to '{skill_dir.name}', or rename the "
+             f"folder to '{name}'.")
+
+
+def check_menu(body, findings):
+    """Repeated 'or' option chains read as a menu instead of a clear default
+    path. Body-only -- references are allowed to quote menu examples."""
+    if MENU_PATTERN.search(body):
+        _add(findings, "low", "anti-pattern",
+             "Body reads as a repeated 'or' chain of options rather than a "
+             "clear default path.",
+             "Recommend one default tool/approach plus an escape hatch "
+             "instead of listing every option as an 'or' chain.")
+
+
+def check_fossils(body, findings):
+    """Dates paired with before/after/until/deprecated phrasing go stale.
+    Body-only -- best-practices.md quotes a fossil example deliberately."""
+    if FOSSIL_PATTERN.search(body):
+        _add(findings, "low", "anti-pattern",
+             "Body pairs a date with before/after/until/deprecated phrasing "
+             "-- time-sensitive content that will read as stale once the "
+             "date passes.",
+             "Move deprecated patterns into a collapsed 'Old patterns' note "
+             "or delete them.")
+
+
+def check_name_redundancy(name, desc, findings):
+    """Flags a description whose opening does little but restate the name.
+    Conservative: fires only when every non-trivial name token appears in a
+    short first sentence -- the 'WHEN without WHAT' half of the idea is a
+    judgment call and lives in best-practices.md instead."""
+    if not name or not desc:
+        return
+    tokens = [t for t in str(name).lower().split("-") if len(t) >= 3]
+    if not tokens:
+        return
+    # First sentence = up to the first sentence-ending punctuation followed by
+    # whitespace, so an abbreviation like "SKILL.md" (period with no trailing
+    # space) does not get mistaken for a sentence break.
+    first_sentence = re.split(r"(?<=[.!?])\s", desc.strip(), maxsplit=1)[0]
+    if len(first_sentence) >= 60:
+        return
+    lowered = first_sentence.lower()
+    if all(re.search(rf"\b{re.escape(tok)}\b", lowered) for tok in tokens):
+        _add(findings, "low", "description",
+             "Description opening restates the name instead of adding WHAT/"
+             "WHEN information.",
+             "Rewrite the opening to state what the skill does and when to "
+             "use it, rather than repeating the name.")
+
+
+def check_desc_shouting(desc, findings):
+    """ALL-CAPS directives in the description. Excludes 'Do NOT'/'DO NOT' --
+    the recommended negative-trigger idiom -- so 'Do NOT use this for X'
+    does not fire."""
+    if not desc:
+        return
+    count = 0
+    for word in CAPS_DIRECTIVES:
+        if word == "DO NOT":
+            continue
+        count += len(re.findall(rf"\b{re.escape(word)}\b", desc))
+    if count > 0:
+        _add(findings, "low", "description",
+             f"Description uses {count} ALL-CAPS directive word(s) "
+             "(MUST/ALWAYS/NEVER/...).",
+             "State the rule and the reason instead of shouting -- official "
+             "guidance discourages ALL-CAPS rigid language.")
+
+
+def compute_trigger_phrase_density(desc):
+    """Integer count of quoted example phrases + trigger-verb mentions in the
+    description. See TRIGGER_VERB_PATTERN for the counted verb forms."""
+    if not desc:
+        return 0
+    quoted = re.findall(r'"[^"]*"', desc)
+    verbs = TRIGGER_VERB_PATTERN.findall(desc)
+    return len(quoted) + len(verbs)
+
+
+def check_allowed_tools(fm, findings):
+    """Broad Bash grants ('Bash' or 'Bash(*)' with no command scoping, or a
+    bare '*' wildcard) widen the skill's security surface. Handles allowed-tools as a
+    YAML list, a comma-separated string, and the naive-YAML fallback's folded
+    bullet-list string (e.g. '- Bash - Read(git:*)')."""
+    raw = fm.get("allowed-tools")
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        return
+    if isinstance(raw, list):
+        entries = [str(e).strip() for e in raw if str(e).strip()]
+    else:
+        text = re.sub(r"(?:^|\s)-\s+", ",", str(raw))
+        entries = [e.strip() for e in text.split(",") if e.strip()]
+    if any(e in ("Bash", "*", "Bash(*)") for e in entries):
+        _add(findings, "info", "security",
+             "allowed-tools grants unrestricted Bash (or a wildcard) instead "
+             "of a scoped command list. Broad tool grants widen the skill's "
+             "security surface.",
+             "Scope the grant to the commands the skill actually needs, e.g. "
+             "'Bash(git:*)' instead of a bare 'Bash', 'Bash(*)', or '*'.")
+
+
+def check_reasoning_extraction(desc, body, findings):
+    """Instructions to echo/transcribe/reproduce internal reasoning or
+    chain-of-thought into the response text. This is a documented refusal
+    category (reasoning_extraction), so severity is HIGH -- the one exception
+    to this script's otherwise-conservative severities. Generic 'explain your
+    reasoning' does not match: REASONING_EXTRACTION_PATTERN requires both a
+    put-it-in-the-response verb and an 'internal'/chain-of-thought-qualified
+    noun."""
+    text = f"{desc}\n{body}"
+    if REASONING_EXTRACTION_PATTERN.search(text):
+        _add(findings, "high", "anti-pattern",
+             "Instructs the model to put its internal reasoning or "
+             "chain-of-thought into the response text. This matches the "
+             "documented reasoning_extraction refusal category "
+             "(platform.claude.com/docs/en/build-with-claude/"
+             "refusals-and-fallback) and causes refusals or elevated "
+             "fallback to a larger model.",
+             "Remove the instruction to echo/transcribe/output internal "
+             "reasoning verbatim. If the user needs the rationale, ask for a "
+             "summary written for the response, not the literal internal "
+             "thought process.")
+
+
+def _scan_security_text(label, text, findings):
+    """Run the five script-security sub-checks (check 13) against one file's
+    text. At most one MED finding per sub-check per file -- occurrences are
+    not spammed individually."""
+    if _ENV_READ_PATTERN.search(text) and _NETWORK_CALL_PATTERN.search(text):
+        _add(findings, "medium", "security",
+             "Reads an environment variable and makes a network call in the "
+             "same file -- possible credential exfiltration pattern, verify "
+             "intent.",
+             "Confirm what value is read and where it is sent; avoid "
+             "combining secret reads with outbound requests in one script.",
+             location=label)
+    if _URL_INTERP_PATTERN.search(text):
+        _add(findings, "medium", "security",
+             "An http(s) URL interpolates a variable into its query/path -- "
+             "data may be sent to an external endpoint, verify what is "
+             "transmitted.",
+             "Confirm the interpolated value and destination are expected; "
+             "avoid building request URLs from unreviewed input.",
+             location=label)
+    if _BASE64_PATTERN.search(text):
+        _add(findings, "medium", "security",
+             "Contains a long base64-looking literal -- opaque payload, "
+             "decode and verify.",
+             "Decode the literal and confirm it is not an embedded payload "
+             "or exfiltrated data.",
+             location=label)
+    if _PROMPT_INJECTION_PATTERN.search(text):
+        _add(findings, "medium", "security",
+             "Contains phrasing that resembles a prompt-injection "
+             "instruction-override attempt -- pattern present, verify "
+             "intent.",
+             "Confirm this is not an attempt to override the caller's "
+             "instructions; remove or justify the phrasing.",
+             location=label)
+    codepoints = _find_unicode_smuggling(text)
+    if codepoints:
+        _add(findings, "medium", "security",
+             f"Contains zero-width/bidi control character(s) "
+             f"({', '.join(codepoints)}) -- pattern present, verify intent.",
+             "Remove the hidden Unicode control character(s); confirm "
+             "nothing is being smuggled into the visible text.",
+             location=label)
+
+
+def check_script_security(skill_dir, body, findings):
+    """Scan SKILL.md's body and bundled scripts/ for env+network exfiltration
+    shape, URL parameter interpolation, base64 blobs, prompt-injection
+    markers, and Unicode smuggling. Only direct children of scripts/ are
+    scanned (non-recursive glob, matching check_structure's script handling),
+    which is what keeps tests/ fixtures -- deliberately malicious, not shipped
+    skill content -- out of the scan."""
+    _scan_security_text("SKILL.md", body, findings)
+    scripts_dir = skill_dir / "scripts"
+    if not scripts_dir.is_dir():
+        return
+    for pattern in ("*.py", "*.sh", "*.js"):
+        for scr in sorted(scripts_dir.glob(pattern)):
+            rel = scr.relative_to(skill_dir)
+            try:
+                text = scr.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            _scan_security_text(str(rel), text, findings)
+
+
 SEV_ORDER = {"high": 0, "medium": 1, "low": 2, "info": 3}
 SEV_LABEL = {"high": "HIGH", "medium": "MED ", "low": "LOW ", "info": "INFO"}
 
@@ -306,6 +644,9 @@ def render_report(name, desc, n_lines, approx_tokens, has_scripts, has_refs, met
     out.append(f"  references/ : {'yes' if has_refs else 'no'}")
     out.append(f"  combined    : {metrics['combined_listing_chars']} chars "
                 "(description + when_to_use, feeds the listing-cap check)")
+    out.append(f"  triggers    : {metrics['trigger_phrase_density']} trigger "
+                "phrases/verbs in description (quoted phrases + "
+                "mentions/asks/says/use-when/trigger)")
     out.append("")
 
     findings_sorted = sorted(findings, key=lambda f: SEV_ORDER.get(f["severity"], 9))
@@ -354,18 +695,26 @@ def main(argv=None):
         name, desc = "", ""
     else:
         name, desc = check_frontmatter(fm, findings)
+        check_allowed_tools(fm, findings)
 
     n_lines, approx_tokens = check_body(body, findings)
     has_scripts, has_refs = check_structure(skill_dir, body, findings)
+    check_name_matches_dir(name, skill_dir, findings)
+    check_menu(body, findings)
+    check_fossils(body, findings)
+    check_name_redundancy(name, desc, findings)
+    check_desc_shouting(desc, findings)
+    check_reasoning_extraction(desc, body, findings)
+    check_script_security(skill_dir, body, findings)
 
     when_to_use = str((fm or {}).get("when_to_use") or "").strip()
     metrics = {
         "description_chars": len(desc),
         "combined_listing_chars": len(desc) + len(when_to_use),
         "body_tokens": approx_tokens,
-        # Task 3 computes this from the reviewed-corpus trigger-phrase list.
-        "trigger_phrase_density": None,
+        "trigger_phrase_density": compute_trigger_phrase_density(desc),
     }
+    check_listing_cap(metrics["combined_listing_chars"], findings)
 
     if args.json:
         print(json.dumps({

@@ -1,5 +1,5 @@
 ---
-name: widget-validator
+name: clean
 description: Use this whenever the user needs to validate a widget configuration file before deployment, including checking required fields and format constraints. Not for validating legacy XML configs; use the legacy-validator skill for that instead of this one.
 ---
 

@@ -58,6 +58,10 @@ TOOL_SPRAWL_COUNT = 15
 # Below this cache-hit fraction (on a session with meaningful repeated context),
 # the prompt-cache prefix is probably being invalidated.
 LOW_CACHE_HIT_FRAC = 0.50
+# Prompt-cache default TTL is 5 minutes (refreshed free on each use). A gap
+# between assistant turns longer than this guarantees an EXPECTED cache miss
+# (idle expiry) as opposed to a warm miss, which indicates prefix instability.
+CACHE_TTL_SECONDS = 300
 
 
 def err(msg):
@@ -157,6 +161,15 @@ def block_text_len(block):
     return 0
 
 
+def parse_iso(ts):
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    except (ValueError, AttributeError, TypeError):
+        return None
+
+
 def analyze_subagents(session_path):
     """Aggregate token usage from subagent transcripts.
 
@@ -242,6 +255,10 @@ def analyze(records):
     thinking_chars = 0
     assistant_text_chars = []
     turn_durations = []
+    prev_assistant_dt = None
+    eph_5m = 0
+    eph_1h = 0
+    eph_seen = False
 
     for r in records:
         rtype = r.get("type")
@@ -279,6 +296,17 @@ def analyze(records):
             sum_cache_read += cr
             sum_cache_create += cc
             sum_output += ot
+            cc_detail = usage.get("cache_creation")
+            if isinstance(cc_detail, dict):
+                eph_seen = True
+                eph_5m += cc_detail.get("ephemeral_5m_input_tokens", 0) or 0
+                eph_1h += cc_detail.get("ephemeral_1h_input_tokens", 0) or 0
+            cur_dt = parse_iso(ts)
+            gap_s = None
+            if cur_dt is not None and prev_assistant_dt is not None:
+                gap_s = round((cur_dt - prev_assistant_dt).total_seconds(), 1)
+            if cur_dt is not None:
+                prev_assistant_dt = cur_dt
             context_size = it + cr + cc  # tokens the model saw this turn
             trajectory.append({
                 "turn": assistant_turns,
@@ -288,6 +316,7 @@ def analyze(records):
                 "cache_creation_input_tokens": cc,
                 "output_tokens": ot,
                 "context_size": context_size,
+                "gap_seconds_since_prev": gap_s,
             })
             text_len = 0
             for b in content_blocks(msg):
@@ -363,18 +392,36 @@ def analyze(records):
     # --- cache ---
     denom = total_billed_input
     cache_hit_frac = round(sum_cache_read / denom, 3) if denom else 0.0
-    # turns after the first where cache_read==0 but context was non-trivial = misses
     cache_miss_turns = 0
+    warm_miss_turns = 0
+    ttl_gap_miss_turns = 0
+    gaps_over_ttl = 0
     for i, t in enumerate(trajectory):
+        gap = t.get("gap_seconds_since_prev")
+        if gap is not None and gap > CACHE_TTL_SECONDS:
+            gaps_over_ttl += 1
         if i == 0:
             continue
         if t["cache_read_input_tokens"] == 0 and t["context_size"] > 1000:
             cache_miss_turns += 1
+            if gap is not None and gap > CACHE_TTL_SECONDS:
+                ttl_gap_miss_turns += 1
+            else:
+                warm_miss_turns += 1
     m["cache"] = {
         "cache_hit_fraction": cache_hit_frac,
         "cache_miss_turns": cache_miss_turns,
-        "note": "cache_hit_fraction = cache_read / (cache_read + cache_creation + uncached_input)",
+        "warm_cache_miss_turns": warm_miss_turns,
+        "miss_turns_after_ttl_gap": ttl_gap_miss_turns,
+        "assistant_gaps_over_ttl": gaps_over_ttl,
+        "note": "hit fraction = cache_read / all billed input. Misses after a "
+                ">5min idle gap are expected TTL expiry; only warm misses "
+                "indicate prefix instability.",
     }
+    if eph_seen:
+        m["cache"]["cache_creation_by_ttl"] = {
+            "ephemeral_5m": eph_5m, "ephemeral_1h": eph_1h,
+        }
 
     # --- models ---
     distinct_models = list(dict.fromkeys(models_in_order))
@@ -455,6 +502,7 @@ def analyze(records):
         "tool_sprawl_count": TOOL_SPRAWL_COUNT,
         "tool_output_warn_chars": TOOL_OUTPUT_WARN_CHARS,
         "window": DEFAULT_WINDOW,
+        "cache_ttl_seconds": CACHE_TTL_SECONDS,
     }
 
     m["_trajectory"] = trajectory

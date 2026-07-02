@@ -52,6 +52,8 @@ def test_legacy():
     check("legacy.high_peak_context", m["signals"]["high_peak_context"], False)
     check("legacy.subagent_files", m["subagents"]["transcript_files"], 0)
     check("legacy.latency_turns", m["latency"]["turns_measured"], 0)
+    check("legacy.warm_misses", m["cache"]["warm_cache_miss_turns"], 0)
+    check("legacy.ttl_split_absent", "cache_creation_by_ttl" in m["cache"], False)
 
 
 def test_modern():
@@ -73,6 +75,12 @@ def test_modern():
     check("modern.latency_median", la["median_turn_ms"], 62500)
     check("modern.latency_max", la["max_turn_ms"], 95000)
     check("modern.latency_slowest", la["slowest_turns_ms"], [95000, 30000])
+    ca = m["cache"]
+    check("modern.warm_misses", ca["warm_cache_miss_turns"], 1)
+    check("modern.ttl_gap_misses", ca["miss_turns_after_ttl_gap"], 1)
+    check("modern.gaps_over_ttl", ca["assistant_gaps_over_ttl"], 1)
+    check("modern.ttl_split", ca.get("cache_creation_by_ttl"),
+          {"ephemeral_5m": 25000, "ephemeral_1h": 0})
 
 
 def main():

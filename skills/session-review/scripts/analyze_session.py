@@ -63,6 +63,14 @@ LOW_CACHE_HIT_FRAC = 0.50
 # (idle expiry) as opposed to a warm miss, which indicates prefix instability.
 CACHE_TTL_SECONDS = 300
 
+# Context windows by model (verified against docs 2026-07-01). 1M is the
+# default window for these families; everything else falls back to 200k.
+WINDOW_1M = 1_000_000
+MODEL_WINDOWS_1M = (
+    "fable-5", "mythos", "opus-4-8", "opus-4-7", "opus-4-6",
+    "sonnet-5", "sonnet-4-6",
+)
+
 
 def err(msg):
     print(msg, file=sys.stderr)
@@ -168,6 +176,16 @@ def parse_iso(ts):
         return datetime.fromisoformat(ts.replace("Z", "+00:00"))
     except (ValueError, AttributeError, TypeError):
         return None
+
+
+def model_window(model):
+    if not model:
+        return DEFAULT_WINDOW
+    name = model.lower()
+    for frag in MODEL_WINDOWS_1M:
+        if frag in name:
+            return WINDOW_1M
+    return DEFAULT_WINDOW
 
 
 def analyze_subagents(session_path):
@@ -377,6 +395,16 @@ def analyze(records):
     # --- tokens ---
     context_sizes = [t["context_size"] for t in trajectory if t["context_size"]]
     peak_context = max(context_sizes) if context_sizes else 0
+    peak_util_pct = 0.0
+    crossed_danger = False
+    for t in trajectory:
+        cs = t["context_size"]
+        if not cs:
+            continue
+        w = model_window(t["model"])
+        peak_util_pct = max(peak_util_pct, cs / w * 100)
+        if cs >= w * CONTEXT_DANGER_FRAC:
+            crossed_danger = True
     total_billed_input = sum_input + sum_cache_read + sum_cache_create
     m["tokens"] = {
         "billed_input_total": total_billed_input,
@@ -385,8 +413,7 @@ def analyze(records):
         "cache_creation_total": sum_cache_create,
         "output_total": sum_output,
         "peak_context_size": peak_context,
-        "peak_context_pct_of_window": round(peak_context / DEFAULT_WINDOW * 100, 1)
-        if peak_context else 0.0,
+        "peak_context_pct_of_window": round(peak_util_pct, 1),
     }
 
     # --- cache ---
@@ -482,7 +509,6 @@ def analyze(records):
 
     # --- signals (threshold flags; interpretation lives in the checklist) ---
     crossed_degrade = peak_context >= CONTEXT_DEGRADE_TOKENS
-    crossed_danger = peak_context >= DEFAULT_WINDOW * CONTEXT_DANGER_FRAC
     m["signals"] = {
         "high_peak_context": crossed_degrade,
         "context_in_danger_zone": crossed_danger,
@@ -501,7 +527,8 @@ def analyze(records):
         "low_cache_hit_fraction": LOW_CACHE_HIT_FRAC,
         "tool_sprawl_count": TOOL_SPRAWL_COUNT,
         "tool_output_warn_chars": TOOL_OUTPUT_WARN_CHARS,
-        "window": DEFAULT_WINDOW,
+        "window_fallback": DEFAULT_WINDOW,
+        "window_1m_model_fragments": list(MODEL_WINDOWS_1M),
         "cache_ttl_seconds": CACHE_TTL_SECONDS,
     }
 
@@ -523,7 +550,7 @@ def text_summary(m):
     t = m["tokens"]
     lines.append(f"\nTOKENS")
     lines.append(f"  peak context: {t['peak_context_size']:,} "
-                 f"({t['peak_context_pct_of_window']}% of {DEFAULT_WINDOW:,})")
+                 f"({t['peak_context_pct_of_window']}% of model window)")
     lines.append(f"  output total: {t['output_total']:,}")
     ca = m["cache"]
     lines.append(f"\nCACHE  hit fraction: {ca['cache_hit_fraction']}  "

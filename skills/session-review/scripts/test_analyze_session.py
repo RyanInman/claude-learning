@@ -81,6 +81,8 @@ def test_modern():
     check("modern.gaps_over_ttl", ca["assistant_gaps_over_ttl"], 1)
     check("modern.ttl_split", ca.get("cache_creation_by_ttl"),
           {"ephemeral_5m": 25000, "ephemeral_1h": 0})
+    check("modern.peak_pct_1m_window", m["tokens"]["peak_context_pct_of_window"], 3.3)
+    check("modern.danger_zone", m["signals"]["context_in_danger_zone"], False)
 
 
 def main():

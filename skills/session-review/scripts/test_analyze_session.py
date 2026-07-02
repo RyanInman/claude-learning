@@ -54,6 +54,8 @@ def test_legacy():
     check("legacy.latency_turns", m["latency"]["turns_measured"], 0)
     check("legacy.warm_misses", m["cache"]["warm_cache_miss_turns"], 0)
     check("legacy.ttl_split_absent", "cache_creation_by_ttl" in m["cache"], False)
+    check("legacy.fast_mode_turns", m["models"]["fast_mode_turns"], 0)
+    check("legacy.skill_attribution", m["attribution"]["output_tokens_by_skill"], {})
 
 
 def test_modern():
@@ -83,6 +85,9 @@ def test_modern():
           {"ephemeral_5m": 25000, "ephemeral_1h": 0})
     check("modern.peak_pct_1m_window", m["tokens"]["peak_context_pct_of_window"], 3.3)
     check("modern.danger_zone", m["signals"]["context_in_danger_zone"], False)
+    check("modern.fast_mode_turns", m["models"]["fast_mode_turns"], 1)
+    check("modern.skill_attribution",
+          m["attribution"]["output_tokens_by_skill"], {"session-review": 400})
 
 
 def main():

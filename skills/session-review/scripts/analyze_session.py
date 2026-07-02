@@ -238,6 +238,7 @@ def analyze(records):
         "output": {},
         "subagents": {},
         "latency": {},
+        "attribution": {},
         "signals": {},
         "parse": {},
     }
@@ -277,6 +278,8 @@ def analyze(records):
     eph_5m = 0
     eph_1h = 0
     eph_seen = False
+    fast_mode_turns = 0
+    skill_output_tokens = Counter()
 
     for r in records:
         rtype = r.get("type")
@@ -319,6 +322,11 @@ def analyze(records):
                 eph_seen = True
                 eph_5m += cc_detail.get("ephemeral_5m_input_tokens", 0) or 0
                 eph_1h += cc_detail.get("ephemeral_1h_input_tokens", 0) or 0
+            if usage.get("speed") == "fast":
+                fast_mode_turns += 1
+            skill = r.get("attributionSkill")
+            if skill and ot:
+                skill_output_tokens[skill] += ot
             cur_dt = parse_iso(ts)
             gap_s = None
             if cur_dt is not None and prev_assistant_dt is not None:
@@ -462,6 +470,12 @@ def analyze(records):
         "distinct_models": distinct_models,
         "switch_count": len(switches),
         "switches": switches,
+        "fast_mode_turns": fast_mode_turns,
+    }
+
+    # --- attribution (which skills drove output spend; absent on old sessions) ---
+    m["attribution"] = {
+        "output_tokens_by_skill": dict(skill_output_tokens.most_common(5)),
     }
 
     # --- tools ---

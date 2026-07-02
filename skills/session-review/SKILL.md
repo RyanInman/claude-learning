@@ -50,7 +50,7 @@ python scripts/analyze_session.py --latest
 
 Read the `signals` block first — each `true` flag is a confirmed thing to investigate.
 Then use the supporting numbers (`tokens`, `cache`, `tools`, `compaction`, `output`,
-`models`) as the evidence you'll cite in the report.
+`models`, `latency`, `subagents`, `attribution`) as the evidence you'll cite in the report.
 
 ### 2. Gather live harness telemetry (Claude Code only, optional but valuable)
 

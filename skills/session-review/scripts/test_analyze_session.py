@@ -31,7 +31,9 @@ def run_analysis(fixture_name):
     path = FIX / fixture_name
     records, _total, bad = A.iter_records(path)
     assert bad == 0, f"{fixture_name}: {bad} malformed fixture lines"
-    return A.analyze(records)
+    m = A.analyze(records)
+    m["subagents"] = A.analyze_subagents(path)
+    return m
 
 
 def test_legacy():
@@ -48,6 +50,7 @@ def test_legacy():
     check("legacy.low_cache_hit", m["signals"]["low_cache_hit"], False)
     check("legacy.model_switching", m["signals"]["model_switching"], False)
     check("legacy.high_peak_context", m["signals"]["high_peak_context"], False)
+    check("legacy.subagent_files", m["subagents"]["transcript_files"], 0)
 
 
 def test_modern():
@@ -58,6 +61,11 @@ def test_modern():
     check("modern.miss_turns", m["cache"]["cache_miss_turns"], 2)
     check("modern.low_cache_hit", m["signals"]["low_cache_hit"], True)
     check("modern.peak_context", m["tokens"]["peak_context_size"], 33000)
+    sa = m["subagents"]
+    check("modern.subagent_files", sa["transcript_files"], 1)
+    check("modern.subagent_billed_input", sa["billed_input_total"], 6300)
+    check("modern.subagent_cache_read", sa["cache_read_total"], 3100)
+    check("modern.subagent_output", sa["output_total"], 700)
 
 
 def main():

@@ -6,6 +6,8 @@ Claude Code stores each session as a JSONL file (one JSON object per line) under
 ~/.claude/projects/<encoded-cwd>/<session-id>.jsonl. This script parses that file
 and emits a structured metrics summary that a reviewer can map to known session
 anti-patterns (context rot, cache misses, tool sprawl, output bloat, etc.).
+Subagent transcripts in the sibling <session-id>/subagents/ directory are aggregated
+automatically.
 
 The script does only the deterministic, mechanical work: counting, summing,
 hashing, and flagging threshold crossings. It does NOT decide what to recommend —
@@ -155,6 +157,43 @@ def block_text_len(block):
     return 0
 
 
+def analyze_subagents(session_path):
+    """Aggregate token usage from subagent transcripts.
+
+    Modern Claude Code stores each subagent's transcript in a sibling
+    directory: <session-id>/subagents/agent-*.jsonl next to <session-id>.jsonl.
+    Older sessions interleaved subagent turns in the main file instead
+    (counted separately as counts.sidechain_entries).
+    """
+    result = {
+        "transcript_files": 0,
+        "billed_input_total": 0,
+        "cache_read_total": 0,
+        "cache_creation_total": 0,
+        "output_total": 0,
+    }
+    p = Path(session_path)
+    sub_dir = p.parent / p.stem / "subagents"
+    if not sub_dir.is_dir():
+        return result
+    for f in sorted(sub_dir.glob("*.jsonl")):
+        records, _total, _bad = iter_records(f)
+        result["transcript_files"] += 1
+        for r in records:
+            if r.get("type") != "assistant":
+                continue
+            msg = r.get("message") or {}
+            usage = msg.get("usage") or {}
+            it = usage.get("input_tokens", 0) or 0
+            cr = usage.get("cache_read_input_tokens", 0) or 0
+            cc = usage.get("cache_creation_input_tokens", 0) or 0
+            result["billed_input_total"] += it + cr + cc
+            result["cache_read_total"] += cr
+            result["cache_creation_total"] += cc
+            result["output_total"] += usage.get("output_tokens", 0) or 0
+    return result
+
+
 def analyze(records):
     m = {
         "session": {},
@@ -166,6 +205,7 @@ def analyze(records):
         "thinking": {},
         "compaction": {},
         "output": {},
+        "subagents": {},
         "signals": {},
         "parse": {},
     }
@@ -470,6 +510,7 @@ def main():
         sys.exit(4)
 
     m = analyze(records)
+    m["subagents"] = analyze_subagents(path)
     m["parse"] = {"total_lines": total, "malformed_lines": bad, "source": str(path)}
 
     if not args.full:

@@ -90,9 +90,18 @@ def test_modern():
           m["attribution"]["output_tokens_by_skill"], {"session-review": 400})
 
 
+def test_text_summary():
+    text = A.text_summary(run_analysis("modern_session.jsonl"))
+    check("text.warm_misses", "warm: 1" in text, True)
+    check("text.latency_line", "LATENCY" in text, True)
+    check("text.subagents_line", "SUBAGENTS" in text, True)
+    check("text.fast_mode", "fast-mode turns: 1" in text, True)
+
+
 def main():
     test_legacy()
     test_modern()
+    test_text_summary()
     print(f"{PASSES} checks passed, {len(FAILURES)} failed")
     for f in FAILURES:
         print(f"  FAIL {f}")

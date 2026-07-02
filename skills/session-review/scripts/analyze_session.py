@@ -568,10 +568,24 @@ def text_summary(m):
     lines.append(f"  output total: {t['output_total']:,}")
     ca = m["cache"]
     lines.append(f"\nCACHE  hit fraction: {ca['cache_hit_fraction']}  "
-                 f"miss turns: {ca['cache_miss_turns']}")
+                 f"miss turns: {ca['cache_miss_turns']} "
+                 f"(warm: {ca.get('warm_cache_miss_turns', 0)}, "
+                 f"after idle gap: {ca.get('miss_turns_after_ttl_gap', 0)})")
+    la = m.get("latency", {})
+    if la.get("turns_measured"):
+        lines.append(f"\nLATENCY  turns measured: {la['turns_measured']}  "
+                     f"median: {la['median_turn_ms'] / 1000:.1f}s  "
+                     f"max: {la['max_turn_ms'] / 1000:.1f}s")
+    sa = m.get("subagents") or {}
+    if sa.get("transcript_files"):
+        lines.append(f"\nSUBAGENTS  transcripts: {sa['transcript_files']}  "
+                     f"billed input: {sa['billed_input_total']:,}  "
+                     f"output: {sa['output_total']:,}")
     mo = m["models"]
+    fast = mo.get("fast_mode_turns", 0)
     lines.append(f"\nMODELS  {', '.join(mo['distinct_models']) or 'none'}  "
-                 f"(switches: {mo['switch_count']})")
+                 f"(switches: {mo['switch_count']}"
+                 + (f", fast-mode turns: {fast}" if fast else "") + ")")
     to = m["tools"]
     lines.append(f"\nTOOLS  distinct: {to['distinct_tools']}  errors: {to['error_count']}  "
                  f"duplicates: {to['duplicate_call_total']}  "

@@ -206,6 +206,7 @@ def analyze(records):
         "compaction": {},
         "output": {},
         "subagents": {},
+        "latency": {},
         "signals": {},
         "parse": {},
     }
@@ -240,6 +241,7 @@ def analyze(records):
     thinking_blocks = 0
     thinking_chars = 0
     assistant_text_chars = []
+    turn_durations = []
 
     for r in records:
         rtype = r.get("type")
@@ -250,6 +252,12 @@ def analyze(records):
             timestamps.append(ts)
         if r.get("isCompactSummary"):
             compact_summaries += 1
+
+        if rtype == "system" and r.get("subtype") == "turn_duration":
+            d = r.get("durationMs")
+            if isinstance(d, (int, float)) and d >= 0:
+                turn_durations.append(int(d))
+            continue
 
         if rtype == "summary":
             summary_lines += 1
@@ -406,6 +414,15 @@ def analyze(records):
         "summary_lines": summary_lines,
         "compact_summaries": compact_summaries,
         "occurred": bool(summary_lines or compact_summaries),
+    }
+
+    # --- latency (from system turn_duration entries; absent on old sessions) ---
+    m["latency"] = {
+        "turns_measured": len(turn_durations),
+        "mean_turn_ms": round(statistics.mean(turn_durations)) if turn_durations else 0,
+        "median_turn_ms": round(statistics.median(turn_durations)) if turn_durations else 0,
+        "max_turn_ms": max(turn_durations) if turn_durations else 0,
+        "slowest_turns_ms": sorted(turn_durations, reverse=True)[:3],
     }
 
     # --- output ---

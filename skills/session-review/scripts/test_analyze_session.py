@@ -51,6 +51,7 @@ def test_legacy():
     check("legacy.model_switching", m["signals"]["model_switching"], False)
     check("legacy.high_peak_context", m["signals"]["high_peak_context"], False)
     check("legacy.subagent_files", m["subagents"]["transcript_files"], 0)
+    check("legacy.latency_turns", m["latency"]["turns_measured"], 0)
 
 
 def test_modern():
@@ -66,6 +67,12 @@ def test_modern():
     check("modern.subagent_billed_input", sa["billed_input_total"], 6300)
     check("modern.subagent_cache_read", sa["cache_read_total"], 3100)
     check("modern.subagent_output", sa["output_total"], 700)
+    la = m["latency"]
+    check("modern.latency_turns", la["turns_measured"], 2)
+    check("modern.latency_mean", la["mean_turn_ms"], 62500)
+    check("modern.latency_median", la["median_turn_ms"], 62500)
+    check("modern.latency_max", la["max_turn_ms"], 95000)
+    check("modern.latency_slowest", la["slowest_turns_ms"], [95000, 30000])
 
 
 def main():

@@ -9,15 +9,17 @@ why it matters, and the concrete fix to recommend. Severity tags:
 - **RARELY-CONSIDERED** — high-impact and easy to miss.
 
 Only raise a finding when the session actually shows the signal. Don't pad the
-report with items that didn't fire. Lead with the highest-impact confirmed issues.
+report with items that didn't fire. Lead with the highest-impact confirmed
+issues. Facts were verified against primary sources 2026-07-01; community
+guidance is labeled as such.
 
 ## Table of contents
 1. Context management (peak context, history bloat)
 2. Prompt cache health
 3. Tool use and agent loops
 4. Output and latency
-5. Reasoning / extended thinking
-6. Reliability
+5. Reasoning effort
+6. Reliability and multi-turn structure
 7. Compaction and long-running sessions
 8. Cross-cutting: the one idea
 
@@ -25,129 +27,188 @@ report with items that didn't fire. Lead with the highest-impact confirmed issue
 
 ## 1. Context management
 
-**Signal: `high_peak_context` / `context_in_danger_zone`** (peak_context_size).
-SUBTLE → RARELY-CONSIDERED. Model accuracy degrades as input grows, *well before*
-the window is full — a 200k-window model can degrade around 50k tokens, and quality
-drops hard above ~80% utilization. The decline is continuous, not a cliff, and it's
-silent: the model keeps answering, just worse. This is the most common root cause of
-"the model got dumber" — it's usually a context-management failure, not a model one.
-- **Fix:** `/clear` between unrelated tasks; compact or summarize at checkpoints;
-  push exploration into a forked subagent so its noise is discarded; for each block
-  in context ask "would removing this change the output?" and cut if not. Target
-  ~40–60% peak utilization.
+**Signal: `high_peak_context` / `context_in_danger_zone`** (peak_context_size,
+peak_context_pct_of_window — computed against each turn's model window: 1M is
+the default on Fable 5, Mythos, Opus 4.6+, Sonnet 4.6+; 200k otherwise).
+SUBTLE → RARELY-CONSIDERED. "Context rot" is official Anthropic vocabulary now:
+as tokens grow, recall accuracy degrades, well before the window is full, and
+the decline is silent. Chroma's 18-model report found focused ~300-token
+prompts significantly outperforming the same questions over full ~113k-token
+contexts. Still the most common root cause of "the model got dumber."
+- **Fix:** `/clear` between unrelated tasks — one session per task, not one
+  session per project; push exploration into subagents so the noise is
+  discarded; per block ask "would removing this change the output?" The
+  40–60% peak-utilization band is community guidance (HumanLayer), not an
+  official target — treat it as a heuristic.
 
-**Lost in the middle.** SUBTLE. Even within a tolerable context size, content in the
-*middle* is attended to worst (a U-shaped curve, with documented >30% accuracy drops
-for mid-context info). Earliest instructions are followed most reliably (primacy).
-- **Fix:** put the most important instructions/documents at the start or end, never
-  buried mid-context. In a long session, re-state the live task near the end of the
-  turn rather than relying on something said 30 turns ago.
+**Lost in the middle.** SUBTLE. Mid-context content is attended worst
+(U-shaped curve; Liu et al. measured mid-position multi-document QA falling
+below even the no-documents baseline). Earliest instructions are followed most
+reliably.
+- **Fix:** put the most important instructions at the start or end; in long
+  sessions, re-state the live task near the end of the turn (recitation)
+  rather than relying on something said 30 turns ago.
 
-**History bloat from accumulating tool results.** SUBTLE. In long agent loops, old
-tool outputs, reasoning, and messages pile up and degrade every subsequent turn.
-A large `tool_results` count combined with a high `assistant_turns` count is the tell.
-- **Fix:** clear/compact tool results at checkpoints; paginate or filter tool output.
+**History bloat from accumulating tool results.** SUBTLE. Old tool outputs
+degrade every later turn; large `tool_results` + high `assistant_turns` is the
+tell. On newer models prior-turn *thinking* is also kept by default and bills
+as input (see §5).
+- **Fix:** clear/compact at checkpoints; paginate or filter tool output.
+  Claude Code auto-compact clears older tool outputs first, but by the time it
+  fires, quality has already been degrading — don't rely on it.
+
+**The two-correction rule.** OBVIOUS, official, rarely followed. After two
+failed corrections on the same issue, `/clear` and rewrite the original prompt
+with what you learned — a clean session with a better prompt almost always
+beats a long session with accumulated corrections.
 
 ## 2. Prompt cache health
 
-**Signal: `low_cache_hit`** (cache_hit_fraction, cache_miss_turns). RARELY-CONSIDERED,
-high-impact. The cache prefix is built in a fixed order (tools → system → messages),
-hashed byte-for-byte; any change early in the prompt invalidates everything downstream.
-Cache reads cost ~10% of base input price and writes cost ~25% more — so a broken
-cache silently multiplies cost and latency. A near-zero `cache_read` across turns that
-share a prefix is the diagnostic.
-- **Common causes to check for:** a live timestamp / request ID / session ID placed
-  early in the system prompt; non-deterministic tool ordering (tools assembled from a
-  dict/set that shuffles); mutating tool definitions or toggling thinking mid-session;
-  adding/removing images mid-prefix.
-- **Fix:** move all dynamic content *after* the cached prefix; serialize tools in a
-  fixed sorted order and lock it with a unit test; hold the scaffold stable.
+**Signal: `low_cache_hit`** (cache_hit_fraction; classified evidence in
+warm_cache_miss_turns vs miss_turns_after_ttl_gap). RARELY-CONSIDERED,
+high-impact. Cache reads cost 0.1x base input; 5-minute-TTL writes 1.25x
+(1-hour writes 2x). The prefix is hashed byte-for-byte in fixed order
+(tools → system → messages); any early change invalidates everything after it.
+- **Read the miss classification first.** The default TTL is 5 minutes,
+  refreshed free on each use. A miss after an idle gap over 5 minutes
+  (`miss_turns_after_ttl_gap`) is *expected* — the cache expired; that's idle
+  cost, not a harness bug. Only `warm_cache_miss_turns` (gap ≤ 5 min) indicate
+  real prefix instability.
+- **Warm-miss causes to check:** a timestamp/request ID early in the system
+  prompt; non-deterministic tool ordering; mutating tool definitions;
+  toggling thinking *mode* mid-session (invalidates message-level cache only —
+  tools and system survive); adding/removing images mid-prefix.
+- **Fix:** move dynamic content after the cached prefix; serialize tools in a
+  fixed sorted order; for loops with predictable idle gaps, the 1-hour TTL
+  (2x write) often pays for itself on a large stable prefix
+  (`cache_creation_by_ttl` shows the current split).
 
-**Signal: `model_switching`** (models.switches). SUBTLE. Caches are model-scoped —
-switching models mid-loop throws away the entire cache.
-- **Fix:** keep the main loop on one model; spawn separate calls for cheaper sub-tasks
-  rather than swapping the main loop's model. (A deliberate one-time switch can be
-  fine; flag it so the user can confirm it was intentional.)
+**Signal: `model_switching`** (models.switches). SUBTLE. Caches are
+model-scoped — switching mid-loop rebuilds the cache from scratch. A
+deliberate one-time switch can be fine; flag it so the user confirms intent.
+
+**Fast mode** (models.fast_mode_turns). SUBTLE cost cliff. Fast mode (Opus
+4.8: up to ~2.5x faster at 2x token price) repays the *entire conversation
+context* at fast-mode uncached input price the first time it's enabled in a
+conversation. Enable it from the start or not at all; unavailable on
+Fable/Sonnet/Haiku.
 
 ## 3. Tool use and agent loops
 
-**Signal: `tool_sprawl`** (distinct_tools > ~15). RARELY-CONSIDERED. Past a threshold,
-more tools degrade the model's ability to select *any* of them correctly — it picks
-plausible-but-wrong tools silently.
-- **Fix:** route to specialist sub-agents with small, coherent toolsets; use dynamic
-  tool activation / tool-search so schemas are appended on demand instead of all loaded.
+**Signal: `tool_sprawl`** (distinct_tools > ~15). RARELY-CONSIDERED. Past a
+threshold, more visible tools degrade selection of all of them. The 2026 fix
+is deferral, not just pruning: Claude Code defers MCP tool schemas by default
+(tool search — Anthropic measured ~85% token reduction with accuracy *gains*).
+- **Fix:** verify tool search wasn't disabled (`ENABLE_TOOL_SEARCH=false` or
+  forced-upfront loading); disable unused MCP servers via `/mcp`; prefer CLI
+  tools (`gh`, `aws`, `gcloud`) over MCP servers — no per-tool listing cost;
+  route specialist work to subagents with small toolsets.
 
 **Signal: `duplicate_tool_calls`** (duplicate_call_total, duplicated_tools).
-SUBTLE. The same tool called with identical input more than once is wasted work — a
-re-read of a file already in context, a repeated identical search. Each repeat burns a
-turn and adds context.
-- **Fix:** if it's a re-read of unchanged data, the info was already in context — the
-  skill/harness should remind the model not to re-fetch. If it's repeated searches,
-  prefer one targeted query; make tool error messages specific and actionable so the
-  model doesn't retry blindly.
+SUBTLE. The same tool called with identical input more than once is wasted
+work — a re-read of a file already in context, a repeated identical search.
+- **Fix:** if it's a re-read of unchanged data, the info was already in
+  context — the harness should remind the model not to re-fetch. If it's
+  repeated searches, prefer one targeted query; make tool errors specific and
+  actionable so the model doesn't retry blindly.
 
-**Signal: `large_tool_outputs`** (tool_outputs_over_cap, largest_tool_output_chars).
-SUBTLE. Outputs near or past the harness truncation limit (~25k tokens in Claude Code)
-both bloat context and risk silently losing the tail.
-- **Fix:** give tools sensible default limits, pagination, and an `--output` to a file
-  for large results; return a summary by default rather than a full dump.
+**Signal: `large_tool_outputs`** (tool_outputs_over_cap,
+largest_tool_output_chars). SUBTLE. Outputs near the ~25k-token truncation
+cap bloat context and risk silently losing the tail.
+- **Fix:** default limits, pagination, `--output` to a file; process bulk
+  output in a script on disk and return a summary (Anthropic measured +11%
+  accuracy with 24% fewer input tokens for code-orchestrated tool use); or a
+  PostToolUse hook that condenses verbose output before it enters context.
 
-**Poor tool descriptions / ambiguous names.** SUBTLE (inferred from misselection or
-errors, not directly measured). Overlapping descriptions cause silent misselection.
-- **Fix:** crisp, differentiated descriptions; unambiguous parameter names (`user_id`
-  not `user`).
+**Poor tool descriptions / ambiguous names.** SUBTLE (inferred from
+misselection, not directly measured). Overlapping descriptions cause silent
+misselection.
+- **Fix:** crisp, differentiated descriptions; unambiguous parameter names
+  (`user_id` not `user`).
 
 ## 4. Output and latency
 
-**Output length dominates latency and cost.** RARELY-CONSIDERED. Output generation is
-far slower per token than input prefill, so trimming output is the biggest speed lever.
-A high `max_text_chars` / `mean_text_chars` (verbose narration, full data dumps) is the
-tell.
-- **Fix:** cap volume ("report at most five items," "keep approval messages terse");
-  use the plan-validate-execute pattern — write a structured plan to a file, validate
-  with a script, then execute, so reasoning lives on disk not in the token stream;
-  demand structured output (JSON/CSV to stdout) and parse it instead of narrating.
+**Output length dominates latency.** RARELY-CONSIDERED. Decode is sequential;
+latency is roughly linear in output tokens, while input prefill is
+comparatively cheap. High mean/max_text_chars (narration, restated code, data
+dumps) is the tell.
+- **Fix:** cap volume ("report at most five items"); demand structured output
+  and parse it; plan-validate-execute so reasoning lives on disk. Fable 5
+  un-steered elaborates beyond the task, especially at higher effort — a short
+  brevity instruction is as effective as listing every verbose pattern.
 
-## 5. Reasoning / extended thinking
+**Latency metrics** (latency block, from turn_duration entries). Long turns
+are NOT inherently bad — autonomous runs legitimately take minutes. Interpret
+with evidence: long turns + duplicate calls + low output = thrash; long turns
++ steady distinct tool progress = working as intended.
+
+**The two speed levers to recommend:**
+- **Effort** (`/effort`; low/medium/high/xhigh/max, default high). Lower
+  effort makes the model combine tool calls, skip preamble, and answer
+  tersely — it shapes *all* output, not just thinking. Skills and subagents
+  can pin `effort:` in frontmatter. Effort is not recorded in the transcript —
+  ask the user what it was set to.
+- **Fast mode** (`/fast`) for interactive iteration on Opus — see the §2 cache
+  caveat. Also: parallel tool calls, and Haiku-routed subagents for
+  mechanical fan-out.
+
+## 5. Reasoning effort
 
 **Signal: `heavy_thinking`** (thinking_blocks, approx_thinking_chars).
-RARELY-CONSIDERED. Reasoning tokens bill as output and add seconds of latency; they
-help genuine math/logic/code-design/debugging but not factual lookup or formatting.
-Prior-turn thinking also accumulates as input in multi-turn flows.
-- **Fix:** enable extended thinking only on hard reasoning routes; start at the minimum
-  budget and raise incrementally (diminishing returns at high budgets). If heavy
-  thinking appears on simple/mechanical turns, that budget is being wasted.
+RARELY-CONSIDERED. Reasoning tokens bill as output and add latency. The
+control surface changed in 2026: effort levels replaced thinking budgets —
+`budget_tokens` is deprecated on newer models, adaptive-thinking models ignore
+`MAX_THINKING_TOKENS`, and thinking cannot be disabled on Fable 5.
+`ultrathink` in a prompt is the only remaining deep-reasoning keyword ("think
+hard" does nothing now).
+- **Fix:** heavy thinking on mechanical turns → lower session effort, or pin
+  `effort: low` on the mechanical skill/subagent. On newer models prior-turn
+  thinking blocks are kept by default and bill as input on every later turn —
+  in very long sessions that compounds; a fresh session (or API context
+  editing) clears it.
 
-## 6. Reliability
+## 6. Reliability and multi-turn structure
 
-**Signal: `tool_errors_present`** (tools.error_count). SUBTLE → OBVIOUS. Tool errors
-that the loop recovers from are normal in small numbers; clusters indicate a brittle
-tool interface or the model fighting an opaque failure.
-- **Fix:** make tool errors say what went wrong, what was expected, and what to try;
-  add exponential backoff with jitter for rate-limit errors; treat refusals/failed
-  validations as first-class errors, not silent passes.
+**Signal: `tool_errors_present`** (tools.error_count). SUBTLE → OBVIOUS.
+Recovered errors are normal in small numbers; clusters mean a brittle tool
+interface or the model fighting an opaque failure.
+- **Fix:** errors should say what went wrong, what was expected, what to try;
+  backoff with jitter for rate limits. Counterpoint: keep errors in context
+  *while actively debugging* — erasing failures removes the evidence the model
+  adapts from (Manus); clean them at task boundaries.
 
-**Multi-turn drift.** RARELY-CONSIDERED (inferred from many turns + repeated rework).
-Models lose substantial performance when a task is revealed across many turns versus
-one consolidated prompt, and once they take a wrong turn early they tend not to recover.
-- **Fix:** consolidate requirements before generation; add validation checkpoints; when
-  feasible, re-state the full task in one turn rather than dribbling it out.
+**Multi-turn drift.** RARELY-CONSIDERED, now measured: across 200k+ simulated
+conversations, models averaged a 39% drop when requirements arrived over many
+turns vs one consolidated prompt — driven by premature answers and
+over-anchoring on their own early wrong output (arXiv 2505.06120, ICLR 2026).
+- **Fix:** consolidate requirements before generation; re-state the full task
+  when correcting; after two failed corrections apply the two-correction rule
+  (§1).
 
 ## 7. Compaction and long-running sessions
 
-**Signal: `compaction_occurred`** (compaction.summary_lines). Informational, not a
-fault by itself — but it means context was long enough to need summarizing, and that
-nested CLAUDE.md / path-scoped rules are NOT auto-re-injected after compaction (only
-the project-root CLAUDE.md survives). Conversation-only instructions are lost entirely.
-- **Fix:** for very long tasks, use bridging artifacts (a progress file + git history)
-  so a fresh context window can resume; add "when compacting, preserve…" notes to the
-  root CLAUDE.md for anything critical; re-invoke a large skill after compaction if it
-  was dropped.
+**Signal: `compaction_occurred`** (compaction.summary_lines). Informational,
+not a fault. What survives is precisely documented: project-root CLAUDE.md,
+unscoped rules, and auto memory are re-injected from disk; path-scoped rules
+and nested CLAUDE.md are lost until a matching file is read again; invoked
+skill bodies are re-injected capped at 5,000 tokens per skill / 25,000 total,
+oldest dropped first; the skill *listing* is not re-injected. Auto-compact
+clears older tool outputs first, then summarizes, and gives up after a few
+attempts if one giant file keeps refilling context.
+- **Fix:** bridging artifacts (spec/progress file + git history) so a fresh
+  session can resume — now official guidance; a "Compact Instructions" section
+  in CLAUDE.md or `/compact <focus>` to steer what survives; re-invoke a large
+  skill after compaction if its body was dropped.
+- **When recommending rewrites of memory files or summaries,** prefer
+  incremental delta edits over full rewrites: iterative summarization erodes
+  detail ("brevity bias") and monolithic rewrites destroy accumulated
+  knowledge ("context collapse") — ACE, arXiv 2510.04618.
 
 ## 8. Cross-cutting: the one idea
 
-Every token carried on every turn competes for the same finite attention as the live
-task. Minimizing what's resident isn't austerity — it's how you buy back the model's
-intelligence. When in doubt, the fix is almost always *less context*, more
-addressable-on-demand knowledge (see `references/harness-fixes.md`), and more
-deterministic work pushed into scripts and hooks.
+Every token carried on every turn competes for the same finite attention as
+the live task. Minimizing what's resident isn't austerity — it's how you buy
+back the model's intelligence. Prefer one session per task; recite the live
+goal near the end of long sessions; push deterministic work into scripts and
+hooks; and when the same problem recurs across sessions, fix the harness
+(see `references/harness-fixes.md`), not the transcript.

@@ -22,6 +22,8 @@ There are two inputs and two surfaces. Figure out which case you're in first.
 `~/.claude/projects/<encoded-cwd>/<session-id>.jsonl`. If the user names a file, use it.
 If they say "my latest session" or "the run I just did," run the script with `--latest`
 to grab the newest one (or `--project-dir` to point at a specific project folder).
+Modern sessions store subagent transcripts in a sibling `<session-id>/subagents/`
+directory; the script finds and aggregates them automatically.
 
 **The currently active session.**
 - *In Claude Code:* the live session is itself a JSONL file. `--latest` usually finds it,
@@ -55,7 +57,10 @@ Then use the supporting numbers (`tokens`, `cache`, `tools`, `compaction`, `outp
 The JSONL captures the conversation, not the harness configuration. If the user is in
 Claude Code and wants harness recommendations, ask them to share (or run) these — they
 take seconds and reveal things the transcript can't:
-- `/context` — what's eating the always-loaded budget before any work begins.
+- `/context` — what's eating the always-loaded budget before any work begins
+  (its Skills row reflects the post-budget listing size).
+- `/usage` — session cost estimate plus per-skill, per-subagent, per-plugin, and
+  per-MCP-server usage breakdown (`/cost` is an alias).
 - `/doctor` — whether the skill-listing description budget is overflowing (a cause of
   skills silently not triggering).
 - `/memory` — which CLAUDE.md and rules files are actually loaded.
@@ -150,8 +155,17 @@ degradation), RARELY-CONSIDERED (high-impact and easy to miss).
   rules aren't re-injected afterward.
 - **A single model switch may be intentional.** Flag it as a cache cost, but let the user
   confirm whether it was deliberate before treating it as a defect.
-- **Sidechain entries are subagent turns.** The script counts them separately
-  (`sidechain_entries`); high subagent activity is usually good context hygiene, not a problem.
+- **Subagent activity is usually good context hygiene, not a problem.** Modern
+  sessions store it in `<session-id>/subagents/` (aggregated in the `subagents`
+  block); legacy sessions interleave it (`sidechain_entries`).
+- **Idle-gap cache misses are expected.** The prompt cache's default TTL is 5
+  minutes, so `miss_turns_after_ttl_gap` is idle cost, not a defect — only
+  `warm_cache_miss_turns` indicate prefix instability.
+- **Effort level is not in the transcript.** Ask the user what `/effort` was
+  set to before recommending reasoning-budget changes.
+- **Long turns are not inherently bad.** Autonomous runs legitimately take
+  minutes; read the `latency` block together with duplicate-call and output
+  evidence before flagging.
 - **Thresholds are documented, not sacred.** The script's cutoffs (50k context, ~25k tool
   output, 15 tools, 50% cache hit) are reasoned defaults printed under `signals._thresholds`;
   treat a near-miss as "worth a look," not a hard verdict.

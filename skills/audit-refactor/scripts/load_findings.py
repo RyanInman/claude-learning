@@ -27,6 +27,11 @@ Pass --files <path...> to scope findings to specific files and/or directories
 (matched repo-relative against root); the confidence filter and f1..fN id
 assignment then run over the scoped set, so ids stay contiguous for the target.
 
+Findings a prior refactor run marked resolved are filtered out on load — JSON
+`status` in {addressed, cleared}, or a markdown Issue cell prefixed with
+`[ADDRESSED]`/`[CLEARED]` — so a continuation run reading a `.updated.md` report
+sees only open work.
+
 Exit: 0 found >=1 finding · 3 input parsed/scoped to zero findings · 1 usage/IO.
 """
 
@@ -38,19 +43,24 @@ import re
 import sys
 
 LEVELS = {"HIGH", "MEDIUM", "LOW"}
+RESOLVED_STATUSES = {"addressed", "cleared"}
 CANON_KEYS = ("file", "title", "rule_file", "rule_text", "line", "issue",
               "impact", "risk", "confidence", "code_snippet", "suggested_fix",
               "fix_example")
 
 
 def _norm_one(raw):
-    """Coerce a single raw finding dict into the canonical key set."""
+    """Coerce a single raw finding dict into the canonical key set.
+
+    Sets a private `_resolved` flag (from a `status` of addressed/cleared) that
+    main() filters on and the canonical output omits."""
     out = {k: raw.get(k) for k in CANON_KEYS}
     for axis in ("impact", "risk"):
         v = out.get(axis)
         out[axis] = v if v in LEVELS else (v.upper() if isinstance(v, str) and v.upper() in LEVELS else "MEDIUM")
     if not isinstance(out.get("confidence"), (int, float)) or isinstance(out.get("confidence"), bool):
         out["confidence"] = 0
+    out["_resolved"] = str(raw.get("status") or "").strip().lower() in RESOLVED_STATUSES
     return out
 
 
@@ -105,10 +115,12 @@ def load_markdown_source(path):
             if file.lower() == "file" or set(file) <= {"-", " "}:
                 continue  # header / separator row
             conf_n = int(re.sub(r"[^0-9]", "", conf) or 0)
+            tag = re.match(r"\[(addressed|cleared)\]", issue, re.I)  # prior-run marker
             findings.append(_norm_one({
                 "file": file, "title": issue, "rule_file": rule, "rule_text": "",
                 "issue": issue, "impact": impact, "risk": risk,
                 "confidence": conf_n, "code_snippet": "", "suggested_fix": "",
+                "status": tag.group(1).lower() if tag else None,
             }))
     return findings
 
@@ -137,6 +149,11 @@ def main():
         print(f"error: {e}", file=sys.stderr)
         sys.exit(1)
 
+    # Drop findings a prior run marked addressed/cleared, so a continuation run
+    # that loads a `.updated.md` report sees only open work.
+    resolved = sum(1 for f in findings if f.get("_resolved"))
+    findings = [f for f in findings if not f.get("_resolved")]
+
     if args.files:
         # Normalize each target to repo-relative against root; finding `file`
         # values are already repo-relative. A target that resolves to root
@@ -164,7 +181,8 @@ def main():
 
     dropped = len(findings) - len(kept)
     print(json.dumps({"source": source, "root": root, "n_findings": len(kept),
-                      "dropped_low_confidence": dropped, "out": args.out}))
+                      "dropped_low_confidence": dropped, "dropped_addressed": resolved,
+                      "out": args.out}))
     sys.exit(0 if kept else 3)
 
 

@@ -82,8 +82,18 @@ to be committed.
      (needs `AZURE_DEVOPS_PAT`, or `JIRA_EMAIL` + `JIRA_API_TOKEN`, as env
      vars — the script's errors say exactly what is missing). Then add the
      `## Normalized requirements` section the same way.
-2. **Extract git data** — run:
-   `python3 scripts/extract_branch.py --repo <repo> --head <branch> --out <repo>/.pattern-mining/branches/<slug>/extract.json`
+2. **Extract git data.** First confirm the branch resolves: `git
+   rev-parse --verify <branch>` (try `origin/<branch>` too). If neither
+   resolves — branch deleted after merge — find the merge commit instead:
+   search `git log --all --grep="<branch-name>"` for the merge or
+   squash-merge commit that names the branch (GitHub's default
+   merge/squash commit messages include it), or, on a GitHub-hosted repo
+   with the `gh` CLI available, `gh pr list --state merged --search
+   "head:<branch-name>" --json number,mergeCommit,title` resolves it
+   directly. Then run, passing that merge commit as `--head` (the
+   `<slug>` in the output path still comes from the original branch name,
+   not the SHA):
+   `python3 scripts/extract_branch.py --repo <repo> --head <branch-or-merge-sha> --out <repo>/.pattern-mining/branches/<slug>/extract.json`
    (`scripts/` resolves against this skill's folder, the workspace against
    the repo root — anchor both paths before running.)
    Add `--base <ref>` only when the script cannot find a merge-base or the
@@ -166,9 +176,12 @@ and as a bullet in `output/rules/src-api.md`.
 
 ## Gotchas
 
-- Deleted or squash-merged branches have no branch ref; extraction still
-  works against the merge commit (`--head <merge-sha> --base <merge-sha>^`
-  for squash merges, since the squash commit contains the whole change).
+- Deleted or squash-merged branches have no branch ref — `extract_branch.py`
+  exits 4 ("ref not found") in that case. Find the merge commit per step 2
+  of Learn mode (`git log --all --grep`, or `gh pr list --state merged
+  --search "head:<branch>"` on GitHub), then extraction works against it
+  (`--head <merge-sha> --base <merge-sha>^` for squash merges, since the
+  squash commit contains the whole change).
 - `extract_branch.py` excludes lockfiles, vendored, and generated files by
   default because they dominate line counts and drown real signal; pass
   `--include-generated` only if generated output is itself the pattern.

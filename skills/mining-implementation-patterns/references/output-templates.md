@@ -3,29 +3,31 @@
 ## Contents
 1. Promotion rules (what goes where)
 2. overview.md template
-3. Generated skill template
+3. Patterns-research doc template
 4. Path-scoped rule file template
 
 ---
 
 ## 1. Promotion rules (what goes where)
 
-Apply these mechanically; they are the contract that keeps the generated
-skill trustworthy as the corpus grows.
+Apply these mechanically; they are the contract that keeps `overview.md`
+trustworthy as the corpus grows. They do not gate the patterns-research
+docs — each one is a full write-up of one branch's `analysis.md`,
+findings and all, regardless of confidence or recurrence (see §3).
 
 | Signal | Destination |
 |---|---|
-| Pattern with `confidence: high/medium` recurring in **≥2 branches** | Generated skill (workflow step, checklist item, or gotcha) **and** overview.md |
-| Pattern seen in **1 branch**, any confidence | overview.md only, marked *observed once* |
-| Any pattern with `confidence: low` | overview.md only, regardless of recurrence |
+| Pattern with `confidence: high/medium` recurring in **≥2 branches** | overview.md → Confirmed patterns |
+| Pattern seen in **1 branch**, any confidence | overview.md → Observed once (unconfirmed) |
+| Any pattern with `confidence: low` | overview.md → Observed once (unconfirmed), regardless of recurrence |
 | Pattern with `scope:` narrower than `repo`, recurring in ≥2 branches | Also emitted as a path-scoped rule file |
-| Contradicting observations (an ID plus its `-violated` counterpart) | overview.md → Open questions; excluded from generated skill and rules |
-| Rework signals recurring in ≥2 branches | Generated skill → Gotchas |
+| Contradicting observations (an ID plus its `-violated` counterpart) | overview.md → Open questions; excluded from rule files |
+| Rework signals recurring in ≥2 branches | overview.md → Rework findings |
 | Rework signals seen once | overview.md → Findings |
 
-When the corpus is a single branch, say so plainly in the outputs: the
-generated skill will be thin and every pattern is provisional. Recommend
-studying 3–5 branches before treating the generated skill as reliable.
+When the corpus is a single branch, say so plainly in `overview.md`:
+every pattern is provisional. Recommend studying 3–5 branches before
+treating any pattern as confirmed.
 
 ## 2. overview.md template
 
@@ -66,52 +68,50 @@ index.json directory histograms + change-anatomy sections.)
 - <date>: compiled from N branches; <what changed since last compile>
 ```
 
-## 3. Generated skill template
+## 3. Patterns-research doc template
 
-Write to `output/skills/implementing-<repo>-features/SKILL.md`. The
-generated skill is forward-looking: concrete file paths and real examples
-from the corpus stay in; commit SHAs stay out (meaningless to its future
-reader). Its description needs its own triggers — model them on:
+Write to `patterns-research/<branch-slug>.md` — one file per branch in
+the corpus, overwritten in full on every compile. This is plain prose for
+an engineer about to work on similar code, not a skill: no frontmatter,
+no "Use when" triggers, nothing loaded automatically. Pull the branch's
+own findings straight from its `analysis.md`; pull recurrence context
+(which other branches share a pattern) from `index.json`.
 
 ```markdown
----
-name: implementing-<repo>-features
-description: >
-  How to implement features in <repo> the way this team does, learned from
-  <N> completed branches. Use this skill whenever the user asks to build,
-  implement, add, or change functionality in <repo> from a requirement,
-  ticket, or feature description — even for small changes — including
-  phrases like "implement this ticket", "add an endpoint", "build this
-  feature". Do NOT use for studying past branches (use
-  mining-implementation-patterns instead).
----
+# Patterns Research: <branch>
 
-# Implementing Features in <repo>
+Studied <date>. Ticket: <ticket URL or "n/a">.
 
-(2–4 sentences: the repo's shape and the standard flow of a change.)
+## Summary
+(2–4 sentences: what this branch built and the strongest patterns it
+demonstrates.)
 
-## Where things live
-(table: concern → directory → naming convention. From confirmed
-scope-local patterns and the architecture map.)
+## Standard steps
+(this branch's "Standard steps observed" bullets from analysis.md, each
+noting recurrence: "also seen in feature/x, feature/y" or "seen only
+here so far.")
 
-## Workflow
-1. Parse the requirement into atomic items (R1..Rn).
-2. For each item, locate the layers to touch using "Where things live".
-3. Implement in the order this team uses: <confirmed ordering pattern>.
-4. Apply the standard steps checklist below before considering any item done.
-
-## Standard steps checklist
-(confirmed every-time actions, one per line, checkbox format)
+## Conventions
+(this branch's "Conventions observed" bullets, same recurrence note.)
 
 ## Examples
-(2–3 real requirement → files-changed pairs lifted from the corpus, e.g.:
+(2–3 real requirement → files-changed pairs, pulled only from
+Traceability rows marked `fulfilled` — a `partial` or `not fulfilled` row
+has no code that actually satisfies it, so citing its files here would
+teach the wrong shape.)
+
 **"Users can sign in with Okta"** →
 `src/api/auth/OktaController.cs`, `src/api/auth/OktaValidator.cs`,
 `src/core/identity/OktaProvider.cs`, `tests/api/auth/Okta.spec.ts`,
-migration `20260412_AddIdentityProvider`.)
+migration `20260412_AddIdentityProvider`.
 
 ## Gotchas
-(promoted rework findings: mistake + why + correct approach)
+(this branch's "Rework signals" bullets: mistake → why → correct
+approach, noting if the same mistake recurred elsewhere in the corpus.)
+
+## Open questions
+(this branch's own Open questions, plus any contradiction with another
+branch's patterns-research doc — link it by path.)
 ```
 
 ## 4. Path-scoped rule file template

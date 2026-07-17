@@ -48,6 +48,5 @@ per-scope headings and note the glob in each heading.
 
 Prefer the narrowest glob the evidence supports (`src/api/**` over
 `src/**`). Merge scopes only when their rule sets are identical. A rule
-true repo-wide belongs in the generated skill's workflow or the repo-root
-CLAUDE.md instead of a scoped file — repo-wide scoped files just duplicate
-loading.
+true repo-wide belongs in the repo-root CLAUDE.md instead of a scoped
+file — repo-wide scoped files just duplicate loading.

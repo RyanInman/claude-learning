@@ -17,10 +17,19 @@ MANIFEST SCHEMA (.delegation-review/manifest.json)
                                              // "check" (validates/flags data)
                                              // REQUIRES bad_data_invocation.
       "invocations": [                       // happy-path runs
-        {"argv": ["python3", "scripts/check_headings.py", "changelogs-good", "--json"],
-         "cwd": ".delegation-review/fixtures/check_headings",  // optional,
-                                             // default target_skill; relative
-                                             // paths resolve against target_skill
+        {"argv": ["python3", "scripts/check_headings.py",
+                  ".delegation-review/fixtures/check_headings/changelogs-good", "--json"],
+         "cwd": null,                        // optional, default target_skill;
+                                             // if set, EVERY argv path (script
+                                             // AND data args) resolves against
+                                             // it, not target_skill -- so a
+                                             // non-default cwd only works when
+                                             // the script path is adjusted for
+                                             // it too. Leave unset and pass
+                                             // data paths relative to
+                                             // target_skill (as above) unless
+                                             // the script itself must run from
+                                             // a specific directory.
          "expect_exit": 0,
          "expect_stdout_json": true,         // optional
          "expect_stdout_contains": "[]"}     // optional
@@ -28,8 +37,7 @@ MANIFEST SCHEMA (.delegation-review/manifest.json)
       "bad_data_invocation": {               // run against the FAILING fixture;
                                              // proves the logic discriminates,
                                              // not just that the interface works
-        "argv": ["python3", "scripts/check_headings.py", "changelogs-bad", "--json"],
-        "cwd": ".delegation-review/fixtures/check_headings",
+        "argv": ["python3", "scripts/check_headings.py", "changelogs", "--json"],
         "expect_exit_nonzero": true,
         "expect_stdout_contains": "missing_version_header"},
       "bad_invocation": {                    // bad ARGS: must exit nonzero AND

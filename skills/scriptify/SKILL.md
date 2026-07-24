@@ -1,5 +1,5 @@
 ---
-name: delegating-to-scripts
+name: scriptify
 description: >-
   Reviews a target skill folder to find workflow steps that should be delegated
   to pre-written deterministic scripts instead of being re-derived in prose on

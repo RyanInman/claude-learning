@@ -10,7 +10,9 @@ docstring, live --help probe), and references/assets inventories.
 
 It does NOT classify and does NOT extract full step text: the agent reads the
 target SKILL.md itself. This inventory is the map, not the territory. The
-verb/tool hints are hints for the classifying agent, not verdicts.
+verb/tool hints are hints for the classifying agent, not verdicts. Nested
+numbered sub-items under a Step N heading fragment into separate anchors; the
+classifying agent should treat fragments of one logical step as one step.
 
 USAGE
     python3 scripts/inventory.py <target-skill-dir> [--out FILE] [--no-probe]

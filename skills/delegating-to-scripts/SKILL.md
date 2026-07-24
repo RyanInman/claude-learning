@@ -100,7 +100,8 @@ what the prose says the step must catch — not from any script output:
 2. Append the entry to `.delegation-review/manifest.json` (schema in
    smoke_test.py's header): happy-path invocation(s), a `bad_data_invocation`
    against the failing fixture asserting the finding, and a `bad_invocation`
-   with broken args.
+   with broken args. Fixture paths in the manifest must be absolute — the
+   smoke tester runs scripts from the target skill dir, not the workdir.
 
 Re-read `.delegation-review/classification.json` from disk here — work from
 the recorded decisions, not chat memory.

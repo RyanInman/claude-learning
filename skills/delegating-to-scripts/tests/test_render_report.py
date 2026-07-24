@@ -125,6 +125,14 @@ def test_missing_file_exits_2(tmp_path):
     assert r.returncode == 2
 
 
+def test_out_flag_writes_file(tmp_path):
+    out = tmp_path / "nested" / "does" / "not" / "exist" / "report.md"
+    r = run(tmp_path, GOOD_CLASSIFICATION, extra=("--out", str(out)))
+    assert r.returncode == 0, r.stderr
+    assert out.exists()
+    assert "Delegation review" in out.read_text()
+
+
 def test_missing_steps_key_exits_2(tmp_path):
     bad_inv = {"target": "/tmp/fake-skill"}  # Missing "steps" key
     c = tmp_path / "classification.json"

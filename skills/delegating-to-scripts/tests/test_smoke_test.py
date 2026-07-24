@@ -149,6 +149,32 @@ def test_only_no_match_exits_2(tmp_path):
     assert "matched no scripts" in r.stderr
 
 
+def test_absolute_fixture_paths_from_foreign_cwd(tmp_path):
+    target = make_target(tmp_path)
+    workdir = tmp_path / "workdir"
+    fixtures = workdir / ".delegation-review" / "fixtures" / "toy_check"
+    fixtures.mkdir(parents=True)
+    good_fixture = fixtures / "good.txt"
+    bad_fixture = fixtures / "bad.txt"
+    good_fixture.write_text("all ok here")
+    bad_fixture.write_text("nothing here")
+
+    m = manifest_for(target)
+    m["scripts"][0]["invocations"][0]["argv"] = [
+        sys.executable, "scripts/toy_check.py", str(good_fixture)]
+    m["scripts"][0]["bad_data_invocation"]["argv"] = [
+        sys.executable, "scripts/toy_check.py", str(bad_fixture)]
+    mf = tmp_path / "manifest.json"
+    mf.write_text(json.dumps(m))
+
+    # Run smoke_test.py itself from a cwd other than the target skill dir,
+    # proving the manifest's absolute fixture paths resolve regardless.
+    r = subprocess.run([sys.executable, str(SCRIPT), str(mf)],
+                       capture_output=True, text=True, timeout=120, cwd=str(workdir))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "FAIL" not in r.stdout
+
+
 def test_explicit_null_cwd_treated_as_default(tmp_path):
     target = make_target(tmp_path)
     m = manifest_for(target)

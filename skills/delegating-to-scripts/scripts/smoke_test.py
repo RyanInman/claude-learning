@@ -7,6 +7,13 @@ The manifest is written by the agent during the contract-first step, BEFORE
 the scripts exist, from the target step's semantics -- so the expectations are
 not derived from the script's own output (no self-grading).
 
+ALL relative paths in argv and cwd resolve against target_skill (scripts run
+with cwd=target_skill by default -- see "cwd" below). `.delegation-review/`
+lives in the working directory the agent is running in, which is usually a
+DIFFERENT directory from target_skill -- so fixture paths under
+`.delegation-review/` must be given as ABSOLUTE paths in the manifest, not
+relative ones.
+
 MANIFEST SCHEMA (.delegation-review/manifest.json)
 {
   "target_skill": "/abs/path/to/target-skill",
@@ -18,7 +25,8 @@ MANIFEST SCHEMA (.delegation-review/manifest.json)
                                              // REQUIRES bad_data_invocation.
       "invocations": [                       // happy-path runs
         {"argv": ["python3", "scripts/check_headings.py",
-                  ".delegation-review/fixtures/check_headings/changelogs-good", "--json"],
+                  "/abs/path/to/workdir/.delegation-review/fixtures/check_headings/changelogs-good",
+                  "--json"],
          // "cwd": (optional, default target_skill; if set, argv and data paths
          //         resolve against it, not target_skill -- only use when the
          //         script itself must run from a specific directory)

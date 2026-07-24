@@ -6,6 +6,7 @@ from pathlib import Path
 SKILL_DIR = Path(__file__).resolve().parent.parent
 SCRIPT = SKILL_DIR / "scripts" / "inventory.py"
 FIXTURE_A = SKILL_DIR / "evals" / "fixtures" / "changelog-checker"
+FIXTURE_WELL_DELEGATED = SKILL_DIR / "evals" / "fixtures" / "well-delegated"
 
 
 def run(*args):
@@ -66,3 +67,15 @@ def test_help():
     r = run("--help")
     assert r.returncode == 0
     assert "target-skill-dir" in r.stdout or "target_skill_dir" in r.stdout
+
+
+def test_well_delegated_fixture_signals():
+    r = run(str(FIXTURE_WELL_DELEGATED))
+    assert r.returncode == 0, r.stderr
+    inv = json.loads(r.stdout)
+    assert len(inv["scripts"]) == 1
+    sc = inv["scripts"][0]
+    assert sc["mentioned_in_body"] is True
+    assert sc["has_argparse"] is True
+    assert sc["has_docstring"] is True
+    assert sc["help_ok"] is True

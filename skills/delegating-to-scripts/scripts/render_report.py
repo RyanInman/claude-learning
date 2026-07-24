@@ -29,7 +29,7 @@ USAGE
 EXIT CODES
     0  Report rendered.
     1  Classification invalid; every problem named on stderr.
-    2  Usage error / unreadable or unparseable input file.
+    2  Usage error / unreadable or unparseable input file / --out unwritable.
 """
 
 import argparse
@@ -139,7 +139,12 @@ def main(argv=None):
 
     report = render(cls, inv)
     if args.out:
-        Path(args.out).write_text(report, encoding="utf-8")
+        try:
+            Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.out).write_text(report, encoding="utf-8")
+        except OSError as e:
+            print(f"error: cannot write {args.out}: {e}", file=sys.stderr)
+            return 2
         print(f"report written to {args.out}")
     else:
         print(report)

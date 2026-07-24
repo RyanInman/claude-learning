@@ -127,3 +127,23 @@ def test_json_output(tmp_path):
     results = json.loads(r.stdout)
     checks = {c["check"] for c in results}
     assert {"exists", "help", "fixture-run[0]", "bad-data", "bad-args"} <= checks
+
+
+def test_bad_invocation_missing_argv_rejected(tmp_path):
+    target = make_target(tmp_path)
+    m = manifest_for(target)
+    del m["scripts"][0]["bad_invocation"]["argv"]
+    mf = tmp_path / "manifest.json"
+    mf.write_text(json.dumps(m))
+    r = run(mf)
+    assert r.returncode == 2
+    assert "bad_invocation" in r.stderr and "missing field: argv" in r.stderr
+
+
+def test_only_no_match_exits_2(tmp_path):
+    target = make_target(tmp_path)
+    mf = tmp_path / "manifest.json"
+    mf.write_text(json.dumps(manifest_for(target)))
+    r = run(mf, "--only", "nonexistent")
+    assert r.returncode == 2
+    assert "matched no scripts" in r.stderr

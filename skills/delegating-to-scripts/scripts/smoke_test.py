@@ -94,6 +94,12 @@ def _schema_errors(m):
                         "(a run against the failing fixture)")
         if not s.get("bad_invocation"):
             errs.append(f"{w}: missing field: bad_invocation")
+        bd = s.get("bad_data_invocation")
+        if bd and not bd.get("argv"):
+            errs.append(f"{w}.bad_data_invocation: missing field: argv")
+        bi = s.get("bad_invocation")
+        if bi and not bi.get("argv"):
+            errs.append(f"{w}.bad_invocation: missing field: argv")
         for j, inv in enumerate(s.get("invocations") or []):
             if not inv.get("argv"):
                 errs.append(f"{w}.invocations[{j}]: missing field: argv")
@@ -227,6 +233,9 @@ def main(argv=None):
         return 2
 
     results = run_checks(m, args.timeout, args.only)
+    if not results and args.only:
+        print(f"error: --only {args.only!r} matched no scripts in manifest", file=sys.stderr)
+        return 2
     print(json.dumps(results, indent=2) if args.json else render(results))
     return 1 if any(r["status"] == "FAIL" for r in results) else 0
 

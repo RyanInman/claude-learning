@@ -19,17 +19,9 @@ MANIFEST SCHEMA (.delegation-review/manifest.json)
       "invocations": [                       // happy-path runs
         {"argv": ["python3", "scripts/check_headings.py",
                   ".delegation-review/fixtures/check_headings/changelogs-good", "--json"],
-         "cwd": null,                        // optional, default target_skill;
-                                             // if set, EVERY argv path (script
-                                             // AND data args) resolves against
-                                             // it, not target_skill -- so a
-                                             // non-default cwd only works when
-                                             // the script path is adjusted for
-                                             // it too. Leave unset and pass
-                                             // data paths relative to
-                                             // target_skill (as above) unless
-                                             // the script itself must run from
-                                             // a specific directory.
+         // "cwd": (optional, default target_skill; if set, argv and data paths
+         //         resolve against it, not target_skill -- only use when the
+         //         script itself must run from a specific directory)
          "expect_exit": 0,
          "expect_stdout_json": true,         // optional
          "expect_stdout_contains": "[]"}     // optional
@@ -127,7 +119,7 @@ def _run(argv, cwd, timeout):
 
 
 def _resolve_cwd(spec, base):
-    cwd = spec.get("cwd", ".")
+    cwd = spec.get("cwd") or "."
     p = Path(cwd)
     return str(p if p.is_absolute() else (base / p))
 

@@ -147,3 +147,14 @@ def test_only_no_match_exits_2(tmp_path):
     r = run(mf, "--only", "nonexistent")
     assert r.returncode == 2
     assert "matched no scripts" in r.stderr
+
+
+def test_explicit_null_cwd_treated_as_default(tmp_path):
+    target = make_target(tmp_path)
+    m = manifest_for(target)
+    m["scripts"][0]["invocations"][0]["cwd"] = None
+    mf = tmp_path / "manifest.json"
+    mf.write_text(json.dumps(m))
+    r = run(mf)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "FAIL" not in r.stdout

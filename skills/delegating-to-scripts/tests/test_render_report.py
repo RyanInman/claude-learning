@@ -60,6 +60,8 @@ def test_renders_table(tmp_path):
     # CLAUDE rows carry no interface
     s2_row = [l for l in r.stdout.splitlines() if l.startswith("| s2 |")][0]
     assert "list_files.py" not in s2_row
+    # Verdict mentions token arithmetic (s1 is the only SCRIPT step with 55 tokens)
+    assert "~55 tokens" in r.stdout
 
 
 def test_unknown_id_exits_1(tmp_path):
@@ -87,7 +89,49 @@ def test_unclassified_step_exits_1(tmp_path):
     assert "s2" in r.stderr
 
 
+def test_duplicate_step_id_exits_1(tmp_path):
+    bad = {"target": "/tmp/fake-skill",
+           "steps": [{"id": "s1", "class": "SCRIPT", "why": "x",
+                      "proposed_script": {"name": "a.py", "interface": "x", "stdout": "y", "exit": "z"}},
+                     {"id": "s1", "class": "CLAUDE", "why": "y", "proposed_script": None}]}
+    r = run(tmp_path, bad)
+    assert r.returncode == 1
+    assert "duplicate" in r.stderr
+
+
+def test_missing_why_exits_1(tmp_path):
+    bad = {"target": "/tmp/fake-skill",
+           "steps": [{"id": "s1", "class": "SCRIPT", "why": "",
+                      "proposed_script": {"name": "a.py", "interface": "x", "stdout": "y", "exit": "z"}},
+                     {"id": "s2", "class": "CLAUDE", "why": "ok", "proposed_script": None}]}
+    r = run(tmp_path, bad)
+    assert r.returncode == 1
+    assert "why" in r.stderr
+
+
+def test_claude_with_proposed_script_exits_1(tmp_path):
+    bad = {"target": "/tmp/fake-skill",
+           "steps": [{"id": "s1", "class": "CLAUDE", "why": "x",
+                      "proposed_script": {"name": "a.py", "interface": "x", "stdout": "y", "exit": "z"}},
+                     {"id": "s2", "class": "CLAUDE", "why": "y", "proposed_script": None}]}
+    r = run(tmp_path, bad)
+    assert r.returncode == 1
+    assert "must not carry" in r.stderr
+
+
 def test_missing_file_exits_2(tmp_path):
     r = subprocess.run([sys.executable, str(SCRIPT), "/nope.json", "/nope2.json"],
                        capture_output=True, text=True)
     assert r.returncode == 2
+
+
+def test_missing_steps_key_exits_2(tmp_path):
+    bad_inv = {"target": "/tmp/fake-skill"}  # Missing "steps" key
+    c = tmp_path / "classification.json"
+    i = tmp_path / "inventory.json"
+    c.write_text(json.dumps(GOOD_CLASSIFICATION))
+    i.write_text(json.dumps(bad_inv))
+    r = subprocess.run([sys.executable, str(SCRIPT), str(c), str(i)],
+                       capture_output=True, text=True, timeout=30)
+    assert r.returncode == 2
+    assert "steps" in r.stderr

@@ -127,6 +127,10 @@ def main(argv=None):
         print(f"error: {err}", file=sys.stderr)
         return 2
 
+    if not isinstance(inv.get("steps"), list):
+        print("error: inventory has no 'steps' list", file=sys.stderr)
+        return 2
+
     errors = validate(cls, inv)
     if errors:
         for e in errors:

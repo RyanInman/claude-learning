@@ -134,19 +134,7 @@ Aim for **one skill, one job** — skills that straddle several purposes confuse
 
 ### Grade and Tighten
 
-Before writing test cases, grade the draft against the seven rules in `references/token-field-guide.md`. Read that file, then score each rule pass/fail and fix every failure before moving on.
-
-| Rule | Check |
-|------|-------|
-| R1 — Description triggers | Includes WHAT + WHEN + concrete trigger phrases + at least one negative trigger? |
-| R2 — Body earns tokens | Every line survives "if deleted, would Claude err?" — no obvious defaults, stale refs, contradictions, or option menus? |
-| R3 — Knowledge addressed, not imported | Heavy docs live in `references/` with a pointer, not inlined in the body? |
-| R4 — Mechanical work compiled | Deterministic steps → scripts; one concrete example replaces abstract prose rules? |
-| R5 — Critical rules front-loaded | Most important content in first 20%; ≤2 `IMPORTANT`/`MUST` markers total? |
-| R6 — Output constrained | Skill instructs Claude to produce structured output, cap volume, or write reasoning to file? |
-| R7 — One job | Scope narrow enough that overlap with other skills is zero or explicitly excluded via negative triggers? |
-
-Fix each failure, then re-check. Don't move to test cases until all seven pass or are explicitly justified.
+Before writing test cases, grade the draft with the **skill-reviewer** skill. It runs the deterministic `audit.py` (description length, body size, frontmatter, anti-pattern counts) then applies best-practice and token-economics judgment, returning a confidence-scored, high-impact-first list. Apply every high-confidence fix before moving on; don't re-derive these checks inline here.
 
 ### Test Cases
 

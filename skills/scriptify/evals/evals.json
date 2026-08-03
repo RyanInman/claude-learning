@@ -1,0 +1,121 @@
+{
+  "skill_name": "scriptify",
+  "evals": [
+    {
+      "id": 0,
+      "name": "classify-and-report",
+      "prompt": "Review the skill in evals/fixtures/changelog-checker/ and tell me which of its workflow steps should be delegated to scripts. Don't change anything yet.",
+      "expected_output": "Rendered classification table: steps 1/2/3/5 SCRIPT with concrete proposed interfaces, step 6 HYBRID, steps 4 and 7 CLAUDE (7 despite containing the word 'verify'). Nothing written into the fixture; flow stops at the gate or explicitly notes changes await user selection.",
+      "files": [
+        "evals/fixtures/changelog-checker"
+      ],
+      "assertions": [
+        {
+          "text": "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
+          "type": "structure"
+        },
+        {
+          "text": "no new files or directories are created inside evals/fixtures/changelog-checker/",
+          "type": "structure"
+        },
+        {
+          "text": "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
+          "type": "content"
+        },
+        {
+          "text": "step 6 (category tags + Misc re-homing) is classified HYBRID",
+          "type": "content"
+        },
+        {
+          "text": "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
+          "type": "content"
+        },
+        {
+          "text": "step 4 (release narrative) is classified CLAUDE",
+          "type": "content"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "apply-and-smoke-test",
+      "prompt": "Review the skill in evals/fixtures/changelog-checker/ for steps to delegate to scripts, apply all the delegations you find, and verify the generated scripts work.",
+      "expected_output": "Scripts written into changelog-checker/scripts/ for steps 1/2/3/5 (and the mechanical half of 6), each with --help support. Manifest includes bad_data_invocations; the header-check script flags v1.2.0.md. SKILL.md rewritten only after smoke test passes; steps 4 and 7 stay prose; step 6 keeps its judgment sentence.",
+      "files": [
+        "evals/fixtures/changelog-checker"
+      ],
+      "assertions": [
+        {
+          "text": "changelog-checker/scripts/ contains at least 3 Python scripts and each supports --help",
+          "type": "structure"
+        },
+        {
+          "text": "the rewritten SKILL.md invokes each generated script by exact command line",
+          "type": "structure"
+        },
+        {
+          "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
+          "type": "structure"
+        },
+        {
+          "text": "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
+          "type": "content"
+        },
+        {
+          "text": "step 4 (release narrative) remains a prose instruction with no script",
+          "type": "content"
+        },
+        {
+          "text": "step 6's judgment about re-homing Misc entries remains prose",
+          "type": "content"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "nothing-to-delegate",
+      "prompt": "Which parts of the skill in evals/fixtures/well-delegated/ should be scripts?",
+      "expected_output": "Report acknowledging scripts/check.py as already delegated (mentioned in body, argparse, working --help), classifying the remaining judgment steps CLAUDE, and recommending no new scripts.",
+      "files": [
+        "evals/fixtures/well-delegated"
+      ],
+      "assertions": [
+        {
+          "text": "no new files are written into evals/fixtures/well-delegated/",
+          "type": "structure"
+        },
+        {
+          "text": "scripts/check.py is acknowledged as already delegated",
+          "type": "content"
+        },
+        {
+          "text": "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts",
+          "type": "content"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "partial-selection",
+      "prompt": "Review evals/fixtures/changelog-checker/ for delegable steps, but apply only the delegations for steps 1 and 3. Leave everything else untouched.",
+      "expected_output": "Exactly two scripts generated (file listing, category counting), both smoke-tested. Step 2's prose is byte-identical to before; the SKILL.md diff touches only steps 1 and 3.",
+      "files": [
+        "evals/fixtures/changelog-checker"
+      ],
+      "assertions": [
+        {
+          "text": "exactly two generated scripts exist in changelog-checker/scripts/",
+          "type": "structure"
+        },
+        {
+          "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+          "type": "structure"
+        },
+        {
+          "text": "both generated scripts pass the smoke test before the rewrite",
+          "type": "content"
+        }
+      ]
+    }
+  ]
+}

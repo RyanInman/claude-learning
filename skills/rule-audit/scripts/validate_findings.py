@@ -8,10 +8,15 @@ whole render later (where the orchestrator would have to re-dispatch the batch).
 render_report.py imports `validate_finding` from here so subagent-side and
 render-side checks never drift.
 
-Usage: python3 validate_findings.py <batch-N.json>
-Exit: 0 valid · 2 schema/parse error · 1 usage/IO.
+USAGE
+    python3 validate_findings.py <batch-N.json>
+
+EXIT CODES
+    0  File is valid.
+    2  Invalid (schema/parse error) or usage error.
 """
 
+import argparse
 import json
 import sys
 
@@ -64,16 +69,17 @@ def validate_file(path):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("usage: validate_findings.py <batch-N.json>", file=sys.stderr)
-        sys.exit(1)
-    path = sys.argv[1]
-    errs = validate_file(path)
+    parser = argparse.ArgumentParser(
+        description="Validate one review-subagent findings JSON against the Finding schema.")
+    parser.add_argument("batch_json", metavar="batch-N.json",
+                        help="Findings file to validate")
+    args = parser.parse_args()
+    errs = validate_file(args.batch_json)
     if errs:
         print("INVALID — fix and rewrite before returning:\n  - " + "\n  - ".join(errs),
               file=sys.stderr)
         sys.exit(2)
-    print(f"OK: {path} valid")
+    print(f"OK: {args.batch_json} valid")
 
 
 if __name__ == "__main__":

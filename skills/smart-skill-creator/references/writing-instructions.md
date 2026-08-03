@@ -28,12 +28,12 @@ The analogy: a narrow bridge over a cliff has one safe path, so give exact steps
 
 ## Templates
 
-Provide templates, matching strictness to need. For strict formats (API responses, reports), state the exact structure: "ALWAYS use this exact template." For flexible guidance, signal the latitude: "here is a sensible default, but use your judgment."
+Provide templates, matching strictness to need. When the skill's job is a recurring deliverable (a report, a message, a file set), always include an exact output template with placeholder slots — a fixed template is what makes every run produce the same shape, which is usually why the user wanted a skill. State the exact structure with its reason ("use this exact template — readers rely on the same sections every time"). For flexible guidance, signal the latitude: "here is a sensible default, but use your judgment."
 
 ```markdown
 ## Report structure
 
-ALWAYS use this exact template:
+Use this exact template — readers rely on the same sections every time, so the shape must not change:
 
 # [Title]
 

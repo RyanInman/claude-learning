@@ -106,10 +106,10 @@ This goes without saying, but skills must not contain malware, exploit code, or 
 
 Prefer using the imperative form in instructions.
 
-**Defining output formats** - You can do it like this:
+**Defining output formats** - When the skill produces a recurring deliverable (a report, a message, a file set), define an exact output template with placeholder slots — a fixed template is what makes run 50 look like run 1, which is usually why the user wanted a skill at all. State the template rule with its reason, not bare caps:
 ```markdown
 ## Report structure
-ALWAYS use this exact template:
+Use this exact template — readers scan the same sections every time, so the shape must not change:
 # [Title]
 ## Executive summary
 ## Key findings
@@ -129,6 +129,8 @@ Output: feat(auth): implement JWT-based authentication
 ### Writing Style
 
 Try to explain to the model why things are important in lieu of heavy-handed musty MUSTs. Use theory of mind and try to make the skill general and not super-narrow to specific examples. Start by writing a draft and then look at it with fresh eyes and improve it.
+
+All prose in the skill you produce — the SKILL.md body and every reference file — follows the house style in `references/writing-style-guide.md`. Draft naturally first, then apply the guide as a dedicated editing pass using its pre-ship checklist; writing to the rules from a blank page produces stiffer prose than editing toward them. Two zones are exempt from its sentence-level rules and the guide explains why: the frontmatter description (optimized for triggering, colloquial phrasings included) and verbatim input→output examples (never edited to conform).
 
 Aim for **one skill, one job** — skills that straddle several purposes confuse the agent. When a mechanical step repeats across runs, bundle it as a script rather than re-describing it each time; see `references/bundling-scripts.md` for agent-friendly script interfaces and dependency management. When authoring specifically for Claude Code (invocation control, slash-command behavior, argument substitution, proven skill categories), read `references/claude-code-specifics.md`.
 
@@ -178,7 +180,7 @@ This is the heart of the loop. You've run the test cases, the user has reviewed 
 
 3. **Explain the why.** Try hard to explain the **why** behind everything you're asking the model to do. Today's LLMs are *smart*. They have good theory of mind and when given a good harness can go beyond rote instructions and really make things happen. Even if the feedback from the user is terse or frustrated, try to actually understand the task and why the user is writing what they wrote, and what they actually wrote, and then transmit this understanding into the instructions. If you find yourself writing ALWAYS or NEVER in all caps, or using super rigid structures, that's a yellow flag — if possible, reframe and explain the reasoning so that the model understands why the thing you're asking for is important. That's a more humane, powerful, and effective approach.
 
-4. **Look for repeated work across test cases.** Read the transcripts from the test runs and notice if the subagents all independently wrote similar helper scripts or took the same multi-step approach to something. If all 3 test cases resulted in the subagent writing a `create_docx.py` or a `build_chart.py`, that's a strong signal the skill should bundle that script. Write it once, put it in `scripts/`, and tell the skill to use it. This saves every future invocation from reinventing the wheel.
+4. **Look for repeated work across test cases.** Run exactly: `python3 <skill-creator-path>/scripts/find_repeated_work.py <workspace>/iteration-<N> --json`. Exit 1 → its JSON lists files with the same name written independently by 2+ runs; judge each repeat. If all 3 test cases resulted in the subagent writing a `create_docx.py` or a `build_chart.py`, that's a strong signal the skill should bundle that script. Write it once, put it in `scripts/`, and tell the skill to use it. This saves every future invocation from reinventing the wheel. Exit 0 → no repeated files, but still read the transcripts and notice if the subagents took the same multi-step approach to something — the file scan can't see approaches.
 
 Thinking time isn't the blocker here — a skill is reused across countless future prompts, so it's worth mulling. Draft a revision, then reread it cold and get into the head of the user before applying.
 
@@ -197,7 +199,7 @@ Keep going until:
 - The feedback is all empty (everything looks good)
 - You're not making meaningful progress
 
-One stopping condition worth stating plainly: if the skill only **ties** the no-skill baseline across iterations, retire it instead of shipping it. The model already handles the task on its own, so the skill is pure recurring token cost for no gain — a skill has to *beat* baseline to earn its place.
+One stopping condition worth stating plainly: run exactly `python3 <skill-creator-path>/scripts/benchmark_trend.py <workspace> --json` — it reports the with-skill vs baseline pass-rate delta for every iteration. Exit 1 (`"tie": true`) means the latest iteration only **ties** (or loses to) the baseline; if that holds across iterations, retire the skill instead of shipping it. The model already handles the task on its own, so the skill is pure recurring token cost for no gain — a skill has to *beat* baseline to earn its place.
 
 ---
 
@@ -248,6 +250,7 @@ The references/ directory has additional documentation:
 - `references/running-evals.md` — full eval-running sequence: paired runs, timing capture, grading, aggregation, viewer, feedback.
 - `references/skill-anatomy.md` — folder layout, frontmatter fields, naming, splitting, the loading/token model.
 - `references/writing-instructions.md` — voice, degrees of freedom, templates, examples, validation loops, anti-patterns.
+- `references/writing-style-guide.md` — house style for the produced skill's prose: sentence-level rules, description and example zone rules, conflict order, pre-ship checklist.
 - `references/bundling-scripts.md` — when/how to bundle scripts, agent-friendly interfaces, dependency management.
 - `references/claude-code-specifics.md` — invocation control, discovery/precedence, arguments, skill categories.
 - `references/platform-variants.md` — Claude.ai and Cowork adaptations to the core workflow.

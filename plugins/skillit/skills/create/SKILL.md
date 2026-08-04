@@ -1,6 +1,6 @@
 ---
 name: create
-description: Create new skills, modify and improve existing skills, and measure skill performance. Use whenever the user wants to create a skill from scratch, turn a workflow into a reusable skill, edit or optimize an existing skill, run evals or benchmark a skill with variance analysis, or sharpen a skill's description for better triggering accuracy, even if they don't say the word "skill" but describe wanting Claude to do a repeatable task the same way every time. Do NOT use when the user wants Claude to perform the task itself (write code, fix a bug, draft a doc) rather than package it, or when a lighter container fits - an always-true convention belongs in CLAUDE.md, a per-path rule in .claude/rules, and a guarantee that must hold every time in a hook, not a skill.
+description: Create new skills, modify and improve existing skills, and measure skill performance. Use whenever the user wants to create a skill from scratch, turn a workflow into a reusable skill, edit or optimize an existing skill, run evals or benchmark a skill with variance analysis, or sharpen a skill's description for better triggering accuracy, even if they don't say the word "skill" but describe wanting Claude to do a repeatable task the same way every time. Do NOT use when the user wants Claude to perform the task itself (write code, fix a bug, draft a doc) rather than package it, or when a lighter container fits - an always-true convention belongs in CLAUDE.md, a per-path rule in .claude/rules, and a guarantee that must hold every time in a hook, not a skill. Do NOT use for a read-only audit or feedback pass on a skill with no edits requested - use skillit:review for that.
 ---
 
 # Skill Creator
@@ -13,7 +13,7 @@ The core loop:
 4. Show the user the results with `eval-viewer/generate_review.py` — qualitative outputs and quantitative metrics.
 5. Rewrite based on their feedback and any flaws the benchmarks expose; repeat, then expand the test set and rerun at larger scale.
 
-Your job is to find where the user is in this loop and jump in — they might say "I want to make a skill for X" (start at step 1) or arrive with a draft (skip to eval/iterate). Stay flexible: if they say "skip the evals, just vibe with me," do that. After the skill is solid, run the description improver (separate script) to optimize triggering.
+Find where the user is in this loop and jump in. They might say "I want to make a skill for X" (start at step 1) or arrive with a draft (skip to eval and iterate). Stay flexible: if they say "skip the evals, just vibe with me," do that. After the skill is solid, run the Description Optimization loop (below) to improve triggering.
 
 ## Communicating with the user
 
@@ -39,12 +39,18 @@ Before writing a skill, confirm a skill is the right container. A skill body loa
 
 ### Capture Intent
 
-Start by understanding the user's intent. The current conversation might already contain a workflow the user wants to capture (e.g., they say "turn this into a skill"). If so, extract answers from the conversation history first — the tools used, the sequence of steps, corrections the user made, input/output formats observed. The user may need to fill the gaps, and should confirm before proceeding to the next step.
+Start by understanding the user's intent. The current conversation might already contain a workflow the user wants to capture (e.g., they say "turn this into a skill"). If so, extract answers from the conversation history first — the tools used, the sequence of steps, corrections the user made, input/output formats observed. Ask the user to fill the gaps and confirm before you proceed.
 
 1. What should this skill enable Claude to do?
 2. When should this skill trigger? (what user phrases/contexts)
 3. What's the expected output format?
-4. Should we set up test cases to verify the skill works? Skills with objectively verifiable outputs (file transforms, data extraction, code generation, fixed workflow steps) benefit from test cases. Skills with subjective outputs (writing style, art) often don't need them. Suggest the appropriate default based on the skill type, but let the user decide.
+4. Should we set up test cases to verify the skill works? Skills with objectively verifiable outputs (file transforms, data extraction, code generation, fixed workflow steps) benefit from test cases. Skills with subjective outputs (writing style, art) often don't need them. Suggest a default based on the skill type, but let the user decide.
+
+A verbatim capture, request → intent:
+
+> User: "make a skill that turns my messy release notes into a changelog"
+>
+> Captured intent: enable = transform raw notes into a CHANGELOG.md section; triggers = "changelog", "release notes", "version notes"; output = keep-a-changelog format; test cases = yes (verifiable transform).
 
 ### Interview and Research
 
@@ -59,7 +65,7 @@ Based on the user interview, fill in these components:
 - **name**: Skill identifier
 - **description**: When to trigger, what it does. This is the primary triggering mechanism - include both what the skill does AND specific contexts for when to use it. All "when to use" info goes here, not in the body. Claude tends to "undertrigger" skills, so make the description a little bit "pushy": instead of "How to build a simple fast dashboard to display internal Anthropic data.", write "How to build a simple fast dashboard to display internal Anthropic data. Make sure to use this skill whenever the user mentions dashboards, data visualization, internal metrics, or wants to display any kind of company data, even if they don't explicitly ask for a 'dashboard.'" The full description criteria (negative triggers, weak-opening test, length limits) are canon in `${CLAUDE_SKILL_DIR}/../../references/best-practices.md` §1 — read it when you finalize the description.
 - **compatibility**: Required tools, dependencies (optional, rarely needed)
-- **the rest of the skill :)**
+- **the rest of the skill** — the sections below cover how to write it
 
 ### Skill Writing Guide
 
@@ -90,7 +96,7 @@ These word counts are approximate; go longer if needed.
 The economics: push anything not needed on every run *down* a tier. When you weigh what stays in the body, read `${CLAUDE_SKILL_DIR}/../../references/token-economics.md` §1–2 — the canonical statement of recurring vs one-time cost; §8–9 there cover the Claude Code listing budget and compaction behavior.
 
 **Key patterns:**
-- Keep SKILL.md under 500 lines; if you're approaching this limit, add an additional layer of hierarchy along with clear pointers about where the model using the skill should go next to follow up.
+- Keep SKILL.md under 500 lines. Near the limit, move detail into references and leave clear pointers that say when to read each one.
 - Reference files clearly from SKILL.md with guidance on when to read them
 - For large reference files (>300 lines), include a table of contents
 
@@ -98,7 +104,7 @@ The economics: push anything not needed on every run *down* a tier. When you wei
 
 #### Principle of Lack of Surprise
 
-This goes without saying, but skills must not contain malware, exploit code, or any content that could compromise system security. A skill's contents should not surprise the user in their intent if described. Don't go along with requests to create misleading skills or skills designed to facilitate unauthorized access, data exfiltration, or other malicious activities. Things like a "roleplay as an XYZ" are OK though. Treat installed skills as a security surface too: install only from trusted sources, audit bundled scripts and references for unexpected network calls, and remember that frontmatter is injected into the system prompt, so it is itself an injection vector.
+Skills must not contain malware, exploit code, or any content that could compromise system security. A skill's contents should not surprise the user in their intent if described. Don't go along with requests to create misleading skills or skills designed to facilitate unauthorized access, data exfiltration, or other malicious activities. Things like a "roleplay as an XYZ" are OK though. Treat installed skills as a security surface too. Install only from trusted sources. Audit bundled scripts and references for unexpected network calls. Frontmatter is injected into the system prompt, so it is itself an injection vector.
 
 #### Writing Patterns
 
@@ -140,13 +146,13 @@ This is the heart of the loop. You've run the test cases, the user has reviewed 
 
 ### How to think about improvements
 
-1. **Generalize from the feedback.** The skill will be reused across countless future prompts; you're iterating on a few examples only because it's fast, and the user knows them well enough to assess new outputs quickly. A skill that works only for those examples is useless. Rather than fiddly overfitty changes or oppressively constrictive MUSTs, try branching out — different metaphors, different recommended patterns of working. It's cheap to try and you might land on something great.
+1. **Generalize from the feedback.** The skill will serve countless future prompts; you iterate on a few examples only because they're fast to check. A skill that works only for those examples is useless. Avoid fiddly overfitted changes and constrictive MUSTs. Branch out instead — try a different metaphor or a different recommended pattern of working. A variant is cheap to test and might land on something great.
 
 2. **Keep the prompt lean.** Remove things that aren't pulling their weight. Read the transcripts, not just the final outputs — if the skill is making the model waste time on unproductive work, try cutting the parts that cause it and see what happens.
 
-3. **Explain the why.** Try hard to explain the **why** behind everything you're asking the model to do. Today's LLMs are *smart* — with a good harness they go beyond rote instructions. Even if the user's feedback is terse or frustrated, work out what they actually wrote and why, then transmit that understanding into the instructions. ALL-CAPS ALWAYS/NEVER or super rigid structures are a yellow flag — reframe and explain the reasoning so the model understands why it matters. That's a more humane, powerful, and effective approach.
+3. **Explain the why.** Attach the reason behind everything you ask the model to do, because with a good harness models go beyond rote instructions. When the user's feedback is terse or frustrated, work out what they meant and why, then transmit that understanding into the instructions. ALL-CAPS ALWAYS/NEVER and rigid structures are a yellow flag — reframe as rule plus reason so the model can generalize.
 
-4. **Look for repeated work across test cases.** Run exactly: `python3 ${CLAUDE_SKILL_DIR}/scripts/find_repeated_work.py <workspace>/iteration-<N> --json`. Exit 1 → its JSON lists files with the same name written independently by 2+ runs; judge each repeat. If all 3 test cases resulted in the subagent writing a `create_docx.py` or a `build_chart.py`, that's a strong signal the skill should bundle that script. Write it once, put it in `scripts/`, and tell the skill to use it. This saves every future invocation from reinventing the wheel. Exit 0 → no repeated files, but still read the transcripts and notice if the subagents took the same multi-step approach to something — the file scan can't see approaches.
+4. **Look for repeated work across test cases.** Run exactly: `python3 ${CLAUDE_SKILL_DIR}/scripts/find_repeated_work.py <workspace>/iteration-<N> --json`. Exit 1 → its JSON lists files with the same name written independently by 2+ runs; judge each repeat. If all 3 test runs each wrote a `create_docx.py` or a `build_chart.py`, that's a strong signal the skill should bundle that script. Write it once, put it in `scripts/`, and tell the skill to use it. This saves every future invocation from reinventing the wheel. Exit 0 → no repeated files, but still read the transcripts and notice if the subagents took the same multi-step approach to something — the file scan can't see approaches.
 
 Thinking time isn't the blocker here, so it's worth mulling. Draft a revision, then reread it cold and get into the head of the user before applying.
 
@@ -209,26 +215,3 @@ After packaging, direct the user to the resulting `.skill` file path so they can
 
 The workflow above assumes Claude Code. On **Claude.ai** (no subagents, often no browser) and in **Cowork** (subagents but no display), some mechanics change — running tests, reviewing results, benchmarking, and packaging. When you're on either platform, read `references/platform-variants.md` and follow the adaptations there.
 
----
-
-## Reference files
-
-The agents/ directory contains instructions for specialized subagents. Read them when you need to spawn the relevant subagent.
-
-- `agents/grader.md` — How to evaluate assertions against outputs
-- `agents/comparator.md` — How to do blind A/B comparison between two outputs
-- `agents/analyzer.md` — How to analyze why one version beat another
-
-The references/ directory has additional documentation:
-- `references/schemas.md` — JSON structures for evals.json, grading.json, etc.
-- `references/running-evals.md` — full eval-running sequence: paired runs, timing capture, grading, aggregation, viewer, feedback.
-- `references/skill-anatomy.md` — folder layout, frontmatter fields, when to split.
-- `references/writing-instructions.md` — voice, degrees of freedom, templates, validation loops, gotchas.
-- `references/bundling-scripts.md` — when/how to bundle scripts, execution intent, dependency management.
-- `references/claude-code-specifics.md` — discovery/precedence, arguments, skill categories.
-- `references/platform-variants.md` — Claude.ai and Cowork adaptations to the core workflow.
-
-Shared rule canon (in the plugin-level `references/` folder — the single source for skill-craft rules):
-- `${CLAUDE_SKILL_DIR}/../../references/best-practices.md` — description criteria, structure, naming, instruction quality, anti-patterns, script interfaces, invocation control.
-- `${CLAUDE_SKILL_DIR}/../../references/token-economics.md` — recurring vs one-time cost, compile-to-script, listing budget, compaction.
-- `${CLAUDE_SKILL_DIR}/../../references/writing-style-guide.md` — house style for the produced skill's prose: sentence-level rules, description and example zone rules, conflict order, pre-ship checklist.

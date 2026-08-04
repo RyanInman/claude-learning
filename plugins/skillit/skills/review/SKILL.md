@@ -1,6 +1,6 @@
 ---
 name: review
-description: Reviews an existing SKILL.md (and its bundled scripts/references) and produces a prioritized, high-impact-first list of improvement suggestions covering Claude skill best practices (description quality and triggering, progressive disclosure, folder structure, anti-patterns) and token optimization. Use this whenever the user wants to audit, review, critique, improve, optimize, or get feedback on a skill they have written or pasted -- including requests like "review my skill", "is this SKILL.md any good", "why isn't my skill triggering", "make my skill more token-efficient", "what's wrong with this skill", or whenever the user shares a SKILL.md / skill folder and asks what could be better. Do NOT use this to author a brand-new skill from scratch (use the skill-creator for that), and do NOT use it to review CLAUDE.md, rules files, or prompts -- this skill is scoped to SKILL.md skill folders.
+description: Reviews an existing SKILL.md (and its bundled scripts/references) and produces a prioritized, high-impact-first list of improvement suggestions covering Claude skill best practices (description quality and triggering, progressive disclosure, folder structure, anti-patterns) and token optimization. Use this whenever the user wants to audit, review, critique, improve, optimize, or get feedback on a skill they have written or pasted -- including requests like "review my skill", "is this SKILL.md any good", "why isn't my skill triggering", "make my skill more token-efficient", "what's wrong with this skill", or whenever the user shares a SKILL.md / skill folder and asks what could be better. Do NOT use this to author a brand-new skill from scratch (use skillit:create for that), and do NOT use it to review CLAUDE.md, rules files, or prompts -- this skill is scoped to SKILL.md skill folders.
 ---
 
 # Skill Reviewer
@@ -129,6 +129,6 @@ Rules for the write-up:
 ## Scope
 
 This skill reviews **skills** (SKILL.md folders). For authoring a new skill from
-scratch, use the skill-creator. For CLAUDE.md / rules-file review, the token
+scratch, use skillit:create. For CLAUDE.md / rules-file review, the token
 principles transfer but the structure rules differ — say so rather than applying
 SKILL.md rules to a memory file.

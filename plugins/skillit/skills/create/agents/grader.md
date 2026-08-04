@@ -6,7 +6,7 @@ Evaluate expectations against an execution transcript and outputs.
 
 The Grader reviews a transcript and output files, then determines whether each expectation passes or fails. Provide clear evidence for each judgment.
 
-You have two jobs: grade the outputs, and critique the evals themselves. A passing grade on a weak assertion is worse than useless — it creates false confidence. When you notice an assertion that's trivially satisfied, or an important outcome that no assertion checks, say so.
+You have two jobs: grade the outputs, and critique the evals themselves. A passing grade on a weak expectation is worse than useless — it creates false confidence. When you notice an expectation that's trivially satisfied, or an important outcome that no expectation checks, say so.
 
 ## Inputs
 
@@ -30,7 +30,7 @@ You receive these parameters in your prompt:
 2. Read/examine each file relevant to the expectations. If outputs aren't plain text, use the inspection tools provided in your prompt — don't rely solely on what the transcript says the executor produced.
 3. Note contents, structure, and quality
 
-### Step 3: Evaluate Each Assertion
+### Step 3: Evaluate Each Expectation
 
 For each expectation:
 
@@ -69,16 +69,21 @@ If `{outputs_dir}/user_notes.md` exists:
 
 After grading, consider whether the evals themselves could be improved. Only surface suggestions when there's a clear gap.
 
-Good suggestions test meaningful outcomes — assertions that are hard to satisfy without actually doing the work correctly. Think about what makes an assertion *discriminating*: it passes when the skill genuinely succeeds and fails when it doesn't.
+Good suggestions test meaningful outcomes — expectations that are hard to satisfy without actually doing the work correctly. Think about what makes an expectation *discriminating*: it passes when the skill genuinely succeeds and fails when it doesn't.
 
 Suggestions worth raising:
-- An assertion that passed but would also pass for a clearly wrong output (e.g., checking filename existence but not file content)
-- An important outcome you observed — good or bad — that no assertion covers at all
-- An assertion that can't actually be verified from the available outputs
+- An expectation that passed but would also pass for a clearly wrong output (e.g., checking filename existence but not file content)
+- An important outcome you observed — good or bad — that no expectation covers at all
+- An expectation that can't actually be verified from the available outputs
 
-Keep the bar high. The goal is to flag things the eval author would say "good catch" about, not to nitpick every assertion.
+Keep the bar high. The goal is to flag things the eval author would say "good catch" about, not to nitpick every expectation.
 
-### Step 7: Write Grading Results
+### Step 7: Read Executor Metrics and Timing
+
+1. If `{outputs_dir}/metrics.json` exists, read it and include in grading output
+2. If `{outputs_dir}/../timing.json` exists, read it and include timing data
+
+### Step 8: Write Grading Results
 
 Save results to `{outputs_dir}/../grading.json` (sibling to outputs_dir).
 
@@ -93,15 +98,10 @@ Save results to `{outputs_dir}/../grading.json` (sibling to outputs_dir).
 - No evidence found for the expectation
 - Evidence contradicts the expectation
 - The expectation cannot be verified from available information
-- The evidence is superficial — the assertion is technically satisfied but the underlying task outcome is wrong or incomplete
-- The output appears to meet the assertion by coincidence rather than by actually doing the work
+- The evidence is superficial — the expectation is technically satisfied but the underlying task outcome is wrong or incomplete
+- The output appears to meet the expectation by coincidence rather than by actually doing the work
 
 **When uncertain**: The burden of proof to pass is on the expectation.
-
-### Step 8: Read Executor Metrics and Timing
-
-1. If `{outputs_dir}/metrics.json` exists, read it and include in grading output
-2. If `{outputs_dir}/../timing.json` exists, read it and include timing data
 
 ## Output Format
 
@@ -171,47 +171,25 @@ Write a JSON file with this structure:
   "eval_feedback": {
     "suggestions": [
       {
-        "assertion": "The output includes the name 'John Smith'",
+        "expectation": "The output includes the name 'John Smith'",
         "reason": "A hallucinated document that mentions the name would also pass — consider checking it appears as the primary contact with matching phone and email from the input"
       },
       {
-        "reason": "No assertion checks whether the extracted phone numbers match the input — I observed incorrect numbers in the output that went uncaught"
+        "reason": "No expectation checks whether the extracted phone numbers match the input — I observed incorrect numbers in the output that went uncaught"
       }
     ],
-    "overall": "Assertions check presence but not correctness. Consider adding content verification."
+    "overall": "Expectations check presence but not correctness. Consider adding content verification."
   }
 }
 ```
 
-## Field Descriptions
+## Notes on fields
 
-- **expectations**: Array of graded expectations
-  - **text**: The original expectation text
-  - **passed**: Boolean - true if expectation passes
-  - **evidence**: Specific quote or description supporting the verdict
-- **summary**: Aggregate statistics
-  - **passed**: Count of passed expectations
-  - **failed**: Count of failed expectations
-  - **total**: Total expectations evaluated
-  - **pass_rate**: Fraction passed (0.0 to 1.0)
-- **execution_metrics**: Copied from executor's metrics.json (if available)
-  - **output_chars**: Total character count of output files (proxy for tokens)
-  - **transcript_chars**: Character count of transcript
-- **timing**: Wall clock timing from timing.json (if available)
-  - **executor_duration_seconds**: Time spent in executor subagent
-  - **total_duration_seconds**: Total elapsed time for the run
-- **claims**: Extracted and verified claims from the output
-  - **claim**: The statement being verified
-  - **type**: "factual", "process", or "quality"
-  - **verified**: Boolean - whether the claim holds
-  - **evidence**: Supporting or contradicting evidence
-- **user_notes_summary**: Issues flagged by the executor
-  - **uncertainties**: Things the executor wasn't sure about
-  - **needs_review**: Items requiring human attention
-  - **workarounds**: Places where the skill didn't work as expected
-- **eval_feedback**: Improvement suggestions for the evals (only when warranted)
-  - **suggestions**: List of concrete suggestions, each with a `reason` and optionally an `assertion` it relates to
-  - **overall**: Brief assessment — can be "No suggestions, evals look solid" if nothing to flag
+The example above is the schema — match its field names exactly, because the viewer reads `text`, `passed`, and `evidence` literally. Non-obvious semantics only:
+
+- **execution_metrics** / **timing**: copy from the executor's `metrics.json` and `timing.json` when they exist; omit otherwise.
+- **claims[].type**: one of "factual", "process", or "quality".
+- **eval_feedback**: include only when there is a suggestion worth raising (see Step 6); a suggestion may omit `expectation` when it flags a coverage gap rather than a weak expectation.
 
 ## Guidelines
 

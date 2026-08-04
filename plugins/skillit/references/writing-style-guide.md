@@ -4,6 +4,15 @@ A prescriptive house style for authoring SKILL.md files and their `references/`.
 
 **Scope:** Rules 1–9 govern the SKILL.md body and all reference files. Rules 10–11 govern the two zones with their own style. Rule 12 resolves conflicts.
 
+## Contents
+
+- [Part A — Sentence-level rules (Rules 1–9)](#part-a--sentence-level-rules-body-and-references)
+- [Part B — Zone rules (Rules 10–11)](#part-b--zone-rules)
+- [Rule 12 — Conflict resolution order](#rule-12--conflict-resolution-order)
+- [Worked before/after](#worked-beforeafter)
+- [Pre-ship checklist](#pre-ship-checklist)
+- [Workflow tip](#workflow-tip)
+
 ---
 
 ## Part A — Sentence-level rules (body and references)
@@ -185,7 +194,7 @@ Run against the finished skill. Fix violations; never annotate them.
 - [ ] One default tool per job; no option menus
 - [ ] Forward-slash paths; no `@` imports in SKILL.md
 - [ ] References one level deep; TOC on any reference over ~100 lines
-- [ ] ≥3 realistic eval prompts in `evals/evals.json`, tested against the no-skill baseline
+- [ ] ≥2 realistic eval prompts in `evals/evals.json`, tested against the no-skill baseline
 
 ---
 

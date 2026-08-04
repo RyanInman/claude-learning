@@ -365,6 +365,11 @@ def check_structure(skill_dir, body, findings):
     has_scripts = (skill_dir / "scripts").is_dir()
     has_refs = (skill_dir / "references").is_dir()
 
+    # Accumulated text of all reference files -- a script invoked from a
+    # reference ("run scripts/foo.py after step 3") is reachable even though
+    # SKILL.md never names it, so the unmentioned-script check must not flag it.
+    refs_text = ""
+
     # Reference files: TOC for long ones, and flag deep nesting.
     if has_refs:
         for ref in (skill_dir / "references").rglob("*.md"):
@@ -374,6 +379,7 @@ def check_structure(skill_dir, body, findings):
                 rtext = ref.read_text(encoding="utf-8", errors="replace")
             except OSError:
                 continue
+            refs_text += rtext + "\n"
             rlines = len(rtext.splitlines())
             if rlines > 100 and not _has_toc(rtext):
                 _add(findings, "medium", "references",
@@ -395,20 +401,38 @@ def check_structure(skill_dir, body, findings):
                      "unreferenced file is one Claude will never open.".format(rel=rel),
                      location=str(rel))
 
-    # Top-level scripts never mentioned in the body = won't be run. Only check
+    # Top-level scripts never mentioned anywhere = won't be run. Only check
     # direct children of scripts/ -- nested files (scripts/pkg/helper.py) and
     # private modules (_x.py, __init__.py) are implementation details a caller
     # need not name. Match the stem too, so module-style refs like
-    # `python -m scripts.foo` count as mentioning foo.py.
+    # `python -m scripts.foo` count as mentioning foo.py. A script is reachable
+    # (and not flagged) if any of these name it: the SKILL.md body, a reference
+    # file, or an import line in a sibling script (library modules of an
+    # entry-point script are run indirectly, not named in prose).
     if has_scripts:
-        for scr in sorted((skill_dir / "scripts").glob("*.py")):
+        scripts_dir = skill_dir / "scripts"
+        import_lines = []
+        for sibling in scripts_dir.glob("*.py"):
+            try:
+                src = sibling.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            import_lines.extend(
+                line for line in src.splitlines()
+                if re.match(r"\s*(?:import|from)\s", line))
+        import_text = "\n".join(import_lines)
+        for scr in sorted(scripts_dir.glob("*.py")):
             if scr.name == "__init__.py" or scr.name.startswith("_"):
                 continue
             rel = scr.relative_to(skill_dir)
-            if scr.name not in body and str(rel) not in body and scr.stem not in body:
+            mention_text = body + "\n" + refs_text
+            mentioned = (scr.name in mention_text or str(rel) in mention_text
+                         or scr.stem in mention_text)
+            imported = bool(re.search(rf"\b{re.escape(scr.stem)}\b", import_text))
+            if not mentioned and not imported:
                 _add(findings, "low", "scripts",
-                     f"{rel} exists but is not mentioned in SKILL.md, so Claude "
-                     "won't know to run it.",
+                     f"{rel} exists but is not mentioned in SKILL.md or any "
+                     "reference file, so Claude won't know to run it.",
                      f"State explicitly whether Claude should run it "
                      f"('Run {rel} to ...') or remove it.",
                      location=str(rel))

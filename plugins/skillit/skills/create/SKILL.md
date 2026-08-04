@@ -20,7 +20,7 @@ Find where the user is in this loop and jump in. They might say "I want to make 
 Users span a wide range of coding-jargon familiarity. Read context cues and calibrate:
 
 - "evaluation" and "benchmark" are borderline but usually OK.
-- For "JSON" and "assertion," wait for clear signals the user knows the terms before using them unexplained.
+- For "JSON" and "expectation," wait for clear signals the user knows the terms before using them unexplained.
 
 When in doubt, briefly define a term rather than assume.
 
@@ -132,11 +132,11 @@ Before writing test cases, grade the draft with the **skillit:review** skill. It
 
 After writing the skill draft, come up with 2-3 realistic test prompts — the kind of thing a real user would actually say. Share them with the user: [you don't have to use this exact language] "Here are a few test cases I'd like to try. Do these look right, or do you want to add more?" Then run them.
 
-Save test cases to `evals/evals.json`. Don't write assertions yet — just the prompts. You'll draft assertions in the next step while the runs are in progress. See `references/schemas.md` for the evals.json structure (including the `assertions` field, which you'll add later).
+Save test cases to `evals/evals.json`. Don't write expectations yet — just the prompts. You'll draft expectations in the next step while the runs are in progress. See `references/schemas.md` for the evals.json structure (including the `expectations` field, which you'll add later).
 
 ## Running and evaluating test cases
 
-The mechanics (spawning paired runs in one turn, capturing `total_tokens`/`duration_ms` from each task notification, grading against assertions, aggregating the benchmark, launching the viewer, reading feedback) are a single continuous sequence that only matters once you're at this step. Read `references/running-evals.md` and follow it end to end; don't stop partway through — the sequence pairs every with-skill run against a baseline, and a partial pass loses that comparison. Don't use `/skill-test` or any other testing skill: they skip the paired baseline and the feedback viewer this loop depends on.
+The mechanics (spawning paired runs in one turn, capturing `total_tokens`/`duration_ms` from each task notification, grading against expectations, aggregating the benchmark, launching the viewer, reading feedback) are a single continuous sequence that only matters once you're at this step. Read `references/running-evals.md` and follow it end to end; don't stop partway through — the sequence pairs every with-skill run against a baseline, and a partial pass loses that comparison. Don't use `/skill-test` or any other testing skill: they skip the paired baseline and the feedback viewer this loop depends on.
 
 ---
 
@@ -204,8 +204,10 @@ Apply every fix it surfaces, then run it again. Repeat until the only remaining 
 Check whether you have access to the `present_files` tool. If you don't, skip this step. If you do, package the skill and present the .skill file to the user:
 
 ```bash
-python -m scripts.package_skill <path/to/skill-folder>
+cd ${CLAUDE_SKILL_DIR} && python -m scripts.package_skill <path/to/skill-folder>
 ```
+
+The `cd` matters — `-m` resolves the `scripts` package relative to the working directory.
 
 After packaging, direct the user to the resulting `.skill` file path so they can install it.
 

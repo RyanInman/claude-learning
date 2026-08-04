@@ -65,7 +65,7 @@ For each output (A and B):
 2. **Calculate dimension totals**: Content score, Structure score
 3. **Calculate overall score**: Average of dimension scores, scaled to 1-10
 
-### Step 5: Check Assertions (if provided)
+### Step 5: Check Expectations (if provided)
 
 If expectations are provided:
 
@@ -79,7 +79,7 @@ If expectations are provided:
 Compare A and B based on (in priority order):
 
 1. **Primary**: Overall rubric score (content + structure)
-2. **Secondary**: Assertion pass rates (if applicable)
+2. **Secondary**: Expectation pass rates (if applicable)
 3. **Tiebreaker**: If truly equal, declare a TIE
 
 Be decisive - ties should be rare. One output is usually better, even if marginally.
@@ -171,32 +171,19 @@ Write a JSON file with this structure:
 
 If no expectations were provided, omit the `expectation_results` field entirely.
 
-## Field Descriptions
+## Notes on fields
 
-- **winner**: "A", "B", or "TIE"
-- **reasoning**: Clear explanation of why the winner was chosen (or why it's a tie)
-- **rubric**: Structured rubric evaluation for each output
-  - **content**: Scores for content criteria (correctness, completeness, accuracy)
-  - **structure**: Scores for structure criteria (organization, formatting, usability)
-  - **content_score**: Average of content criteria (1-5)
-  - **structure_score**: Average of structure criteria (1-5)
-  - **overall_score**: Combined score scaled to 1-10
-- **output_quality**: Summary quality assessment
-  - **score**: 1-10 rating (should match rubric overall_score)
-  - **strengths**: List of positive aspects
-  - **weaknesses**: List of issues or shortcomings
-- **expectation_results**: (Only if expectations provided)
-  - **passed**: Number of expectations that passed
-  - **total**: Total number of expectations
-  - **pass_rate**: Fraction passed (0.0 to 1.0)
-  - **details**: Individual expectation results
+The example above is the schema — match its field names exactly. Non-obvious semantics only:
+
+- **winner**: "A", "B", or "TIE".
+- **content_score** / **structure_score**: averages of their criteria (1-5); **overall_score** scales the combined result to 1-10 and **output_quality.score** should match it.
 
 ## Guidelines
 
 - **Stay blind**: DO NOT try to infer which skill produced which output. Judge purely on output quality.
 - **Be specific**: Cite specific examples when explaining strengths and weaknesses.
 - **Be decisive**: Choose a winner unless outputs are genuinely equivalent.
-- **Output quality first**: Assertion scores are secondary to overall task completion.
+- **Output quality first**: Expectation scores are secondary to overall task completion.
 - **Be objective**: Don't favor outputs based on style preferences; focus on correctness and completeness.
 - **Explain your reasoning**: The reasoning field should make it clear why you chose the winner.
 - **Handle edge cases**: If both outputs fail, pick the one that fails less badly. If both are excellent, pick the one that's marginally better.

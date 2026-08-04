@@ -1,10 +1,19 @@
 # Running and evaluating test cases
 
+## Contents
+
+- [Step 1: Spawn all runs (with-skill AND baseline) in the same turn](#step-1-spawn-all-runs-with-skill-and-baseline-in-the-same-turn)
+- [Step 2: While runs are in progress, draft expectations](#step-2-while-runs-are-in-progress-draft-expectations)
+- [Step 3: As runs complete, capture timing data](#step-3-as-runs-complete-capture-timing-data)
+- [Step 4: Grade, aggregate, and launch the viewer](#step-4-grade-aggregate-and-launch-the-viewer)
+- [What the user sees in the viewer](#what-the-user-sees-in-the-viewer)
+- [Step 5: Read the feedback](#step-5-read-the-feedback)
+
 This is the full eval-running sequence, referenced from SKILL.md. It's one continuous sequence; don't stop partway through. Don't use `/skill-test` or any other testing skill: they skip the paired baseline and the feedback viewer this loop depends on.
 
 The baseline matters as much as the skill. You're not just checking that the skill produces good output — you're checking that it *beats what Claude does without it*. Always run both, and judge the skill by the delta, not by whether the with-skill run looks fine on its own.
 
-Put results in `<skill-name>-workspace/` as a sibling to the skill directory. Within the workspace, organize results by iteration (`iteration-1/`, `iteration-2/`, etc.) and within that, each test case gets a directory (`eval-0/`, `eval-1/`, etc.). Don't create all of this upfront — just create directories as you go.
+Put results in `<skill-name>-workspace/` as a sibling to the skill directory. Within the workspace, organize results by iteration (`iteration-1/`, `iteration-2/`, etc.) and within that, each test case gets a directory (`eval-0-<name>/`, `eval-1-<name>/`, etc.). Don't create all of this upfront — just create directories as you go.
 
 ## Step 1: Spawn all runs (with-skill AND baseline) in the same turn
 
@@ -25,24 +34,24 @@ Execute this task:
 - **Creating a new skill**: no skill at all. Same prompt, no skill path, save to `without_skill/outputs/`.
 - **Improving an existing skill**: the old version. Before editing, snapshot the skill (`cp -r <skill-path> <workspace>/skill-snapshot/`), then point the baseline subagent at the snapshot. Save to `old_skill/outputs/`.
 
-Write an `eval_metadata.json` for each test case (assertions can be empty for now). Give each eval a descriptive name based on what it's testing — not just "eval-0". Use this name for the directory too. If this iteration uses new or modified eval prompts, create these files for each new eval directory — don't assume they carry over from previous iterations.
+Write an `eval_metadata.json` for each test case (expectations can be empty for now). Give each eval a descriptive name based on what it's testing. Name the directory `eval-<ID>-<name>` (e.g. `eval-0-table-extraction`) — keep the `eval-` prefix, because `aggregate_benchmark.py` only discovers directories that start with `eval-`. If this iteration uses new or modified eval prompts, create these files for each new eval directory — don't assume they carry over from previous iterations.
 
 ```json
 {
   "eval_id": 0,
   "eval_name": "descriptive-name-here",
   "prompt": "The user's task prompt",
-  "assertions": []
+  "expectations": []
 }
 ```
 
-## Step 2: While runs are in progress, draft assertions
+## Step 2: While runs are in progress, draft expectations
 
-Don't just wait for the runs to finish — you can use this time productively. Draft quantitative assertions for each test case and explain them to the user. If assertions already exist in `evals/evals.json`, review them and explain what they check.
+Don't just wait for the runs to finish — you can use this time productively. Draft quantitative expectations for each test case and explain them to the user. If expectations already exist in `evals/evals.json`, review them and explain what they check.
 
-Good assertions are objectively verifiable and have descriptive names — they should read clearly in the benchmark viewer so someone glancing at the results immediately understands what each one checks. Subjective skills (writing style, design quality) are better evaluated qualitatively — don't force assertions onto things that need human judgment.
+Good expectations are objectively verifiable and have descriptive names — they should read clearly in the benchmark viewer so someone glancing at the results immediately understands what each one checks. Subjective skills (writing style, design quality) are better evaluated qualitatively — don't force expectations onto things that need human judgment.
 
-Update the `eval_metadata.json` files and `evals/evals.json` with the assertions once drafted. Also explain to the user what they'll see in the viewer — both the qualitative outputs and the quantitative benchmark.
+Update the `eval_metadata.json` files and `evals/evals.json` with the expectations once drafted. Also explain to the user what they'll see in the viewer — both the qualitative outputs and the quantitative benchmark.
 
 ## Step 3: As runs complete, capture timing data
 
@@ -62,7 +71,7 @@ This is the only opportunity to capture this data — it comes through the task 
 
 Once all runs are done:
 
-1. **Grade each run** — spawn a grader subagent (or grade inline) that reads `agents/grader.md` and evaluates each assertion against the outputs. Save results to `grading.json` in each run directory. The grading.json expectations array must use the fields `text`, `passed`, and `evidence` (not `name`/`met`/`details` or other variants) — the viewer depends on these exact field names. For assertions that can be checked programmatically, write and run a script rather than eyeballing it — scripts are faster, more reliable, and can be reused across iterations.
+1. **Grade each run** — spawn a grader subagent (or grade inline) that reads `agents/grader.md` and evaluates each expectation against the outputs. Save results to `grading.json` in each run directory. The grading.json expectations array must use the fields `text`, `passed`, and `evidence` (not `name`/`met`/`details` or other variants) — the viewer depends on these exact field names. For expectations that can be checked programmatically, write and run a script rather than eyeballing it — scripts are faster, more reliable, and can be reused across iterations.
 
 2. **Aggregate into benchmark** — run the aggregation script from the skill-creator directory:
    ```bash
@@ -71,7 +80,7 @@ Once all runs are done:
    This produces `benchmark.json` and `benchmark.md` with pass_rate, time, and tokens for each configuration, with mean ± stddev and the delta. If generating benchmark.json manually, see `references/schemas.md` for the exact schema the viewer expects.
 Put each with_skill version before its baseline counterpart.
 
-3. **Do an analyst pass** — read the benchmark data and surface patterns the aggregate stats might hide. See `agents/analyzer.md` (the "Analyzing Benchmark Results" section) for what to look for — things like assertions that always pass regardless of skill (non-discriminating), high-variance evals (possibly flaky), and time/token tradeoffs.
+3. **Do an analyst pass** — read the benchmark data and surface patterns the aggregate stats might hide. See `agents/analyzer.md` (the "Analyzing Benchmark Results" section) for what to look for — things like expectations that always pass regardless of skill (non-discriminating), high-variance evals (possibly flaky), and time/token tradeoffs.
 
 4. **Launch the viewer** with both qualitative outputs and quantitative data:
    ```bash
@@ -96,7 +105,7 @@ The "Outputs" tab shows one test case at a time:
 - **Prompt**: the task that was given
 - **Output**: the files the skill produced, rendered inline where possible
 - **Previous Output** (iteration 2+): collapsed section showing last iteration's output
-- **Formal Grades** (if grading was run): collapsed section showing assertion pass/fail
+- **Formal Grades** (if grading was run): collapsed section showing expectation pass/fail
 - **Feedback**: a textbox that auto-saves as they type
 - **Previous Feedback** (iteration 2+): their comments from last time, shown below the textbox
 

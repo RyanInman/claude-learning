@@ -1,0 +1,12 @@
+{
+  "name": "skillit",
+  "displayName": "Skillit Toolkit",
+  "version": "0.1.0",
+  "description": "Create, improve, and review Claude Code skills. Bundles create (author, edit, benchmark skills) and review (audit an existing SKILL.md).",
+  "author": {
+    "name": "Ryan Inman",
+    "email": "ryan.inman.420@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": ["skills", "skill-creator", "skill-review", "evals"]
+}

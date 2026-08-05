@@ -10,7 +10,7 @@ The core loop:
 1. Decide what the skill should do and roughly how.
 2. Write a draft.
 3. Run claude-with-access-to-the-skill on a few realistic test prompts in the background; draft quantitative evals while they run.
-4. Show the user the results with `eval-viewer/generate_review.py` — qualitative outputs and quantitative metrics.
+4. Show the user the results with `scripts/generate_review.py` — qualitative outputs and quantitative metrics.
 5. Rewrite based on their feedback and any flaws the benchmarks expose; repeat, then expand the test set and rerun at larger scale.
 
 Find where the user is in this loop and jump in. They might say "I want to make a skill for X" (start at step 1) or arrive with a draft (skip to eval and iterate). Stay flexible: if they say "skip the evals, just vibe with me," do that. After the skill is solid, run the Description Optimization loop (below) to improve triggering.

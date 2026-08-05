@@ -33,6 +33,7 @@ import argparse
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 # Rule 6's word list, taken from the guide's pre-ship checklist plus "deal
@@ -95,17 +96,23 @@ def strip_exempt_zones(text, skip_lines=0):
 
 
 def scan_lines(lines):
-    """Return a list of hit dicts (rule, detail, line, text) for one file's
-    already-filtered (line_no, line_text) pairs."""
+    """Return a list of hit dicts (rule, detail, line, text, count) for one
+    file's already-filtered (line_no, line_text) pairs. Repeats of one pattern
+    on one line collapse into a single hit with a count, so the report never
+    prints the same line twice."""
     hits = []
     for lineno, line in lines:
-        for match in RULE_3_PATTERN.finditer(line):
-            hits.append({"rule": "Rule 3", "detail": match.group(0), "line": lineno, "text": line.strip()})
+        def add(rule, detail, count):
+            hits.append({"rule": rule, "detail": detail, "line": lineno,
+                         "text": line.strip(), "count": count})
+        for detail, count in Counter(RULE_3_PATTERN.findall(line)).items():
+            add("Rule 3", detail, count)
         for label, pattern in RULE_6_PATTERNS.items():
-            for match in pattern.finditer(line):
-                hits.append({"rule": "Rule 6", "detail": label, "line": lineno, "text": line.strip()})
-        for match in RULE_9_PATTERN.finditer(line):
-            hits.append({"rule": "Rule 9", "detail": match.group(0), "line": lineno, "text": line.strip()})
+            count = len(pattern.findall(line))
+            if count:
+                add("Rule 6", label, count)
+        for detail, count in Counter(RULE_9_PATTERN.findall(line)).items():
+            add("Rule 9", detail, count)
     return hits
 
 
@@ -124,9 +131,11 @@ def render_report(hits):
     if not hits:
         return ("No Rule 3/6/9 hits. Rules 2, 5, and 8 still need a manual "
                 "read; a scan cannot judge them.")
-    lines = [f"SCAN  ::  {len(hits)} hit(s)", ""]
+    total = sum(h["count"] for h in hits)
+    lines = [f"SCAN  ::  {total} hit(s)", ""]
     for h in sorted(hits, key=lambda h: (h["file"], h["line"])):
-        lines.append(f"  [{h['rule']}] {h['file']}:{h['line']}  ({h['detail']})")
+        times = f" x{h['count']}" if h["count"] > 1 else ""
+        lines.append(f"  [{h['rule']}] {h['file']}:{h['line']}  ({h['detail']}{times})")
         lines.append(f"      {h['text']}")
     lines.append("")
     lines.append("Each hit above is a candidate. Confirm it sits inside real")

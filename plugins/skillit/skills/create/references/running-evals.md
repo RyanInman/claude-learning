@@ -13,7 +13,7 @@ This is the full eval-running sequence, referenced from SKILL.md. It's one conti
 
 The baseline matters as much as the skill. You're not just checking that the skill produces good output — you're checking that it *beats what Claude does without it*. Always run both, and judge the skill by the delta, not by whether the with-skill run looks fine on its own.
 
-Put results in `<skill-name>-workspace/` as a sibling to the skill directory. Within the workspace, organize results by iteration (`iteration-1/`, `iteration-2/`, etc.) and within that, each test case gets a directory (`eval-0-<name>/`, `eval-1-<name>/`, etc.). Don't create all of this upfront — just create directories as you go.
+Put results in `<skill-name>-workspace/` as a sibling to the skill directory. When the skill lives inside a plugin's `skills/` folder, place the workspace outside the plugin instead. The plugin loader treats every folder under `skills/` as a skill, and the workspace would ship to installers. Within the workspace, organize results by iteration (`iteration-1/`, `iteration-2/`, etc.) and within that, each test case gets a directory (`eval-0-<name>/`, `eval-1-<name>/`, etc.). Don't create all of this upfront — just create directories as you go.
 
 ## Step 1: Spawn all runs (with-skill AND baseline) in the same turn
 
@@ -90,7 +90,7 @@ Once all runs are done:
 
 4. **Launch the viewer** with both qualitative outputs and quantitative data:
    ```bash
-   nohup python3 ${CLAUDE_SKILL_DIR}/eval-viewer/generate_review.py \
+   nohup python3 ${CLAUDE_SKILL_DIR}/scripts/generate_review.py \
      <workspace>/iteration-N \
      --skill-name "my-skill" \
      --benchmark <workspace>/iteration-N/benchmark.json \

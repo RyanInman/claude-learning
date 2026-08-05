@@ -335,9 +335,11 @@ def check_body(body, findings):
              "Switch '\\' to '/' in bundled paths.")
 
     # The shouting file: many caps directives suggest rules without reasons.
+    # A word touching a slash ("MUST/NEVER/ALWAYS") mentions the directive
+    # vocabulary rather than issuing a directive, so it doesn't count.
     caps_count = 0
     for word in CAPS_DIRECTIVES:
-        caps_count += len(re.findall(rf"\b{re.escape(word)}\b", body))
+        caps_count += len(re.findall(rf"(?<!/)\b{re.escape(word)}\b(?!/)", body))
     if caps_count >= 6:
         _add(findings, "medium", "anti-pattern",
              f"{caps_count} ALL-CAPS directives (MUST/ALWAYS/NEVER/...). Heavy "
@@ -594,7 +596,11 @@ def _scan_security_text(label, text, findings):
              "Confirm what value is read and where it is sent; avoid "
              "combining secret reads with outbound requests in one script.",
              location=label)
-    if _URL_INTERP_PATTERN.search(text):
+    # A localhost/127.0.0.1 URL stays on the machine, so interpolating a
+    # variable into one (e.g. a local viewer's port) is not an exfiltration path.
+    url_hits = [m.group(0) for m in _URL_INTERP_PATTERN.finditer(text)]
+    if any(not re.search(r"https?://(?:localhost|127\.0\.0\.1)", h, re.IGNORECASE)
+           for h in url_hits):
         _add(findings, "medium", "security",
              "An http(s) URL interpolates a variable into its query/path -- "
              "data may be sent to an external endpoint, verify what is "

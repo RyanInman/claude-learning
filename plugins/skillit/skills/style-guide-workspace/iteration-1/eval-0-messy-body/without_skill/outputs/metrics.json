@@ -1,9 +1,0 @@
-{
-  "tool_calls": {"Read": 1, "Write": 1, "Bash": 2},
-  "total_tool_calls": 4,
-  "total_steps": 4,
-  "files_created": ["report.md", "metrics.json", "user_notes.md"],
-  "errors_encountered": 1,
-  "output_chars": 4588,
-  "transcript_chars": 14000
-}

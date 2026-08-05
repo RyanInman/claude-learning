@@ -1,15 +1,15 @@
 # Writing Effective Instructions
 
-How to write skill instructions that produce consistent, high-quality output without railroading Claude. Read this when drafting or revising the prose body of a `SKILL.md`.
+How to write skill instructions that produce consistent, high-quality output without railroading Claude. Read this when drafting or revising the prose body of a `SKILL.md`. The check-side versions of these rules — and the full anti-pattern catalog (shouting, railroading, stating the obvious, menus, time-sensitive content) — are canon in `../../../references/best-practices.md` §4–5; read that when you want the *why* behind a rule or the review criteria your draft will be graded against.
 
 ## Contents
 
 - [Voice and terminology](#voice-and-terminology)
 - [Degrees of freedom](#degrees-of-freedom)
+- [Step 0: clarifying questions](#step-0-clarifying-questions)
 - [Templates](#templates)
 - [Examples beat rules](#examples-beat-rules)
 - [Validation loops](#validation-loops)
-- [Anti-patterns](#anti-patterns)
 - [The Gotchas section](#the-gotchas-section)
 
 ## Voice and terminology
@@ -25,6 +25,32 @@ This is the single most important calibration: match instruction specificity to 
 - **Low freedom (exact scripts, no parameters)** when an operation is fragile and consistency is critical — e.g., "Run exactly this: `python scripts/migrate.py --verify --backup`. Do not modify the command."
 
 The analogy: a narrow bridge over a cliff has one safe path, so give exact steps; an open field has many paths, so give a direction and let Claude navigate. Over-specifying an open-field task is railroading; under-specifying a narrow-bridge task invites errors.
+
+## Step 0: clarifying questions
+
+Open every skill's workflow with a **Step 0** titled "Before starting". Its job is to resolve ambiguity before any work happens — a clarifying question asked after the output exists costs a full redo, so the questions belong at the front, not scattered through the steps.
+
+Step 0 contains:
+
+- **The specific facts the skill needs before it acts** — target file, environment, output format, scope, audience. Name them concretely. A bare "ask clarifying questions" is too vague to change behavior; a list of the three facts that actually gate the work is what gets asked.
+- **Mine before asking.** Instruct the skill to extract answers from the conversation and provided inputs first, then ask the user only for what is missing. Re-asking something the user already said erodes trust in the skill.
+- **A silent pass.** When every fact is already present, Step 0 passes without a pause — it is a gate, not a mandatory interview. This keeps the step from railroading fully-specified requests.
+
+```markdown
+## Workflow
+
+### Step 0: Before starting
+
+Confirm these before touching any file — a wrong answer here redoes the whole run:
+
+1. Which environment is the target (staging or production)? Never assume production.
+2. Is there an existing report to update, or is this a fresh run?
+3. Who reads the output (engineers or executives)? This sets the report's depth.
+
+Extract answers from the conversation first; ask the user only for what is missing. If all three are known, proceed without asking.
+```
+
+Step 0 and [validation loops](#validation-loops) are the two halves of the same guarantee: Step 0 catches ambiguity before the work, the validation loop catches errors after it.
 
 ## Templates
 
@@ -46,7 +72,7 @@ Use this exact template — readers rely on the same sections every time, so the
 
 ## Examples beat rules
 
-A single concrete input→output example is worth more than 50 lines of abstract description — Claude generalizes from examples better than from rule lists. Anthropic's own commit-message skill shows three input→output pairs rather than describing the format:
+Show, don't describe — Anthropic's own commit-message skill gives input→output pairs rather than format rules:
 
 ```markdown
 ## Commit message format
@@ -67,14 +93,6 @@ Field 'signature_date' not found. Available fields: customer_name, order_total, 
 ```
 
 That lets Claude self-correct instead of guessing. For code review specifically, instruct Claude to "read actual code with Read/Grep before reporting — only report what you confirmed in the file." Without this, Claude generates plausible-sounding but fabricated findings.
-
-## Anti-patterns
-
-- **ALL-CAPS `MUST`/`ALWAYS`/`NEVER` with no reasoning.** State the rule _and the why_: "Use constructor injection — field injection breaks testability because we can't mock the field without a Spring context" beats "MUST use constructor injection." Today's models have good theory of mind; given the reason, they generalize correctly to edge cases the rule didn't name. Piling up caps locks is a yellow flag.
-- **Railroading.** Over-specific instructions fail when the skill is reused across varied inputs. Give information plus the flexibility to adapt.
-- **Stating the obvious.** Claude already knows how to code and can read the codebase. Restating defaults adds tokens without value. Spend words on what pushes Claude _out_ of its default behavior.
-- **Offering too many options** ("use pypdf, or pdfplumber, or PyMuPDF, or…"). Provide one default with an escape hatch.
-- **Time-sensitive information** ("before August 2025, use the old API"). Put deprecated content in a collapsed "Old patterns" section instead of inline caveats.
 
 ## The Gotchas section
 

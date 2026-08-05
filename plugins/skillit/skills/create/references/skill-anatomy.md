@@ -15,7 +15,7 @@ A skill is a folder, not just a file. The canonical layout works across Claude.a
 ```
 my-skill/
 ├── SKILL.md            # Required: YAML frontmatter + instructions
-├── references/         # Docs Claude READS into context as needed
+├── references/         # Docs Claude READS into context on demand
 ├── scripts/            # Executable code Claude RUNS (not loaded into context)
 ├── assets/             # Files used in OUTPUT (templates, boilerplate, fonts, icons)
 └── evals/              # Recommended: evaluation tests
@@ -27,7 +27,7 @@ The three bundled-resource directories serve distinct purposes:
 - **`references/`** — documentation loaded into context to inform reasoning (API references, schemas, comprehensive guides). This is where you offload anything that would otherwise bloat `SKILL.md`.
 - **`assets/`** — files used _within the output_ Claude produces (document templates, boilerplate code, images). Not loaded into context.
 
-Name bundled files descriptively (`form_validation_rules.md`, not `doc2.md`) — Claude navigates the folder like a filesystem, so good names are how it finds the right file. Skill-name rules (gerund form, vague-name traps, length limits) are in `../../../references/best-practices.md` §3.
+Name bundled files descriptively (`form_validation_rules.md`, not `doc2.md`) — Claude navigates the folder like a filesystem, so good names are how it finds the right file. Write in-skill file references relative to the skill root (`references/x.md`, `agents/y.md`), even from inside another bundled file — that is the spec's convention. Use file-relative `../` paths only for targets outside the skill folder. Skill-name rules (gerund form, vague-name traps, length limits) are in `../../../references/best-practices.md` §3.
 
 ## Frontmatter fields
 
@@ -35,6 +35,12 @@ Name bundled files descriptively (`form_validation_rules.md`, not `doc2.md`) —
 
 - `name` — max 64 chars; lowercase letters, numbers, hyphens only; no XML tags; cannot contain the reserved words "anthropic" or "claude". In Claude Code, the _directory name_ (not this field) becomes the `/command`.
 - `description` — max 1024 chars; non-empty; third person; states _what the skill does_ AND _when to use it_. This is the single highest-leverage line you write — the full criteria are in `../../../references/best-practices.md` §1, and the "Description Optimization" section of `SKILL.md` covers how to tune it.
+
+**Spec-level optional fields:**
+
+- `compatibility` — max 500 chars; environment requirements (intended product, system packages, network access). Most skills do not need it.
+- `license` — license name or a pointer to a bundled license file.
+- `metadata` — arbitrary string key-value map for properties outside the spec.
 
 **Claude Code optional fields** (use only when needed — most skills need none of these):
 

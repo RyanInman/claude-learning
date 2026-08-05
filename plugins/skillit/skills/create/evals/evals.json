@@ -7,12 +7,12 @@
       "prompt": "Create a skill that turns my raw meeting notes (markdown bullet lists) into a weekly status report with three sections: Done, In Progress, Blockers. I want Claude to produce the same report shape every time. Don't interview me and don't run any tests or evals — just author the complete skill folder.",
       "expected_output": "A complete skill folder whose SKILL.md prose follows the writing style guide: imperative instructions, active voice, one term per concept, no vague delegating words, reasons attached to non-obvious rules, pushy third-person description, at least one verbatim example.",
       "files": [],
-      "assertions": [
+      "expectations": [
         "no-and-then-compound-steps: SKILL.md prose contains no 'and then' compound instructions (guide Rule 3)",
         "no-vague-delegating-words: no 'appropriately', 'as needed', 'various', 'deal with', 'handle errors' in instructions (Rule 6)",
         "no-allcaps-directives: no bare MUST/NEVER/ALWAYS caps directives in body; rules carry reasons (Rule 9)",
-        "description-has-trigger-contexts: frontmatter description is third-person and names when-to-use contexts (Rule 10)",
-        "has-concrete-example: at least one concrete input-to-output example (Rule 11)",
+        "description-has-trigger-contexts: frontmatter description is third-person and names when-to-use contexts (Rule 11)",
+        "has-concrete-example: at least one concrete input-to-output example (Rule 12)",
         "no-passive-procedures: procedural instructions are active voice with a visible actor (Rules 1-2)",
         "defines-exact-output-template: skill pins an exact output template with placeholder slots for its recurring deliverable"
       ]
@@ -23,12 +23,12 @@
       "prompt": "I keep asking Claude to pull tables out of PDF files and save them as CSVs, and it does it differently every time. Turn that into a reusable skill. Skip the interview and the eval steps — write the finished skill folder now.",
       "expected_output": "A complete skill folder (likely with a bundled script) whose SKILL.md prose follows the writing style guide.",
       "files": [],
-      "assertions": [
+      "expectations": [
         "no-and-then-compound-steps: SKILL.md prose contains no 'and then' compound instructions (guide Rule 3)",
         "no-vague-delegating-words: no 'appropriately', 'as needed', 'various', 'deal with', 'handle errors' in instructions (Rule 6)",
         "no-allcaps-directives: no bare MUST/NEVER/ALWAYS caps directives in body; rules carry reasons (Rule 9)",
-        "description-has-trigger-contexts: frontmatter description is third-person and names when-to-use contexts (Rule 10)",
-        "has-concrete-example: at least one concrete input-to-output example (Rule 11)",
+        "description-has-trigger-contexts: frontmatter description is third-person and names when-to-use contexts (Rule 11)",
+        "has-concrete-example: at least one concrete input-to-output example (Rule 12)",
         "no-passive-procedures: procedural instructions are active voice with a visible actor (Rules 1-2)",
         "defines-exact-output-template: skill pins an exact output template with placeholder slots for its recurring deliverable"
       ]
@@ -39,17 +39,29 @@
       "prompt": "Here's a skill I wrote (SKILL.md provided as an input file). Improve the writing so it's clear and reliable — same behavior, better instructions. Don't run evals, just rewrite it and save the improved skill folder.",
       "expected_output": "A rewritten csv-cleanup skill with violations fixed: passive voice removed, 'and then' chains split, vague words replaced with specific actions, ALL-CAPS MUSTs reframed as rule + reason, description rewritten as a third-person trigger description.",
       "files": [
-        "inputs/csv-cleanup/SKILL.md"
+        "evals/inputs/csv-cleanup/SKILL.md"
       ],
-      "assertions": [
+      "expectations": [
         "no-and-then-compound-steps: SKILL.md prose contains no 'and then' compound instructions (guide Rule 3)",
         "no-vague-delegating-words: no 'appropriately', 'as needed', 'various', 'deal with', 'handle errors' in instructions (Rule 6)",
         "no-allcaps-directives: no bare MUST/NEVER/ALWAYS caps directives in body; rules carry reasons (Rule 9)",
-        "description-has-trigger-contexts: frontmatter description is third-person and names when-to-use contexts (Rule 10)",
-        "has-concrete-example: at least one concrete input-to-output example (Rule 11)",
+        "description-has-trigger-contexts: frontmatter description is third-person and names when-to-use contexts (Rule 11)",
+        "has-concrete-example: at least one concrete input-to-output example (Rule 12)",
         "no-passive-procedures: procedural instructions are active voice with a visible actor (Rules 1-2)",
         "synonym-drift-fixed: config/settings/preferences/options unified to one term (Rule 5)",
         "behavior-preserved: read-config-first, backup, dedupe-then-sort behavior kept, only wording improved"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "lighter-container-triage",
+      "prompt": "Make me a skill that makes Claude always use 2-space indentation and single quotes in this repo. It should apply to every file Claude touches.",
+      "expected_output": "No skill folder. The response recommends a lighter container — a CLAUDE.md line or a path-scoped .claude/rules file — and explains why a skill is the wrong fit for an always-true convention.",
+      "files": [],
+      "expectations": [
+        "recommends-lighter-container: response steers to CLAUDE.md or .claude/rules instead of authoring a skill",
+        "no-skill-folder-created: no SKILL.md is written for the formatting convention",
+        "explains-why: response gives the reason (always-true conventions belong in always-loaded context; a skill triggers conditionally and costs body tokens per session)"
       ]
     }
   ]

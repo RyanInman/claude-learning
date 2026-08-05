@@ -47,7 +47,7 @@ Everything below serves finding and fixing those.
 3. **Apply judgment the script can't.** The audit catches the countable things;
    you catch the rest. Determine the skill's target platform first (Claude Code
    vs claude.ai/API upload) — frontmatter validity and several criteria differ;
-   audit.py flags platform-specific fields as INFO. Read the three reference files
+   audit.py flags platform-specific fields as INFO. Read the two reference files
    for the full criteria and the *why* behind each, so your suggestions explain
    reasoning rather than assert rules:
    - `${CLAUDE_SKILL_DIR}/../../references/best-practices.md` — description/triggering quality, structure,
@@ -57,10 +57,10 @@ Everything below serves finding and fixing those.
      disclosure, recurring vs one-time cost, compile-to-script, one-job +
      negative triggers, lost-in-the-middle, listing-budget overflow, and
      compaction front-loading.
-   - `${CLAUDE_SKILL_DIR}/../../references/writing-style-guide.md` — house prose style: grade the
-     body and references against its Part A sentence rules and pre-ship
-     checklist. Respect its two exempt zones — the frontmatter description
-     (Rule 10) and verbatim examples (Rule 11) — do not flag style there.
+
+   Prose style is out of scope here — the skillit:style-guide skill grades it
+   against the house writing-style-guide. When a skill's prose is the problem,
+   point the user there instead of folding style fixes into this review.
 
    Read the actual files and scripts before reporting on them. Report only what
    you confirmed in the content — no guessing at what a script "probably" does.
@@ -85,6 +85,9 @@ Everything below serves finding and fixing those.
    | 8–9   | High confidence, clear material gain |
    | 6–7   | Plausible fix, moderate or uncertain payoff |
    | ≤5    | Speculative, or correct-but-trivial — cut unless user asked for an exhaustive pass |
+
+   An individual prose-style fix enters this rubric only when it costs real
+   clarity or tokens on its own; otherwise style belongs to skillit:style-guide.
 
 5. **Write the review** in the format below.
 
@@ -129,6 +132,7 @@ Rules for the write-up:
 ## Scope
 
 This skill reviews **skills** (SKILL.md folders). For authoring a new skill from
-scratch, use skillit:create. For CLAUDE.md / rules-file review, the token
+scratch, use skillit:create. For a prose-style grade against the house
+writing-style-guide, use skillit:style-guide. For CLAUDE.md / rules-file review, the token
 principles transfer but the structure rules differ — say so rather than applying
 SKILL.md rules to a memory file.

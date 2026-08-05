@@ -54,9 +54,9 @@ A verbatim capture, request → intent:
 
 ### Interview and Research
 
-Proactively ask questions about edge cases, input/output formats, example files, success criteria, and dependencies. Wait to write test prompts until you've got this part ironed out.
+Proactively ask questions about edge cases, input/output formats, example files, success criteria, and dependencies. Wait to write test prompts until these answers are settled.
 
-Check available MCPs - if useful for research (searching docs, finding similar skills, looking up best practices), research in parallel via subagents if available, otherwise inline. Come prepared with context to reduce burden on the user.
+Check available MCPs. If they help research (searching docs, finding similar skills, looking up best practices), run the research through parallel subagents when available, otherwise inline. Come prepared with context to reduce burden on the user.
 
 ### Write the SKILL.md
 
@@ -78,7 +78,7 @@ skill-name/
 │   └── Markdown instructions
 └── Bundled Resources (optional)
     ├── scripts/    - Executable code for deterministic/repetitive tasks
-    ├── references/ - Docs loaded into context as needed
+    ├── references/ - Docs loaded into context on demand
     └── assets/     - Files used in output (templates, icons, fonts)
 ```
 
@@ -89,9 +89,9 @@ Name skills in gerund form (`processing-pdfs`, `writing-documentation`); avoid v
 Skills use a three-level loading system:
 1. **Metadata** (name + description) - Always in context (~100 words)
 2. **SKILL.md body** - In context whenever skill triggers (<500 lines ideal)
-3. **Bundled resources** - As needed (unlimited, scripts can execute without loading)
+3. **Bundled resources** - On demand (unlimited, scripts can execute without loading)
 
-These word counts are approximate; go longer if needed.
+These limits are approximate; exceed them when the content earns the space.
 
 The economics: push anything not needed on every run *down* a tier. When you weigh what stays in the body, read `${CLAUDE_SKILL_DIR}/../../references/token-economics.md` §1–2 — the canonical statement of recurring vs one-time cost; §8–9 there cover the Claude Code listing budget and compaction behavior.
 
@@ -104,7 +104,7 @@ The economics: push anything not needed on every run *down* a tier. When you wei
 
 #### Principle of Lack of Surprise
 
-Skills must not contain malware, exploit code, or any content that could compromise system security. A skill's contents should not surprise the user in their intent if described. Don't go along with requests to create misleading skills or skills designed to facilitate unauthorized access, data exfiltration, or other malicious activities. Things like a "roleplay as an XYZ" are OK though. Treat installed skills as a security surface too. Install only from trusted sources. Audit bundled scripts and references for unexpected network calls. Frontmatter is injected into the system prompt, so it is itself an injection vector.
+Skills must not contain malware, exploit code, or any content that could compromise system security. A skill's contents should not surprise the user in their intent if described. Don't go along with requests to create misleading skills or skills designed to facilitate unauthorized access, data exfiltration, or other malicious activities. Things like a "roleplay as an XYZ" are OK though. Treat installed skills as a security surface too. Install only from trusted sources. Audit bundled scripts and references for unexpected network calls. The harness injects frontmatter into the system prompt, so frontmatter is itself an injection vector.
 
 #### Writing Patterns
 
@@ -112,15 +112,15 @@ Prefer using the imperative form in instructions.
 
 **Step 0 intake gate** - Open every produced skill's workflow with a "Step 0: Before starting" section: the concrete facts the skill needs before acting, an instruction to mine the conversation for answers before asking the user, and a silent pass when everything is known. Clarifying questions only help before work starts; `references/writing-instructions.md` §Step 0 has the pattern and an example.
 
-**Defining output formats** - When the skill produces a recurring deliverable (a report, a message, a file set), define an exact output template with placeholder slots — a fixed template is what makes run 50 look like run 1, which is usually why the user wanted a skill at all. State the template rule with its reason, not bare caps; `references/writing-instructions.md` §Templates has the worked example.
+**Defining output formats** - When the skill produces a recurring deliverable (a report, a message, a file set), define an exact output template with placeholder slots. A fixed template makes run 50 look like run 1 — usually why the user wanted a skill. State the template rule with its reason, not bare caps; `references/writing-instructions.md` §Templates has the worked example.
 
-**Examples pattern** - It's useful to include examples — one concrete input→output pair teaches more than paragraphs of abstract rules. `references/writing-instructions.md` §Examples beat rules has the format (deviate a little if "Input"/"Output" already appear in your example text).
+**Examples pattern** - Include at least one concrete example — one input→output pair teaches more than paragraphs of abstract rules. `references/writing-instructions.md` §Examples beat rules has the format (deviate a little if "Input"/"Output" already appear in your example text).
 
 **Calibrate degrees of freedom**: give text-level direction when many approaches are valid (e.g., code review), and exact, unparameterized script commands when an operation is fragile and consistency matters. Favor concrete input→output examples over abstract rules, and capture real failure points in a **Gotchas** section — often the highest-signal content in a skill. See `references/writing-instructions.md` for voice, templates, and validation loops; the anti-pattern catalog is canon in `${CLAUDE_SKILL_DIR}/../../references/best-practices.md` §4–5.
 
 ### Writing Style
 
-All prose in the skill you produce — the SKILL.md body and every reference file — follows the house style in `${CLAUDE_SKILL_DIR}/../../references/writing-style-guide.md`. Draft naturally first, then apply the guide as a dedicated editing pass using its pre-ship checklist; writing to the rules from a blank page produces stiffer prose than editing toward them. Two zones are exempt from its sentence-level rules and the guide explains why: the frontmatter description (optimized for triggering, colloquial phrasings included) and verbatim input→output examples (never edited to conform).
+All prose in the skill you produce — the SKILL.md body and every reference file — follows the house style in `${CLAUDE_SKILL_DIR}/../../references/writing-style-guide.md`. Draft naturally first, then apply the guide as a dedicated editing pass using its pre-ship checklist. Writing to the rules from a blank page produces stiffer prose than editing toward them. Two zones are exempt from its sentence-level rules and the guide explains why: the frontmatter description (optimized for triggering, colloquial phrasings included) and verbatim input→output examples (never edited to conform).
 
 Aim for **one skill, one job** — skills that straddle several purposes confuse the agent. When a mechanical step repeats across runs, bundle it as a script rather than re-describing it each time; see `references/bundling-scripts.md` for agent-friendly script interfaces and dependency management. When authoring specifically for Claude Code (invocation control, slash-command behavior, argument substitution, proven skill categories), read `references/claude-code-specifics.md`.
 
@@ -132,17 +132,17 @@ Before writing test cases, grade the draft with the **skillit:review** skill. It
 
 After writing the skill draft, come up with 2-3 realistic test prompts — the kind of thing a real user would actually say. Share them with the user: [you don't have to use this exact language] "Here are a few test cases I'd like to try. Do these look right, or do you want to add more?" Then run them.
 
-Save test cases to `evals/evals.json`. Don't write expectations yet — just the prompts. You'll draft expectations in the next step while the runs are in progress. See `references/schemas.md` for the evals.json structure (including the `expectations` field, which you'll add later).
+Save test cases to `evals/evals.json`. Don't write expectations yet — just the prompts. Draft the expectations in the next step while the runs are in progress. See `references/schemas.md` for the evals.json structure (including the `expectations` field, which you'll add later).
 
 ## Running and evaluating test cases
 
-The mechanics (spawning paired runs in one turn, capturing `total_tokens`/`duration_ms` from each task notification, grading against expectations, aggregating the benchmark, launching the viewer, reading feedback) are a single continuous sequence that only matters once you're at this step. Read `references/running-evals.md` and follow it end to end; don't stop partway through — the sequence pairs every with-skill run against a baseline, and a partial pass loses that comparison. Don't use `/skill-test` or any other testing skill: they skip the paired baseline and the feedback viewer this loop depends on.
+Read `references/running-evals.md` at this step and follow it end to end. It covers one continuous sequence: spawn paired runs in one turn, capture `total_tokens`/`duration_ms` from each task notification, grade against expectations, aggregate the benchmark, launch the viewer, read the feedback. Don't stop partway through — the sequence pairs every with-skill run against a baseline, and a partial pass loses that comparison. Don't use `/skill-test` or any other testing skill: they skip the paired baseline and the feedback viewer this loop depends on.
 
 ---
 
 ## Improving the skill
 
-This is the heart of the loop. You've run the test cases, the user has reviewed the results, and now you need to make the skill better based on their feedback.
+This is the heart of the loop. Once the user has reviewed the test results, improve the skill based on their feedback.
 
 ### How to think about improvements
 
@@ -154,7 +154,7 @@ This is the heart of the loop. You've run the test cases, the user has reviewed 
 
 4. **Look for repeated work across test cases.** Run exactly: `python3 ${CLAUDE_SKILL_DIR}/scripts/find_repeated_work.py <workspace>/iteration-<N> --json`. Exit 1 → its JSON lists files with the same name written independently by 2+ runs; judge each repeat. If all 3 test runs each wrote a `create_docx.py` or a `build_chart.py`, that's a strong signal the skill should bundle that script. Write it once, put it in `scripts/`, and tell the skill to use it. This saves every future invocation from reinventing the wheel. Exit 0 → no repeated files, but still read the transcripts and notice if the subagents took the same multi-step approach to something — the file scan can't see approaches.
 
-Thinking time isn't the blocker here, so it's worth mulling. Draft a revision, then reread it cold and get into the head of the user before applying.
+Spend the thinking time — it isn't the blocker here. Draft a revision, then reread it cold from the user's point of view before applying.
 
 ### The iteration loop
 
@@ -204,7 +204,7 @@ Apply every fix it surfaces, then run it again. Repeat until the only remaining 
 Check whether you have access to the `present_files` tool. If you don't, skip this step. If you do, package the skill and present the .skill file to the user:
 
 ```bash
-cd ${CLAUDE_SKILL_DIR} && python -m scripts.package_skill <path/to/skill-folder>
+cd ${CLAUDE_SKILL_DIR} && python3 -m scripts.package_skill <path/to/skill-folder>
 ```
 
 The `cd` matters — `-m` resolves the `scripts` package relative to the working directory.

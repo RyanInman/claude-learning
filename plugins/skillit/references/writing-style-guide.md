@@ -2,15 +2,16 @@
 
 A prescriptive house style for authoring SKILL.md files and their `references/`. Follow every rule as written. The goal: skills that trigger reliably, read unambiguously, and stay token-lean.
 
-**Scope:** Rules 1–9 govern the SKILL.md body and all reference files. Rules 10–11 govern the two zones with their own style. Rule 12 resolves conflicts.
+**Scope:** Rules 1–10 govern the SKILL.md body and all reference files. Rules 11–12 govern the two zones with their own style. Rule 13 resolves conflicts.
 
 ## Contents
 
-- [Part A — Sentence-level rules (Rules 1–9)](#part-a--sentence-level-rules-body-and-references)
-- [Part B — Zone rules (Rules 10–11)](#part-b--zone-rules)
-- [Rule 12 — Conflict resolution order](#rule-12--conflict-resolution-order)
+- [Part A — Sentence-level rules (Rules 1–10)](#part-a--sentence-level-rules-body-and-references)
+- [Part B — Zone rules (Rules 11–12)](#part-b--zone-rules)
+- [Rule 13 — Conflict resolution order](#rule-13--conflict-resolution-order)
 - [Worked before/after](#worked-beforeafter)
 - [Pre-ship checklist](#pre-ship-checklist)
+- [Adherence grading](#adherence-grading)
 - [Workflow tip](#workflow-tip)
 
 ---
@@ -110,11 +111,24 @@ Present tense for facts. Imperative for steps. "Will" only for genuine future co
 - Write "MUST," "NEVER," or "ALWAYS" in caps. Catching yourself typing one is the signal to reframe as rule + reason. A bare rule works only on inputs you anticipated; a reason lets Claude generalize to inputs you didn't.
 - Add a reason to genuinely obvious steps. "Read the file before summarizing it, because you cannot summarize unread text" wastes tokens.
 
+### Rule 10 — Reduce prose without losing clarity
+
+After the rules above are satisfied, cut every word that does no work. Prose that passes Rules 1–9 can still carry filler, and every surplus word loads into context on each run.
+
+**Do:**
+- Cut hedges, throat-clearing, and restatement: "Note that you may want to consider caching the result" → "Cache the result."
+- Prefer the shorter construction when both read identically: "in order to" → "to"; "make use of" → "use"; "prior to" → "before".
+- Delete a sentence that repeats what an adjacent example already shows.
+
+**Don't:**
+- Cut words the reader needs: articles, named actors (Rule 2), reasons (Rule 9), or specific amounts (Rule 6). Telegraphic prose trades tokens for ambiguity — a bad trade.
+- Compress past clarity. When a cut forces a reread, restore the words.
+
 ---
 
 ## Part B — Zone rules
 
-### Rule 10 — Write the frontmatter description in the user's own language
+### Rule 11 — Write the frontmatter description in the user's own language
 
 The description is the only text loaded at startup, and it alone decides whether the skill fires. Every rule in Part A is suspended here.
 
@@ -130,7 +144,7 @@ The description is the only text loaded at startup, and it alone decides whether
 - Sanitize colloquial trigger phrases into formal prose. Their value is that they match what users actually type.
 - Put "when to use" information anywhere in the body. Claude never sees the body until after the trigger decision is made.
 
-### Rule 11 — Keep examples verbatim
+### Rule 12 — Keep examples verbatim
 
 Every skill includes at least one concrete input→output example. Claude generalizes from one real example better than from fifty lines of abstract rules.
 
@@ -143,15 +157,15 @@ Every skill includes at least one concrete input→output example. Claude genera
 
 ---
 
-## Rule 12 — Conflict resolution order
+## Rule 13 — Conflict resolution order
 
 When two rules collide, the earlier item wins:
 
-1. Triggering reliability (Rule 10)
-2. Example fidelity (Rule 11)
+1. Triggering reliability (Rule 11)
+2. Example fidelity (Rule 12)
 3. Token budget — body under 500 lines, splitting to `references/` from ~300
 4. Reasoning attached to rules (Rule 9)
-5. Sentence-level rules (Rules 1–8)
+5. Sentence-level rules (Rules 1–8, 10)
 
 ---
 
@@ -183,11 +197,12 @@ Run against the finished skill. Fix violations; never annotate them.
 - [ ] Standard terms of art used, none paraphrased (Rule 7)
 - [ ] No sentence with more than one subordinate clause (Rule 8)
 - [ ] Every non-obvious rule carries a "because"; zero ALL-CAPS directives (Rule 9)
+- [ ] No filler, hedges, or restatement; every surviving word does work (Rule 10)
 
 **Part B conformance:**
-- [ ] Description: third person, verbatim user phrasings, implicit cases, negative triggers (Rule 10)
-- [ ] All "when to use" content lives in the description, none in the body (Rule 10)
-- [ ] ≥1 verbatim input→output example, untouched by Part A editing (Rule 11)
+- [ ] Description: third person, verbatim user phrasings, implicit cases, negative triggers (Rule 11)
+- [ ] All "when to use" content lives in the description, none in the body (Rule 11)
+- [ ] ≥1 verbatim input→output example, untouched by Part A editing (Rule 12)
 
 **General skill hygiene (unchanged by this guide):**
 - [ ] Gotchas section present, each entry with its reason
@@ -195,6 +210,28 @@ Run against the finished skill. Fix violations; never annotate them.
 - [ ] Forward-slash paths; no `@` imports in SKILL.md
 - [ ] References one level deep; TOC on any reference over ~100 lines
 - [ ] ≥2 realistic eval prompts in `evals/evals.json`, tested against the no-skill baseline
+
+---
+
+## Adherence grading
+
+Style is a measure of adherence, not a fix opportunity, so grade it by how
+closely the prose follows the Part A principles — never by the likelihood or
+payoff of any single correction. Walk the Part A checklist over the body and
+each reference. Count which rules are violated and how often, then assign the
+grade from the table.
+
+| Grade | Adherence level |
+|---|---|
+| A | Full adherence — the checklist passes; at most an isolated borderline sentence |
+| B | Minor drift — a few violations of one or two rules; meaning never at risk |
+| C | Patterned drift — one rule broken repeatedly, or several rules broken occasionally |
+| D | Widespread violations — several rules broken throughout; the prose needs a full editing pass |
+| F | Guide not applied — pervasive passive voice, vague terms, or synonym drift |
+
+Report the grade with the two or three rules that cost it the most. Quote one
+offending line per rule, because a quoted line lets the author find the whole
+pattern. Exempt zones (Rules 11–12) never count against the grade.
 
 ---
 

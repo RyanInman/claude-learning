@@ -1,0 +1,14 @@
+{
+  "eval_id": 0,
+  "eval_name": "messy-body",
+  "prompt": "Style check my skill at /Users/admin/claude-learning/plugins/skillit/skills/style-guide/evals/files/extract-invoices - how's the writing?",
+  "expectations": [
+    "Report assigns an overall letter grade of C, D, or F",
+    "Report flags the passive-voice step (e.g. 'The PDFs are scanned') and rewrites it in active voice",
+    "Report flags the ALL-CAPS directives (NEVER/MUST/ALWAYS) and reframes at least one as rule plus reason",
+    "Report flags the vague terms 'appropriately' or 'as needed' and gives a concrete replacement",
+    "Report flags the synonym drift among 'settings file', 'config', and 'preferences'",
+    "Report does NOT flag the frontmatter description or the verbatim Example section",
+    "Every checklist item quotes the offending line and gives a fixed line"
+  ]
+}

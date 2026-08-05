@@ -125,18 +125,19 @@ of it.
 
 ## 8. Listing-budget overflow
 
-Descriptions tax the shared listing budget (1% of context window, configurable
-via `skillListingBudgetFraction`) before any triggering; `when_to_use` counts
-toward the combined 1,536-char per-entry cap (configurable via
-`skillListingMaxDescChars`); overflow drops least-invoked skills' descriptions
-first; symptom is skills silently not triggering; `/doctor` diagnoses.
+Every description taxes the shared listing budget before any triggering happens
+(1% of the context window, configurable via `skillListingBudgetFraction`).
+`when_to_use` counts toward a combined 1,536-char per-entry cap (configurable
+via `skillListingMaxDescChars`). On overflow, the least-invoked skills lose
+their descriptions first. The symptom is skills silently not triggering;
+`/doctor` diagnoses it.
 Companion deterministic check: audit.py flags combined length > 1,536 (INFO).
 
 Source: code.claude.com/docs/en/skills.md
 
 ## 9. Compaction behavior
 
-Invoked skill bodies re-injected capped at 5,000 tokens per skill, 25,000
-tokens total, oldest dropped first (code.claude.com/docs/en/context-window.md)
-— front-load the body; rules past ~5k tokens vanish after compaction. Review
-criterion: does the body front-load what matters?
+After compaction, Claude Code re-injects invoked skill bodies capped at 5,000
+tokens per skill and 25,000 tokens total, oldest dropped first
+(code.claude.com/docs/en/context-window.md). Rules past ~5k tokens vanish, so
+front-load the body. Review criterion: does the body front-load what matters?

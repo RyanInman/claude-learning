@@ -1,0 +1,46 @@
+{
+  "skill_name": "style-guide",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "messy-body",
+      "prompt": "Style check my skill at /Users/admin/claude-learning/plugins/skillit/skills/style-guide/evals/files/extract-invoices - how's the writing?",
+      "expected_output": "A style report grading the skill C-F with an exhaustive, rule-cited fix checklist, quoting offending lines and giving fixed lines, without flagging the exempt description or example zones.",
+      "files": ["evals/files/extract-invoices/SKILL.md"],
+      "expectations": [
+        "Report assigns an overall letter grade of C, D, or F",
+        "Report flags the passive-voice step (e.g. 'The PDFs are scanned') and rewrites it in active voice",
+        "Report flags the ALL-CAPS directives (NEVER/MUST/ALWAYS) and reframes at least one as rule plus reason",
+        "Report flags the vague terms 'appropriately' or 'as needed' and gives a concrete replacement",
+        "Report flags the synonym drift among 'settings file', 'config', and 'preferences'",
+        "Report does NOT flag the frontmatter description or the verbatim Example section",
+        "Every checklist item quotes the offending line and gives a fixed line"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "clean-skill",
+      "prompt": "Does my skill follow the house style? It's at /Users/admin/claude-learning/plugins/skillit/skills/style-guide/evals/files/csv-dedupe",
+      "expected_output": "A report assigning grade A with no fix checklist and no false positives on the colloquial description.",
+      "files": ["evals/files/csv-dedupe/SKILL.md"],
+      "expectations": [
+        "Report assigns grade A",
+        "Report contains no fix checklist, or explicitly states no changes are needed",
+        "Report does not flag the frontmatter description's colloquial trigger phrases as violations"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "dirty-reference",
+      "prompt": "Can you do a style pass on my skill at /Users/admin/claude-learning/plugins/skillit/skills/style-guide/evals/files/report-render please",
+      "expected_output": "A below-A report whose violations all come from references/formats.md, quoting lines from that file, while the clean SKILL.md body is not flagged.",
+      "files": ["evals/files/report-render/SKILL.md", "evals/files/report-render/references/formats.md"],
+      "expectations": [
+        "Report assigns a grade below A",
+        "Report quotes at least one offending line from references/formats.md",
+        "Report flags the 'and then' chained sentence in the reference file",
+        "Report attributes the violations to the reference file rather than the SKILL.md body"
+      ]
+    }
+  ]
+}

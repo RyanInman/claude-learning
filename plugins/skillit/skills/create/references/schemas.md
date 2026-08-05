@@ -1,19 +1,20 @@
 # JSON Schemas
 
-This document defines the JSON schemas used by skill-creator.
+This document defines the JSON schemas used by this skill.
 
 The three agent-produced files (`grading.json`, `comparison.json`, `analysis.json`) are specified in their agent prompts, which are the source of truth — this document only points to them, because two hand-maintained copies of a schema drift apart.
 
 ## Contents
 
 - [evals.json](#evalsjson)
-- [history.json](#historyjson)
+- [eval_metadata.json](#eval_metadatajson)
 - [grading.json](#gradingjson)
 - [metrics.json](#metricsjson)
 - [timing.json](#timingjson)
 - [benchmark.json](#benchmarkjson)
 - [comparison.json](#comparisonjson)
 - [analysis.json](#analysisjson)
+- [feedback.json](#feedbackjson)
 
 ---
 
@@ -27,6 +28,7 @@ Defines the evals for a skill. Located at `evals/evals.json` within the skill di
   "evals": [
     {
       "id": 1,
+      "eval_name": "descriptive-name-here",
       "prompt": "User's example prompt",
       "expected_output": "Description of expected result",
       "files": ["evals/files/sample1.pdf"],
@@ -42,6 +44,7 @@ Defines the evals for a skill. Located at `evals/evals.json` within the skill di
 **Fields:**
 - `skill_name`: Name matching the skill's frontmatter
 - `evals[].id`: Unique integer identifier
+- `evals[].eval_name`: Optional descriptive name; reused as the `eval-<ID>-<name>` directory name
 - `evals[].prompt`: The task to execute
 - `evals[].expected_output`: Human-readable description of success
 - `evals[].files`: Optional list of input file paths (relative to skill root)
@@ -49,50 +52,9 @@ Defines the evals for a skill. Located at `evals/evals.json` within the skill di
 
 ---
 
-## history.json
+## eval_metadata.json
 
-Tracks version progression in Improve mode. Located at workspace root.
-
-```json
-{
-  "started_at": "2026-01-15T10:30:00Z",
-  "skill_name": "pdf",
-  "current_best": "v2",
-  "iterations": [
-    {
-      "version": "v0",
-      "parent": null,
-      "expectation_pass_rate": 0.65,
-      "grading_result": "baseline",
-      "is_current_best": false
-    },
-    {
-      "version": "v1",
-      "parent": "v0",
-      "expectation_pass_rate": 0.75,
-      "grading_result": "won",
-      "is_current_best": false
-    },
-    {
-      "version": "v2",
-      "parent": "v1",
-      "expectation_pass_rate": 0.85,
-      "grading_result": "won",
-      "is_current_best": true
-    }
-  ]
-}
-```
-
-**Fields:**
-- `started_at`: ISO timestamp of when improvement started
-- `skill_name`: Name of the skill being improved
-- `current_best`: Version identifier of the best performer
-- `iterations[].version`: Version identifier (v0, v1, ...)
-- `iterations[].parent`: Parent version this was derived from
-- `iterations[].expectation_pass_rate`: Pass rate from grading
-- `iterations[].grading_result`: "baseline", "won", "lost", or "tie"
-- `iterations[].is_current_best`: Whether this is the current best version
+Per-test-case metadata for a run. Located at `<workspace>/iteration-<N>/eval-<ID>-<name>/eval_metadata.json`. The worked example lives in `references/running-evals.md` (Step 1) — read it there. Fields: `eval_id`, `eval_name`, `prompt`, `expectations` (empty until Step 2 fills it).
 
 ---
 
@@ -106,7 +68,7 @@ Viewer constraint worth restating: the `expectations` array must use the exact f
 
 ## metrics.json
 
-Output from the executor agent. Located at `<run-dir>/outputs/metrics.json`.
+Written by the test-run subagent — the run template in `references/running-evals.md` requests it. Located at `<run-dir>/outputs/metrics.json`. Optional: the grader and `aggregate_benchmark.py` read it when present and report zeros when absent.
 
 ```json
 {
@@ -142,27 +104,23 @@ Output from the executor agent. Located at `<run-dir>/outputs/metrics.json`.
 
 Wall clock timing for a run. Located at `<run-dir>/timing.json`.
 
-**How to capture:** When a subagent task completes, the task notification includes `total_tokens` and `duration_ms`. Save these immediately — they are not persisted anywhere else and cannot be recovered after the fact.
+**How to capture:** When a subagent task completes, the task notification includes `total_tokens` and `duration_ms`. Save these immediately — the harness does not persist them anywhere else; you cannot recover them after the fact.
 
 ```json
 {
   "total_tokens": 84852,
   "duration_ms": 23332,
-  "total_duration_seconds": 23.3,
-  "executor_start": "2026-01-15T10:30:00Z",
-  "executor_end": "2026-01-15T10:32:45Z",
-  "executor_duration_seconds": 165.0,
-  "grader_start": "2026-01-15T10:32:46Z",
-  "grader_end": "2026-01-15T10:33:12Z",
-  "grader_duration_seconds": 26.0
+  "total_duration_seconds": 23.3
 }
 ```
+
+These three fields are all this file holds. The grader records executor and grader durations separately, in the `timing` block of `grading.json`.
 
 ---
 
 ## benchmark.json
 
-Output from Benchmark mode. Located at `benchmarks/<timestamp>/benchmark.json`.
+Written by `scripts/aggregate_benchmark.py`. Located at `<workspace>/iteration-<N>/benchmark.json`.
 
 ```json
 {
@@ -238,7 +196,7 @@ Output from Benchmark mode. Located at `benchmarks/<timestamp>/benchmark.json`.
 - `runs[]`: Individual run results
   - `eval_id`: Numeric eval identifier
   - `eval_name`: Human-readable eval name (used as section header in the viewer)
-  - `configuration`: Must be `"with_skill"` or `"without_skill"` (the viewer uses this exact string for grouping and color coding)
+  - `configuration`: One of `"with_skill"`, `"without_skill"`, `"new_skill"`, `"old_skill"` — the viewer matches these exact strings for grouping and color coding, and treats `"without_skill"` and `"old_skill"` as the baseline group
   - `run_number`: Integer run number (1, 2, 3...)
   - `result`: Nested object with `pass_rate`, `passed`, `total`, `time_seconds`, `tokens`, `errors`
 - `run_summary`: Statistical aggregates per configuration
@@ -259,3 +217,9 @@ Output from blind comparator. Located at `<grading-dir>/comparison-N.json`. The 
 ## analysis.json
 
 Output from post-hoc analyzer. Located at `<grading-dir>/analysis.json`. The full schema with a worked example lives in `agents/analyzer.md` (Output Format section) — read it there.
+
+---
+
+## feedback.json
+
+Written by the eval viewer when the user clicks "Submit All Reviews". The server flow saves it into the iteration directory; the static/Cowork flow downloads it, and you copy it into the workspace. The worked example lives in `references/running-evals.md` (Step 5) — read it there. Fields: `reviews[]` (`run_id`, `feedback`, `timestamp`) and `status`.

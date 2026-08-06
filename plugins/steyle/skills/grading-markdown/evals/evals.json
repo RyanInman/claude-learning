@@ -1,11 +1,11 @@
 {
-  "skill_name": "grading-markdown-style",
+  "skill_name": "grading-markdown",
   "notes": "Evals 1-4 and 6 target frozen copies under evals/fixtures/ so results stay comparable across iterations (a live target that absorbs the skill's own fix lists softens the eval continuously). Evals 1-5 use file scope; eval 6 is the folder-scope eval. Eval 3 is a judgment-call eval: its rules/ path is deliberately ambiguous and it does NOT count as memory-branch coverage. Eval 4 is the pinned memory-branch eval. Eval 5 targets a live working-tree file and is non-comparable across iterations. Verify quote expectations with evals/scripts/check_quotes.py, which takes one or more targets and expands a folder to SKILL.md plus references/. Guard calibration lives in evals/calibration/.",
   "evals": [
     {
       "id": 1,
       "eval_name": "skill-file-review",
-      "prompt": "Grade the writing in plugins/steyle/skills/grading-markdown-style/evals/fixtures/scriptify/SKILL.md against our style guides. What would it take to get it to an A?",
+      "prompt": "Grade the writing in plugins/steyle/skills/grading-markdown/evals/fixtures/scriptify/SKILL.md against our style guides. What would it take to get it to an A?",
       "expected_output": "A style review report that applies the universal and skill guides, gives one A-F grade, and lists every line-level fix needed to reach an A",
       "expectations": [
         "The report states that both the universal guide and the skill guide were applied, with a reason",
@@ -18,7 +18,7 @@
     {
       "id": 2,
       "eval_name": "plain-doc-style-check",
-      "prompt": "style check plugins/steyle/skills/grading-markdown-style/evals/fixtures/output-styles-tutorial.md",
+      "prompt": "style check plugins/steyle/skills/grading-markdown/evals/fixtures/output-styles-tutorial.md",
       "expected_output": "A style review report that applies only the universal guide, gives one A-F grade, and lists every line-level fix needed to reach an A",
       "expectations": [
         "The report states that only the universal guide was applied (no skill or memory guide)",
@@ -31,7 +31,7 @@
     {
       "id": 3,
       "eval_name": "rules-file-judgment-call",
-      "prompt": "Does plugins/steyle/skills/grading-markdown-style/evals/fixtures/rules/writing-style.md follow our house writing style? Give me a grade.",
+      "prompt": "Does plugins/steyle/skills/grading-markdown/evals/fixtures/rules/writing-style.md follow our house writing style? Give me a grade.",
       "expected_output": "A style review report that reasons through the ambiguous classification (rules/ path, not .claude/rules/), gives one A-F grade, and lists every line-level fix needed to reach an A",
       "non_memory_branch_coverage": true,
       "expectations": [
@@ -44,7 +44,7 @@
     {
       "id": 4,
       "eval_name": "memory-rules-file-grade",
-      "prompt": "style check plugins/steyle/skills/grading-markdown-style/evals/fixtures/.claude/rules/writing-style.md",
+      "prompt": "style check plugins/steyle/skills/grading-markdown/evals/fixtures/.claude/rules/writing-style.md",
       "expected_output": "A style review report that applies the universal and memory guides (the .claude/rules/ path makes the memory guide mandatory), gives one A-F grade, and lists every line-level fix needed to reach an A",
       "expectations": [
         "The report states that the memory guide was applied in addition to the universal guide - a report that applies universal only, or the skill guide, fails this expectation",
@@ -71,7 +71,7 @@
     {
       "id": 6,
       "eval_name": "skill-folder-style-pass",
-      "prompt": "Style pass on the whole skill folder at plugins/steyle/skills/grading-markdown-style/evals/fixtures/scriptify/ - does it follow our house style?",
+      "prompt": "Style pass on the whole skill folder at plugins/steyle/skills/grading-markdown/evals/fixtures/scriptify/ - does it follow our house style?",
       "expected_output": "One folder-scope style review that grades SKILL.md and references/delegation-rubric.md together, gives one A-F grade for the folder, and groups the fix list by file",
       "folder_scope": true,
       "expectations": [

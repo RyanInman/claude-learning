@@ -58,9 +58,10 @@ Everything below serves finding and fixing those.
      negative triggers, lost-in-the-middle, listing-budget overflow, and
      compaction front-loading.
 
-   Prose style is out of scope here — the skillit:style-guide skill grades it
-   against the house writing-style-guide. When a skill's prose is the problem,
-   point the user there instead of folding style fixes into this review.
+   Prose style is out of scope here — the steyle:grading-markdown-style skill
+   grades it against the house writing guides. When a skill's prose is the
+   problem, point the user there instead of folding style fixes into this
+   review.
 
    Read the actual files and scripts before reporting on them. Report only what
    you confirmed in the content — no guessing at what a script "probably" does.
@@ -87,7 +88,8 @@ Everything below serves finding and fixing those.
    | ≤5    | Speculative, or correct-but-trivial — cut unless user asked for an exhaustive pass |
 
    An individual prose-style fix enters this rubric only when it costs real
-   clarity or tokens on its own; otherwise style belongs to skillit:style-guide.
+   clarity or tokens on its own; otherwise style belongs to
+   steyle:grading-markdown-style.
 
 5. **Write the review** in the format below.
 
@@ -132,7 +134,8 @@ Rules for the write-up:
 ## Scope
 
 This skill reviews **skills** (SKILL.md folders). For authoring a new skill from
-scratch, use skillit:create. For a prose-style grade against the house
-writing-style-guide, use skillit:style-guide. For CLAUDE.md / rules-file review, the token
+scratch, use skillit:create. For a prose-style grade against the house writing
+guides, use steyle:grading-markdown-style, which takes one file or a whole skill
+folder. For CLAUDE.md / rules-file review, the token
 principles transfer but the structure rules differ — say so rather than applying
 SKILL.md rules to a memory file.

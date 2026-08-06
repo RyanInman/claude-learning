@@ -1,0 +1,18 @@
+{
+  "name": "steyle",
+  "displayName": "Steyle",
+  "version": "0.1.0",
+  "description": "The house writing style for Claude prose, plus the grader that enforces it. Bundles three guides (universal, skill, memory), the Steyle Universal output style that makes Claude write to the universal guide, and one skill: grading-markdown-style, which grades a single markdown file or a whole skill folder and returns an A-F grade with the fix list that reaches an A.",
+  "author": {
+    "name": "Ryan Inman",
+    "email": "ryan.inman.420@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "writing-style",
+    "style-guide",
+    "simplified-technical-english",
+    "prose",
+    "markdown"
+  ]
+}

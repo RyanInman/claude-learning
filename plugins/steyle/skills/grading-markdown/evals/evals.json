@@ -1,0 +1,87 @@
+{
+  "skill_name": "grading-markdown-style",
+  "notes": "Evals 1-4 and 6 target frozen copies under evals/fixtures/ so results stay comparable across iterations (a live target that absorbs the skill's own fix lists softens the eval continuously). Evals 1-5 use file scope; eval 6 is the folder-scope eval. Eval 3 is a judgment-call eval: its rules/ path is deliberately ambiguous and it does NOT count as memory-branch coverage. Eval 4 is the pinned memory-branch eval. Eval 5 targets a live working-tree file and is non-comparable across iterations. Verify quote expectations with evals/scripts/check_quotes.py, which takes one or more targets and expands a folder to SKILL.md plus references/. Guard calibration lives in evals/calibration/.",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "skill-file-review",
+      "prompt": "Grade the writing in plugins/steyle/skills/grading-markdown-style/evals/fixtures/scriptify/SKILL.md against our style guides. What would it take to get it to an A?",
+      "expected_output": "A style review report that applies the universal and skill guides, gives one A-F grade, and lists every line-level fix needed to reach an A",
+      "expectations": [
+        "The report states that both the universal guide and the skill guide were applied, with a reason",
+        "The report contains a single letter grade A-F under a Grade heading",
+        "The report has a 'Fixes to reach A' section where each entry gives a rule ID and a fix, and is anchored to a line number or explicitly marked file-wide",
+        "Quoted offending text appears verbatim in the target fixture (verify with evals/scripts/check_quotes.py)",
+        "The frontmatter description of the target SKILL.md is not counted as a violation"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "plain-doc-style-check",
+      "prompt": "style check plugins/steyle/skills/grading-markdown-style/evals/fixtures/output-styles-tutorial.md",
+      "expected_output": "A style review report that applies only the universal guide, gives one A-F grade, and lists every line-level fix needed to reach an A",
+      "expectations": [
+        "The report states that only the universal guide was applied (no skill or memory guide)",
+        "The report contains a single letter grade A-F under a Grade heading",
+        "The report has a 'Fixes to reach A' section where each entry gives a rule ID and a fix, and is anchored to a line number or explicitly marked file-wide",
+        "Quoted offending text appears verbatim in the target fixture (verify with evals/scripts/check_quotes.py)",
+        "Code blocks and quoted text in the target are not counted as violations"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "rules-file-judgment-call",
+      "prompt": "Does plugins/steyle/skills/grading-markdown-style/evals/fixtures/rules/writing-style.md follow our house writing style? Give me a grade.",
+      "expected_output": "A style review report that reasons through the ambiguous classification (rules/ path, not .claude/rules/), gives one A-F grade, and lists every line-level fix needed to reach an A",
+      "non_memory_branch_coverage": true,
+      "expectations": [
+        "The report names which extra guide (memory guide or none) was chosen for the rules file and gives a reason for the classification",
+        "The report contains a single letter grade A-F under a Grade heading",
+        "The report has a 'Fixes to reach A' section where each entry gives a rule ID and a fix, and is anchored to a line number or explicitly marked file-wide",
+        "Quoted offending text appears verbatim in the target fixture (verify with evals/scripts/check_quotes.py)"
+      ]
+    },
+    {
+      "id": 4,
+      "eval_name": "memory-rules-file-grade",
+      "prompt": "style check plugins/steyle/skills/grading-markdown-style/evals/fixtures/.claude/rules/writing-style.md",
+      "expected_output": "A style review report that applies the universal and memory guides (the .claude/rules/ path makes the memory guide mandatory), gives one A-F grade, and lists every line-level fix needed to reach an A",
+      "expectations": [
+        "The report states that the memory guide was applied in addition to the universal guide - a report that applies universal only, or the skill guide, fails this expectation",
+        "The report contains a single letter grade A-F under a Grade heading",
+        "The report has a 'Fixes to reach A' section where each entry gives a rule ID and a fix, and is anchored to a line number or explicitly marked file-wide",
+        "Quoted offending text appears verbatim in the target fixture (verify with evals/scripts/check_quotes.py)"
+      ]
+    },
+    {
+      "id": 5,
+      "eval_name": "live-target-skill-review",
+      "prompt": "Grade the writing in skills/scriptify/SKILL.md against our style guides. What would it take to get it to an A?",
+      "expected_output": "Same contract as eval 1, against the live working-tree file",
+      "non_comparable": true,
+      "notes": "Live target: the file drifts as the project edits it (including applying this skill's own fix lists), so pass rates are not comparable across iterations. Kept because it exercises the real user path and doubles as trigger-phrase coverage.",
+      "expectations": [
+        "The report states that both the universal guide and the skill guide were applied, with a reason",
+        "The report contains a single letter grade A-F under a Grade heading",
+        "The report has a 'Fixes to reach A' section where each entry gives a rule ID and a fix, and is anchored to a line number or explicitly marked file-wide",
+        "Quoted offending text appears verbatim in skills/scriptify/SKILL.md (verify with evals/scripts/check_quotes.py)",
+        "The frontmatter description of the target SKILL.md is not counted as a violation"
+      ]
+    },
+    {
+      "id": 6,
+      "eval_name": "skill-folder-style-pass",
+      "prompt": "Style pass on the whole skill folder at plugins/steyle/skills/grading-markdown-style/evals/fixtures/scriptify/ - does it follow our house style?",
+      "expected_output": "One folder-scope style review that grades SKILL.md and references/delegation-rubric.md together, gives one A-F grade for the folder, and groups the fix list by file",
+      "folder_scope": true,
+      "expectations": [
+        "The report names the folder as the target and states that the universal and skill guides were applied, with a reason",
+        "The report contains exactly one letter grade A-F for the whole folder - a report that grades each file separately fails this expectation",
+        "The 'Fixes to reach A' section groups entries under a heading per file, and the group for references/delegation-rubric.md holds at least one fix",
+        "Each fix entry gives a rule ID and is anchored to a line number or explicitly marked file-wide",
+        "Quoted offending text appears verbatim in the target folder (verify with evals/scripts/check_quotes.py <report> <folder>)",
+        "The frontmatter description of the target SKILL.md is not counted as a violation"
+      ]
+    }
+  ]
+}

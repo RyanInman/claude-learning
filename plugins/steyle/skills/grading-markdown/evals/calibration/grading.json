@@ -1,0 +1,40 @@
+{
+  "report_1": {
+    "expectations": [
+      {
+        "text": "The report contains a single letter grade A-F under a Grade heading",
+        "passed": true,
+        "evidence": "Line 5 of the report is '### Grade: C' — one Grade heading, one letter grade in the A-F range, and no competing grade elsewhere in the report."
+      },
+      {
+        "text": "Quoted offending text appears verbatim in the target file",
+        "passed": false,
+        "evidence": "Fix 2 quotes 'The deterministic core of a skill belongs in scripts, not in prose that the model re-derives on every single run of the workflow.' attributed to line 24; grep -F finds no match anywhere in scriptify/SKILL.md, and actual line 24 reads 'Target end-state: the rewritten SKILL.md reads as a **thin orchestrator** — a'. Fix 3 also claims the body alternates between 'target skill' and 'reviewed skill', but grep finds zero occurrences of 'reviewed skill'. Only Fix 1's quote is verbatim (line 4)."
+      },
+      {
+        "text": "The frontmatter description of the target SKILL.md is not counted as a violation",
+        "passed": false,
+        "evidence": "Fix 1 flags line 4 ('Slash-only: invoked explicitly via /scriptify, never auto-triggered.'), which is inside the frontmatter description block (lines 3-12 of scriptify/SKILL.md). The skill style guide exempts the description from every style rule, yet the report counts it as violation C5."
+      }
+    ]
+  },
+  "report_2": {
+    "expectations": [
+      {
+        "text": "The report contains a single letter grade A-F under a Grade heading",
+        "passed": true,
+        "evidence": "Line 5 of the report is '### Grade: B' — one Grade heading, one letter grade in the A-F range, and no competing grade elsewhere in the report."
+      },
+      {
+        "text": "Quoted offending text appears verbatim in the target file",
+        "passed": true,
+        "evidence": "grep -F confirms both quotes: 'When explaining code, architecture, or data flow, start with a Mermaid diagram' matches line 66 exactly as cited, and 'If you're regularly typing' appears on line 13 within the cited 13-15 range of output-styles-tutorial.md."
+      },
+      {
+        "text": "Code blocks and quoted text in the target are not counted as violations",
+        "passed": false,
+        "evidence": "Fix 1 flags line 66, which sits inside the fenced code block spanning lines 59-68 (```markdown ... ```) — the example output-style file, not the tutorial's own prose. The report counts it as violation B2."
+      }
+    ]
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "skill_name": "targeted-refactor",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "no-existing-tests-deep-nesting",
+      "prompt": "Can you refactor calc_shipping in evals/files/order_processor.py? It's a nightmare of nested if statements and I can never tell what shipping cost applies to what case. No tests for it right now.",
+      "expected_output": "Understanding summary shared before edits. A canonical test suite is written from scratch covering all 8 branches (US/intl x weight threshold x membership), run green against the original code first. Simplification lands in separate small passes (e.g. guard clauses, a rate lookup table, renamed params) with tests passing after each. Final report states test count and confirms zero regressions.",
+      "files": ["evals/files/order_processor.py"],
+      "expectations": [
+        "A test file for calc_shipping was created before the function was modified",
+        "The test suite covers all 8 branches: country (US/intl) x weight (>50/<=50) x membership (member/non-member)",
+        "The final refactored calc_shipping produces identical output to the original for all 8 input combinations (behavioral equivalence, checked programmatically)",
+        "The test suite passes at the end of the run",
+        "Git history shows more than one commit after the initial state, i.e. simplification landed in separate passes rather than one big rewrite",
+        "The report states an explicit test count and confirms zero regressions rather than just asserting success"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "extend-existing-partial-tests",
+      "prompt": "The applyDiscount function in evals/files/discount.js has gotten pretty gnarly with all the tier logic. Can you clean it up? There's a test file (discount.test.js) already but I know it only covers the gold tier case.",
+      "expected_output": "The skill finds discount.test.js and extends it (matching its existing node:test/node:assert style) with silver-tier, no-tier, and boundary cases (total exactly 100 and 200) rather than replacing it or ignoring it. Simplification passes preserve the exact discount math. Final report shows the original gold-tier test plus new cases all passing.",
+      "files": ["evals/files/discount.js", "evals/files/discount.test.js"],
+      "expectations": [
+        "The original gold-tier test case still exists in the final discount.test.js (extended, not replaced)",
+        "New test cases were added for silver tier, the no-tier/default case, and at least one boundary value (total exactly 100 or exactly 200)",
+        "New tests use the same test framework as the original file (node:test / node:assert), not a newly introduced framework",
+        "The final refactored applyDiscount produces identical output to the original across a grid of tier x total-amount combinations (behavioral equivalence, checked programmatically)",
+        "`node --test` passes with 0 failures at the end of the run",
+        "Git history shows more than one commit after the initial state"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "preserve-bug-dont-fix-it",
+      "prompt": "evals/files/billing.py has a calculate_late_fee function that's hard to follow at this point -- can you simplify it? No test coverage on it yet.",
+      "expected_output": "The skill notices the comment ('priority customers are charged double the standard rate') contradicts the code (priority customers get the lower 0.01 rate, not double), writes a characterization test that pins down the current (buggy) behavior, and flags the discrepancy to the user as a separate finding rather than silently swapping the rates during the refactor. Simplification still proceeds on the surrounding structure (nesting, naming) without changing the rate logic.",
+      "files": ["evals/files/billing.py"],
+      "expectations": [
+        "The report explicitly flags the contradiction between the 'double the standard rate' comment and the actual code (priority customers get the lower rate) as a bug/finding, separate from the refactor itself",
+        "A characterization test exists asserting the current (buggy) behavior: priority customer pays less than a non-priority customer for the same days_late and balance (e.g. days_late=10, balance=1000 -> priority fee 150, non-priority fee 300)",
+        "The final refactored calculate_late_fee still produces the same (buggy) numeric outputs as the original -- the rate logic itself was not silently corrected",
+        "The test suite passes at the end of the run",
+        "Git history shows at least one commit after the initial state"
+      ]
+    }
+  ]
+}

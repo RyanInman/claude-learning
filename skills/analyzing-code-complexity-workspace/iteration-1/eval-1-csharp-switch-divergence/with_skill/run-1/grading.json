@@ -1,0 +1,53 @@
+{
+  "expectations": [
+    {
+      "text": "All public methods listed: StatusLabel, Charge, Discount, Process (helpers Retry/Log/Ship/Notify appear in summary table)",
+      "passed": true,
+      "evidence": "Summary table has all 8 units including helpers at 1/0"
+    },
+    {
+      "text": "StatusLabel: cyclomatic 6, cognitive 1, with explanation that switches inflate cyclomatic but read easily",
+      "passed": true,
+      "evidence": "'Classic switch divergence... many-test-paths but near-zero reading cost'"
+    },
+    {
+      "text": "StatusLabel is NOT flagged as a refactor candidate",
+      "passed": true,
+      "evidence": "Assessment \u2705; 'not a refactor candidate'"
+    },
+    {
+      "text": "Process has the highest cognitive score in the report (12 under the skill's convention) and cognitive exceeds its cyclomatic (6)",
+      "passed": true,
+      "evidence": "Process 6/12, highest cognitive in table"
+    },
+    {
+      "text": "Charge: cyclomatic 3 (base + 2 catch), cognitive 2",
+      "passed": true,
+      "evidence": "'Cyclomatic: 3 \u2014 base 1 + 2 catch'; 'Cognitive: 2'"
+    },
+    {
+      "text": "Process explainer mentions nesting depth as the driver, with a code example or per-line increment breakdown",
+      "passed": true,
+      "evidence": "Annotated code block with per-line Cog increments; 'nesting penalties (half the score)'"
+    },
+    {
+      "text": "Every method shows both metrics; neither metric is reported alone",
+      "passed": true,
+      "evidence": "Both columns populated for all 8 units"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Extraction rewrite splits cognitive 12 into 3+5",
+      "type": "factual",
+      "verified": true,
+      "evidence": "ShipOrder: foreach +1, if +1+1, || +1, else +1 = 5; Process: foreach +1, if +1+1 = 3. Arithmetic checks out under skill convention."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "expectations": [
+    {
+      "text": "validate scored with both metrics: cyclomatic 4, cognitive 3",
+      "passed": false,
+      "evidence": "Only cyclomatic given, and miscounted: 'Cyclomatic complexity: 3 (two if branches + &&)' \u2014 omits the +1 base, correct value 4. No cognitive complexity score anywhere in the output."
+    },
+    {
+      "text": "The guard clause (early return) is noted as NOT adding cognitive complexity beyond its if",
+      "passed": false,
+      "evidence": "Guard clause never discussed; closest is 'no nesting beyond one level', which is a different observation."
+    },
+    {
+      "text": "The .map() lambda is not counted as extra complexity",
+      "passed": false,
+      "evidence": "Lambda counting never addressed; cannot verify it was excluded rather than overlooked, and the cyclomatic total is wrong anyway."
+    },
+    {
+      "text": "Verdict says the code is fine as-is (both scores well under thresholds)",
+      "passed": false,
+      "evidence": "Headline says 'Not fine as-is, though \u2014 one real issue' (the user.tags bug). Complexity called fine, but only one metric was computed, so 'both scores under thresholds' is unverifiable."
+    },
+    {
+      "text": "Response includes a brief why-scored explanation, not just bare numbers",
+      "passed": true,
+      "evidence": "'two if branches + &&... 7 lines, single responsibility, no nesting beyond one level'"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 4,
+    "total": 5,
+    "pass_rate": 0.2
+  },
+  "claims": [
+    {
+      "claim": "user.tags.map throws if tags missing",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct observation; with-skill run caught the same bug while still delivering both metrics."
+    }
+  ]
+}

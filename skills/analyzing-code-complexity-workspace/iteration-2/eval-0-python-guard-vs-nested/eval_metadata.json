@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "python-guard-vs-nested",
+  "prompt": "Analyze the complexity of the code in evals/files/order_utils.py. I want to understand which functions are hardest to follow and why.",
+  "assertions": [
+    "Report lists all 4 functions: can_ship, can_ship_nested, first_error, total",
+    "Every listed function has BOTH a cyclomatic and a cognitive score",
+    "can_ship and can_ship_nested have equal cyclomatic scores (4 each)",
+    "can_ship_nested's cognitive score is strictly higher than can_ship's (6 vs 3 under the skill's convention)",
+    "Explainer attributes the cognitive difference to nesting penalties vs guard clauses",
+    "first_error scored: cyclomatic 4, cognitive 4 (loop + nested if + boolean operator)",
+    "Report includes a summary table listing every unit",
+    "Each per-unit section includes an annotated code example showing per-line score increments"
+  ]
+}

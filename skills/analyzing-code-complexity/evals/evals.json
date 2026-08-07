@@ -1,0 +1,58 @@
+{
+  "skill_name": "analyzing-code-complexity",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "python-guard-vs-nested",
+      "prompt": "Analyze the complexity of the code in evals/files/order_utils.py. I want to understand which functions are hardest to follow and why.",
+      "expected_output": "Report listing all 4 functions with cyclomatic and cognitive scores, highlighting that can_ship and can_ship_nested have equal cyclomatic (4) but different cognitive (3 vs 6) due to nesting.",
+      "files": [
+        "evals/files/order_utils.py"
+      ],
+      "expectations": [
+        "Report lists all 4 functions: can_ship, can_ship_nested, first_error, total",
+        "Every listed function has BOTH a cyclomatic and a cognitive score",
+        "can_ship and can_ship_nested have equal cyclomatic scores (4 each)",
+        "can_ship_nested's cognitive score is strictly higher than can_ship's (6 vs 3 under the skill's convention)",
+        "Explainer attributes the cognitive difference to nesting penalties vs guard clauses",
+        "first_error scored: cyclomatic 4, cognitive 4 (loop + nested if + boolean operator)",
+        "Report includes a summary table listing every unit",
+        "Each per-unit section includes an annotated code example showing per-line score increments"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "csharp-switch-divergence",
+      "prompt": "Can you break down the cyclomatic and cognitive complexity of evals/files/PaymentService.cs? Give me a per-method report.",
+      "expected_output": "Report covering all methods including trivial helpers, showing StatusLabel as high-cyclomatic/low-cognitive (6/1) and Process as the worst cognitive offender (6/12), with divergence explained.",
+      "files": [
+        "evals/files/PaymentService.cs"
+      ],
+      "expectations": [
+        "All public methods listed: StatusLabel, Charge, Discount, Process (helpers Retry/Log/Ship/Notify appear in summary table)",
+        "StatusLabel: cyclomatic 6, cognitive 1, with explanation that switches inflate cyclomatic but read easily",
+        "StatusLabel is NOT flagged as a refactor candidate",
+        "Process has the highest cognitive score in the report (12 under the skill's convention) and cognitive exceeds its cyclomatic (6)",
+        "Charge: cyclomatic 3 (base + 2 catch), cognitive 2",
+        "Process explainer mentions nesting depth as the driver, with a code example or per-line increment breakdown",
+        "Every method shows both metrics; neither metric is reported alone",
+        "Every per-unit section includes an annotated code example; methods too large to show whole use a condensed illustrative fragment preserving the scoring structure"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "inline-snippet-casual",
+      "prompt": "how complex is this code? is it fine to leave as is?\n\nfunction validate(user) {\n  if (!user) return null;\n  if (user.age > 18 && user.consent) {\n    return user.tags.map(t => t.toLowerCase());\n  }\n  return null;\n}",
+      "expected_output": "Short report treating validate as one unit: cyclomatic 4, cognitive 3, verdict that it's fine (guard clause keeps cognitive low), map lambda adds nothing.",
+      "files": [],
+      "expectations": [
+        "validate scored with both metrics: cyclomatic 4, cognitive 3",
+        "The guard clause (early return) is noted as NOT adding cognitive complexity beyond its if",
+        "The .map() lambda is not counted as extra complexity",
+        "Verdict says the code is fine as-is (both scores well under thresholds)",
+        "Response includes a brief why-scored explanation, not just bare numbers",
+        "The snippet's scored lines are shown annotated with their increments"
+      ]
+    }
+  ]
+}

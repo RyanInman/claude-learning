@@ -1,0 +1,14 @@
+{
+  "eval_id": 1,
+  "eval_name": "csharp-switch-divergence",
+  "prompt": "Can you break down the cyclomatic and cognitive complexity of evals/files/PaymentService.cs? Give me a per-method report.",
+  "assertions": [
+    "All public methods listed: StatusLabel, Charge, Discount, Process (helpers Retry/Log/Ship/Notify appear in summary table)",
+    "StatusLabel: cyclomatic 6, cognitive 1, with explanation that switches inflate cyclomatic but read easily",
+    "StatusLabel is NOT flagged as a refactor candidate",
+    "Process has the highest cognitive score in the report (12 under the skill's convention) and cognitive exceeds its cyclomatic (6)",
+    "Charge: cyclomatic 3 (base + 2 catch), cognitive 2",
+    "Process explainer mentions nesting depth as the driver, with a code example or per-line increment breakdown",
+    "Every method shows both metrics; neither metric is reported alone"
+  ]
+}

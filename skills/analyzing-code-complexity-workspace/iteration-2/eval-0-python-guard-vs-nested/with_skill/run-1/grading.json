@@ -1,0 +1,13 @@
+{
+  "expectations": [
+    {"text": "Report lists all 4 functions: can_ship, can_ship_nested, first_error, total", "passed": true, "evidence": "Summary table rows: can_ship, can_ship_nested, first_error, total"},
+    {"text": "Every listed function has BOTH a cyclomatic and a cognitive score", "passed": true, "evidence": "4/3, 4/6, 4/4, 1/0 — all exact ground-truth matches"},
+    {"text": "can_ship and can_ship_nested have equal cyclomatic scores (4 each)", "passed": true, "evidence": "Both 4; 'identical behavior and identical cyclomatic (4)'"},
+    {"text": "can_ship_nested's cognitive score is strictly higher than can_ship's (6 vs 3 under the skill's convention)", "passed": true, "evidence": "6 vs 3 in table and explainers"},
+    {"text": "Explainer attributes the cognitive difference to nesting penalties vs guard clauses", "passed": true, "evidence": "'the cognitive gap (6 vs 3) is pure nesting cost'; guard-clause section: 'no condition context carries forward, so no nesting penalties accrue'"},
+    {"text": "first_error scored: cyclomatic 4, cognitive 4 (loop + nested if + boolean operator)", "passed": true, "evidence": "'Cyclomatic: 4 — base 1 + 1 for + 1 if + 1 and'; 'Cognitive: 4 — ... nesting penalty (+1)'"},
+    {"text": "Report includes a summary table listing every unit", "passed": true, "evidence": "Summary table with all 4 units and Assessment column"},
+    {"text": "Each per-unit section includes an annotated code example showing per-line score increments", "passed": true, "evidence": "can_ship_nested, first_error, can_ship all show code annotated '# CC +1 | Cog +1, nesting +N'; can_ship_nested additionally shows the guard-clause rewrite with new scores. total is trivial (1/0) and exempt per skill rule."}
+  ],
+  "summary": {"passed": 8, "failed": 0, "total": 8, "pass_rate": 1.0}
+}

@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "inline-snippet-casual",
+  "prompt": "how complex is this code? is it fine to leave as is?\n\nfunction validate(user) {\n  if (!user) return null;\n  if (user.age > 18 && user.consent) {\n    return user.tags.map(t => t.toLowerCase());\n  }\n  return null;\n}",
+  "assertions": [
+    "validate scored with both metrics: cyclomatic 4, cognitive 3",
+    "The guard clause (early return) is noted as NOT adding cognitive complexity beyond its if",
+    "The .map() lambda is not counted as extra complexity",
+    "Verdict says the code is fine as-is (both scores well under thresholds)",
+    "Response includes a brief why-scored explanation, not just bare numbers",
+    "The snippet's scored lines are shown annotated with their increments"
+  ]
+}

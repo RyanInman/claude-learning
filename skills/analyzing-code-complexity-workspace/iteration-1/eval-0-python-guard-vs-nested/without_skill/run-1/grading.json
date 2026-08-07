@@ -1,0 +1,61 @@
+{
+  "expectations": [
+    {
+      "text": "Report lists all 4 functions: can_ship, can_ship_nested, first_error, total",
+      "passed": true,
+      "evidence": "Summary table lists all 4"
+    },
+    {
+      "text": "Every listed function has BOTH a cyclomatic and a cognitive score",
+      "passed": true,
+      "evidence": "Table shows both metrics for all 4 rows"
+    },
+    {
+      "text": "can_ship and can_ship_nested have equal cyclomatic scores (4 each)",
+      "passed": true,
+      "evidence": "'cyclomatic complexity is identical (4 vs 4)'"
+    },
+    {
+      "text": "can_ship_nested's cognitive score is strictly higher than can_ship's (6 vs 3 under the skill's convention)",
+      "passed": true,
+      "evidence": "Cognitive 6 vs 3 in table"
+    },
+    {
+      "text": "Explainer attributes the cognitive difference to nesting penalties vs guard clauses",
+      "passed": true,
+      "evidence": "'Nesting = working memory... Guard clauses discharge each assumption immediately'"
+    },
+    {
+      "text": "first_error scored: cyclomatic 4, cognitive 4 (loop + nested if + boolean operator)",
+      "passed": true,
+      "evidence": "'Cyclomatic 4 (for + if + and), cognitive 4'"
+    },
+    {
+      "text": "Report includes a summary table listing every unit",
+      "passed": true,
+      "evidence": "Summary Table section with all 4 functions"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "total has cyclomatic 2 (generator expression counted)",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Skill convention scores comprehensions 0 extra (cyclomatic 1); baseline counted the generator's implicit loop. No assertion covers this, so it went unpenalized."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "Baseline passes all 7 assertions \u2014 this eval does not discriminate skill value on pass/fail. The only observed difference is convention drift on 'total' (cyclomatic 2 vs 1) and lack of the fixed report template. Consider an assertion pinning trivial-unit scores or template structure."
+      }
+    ],
+    "overall": "Non-discriminating eval as written; differences are convention consistency and format, not correctness."
+  }
+}

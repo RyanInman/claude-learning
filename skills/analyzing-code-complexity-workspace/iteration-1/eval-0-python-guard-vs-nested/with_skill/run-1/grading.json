@@ -1,0 +1,59 @@
+{
+  "expectations": [
+    {
+      "text": "Report lists all 4 functions: can_ship, can_ship_nested, first_error, total",
+      "passed": true,
+      "evidence": "Summary table rows: can_ship, can_ship_nested, first_error, total"
+    },
+    {
+      "text": "Every listed function has BOTH a cyclomatic and a cognitive score",
+      "passed": true,
+      "evidence": "Table columns Cyclomatic and Cognitive filled for all 4 rows (4/3, 4/6, 4/4, 1/0)"
+    },
+    {
+      "text": "can_ship and can_ship_nested have equal cyclomatic scores (4 each)",
+      "passed": true,
+      "evidence": "Both rows show Cyclomatic 4; explainer: 'identical behavior and identical cyclomatic complexity'"
+    },
+    {
+      "text": "can_ship_nested's cognitive score is strictly higher than can_ship's (6 vs 3 under the skill's convention)",
+      "passed": true,
+      "evidence": "Cognitive 6 vs 3, exact match to ground truth"
+    },
+    {
+      "text": "Explainer attributes the cognitive difference to nesting penalties vs guard clauses",
+      "passed": true,
+      "evidence": "'nesting penalties (+1, +2)'; 'early returns carry no cognitive charge and nothing nests'"
+    },
+    {
+      "text": "first_error scored: cyclomatic 4, cognitive 4 (loop + nested if + boolean operator)",
+      "passed": true,
+      "evidence": "'Cyclomatic: 4 \u2014 base 1 + 1 for + 1 if + 1 and'; 'Cognitive: 4 \u2014 1 for + 1 if (+1 nesting) + 1 and'"
+    },
+    {
+      "text": "Report includes a summary table listing every unit",
+      "passed": true,
+      "evidence": "Summary table with Assessment column, all 4 units"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Annotated code example shows per-line increments for can_ship_nested",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Code block with +1 / nesting +1 / nesting +2 annotations, totals matching"
+    },
+    {
+      "claim": "SonarQube boolean-operator variance noted",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Convention note paragraph after summary"
+    }
+  ]
+}

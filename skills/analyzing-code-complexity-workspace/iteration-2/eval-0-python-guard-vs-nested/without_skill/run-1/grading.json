@@ -1,0 +1,16 @@
+{
+  "expectations": [
+    {"text": "Report lists all 4 functions: can_ship, can_ship_nested, first_error, total", "passed": true, "evidence": "Metrics Summary table lists all 4"},
+    {"text": "Every listed function has BOTH a cyclomatic and a cognitive score", "passed": true, "evidence": "Both columns populated for all 4"},
+    {"text": "can_ship and can_ship_nested have equal cyclomatic scores (4 each)", "passed": true, "evidence": "Both 4; 'every non-trivial function ties at cyclomatic 4'"},
+    {"text": "can_ship_nested's cognitive score is strictly higher than can_ship's (6 vs 3 under the skill's convention)", "passed": true, "evidence": "6 vs 3 in table"},
+    {"text": "Explainer attributes the cognitive difference to nesting penalties vs guard clauses", "passed": true, "evidence": "'each if costs 1 plus its nesting depth (1 + 2 + 3)'; guard clauses 'never carries more than one condition'"},
+    {"text": "first_error scored: cyclomatic 4, cognitive 4 (loop + nested if + boolean operator)", "passed": false, "evidence": "Cyclomatic 4 correct, but cognitive reported as 3 — misses one increment (for +1, if +1, nesting +1, and +1 = 4). Ground truth 4."},
+    {"text": "Report includes a summary table listing every unit", "passed": true, "evidence": "Metrics Summary table"},
+    {"text": "Each per-unit section includes an annotated code example showing per-line score increments", "passed": false, "evidence": "No code blocks anywhere in the report; all sections are prose-only."}
+  ],
+  "summary": {"passed": 6, "failed": 2, "total": 8, "pass_rate": 0.75},
+  "claims": [
+    {"claim": "total has cyclomatic 2, cognitive 1", "type": "factual", "verified": false, "evidence": "Skill convention: comprehension adds 0 → 1/0. Convention drift again (iteration 1 baseline also scored 2)."}
+  ]
+}

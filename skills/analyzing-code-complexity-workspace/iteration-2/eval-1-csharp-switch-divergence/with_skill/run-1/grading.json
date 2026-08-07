@@ -1,0 +1,16 @@
+{
+  "expectations": [
+    {"text": "All public methods listed: StatusLabel, Charge, Discount, Process (helpers Retry/Log/Ship/Notify appear in summary table)", "passed": true, "evidence": "All 8 units in summary table"},
+    {"text": "StatusLabel: cyclomatic 6, cognitive 1, with explanation that switches inflate cyclomatic but read easily", "passed": true, "evidence": "'Many test paths, low reading cost — not a refactor candidate'"},
+    {"text": "StatusLabel is NOT flagged as a refactor candidate", "passed": true, "evidence": "Assessment ✅, explicit 'not a refactor candidate'"},
+    {"text": "Process has the highest cognitive score in the report (12 under the skill's convention) and cognitive exceeds its cyclomatic (6)", "passed": true, "evidence": "Process 6/12, top of per-unit ordering"},
+    {"text": "Charge: cyclomatic 3 (base + 2 catch), cognitive 2", "passed": true, "evidence": "'Cyclomatic: 3 — base 1 + 2 catch'; 'Cognitive: 2'"},
+    {"text": "Process explainer mentions nesting depth as the driver, with a code example or per-line increment breakdown", "passed": true, "evidence": "Fully annotated Process listing plus extraction rewrite with new scores (3 + 5)"},
+    {"text": "Every method shows both metrics; neither metric is reported alone", "passed": true, "evidence": "Both columns for all 8 units"},
+    {"text": "Every per-unit section includes an annotated code example; methods too large to show whole use a condensed illustrative fragment preserving the scoring structure", "passed": true, "evidence": "Process, Charge, Discount, StatusLabel each show annotated code ('// CC +1 | Cog +1, nesting +N'); trivial helpers exempt per skill rule"}
+  ],
+  "summary": {"passed": 8, "failed": 0, "total": 8, "pass_rate": 1.0},
+  "claims": [
+    {"claim": "Extraction rewrite: Process 3/3, ShipItems 4/5", "type": "factual", "verified": true, "evidence": "Process: base1+foreach+if=3, cog foreach1+if2=3. ShipItems: base1+foreach+if+||=4, cog foreach1+if2+||1+else1=5. Correct under convention."}
+  ]
+}

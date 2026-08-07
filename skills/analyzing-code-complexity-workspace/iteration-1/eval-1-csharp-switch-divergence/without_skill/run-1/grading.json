@@ -1,0 +1,61 @@
+{
+  "expectations": [
+    {
+      "text": "All public methods listed: StatusLabel, Charge, Discount, Process (helpers Retry/Log/Ship/Notify appear in summary table)",
+      "passed": true,
+      "evidence": "Summary table lists all 8 methods plus class total row"
+    },
+    {
+      "text": "StatusLabel: cyclomatic 6, cognitive 1, with explanation that switches inflate cyclomatic but read easily",
+      "passed": true,
+      "evidence": "'Cyclomatic overstates its difficulty; cognitive captures reality'"
+    },
+    {
+      "text": "StatusLabel is NOT flagged as a refactor candidate",
+      "passed": true,
+      "evidence": "'StatusLabel needs no change'"
+    },
+    {
+      "text": "Process has the highest cognitive score in the report (12 under the skill's convention) and cognitive exceeds its cyclomatic (6)",
+      "passed": true,
+      "evidence": "Process 6/12 with per-construct increment table summing to 12"
+    },
+    {
+      "text": "Charge: cyclomatic 3 (base + 2 catch), cognitive 2",
+      "passed": true,
+      "evidence": "'base 1 + 2 catch clauses = 3'; cognitive 2"
+    },
+    {
+      "text": "Process explainer mentions nesting depth as the driver, with a code example or per-line increment breakdown",
+      "passed": true,
+      "evidence": "Structure-by-structure table with nesting depths and increments"
+    },
+    {
+      "text": "Every method shows both metrics; neither metric is reported alone",
+      "passed": true,
+      "evidence": "Both columns for all methods"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Baseline used SonarSource sequence-counting for boolean operators",
+      "type": "process",
+      "verified": true,
+      "evidence": "'&& operator sequence +1' \u2014 happens to match skill convention here because no multi-operator sequences exist in the file"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "Baseline also passed 7/7 \u2014 model computes these metrics correctly unaided on well-known examples. Discriminating value would need a file with multi-operator boolean chains (a && b && c) where conventions diverge, or format/template assertions."
+      }
+    ],
+    "overall": "Non-discriminating on pass/fail; convention divergence untested because fixture has no like-operator sequences."
+  }
+}

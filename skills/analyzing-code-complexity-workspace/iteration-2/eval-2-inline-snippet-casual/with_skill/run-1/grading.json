@@ -1,0 +1,11 @@
+{
+  "expectations": [
+    {"text": "validate scored with both metrics: cyclomatic 4, cognitive 3", "passed": true, "evidence": "'Cyclomatic: 4 — base 1 + 2 if + 1 &&'; 'Cognitive: 3' — exact ground-truth match"},
+    {"text": "The guard clause (early return) is noted as NOT adding cognitive complexity beyond its if", "passed": true, "evidence": "Annotation: '(guard clause, early return itself free)'; 'guard-clause style keeps cognitive low'"},
+    {"text": "The .map() lambda is not counted as extra complexity", "passed": true, "evidence": "'lambda has no branching — 0'; 'The .map() lambda has no branching, adds nothing'"},
+    {"text": "Verdict says the code is fine as-is (both scores well under thresholds)", "passed": true, "evidence": "'Verdict: fine to leave as is. Well under thresholds'"},
+    {"text": "Response includes a brief why-scored explanation, not just bare numbers", "passed": true, "evidence": "Explains top-level ifs, guard clause, lambda; robustness note kept separate from complexity"},
+    {"text": "The snippet's scored lines are shown annotated with their increments", "passed": true, "evidence": "Full snippet reproduced with '// CC +1 | Cog +1' annotations per scored line"}
+  ],
+  "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}
+}

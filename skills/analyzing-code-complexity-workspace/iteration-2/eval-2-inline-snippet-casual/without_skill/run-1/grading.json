@@ -1,0 +1,14 @@
+{
+  "expectations": [
+    {"text": "validate scored with both metrics: cyclomatic 4, cognitive 3", "passed": false, "evidence": "Only 'Cyclomatic ~4' given (approximate); cognitive complexity never computed or mentioned."},
+    {"text": "The guard clause (early return) is noted as NOT adding cognitive complexity beyond its if", "passed": false, "evidence": "Guard clauses and cognitive complexity not discussed; only 'nesting depth 1' noted."},
+    {"text": "The .map() lambda is not counted as extra complexity", "passed": false, "evidence": "Lambda counting never addressed; cannot verify exclusion."},
+    {"text": "Verdict says the code is fine as-is (both scores well under thresholds)", "passed": false, "evidence": "'Leave as is? Not quite.' — verdict driven by non-complexity issues; only one metric computed, so 'both scores under thresholds' unverifiable."},
+    {"text": "Response includes a brief why-scored explanation, not just bare numbers", "passed": true, "evidence": "'Cyclomatic ~4, nesting depth 1, five lines' with rationale"},
+    {"text": "The snippet's scored lines are shown annotated with their increments", "passed": false, "evidence": "Rewrite code block shown, but no annotation of scored lines with increments anywhere."}
+  ],
+  "summary": {"passed": 1, "failed": 5, "total": 6, "pass_rate": 0.167},
+  "claims": [
+    {"claim": "user.tags.map throws when adult user lacks tags", "type": "factual", "verified": true, "evidence": "Correct bug catch; with-skill run flagged the same while also delivering both metrics."}
+  ]
+}

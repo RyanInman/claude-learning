@@ -1,0 +1,399 @@
+{
+  "metadata": {
+    "skill_name": "analyzing-code-complexity",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-08-01T16:08:05Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 57.9,
+        "tokens": 28381,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Report lists all 4 functions: can_ship, can_ship_nested, first_error, total",
+          "passed": true,
+          "evidence": "Summary table rows: can_ship, can_ship_nested, first_error, total"
+        },
+        {
+          "text": "Every listed function has BOTH a cyclomatic and a cognitive score",
+          "passed": true,
+          "evidence": "4/3, 4/6, 4/4, 1/0 \u2014 all exact ground-truth matches"
+        },
+        {
+          "text": "can_ship and can_ship_nested have equal cyclomatic scores (4 each)",
+          "passed": true,
+          "evidence": "Both 4; 'identical behavior and identical cyclomatic (4)'"
+        },
+        {
+          "text": "can_ship_nested's cognitive score is strictly higher than can_ship's (6 vs 3 under the skill's convention)",
+          "passed": true,
+          "evidence": "6 vs 3 in table and explainers"
+        },
+        {
+          "text": "Explainer attributes the cognitive difference to nesting penalties vs guard clauses",
+          "passed": true,
+          "evidence": "'the cognitive gap (6 vs 3) is pure nesting cost'; guard-clause section: 'no condition context carries forward, so no nesting penalties accrue'"
+        },
+        {
+          "text": "first_error scored: cyclomatic 4, cognitive 4 (loop + nested if + boolean operator)",
+          "passed": true,
+          "evidence": "'Cyclomatic: 4 \u2014 base 1 + 1 for + 1 if + 1 and'; 'Cognitive: 4 \u2014 ... nesting penalty (+1)'"
+        },
+        {
+          "text": "Report includes a summary table listing every unit",
+          "passed": true,
+          "evidence": "Summary table with all 4 units and Assessment column"
+        },
+        {
+          "text": "Each per-unit section includes an annotated code example showing per-line score increments",
+          "passed": true,
+          "evidence": "can_ship_nested, first_error, can_ship all show code annotated '# CC +1 | Cog +1, nesting +N'; can_ship_nested additionally shows the guard-clause rewrite with new scores. total is trivial (1/0) and exempt per skill rule."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 85.5,
+        "tokens": 31046,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "All public methods listed: StatusLabel, Charge, Discount, Process (helpers Retry/Log/Ship/Notify appear in summary table)",
+          "passed": true,
+          "evidence": "All 8 units in summary table"
+        },
+        {
+          "text": "StatusLabel: cyclomatic 6, cognitive 1, with explanation that switches inflate cyclomatic but read easily",
+          "passed": true,
+          "evidence": "'Many test paths, low reading cost \u2014 not a refactor candidate'"
+        },
+        {
+          "text": "StatusLabel is NOT flagged as a refactor candidate",
+          "passed": true,
+          "evidence": "Assessment \u2705, explicit 'not a refactor candidate'"
+        },
+        {
+          "text": "Process has the highest cognitive score in the report (12 under the skill's convention) and cognitive exceeds its cyclomatic (6)",
+          "passed": true,
+          "evidence": "Process 6/12, top of per-unit ordering"
+        },
+        {
+          "text": "Charge: cyclomatic 3 (base + 2 catch), cognitive 2",
+          "passed": true,
+          "evidence": "'Cyclomatic: 3 \u2014 base 1 + 2 catch'; 'Cognitive: 2'"
+        },
+        {
+          "text": "Process explainer mentions nesting depth as the driver, with a code example or per-line increment breakdown",
+          "passed": true,
+          "evidence": "Fully annotated Process listing plus extraction rewrite with new scores (3 + 5)"
+        },
+        {
+          "text": "Every method shows both metrics; neither metric is reported alone",
+          "passed": true,
+          "evidence": "Both columns for all 8 units"
+        },
+        {
+          "text": "Every per-unit section includes an annotated code example; methods too large to show whole use a condensed illustrative fragment preserving the scoring structure",
+          "passed": true,
+          "evidence": "Process, Charge, Discount, StatusLabel each show annotated code ('// CC +1 | Cog +1, nesting +N'); trivial helpers exempt per skill rule"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 38.1,
+        "tokens": 23364,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "validate scored with both metrics: cyclomatic 4, cognitive 3",
+          "passed": true,
+          "evidence": "'Cyclomatic: 4 \u2014 base 1 + 2 if + 1 &&'; 'Cognitive: 3' \u2014 exact ground-truth match"
+        },
+        {
+          "text": "The guard clause (early return) is noted as NOT adding cognitive complexity beyond its if",
+          "passed": true,
+          "evidence": "Annotation: '(guard clause, early return itself free)'; 'guard-clause style keeps cognitive low'"
+        },
+        {
+          "text": "The .map() lambda is not counted as extra complexity",
+          "passed": true,
+          "evidence": "'lambda has no branching \u2014 0'; 'The .map() lambda has no branching, adds nothing'"
+        },
+        {
+          "text": "Verdict says the code is fine as-is (both scores well under thresholds)",
+          "passed": true,
+          "evidence": "'Verdict: fine to leave as is. Well under thresholds'"
+        },
+        {
+          "text": "Response includes a brief why-scored explanation, not just bare numbers",
+          "passed": true,
+          "evidence": "Explains top-level ifs, guard clause, lambda; robustness note kept separate from complexity"
+        },
+        {
+          "text": "The snippet's scored lines are shown annotated with their increments",
+          "passed": true,
+          "evidence": "Full snippet reproduced with '// CC +1 | Cog +1' annotations per scored line"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 6,
+        "failed": 2,
+        "total": 8,
+        "time_seconds": 61.5,
+        "tokens": 23575,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Report lists all 4 functions: can_ship, can_ship_nested, first_error, total",
+          "passed": true,
+          "evidence": "Metrics Summary table lists all 4"
+        },
+        {
+          "text": "Every listed function has BOTH a cyclomatic and a cognitive score",
+          "passed": true,
+          "evidence": "Both columns populated for all 4"
+        },
+        {
+          "text": "can_ship and can_ship_nested have equal cyclomatic scores (4 each)",
+          "passed": true,
+          "evidence": "Both 4; 'every non-trivial function ties at cyclomatic 4'"
+        },
+        {
+          "text": "can_ship_nested's cognitive score is strictly higher than can_ship's (6 vs 3 under the skill's convention)",
+          "passed": true,
+          "evidence": "6 vs 3 in table"
+        },
+        {
+          "text": "Explainer attributes the cognitive difference to nesting penalties vs guard clauses",
+          "passed": true,
+          "evidence": "'each if costs 1 plus its nesting depth (1 + 2 + 3)'; guard clauses 'never carries more than one condition'"
+        },
+        {
+          "text": "first_error scored: cyclomatic 4, cognitive 4 (loop + nested if + boolean operator)",
+          "passed": false,
+          "evidence": "Cyclomatic 4 correct, but cognitive reported as 3 \u2014 misses one increment (for +1, if +1, nesting +1, and +1 = 4). Ground truth 4."
+        },
+        {
+          "text": "Report includes a summary table listing every unit",
+          "passed": true,
+          "evidence": "Metrics Summary table"
+        },
+        {
+          "text": "Each per-unit section includes an annotated code example showing per-line score increments",
+          "passed": false,
+          "evidence": "No code blocks anywhere in the report; all sections are prose-only."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.875,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 54.5,
+        "tokens": 24101,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "All public methods listed: StatusLabel, Charge, Discount, Process (helpers Retry/Log/Ship/Notify appear in summary table)",
+          "passed": true,
+          "evidence": "Summary table lists all 8 methods"
+        },
+        {
+          "text": "StatusLabel: cyclomatic 6, cognitive 1, with explanation that switches inflate cyclomatic but read easily",
+          "passed": true,
+          "evidence": "'Flat value-mapping switch; cyclomatic overstates difficulty'"
+        },
+        {
+          "text": "StatusLabel is NOT flagged as a refactor candidate",
+          "passed": true,
+          "evidence": "'No refactor needed'"
+        },
+        {
+          "text": "Process has the highest cognitive score in the report (12 under the skill's convention) and cognitive exceeds its cyclomatic (6)",
+          "passed": true,
+          "evidence": "Process 6/12 with per-construct increment list summing to 12"
+        },
+        {
+          "text": "Charge: cyclomatic 3 (base + 2 catch), cognitive 2",
+          "passed": true,
+          "evidence": "'Cyclomatic: 3 = base 1 + 2 catch clauses'; cognitive 2"
+        },
+        {
+          "text": "Process explainer mentions nesting depth as the driver, with a code example or per-line increment breakdown",
+          "passed": true,
+          "evidence": "Per-construct nesting/increment bullets (+1,+2,+3,+4,+1,+1)"
+        },
+        {
+          "text": "Every method shows both metrics; neither metric is reported alone",
+          "passed": true,
+          "evidence": "Both metrics for all methods"
+        },
+        {
+          "text": "Every per-unit section includes an annotated code example; methods too large to show whole use a condensed illustrative fragment preserving the scoring structure",
+          "passed": false,
+          "evidence": "No code blocks in the report \u2014 bullet-point breakdowns only, no annotated code or illustrative fragments."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.167,
+        "passed": 1,
+        "failed": 5,
+        "total": 6,
+        "time_seconds": 34.7,
+        "tokens": 21165,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "validate scored with both metrics: cyclomatic 4, cognitive 3",
+          "passed": false,
+          "evidence": "Only 'Cyclomatic ~4' given (approximate); cognitive complexity never computed or mentioned."
+        },
+        {
+          "text": "The guard clause (early return) is noted as NOT adding cognitive complexity beyond its if",
+          "passed": false,
+          "evidence": "Guard clauses and cognitive complexity not discussed; only 'nesting depth 1' noted."
+        },
+        {
+          "text": "The .map() lambda is not counted as extra complexity",
+          "passed": false,
+          "evidence": "Lambda counting never addressed; cannot verify exclusion."
+        },
+        {
+          "text": "Verdict says the code is fine as-is (both scores well under thresholds)",
+          "passed": false,
+          "evidence": "'Leave as is? Not quite.' \u2014 verdict driven by non-complexity issues; only one metric computed, so 'both scores under thresholds' unverifiable."
+        },
+        {
+          "text": "Response includes a brief why-scored explanation, not just bare numbers",
+          "passed": true,
+          "evidence": "'Cyclomatic ~4, nesting depth 1, five lines' with rationale"
+        },
+        {
+          "text": "The snippet's scored lines are shown annotated with their increments",
+          "passed": false,
+          "evidence": "Rewrite code block shown, but no annotation of scored lines with increments anywhere."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 60.5,
+        "stddev": 23.8067,
+        "min": 38.1,
+        "max": 85.5
+      },
+      "tokens": {
+        "mean": 27597.0,
+        "stddev": 3900.5478,
+        "min": 23364,
+        "max": 31046
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.5973,
+        "stddev": 0.3779,
+        "min": 0.167,
+        "max": 0.875
+      },
+      "time_seconds": {
+        "mean": 50.2333,
+        "stddev": 13.9001,
+        "min": 34.7,
+        "max": 61.5
+      },
+      "tokens": {
+        "mean": 22947.0,
+        "stddev": 1565.5069,
+        "min": 21165,
+        "max": 24101
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.40",
+      "time_seconds": "+10.3",
+      "tokens": "+4650"
+    }
+  },
+  "notes": [
+    "Delta widened from +27% (iteration 1) to +40%: new annotated-code-example assertions discriminate. Baselines produced prose/bullet breakdowns with zero code blocks on both file evals; with-skill runs annotated every per-unit section.",
+    "With-skill scores remained exact ground-truth matches across both iterations (22/22 assertions). Baseline introduced a NEW scoring error this iteration: first_error cognitive 3 instead of 4 (missed an increment) - unaided runs are not stable run-to-run.",
+    "Casual-snippet eval (eval 2) still the biggest gap: baseline again computed only cyclomatic (approximate ~4), no cognitive, no annotations - 1/6 assertions.",
+    "Baseline convention drift repeated: total() scored 2/1 (generator counted) vs skill convention 1/0. Consistent skill win on convention pinning.",
+    "Feedback addressed: iteration-1 reviewer asked for code examples of areas mentioned; with-skill reports now annotate every discussed unit, large methods get condensed fragments (Process shown whole at 20 lines, within tolerance)."
+  ]
+}

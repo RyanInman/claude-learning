@@ -1,0 +1,54 @@
+{
+  "skill_name": "brainstorming",
+  "evals": [
+    {
+      "id": 0,
+      "name": "feature-request-enters-dialogue",
+      "prompt": "Let's build a CLI tool that finds and removes duplicate photos in a folder.",
+      "expected_output": "The run enters plan mode before anything else, explores project context, then asks exactly one clarifying question (purpose, constraints, or success criteria) and stops for the answer. No code, no scaffolding, no plan file yet. The visual companion is not offered upfront.",
+      "assertions": [
+        {
+          "text": "plan mode is entered (EnterPlanMode) before the first clarifying question",
+          "type": "structure"
+        },
+        {
+          "text": "the first response asks exactly one question, not a batch",
+          "type": "structure"
+        },
+        {
+          "text": "no source files, scaffolding, or plan file are created in the first turn",
+          "type": "structure"
+        },
+        {
+          "text": "the visual companion is not offered in the first message",
+          "type": "content"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "too-simple-still-gated",
+      "prompt": "Add a --version flag to my CLI. It's trivial, just do it real quick.",
+      "expected_output": "Despite the 'just do it' framing, the run enters plan mode and presents a short design (a few sentences is enough) for approval before touching code. After approval via ExitPlanMode, the plan is written to docs/plans/<name>-plan.md and committed before implementation starts.",
+      "assertions": [
+        {
+          "text": "no code is written before the plan is approved through ExitPlanMode",
+          "type": "structure"
+        },
+        {
+          "text": "a design is presented for approval even though the request is framed as trivial",
+          "type": "content"
+        },
+        {
+          "text": "the design is scaled down (short, a few sentences), not a full multi-section treatment",
+          "type": "content"
+        },
+        {
+          "text": "after approval the plan is saved to docs/plans/ and committed before implementation",
+          "type": "structure"
+        }
+      ]
+    }
+  ],
+  "notes": "Both evals are interactive: the skill asks questions and waits, so a non-interactive harness only validates the first turn of eval 0. Eval 1 needs a scripted approval turn to check the post-approval assertions. Compare against a no-skill baseline, which typically implements the --version flag immediately."
+}

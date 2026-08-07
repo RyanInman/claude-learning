@@ -1,0 +1,46 @@
+{
+  "eval_id": 8,
+  "eval_name": "dead-step",
+  "config": "without_skill",
+  "expectations": [
+    {
+      "text": "the report contains a row for every one of the 5 workflow steps",
+      "passed": true,
+      "evidence": "verdict table rows 1-5 [report.md L12-16]"
+    },
+    {
+      "text": "no new files or directories are created inside the target skill folder",
+      "passed": true,
+      "evidence": "facts.json target_tree_diff empty [facts.json]"
+    },
+    {
+      "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+      "passed": true,
+      "evidence": "step 4 'Neither \u2014 dead step, delete it', quoting the Notes line verbatim and confirming legacy/ does not exist [report.md L15,48-54]"
+    },
+    {
+      "text": "no script is proposed for the DEAD step and the step is not deleted from the target SKILL.md",
+      "passed": true,
+      "evidence": "no script proposed for step 4; target untouched (analysis-only run) [report.md L54 + facts.json]"
+    },
+    {
+      "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+      "passed": true,
+      "evidence": "step 2 'Script \u2014 but delete it, step 3 already covers it' [report.md L13]"
+    },
+    {
+      "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+      "passed": true,
+      "evidence": "step 5 'Keep in prose (Claude)', reasoning that no length or keyword heuristic catches vagueness without false positives [report.md L16]"
+    }
+  ],
+  "passed_count": 6,
+  "total_count": 6,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6
+  }
+}

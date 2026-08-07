@@ -37,7 +37,9 @@ MANIFEST SCHEMA (.delegation-review/manifest.json)
       "bad_data_invocation": {               // run against the FAILING fixture;
                                              // proves the logic discriminates,
                                              // not just that the interface works
-        "argv": ["python3", "scripts/check_headings.py", "changelogs", "--json"],
+        "argv": ["python3", "scripts/check_headings.py",
+                 "/abs/path/to/workdir/.delegation-review/fixtures/check_headings/changelogs-bad",
+                 "--json"],
         "expect_exit_nonzero": true,
         "expect_stdout_contains": "missing_version_header"},
       "bad_invocation": {                    // bad ARGS: must exit nonzero AND

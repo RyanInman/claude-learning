@@ -116,6 +116,206 @@
           "type": "content"
         }
       ]
+    },
+    {
+      "id": 4,
+      "name": "prose-only-headings",
+      "prompt": "Which parts of the skill in evals/fixtures/prose-only-reviewer/ should be scripts? Don't change anything yet.",
+      "expected_output": "Report covering all three heading-fallback anchors: link collection and target resolution SCRIPT with concrete interfaces, the fix-order decision CLAUDE. The skill does not report 'nothing to delegate' just because the target has no numbered steps.",
+      "files": [
+        "evals/fixtures/prose-only-reviewer"
+      ],
+      "assertions": [
+        {
+          "text": "the report contains a row for every anchor; the flow does not stop at '0 steps extracted'",
+          "type": "structure"
+        },
+        {
+          "text": "no new files are written into evals/fixtures/prose-only-reviewer/",
+          "type": "structure"
+        },
+        {
+          "text": "'Collect the link inventory' and 'Resolve each target' are classified SCRIPT with concrete argv/exit-code interfaces",
+          "type": "content"
+        },
+        {
+          "text": "'Decide what to fix now' is classified CLAUDE, since the deadline trade-off varies by run",
+          "type": "content"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "agent-tool-steps",
+      "prompt": "I want my research-brief-writer skill to stop re-deriving the same busywork on every run. Which of its steps should become scripts? The skill is at evals/fixtures/research-brief-writer/. Report only for now, don't change anything.",
+      "expected_output": "Report covering all 7 steps. Steps 1, 4, 7 SCRIPT with concrete interfaces. Step 2 (WebFetch), step 3 (AskUserQuestion) and step 5 (notion MCP) are never pure SCRIPT: a script may prepare input or digest output, but the tool call itself stays in the step. Step 6 keeps its prose-writing core. Nothing written into the target.",
+      "files": [
+        "evals/fixtures/research-brief-writer"
+      ],
+      "assertions": [
+        {
+          "text": "the report contains a row for every one of the 7 workflow steps, each with a class",
+          "type": "structure"
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "type": "structure"
+        },
+        {
+          "text": "step 2 (WebFetch the top source) is NOT classified pure SCRIPT, and no proposed script reimplements the fetch with curl, requests, or urllib",
+          "type": "content"
+        },
+        {
+          "text": "step 5 (notion MCP page lookup and append) is NOT classified pure SCRIPT",
+          "type": "content"
+        },
+        {
+          "text": "step 3 (AskUserQuestion which sources to keep) is NOT classified pure SCRIPT",
+          "type": "content"
+        },
+        {
+          "text": "steps 1 (dedupe and slugify topics), 4 (word counts and thin-source flags) and 7 (render sorted index table) are classified SCRIPT with concrete argv/exit-code interfaces",
+          "type": "content"
+        },
+        {
+          "text": "step 6 (write the 200-word brief in the house voice) keeps its prose-writing core with Claude",
+          "type": "content"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "name-collision",
+      "prompt": "Scriptify the docs-linter skill at evals/fixtures/docs-linter/ \u2014 find the steps worth delegating and apply all of them.",
+      "expected_output": "The natural script name for step 2 is check_headings.py, which already exists in the target and does something unrelated (image alt text). The run must surface the collision to the user or pick a different name. The existing file stays byte-identical. Steps 1, 2, 3 get scripts; step 4 (which files matter this sprint) stays prose.",
+      "files": [
+        "evals/fixtures/docs-linter"
+      ],
+      "assertions": [
+        {
+          "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+          "type": "structure"
+        },
+        {
+          "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+          "type": "structure"
+        },
+        {
+          "text": "at least 2 newly generated Python scripts exist in docs-linter/scripts/ and each supports --help",
+          "type": "structure"
+        },
+        {
+          "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
+          "type": "structure"
+        },
+        {
+          "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+          "type": "content"
+        },
+        {
+          "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+          "type": "content"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "keep-residue",
+      "prompt": "Review evals/fixtures/changelog-checker/ for steps to delegate to scripts and apply all of them. Keep the test fixtures and the manifest inside the skill afterward so I can re-run the checks myself later.",
+      "expected_output": "Scripts written and smoke-tested, then the fixtures and manifest moved into changelog-checker/scripts/tests/ with every absolute fixture path rewritten to the new location, then the smoke test re-run green against the moved manifest. The rewritten SKILL.md carries the smoke-test command.",
+      "files": [
+        "evals/fixtures/changelog-checker"
+      ],
+      "assertions": [
+        {
+          "text": "changelog-checker/scripts/tests/ exists and contains manifest.json plus the fixture files",
+          "type": "structure"
+        },
+        {
+          "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+          "type": "structure"
+        },
+        {
+          "text": "re-running scriptify's smoke_test.py against the moved manifest exits 0",
+          "type": "content"
+        },
+        {
+          "text": "the rewritten changelog-checker SKILL.md body contains the smoke-test command",
+          "type": "structure"
+        },
+        {
+          "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+          "type": "content"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "dead-step",
+      "prompt": "Which steps in the api-docs-checker skill at evals/fixtures/api-docs-checker/ should be scripts? Just tell me \u2014 don't write anything yet.",
+      "expected_output": "Report covering all 5 steps. Step 4 (append to legacy/index.txt) is DEAD: the Notes section says the legacy portal was retired in v2. Step 2 is superseded by step 3. No script is proposed for a DEAD step and no step is deleted from the target.",
+      "files": [
+        "evals/fixtures/api-docs-checker"
+      ],
+      "assertions": [
+        {
+          "text": "the report contains a row for every one of the 5 workflow steps",
+          "type": "structure"
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "type": "structure"
+        },
+        {
+          "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+          "type": "content"
+        },
+        {
+          "text": "no script is proposed for the DEAD step and the step is not deleted from the target SKILL.md",
+          "type": "content"
+        },
+        {
+          "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+          "type": "content"
+        },
+        {
+          "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+          "type": "content"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "ineligible-target",
+      "prompt": "Scriptify the release-notes skill at <run>/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes and apply whatever delegations you find.",
+      "expected_output": "The target sits inside a plugin cache, so it is ineligible for writes. The run produces the classification report, states why writing there is unsafe (the next plugin update clobbers it), offers to copy the skill into the project and continue on the copy, and writes nothing into the cache path.",
+      "files": [
+        "evals/fixtures/plugin-cached-release-notes"
+      ],
+      "assertions": [
+        {
+          "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+          "type": "structure"
+        },
+        {
+          "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+          "type": "content"
+        },
+        {
+          "text": "the run still produces the per-step classification report for the target",
+          "type": "structure"
+        },
+        {
+          "text": "the run offers to copy the skill into the project and continue from the apply stage on the copy",
+          "type": "content"
+        },
+        {
+          "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+          "type": "structure"
+        }
+      ],
+      "setup": "Copy evals/fixtures/plugin-cached-release-notes/ to <run>/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes before running. The ineligibility guard keys off the plugin-cache path, so running against the fixture's repo location tests nothing."
     }
-  ]
+  ],
+  "notes": "scriptify is slash-only (disable-model-invocation: true): the model never auto-triggers it. These eval prompts assume the skill is loaded explicitly by the harness; naturalistic triggering evals will (correctly) never fire. Evals 1, 3, 6, 7 and 9 mutate their target, so every run must operate on its own copy of the fixture, never on the checked-in one. Eval 9 requires the setup step recorded in its `setup` field: the fixture must be re-homed under a plugins/cache/ path at run time. Iteration-1 was executed against the WORKING TREE of scriptify (uncommitted SKILL.md and delegation-rubric.md), not HEAD."
 }

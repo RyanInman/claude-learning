@@ -1,0 +1,46 @@
+{
+  "eval_id": 6,
+  "eval_name": "name-collision",
+  "config": "without_skill",
+  "expectations": [
+    {
+      "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+      "passed": true,
+      "evidence": "facts.json preexisting_check_headings_unchanged=true [facts.json]"
+    },
+    {
+      "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+      "passed": true,
+      "evidence": "new script named lint_docs.py; existing check_headings.py left byte-identical and the hazard documented in a Scripts table [report.md L20-42, facts.json]"
+    },
+    {
+      "text": "at least 2 newly generated Python scripts exist in docs-linter/scripts/ and each supports --help",
+      "passed": false,
+      "evidence": "only 1 new script written, and `python3 scripts/lint_docs.py --help` prints 'not a directory: --help' and exits 2 \u2014 the script has no argparse and treats --help as a positional path [live run]"
+    },
+    {
+      "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
+      "passed": false,
+      "evidence": "the report shows 'Rewritten: SKILL.md workflow' at L66 before 'Smoke tests' at L75; no PASS line precedes the rewrite [report.md section order]"
+    },
+    {
+      "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+      "passed": true,
+      "evidence": "ran lint_docs.py docs directly: flags docs/reference/api.md and docs/tutorial.md; exit 1 [live run]"
+    },
+    {
+      "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+      "passed": true,
+      "evidence": "rewritten SKILL.md step 2 keeps the sprint-priority judgment prose [SKILL.md L27-28]"
+    }
+  ],
+  "passed_count": 4,
+  "total_count": 6,
+  "pass_rate": 0.667,
+  "summary": {
+    "pass_rate": 0.667,
+    "passed": 4,
+    "failed": 2,
+    "total": 6
+  }
+}

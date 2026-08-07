@@ -1,0 +1,23 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-2-nothing-to-delegate/with_skill/workspace/well-delegated",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "ALREADY_DELEGATED",
+      "why": "step is already one exact invocation of scripts/check.py; script is mentioned in body, has argparse, --help works, exit codes documented 0/1/2",
+      "proposed_script": null
+    },
+    {
+      "id": "s2",
+      "class": "CLAUDE",
+      "why": "audience-fit call: whether a missing heading matters depends on who this release ships to; reasonable runs should differ. The mechanical shell (enumerate the candidates) is already scripted in s1 by check.py, so no HYBRID residue is left to strip",
+      "proposed_script": null
+    },
+    {
+      "id": "s3",
+      "class": "CLAUDE",
+      "why": "prose writing in the project's voice; no format spec exists in the skill for a lint script to check against, so a validator would invent a contract the skill never states",
+      "proposed_script": null
+    }
+  ]
+}

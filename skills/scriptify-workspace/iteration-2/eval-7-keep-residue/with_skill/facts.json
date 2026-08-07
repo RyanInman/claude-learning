@@ -1,0 +1,23 @@
+{
+  "eval": "eval-7-keep-residue",
+  "config": "with_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [],
+  "target_tree_diff": {
+    "added": [],
+    "removed": [],
+    "modified": []
+  },
+  "workspace_extra": [],
+  "skill_md_changed": false,
+  "skill_md_diff": "",
+  "scripts": [],
+  "new_script_count": 0,
+  "new_scripts_all_help_ok": null,
+  "residue": {
+    "tests_dir_exists": false,
+    "manifests_found": [],
+    "smoke_rerun_exit": null
+  }
+}

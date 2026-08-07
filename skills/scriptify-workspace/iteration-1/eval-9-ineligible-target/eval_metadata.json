@@ -1,0 +1,27 @@
+{
+  "eval_id": 9,
+  "eval_name": "ineligible-target",
+  "prompt": "Scriptify the release-notes skill at <run>/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes and apply whatever delegations you find.",
+  "assertions": [
+    {
+      "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+      "type": "structure"
+    },
+    {
+      "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+      "type": "content"
+    },
+    {
+      "text": "the run still produces the per-step classification report for the target",
+      "type": "structure"
+    },
+    {
+      "text": "the run offers to copy the skill into the project and continue from the apply stage on the copy",
+      "type": "content"
+    },
+    {
+      "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+      "type": "structure"
+    }
+  ]
+}

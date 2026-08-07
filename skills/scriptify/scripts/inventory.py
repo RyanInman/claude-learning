@@ -14,6 +14,16 @@ verb/tool hints are hints for the classifying agent, not verdicts. Nested
 numbered sub-items under a Step N heading fragment into separate anchors; the
 classifying agent should treat fragments of one logical step as one step.
 
+ANCHOR ORIGINS
+    step-heading      "## Step 3 - Render" / "## Phase 2"
+    numbered-heading  "### 1. Extract the metrics"
+    numbered-list     "1. List every .md file"
+    checklist         "- [ ] Verify the output"
+    heading-fallback  every H2/H3 that is not obviously reference material,
+                      used ONLY when nothing above matched (a prose-only
+                      workflow). These anchors are the loosest: some will not
+                      be workflow steps at all.
+
 USAGE
     python3 scripts/inventory.py <target-skill-dir> [--out FILE] [--no-probe]
 
@@ -42,10 +52,12 @@ from pathlib import Path
 
 HEADING_RE = re.compile(r"^(#{1,4})\s+(.*\S)\s*$")
 STEP_HEADING_RE = re.compile(r"\b(step|phase)\s*\d+", re.IGNORECASE)
+NUM_HEADING_RE = re.compile(r"^\d{1,3}[.)]\s+\S")
 NUM_ITEM_RE = re.compile(r"^\s{0,3}\d{1,3}[.)]\s+(.*)$")
 CHECKLIST_RE = re.compile(r"^\s*-\s\[[ xX]\]\s+(.*)$")
 FENCE_RE = re.compile(r"^(```+|~~~+)\s*(\S*)\s*$")
 CMD_RE = re.compile(r"^(python3?|bash|sh|node|npx|uvx?|git|grep|find|mkdir|rm|jq|sed|awk)\b")
+HEADING_ORIGINS = {"step-heading", "numbered-heading", "heading-fallback"}
 
 MECH_VERBS = ("parse", "validate", "count", "check", "extract", "sort", "format",
               "render", "diff", "aggregate", "collect", "list", "scan", "verify",
@@ -53,6 +65,16 @@ MECH_VERBS = ("parse", "validate", "count", "check", "extract", "sort", "format"
 AGENT_TOOL_RE = re.compile(
     r"mcp__[\w-]+|\bWebFetch\b|\bWebSearch\b|\bAskUserQuestion\b|"
     r"\bsubagents?\b|\bAgent tool\b|\bTask tool\b", re.IGNORECASE)
+
+# Sections that are reference material rather than workflow steps. Matched in
+# full, never as a prefix, so "Output the report" survives while "Output
+# format" does not: a wrongly kept heading costs one extra row to classify, but
+# a wrongly dropped one loses a delegable step with no trace. Fallback only.
+NON_STEP_HEADING_RE = re.compile(
+    r"(contents|table of contents|gotchas?|scope|caveats?|limitations?|"
+    r"output format|references?|files|bundled files|examples?|notes?|"
+    r"background|anti-?patterns?|troubleshooting|quick reference|"
+    r"why (this|it) matters)", re.IGNORECASE)
 
 
 def _split_frontmatter(text):
@@ -126,6 +148,7 @@ def _extract_steps(lines, fences, line_offset):
 
     anchors = []        # (line_idx, origin, label)
     heading_lines = []  # line indexes of headings
+    headings = []       # (line_idx, level, text)
     stack = []          # [(level, text)]
     path_at = []        # heading-path snapshot per line
     for i, line in enumerate(lines):
@@ -137,8 +160,13 @@ def _extract_steps(lines, fences, line_offset):
                     stack.pop()
                 stack.append((level, text))
                 heading_lines.append(i)
+                headings.append((i, level, text))
                 if STEP_HEADING_RE.search(text):
                     anchors.append((i, "step-heading", text))
+                elif NUM_HEADING_RE.match(text):
+                    # "### 1. Extract the metrics" -- a numbered workflow
+                    # heading, which no list/step-heading pattern catches.
+                    anchors.append((i, "numbered-heading", text))
             else:
                 nm = NUM_ITEM_RE.match(line)
                 cm = CHECKLIST_RE.match(line)
@@ -147,6 +175,20 @@ def _extract_steps(lines, fences, line_offset):
                 elif cm:
                     anchors.append((i, "checklist", cm.group(1)))
         path_at.append([t for _, t in stack])
+
+    if not anchors:
+        # A prose-only workflow ("### Locate the config") anchors on nothing
+        # above. Without this fallback the whole pipeline reports "0 steps" and
+        # render_report.py rejects any id the agent invents, so the review dies
+        # on a skill that may be full of delegable work.
+        def _has_body(i):
+            """False for a container heading whose next line is another heading."""
+            nxt = next((h for h, _, _ in headings if h > i), len(lines))
+            return any(lines[j].strip() for j in range(i + 1, nxt))
+
+        anchors = [(i, "heading-fallback", text) for i, level, text in headings
+                   if level >= 2 and not NON_STEP_HEADING_RE.fullmatch(text.strip())
+                   and _has_body(i)]
 
     steps, chunks = [], []
     anchor_lines = [a for a, _, _ in anchors]
@@ -159,7 +201,7 @@ def _extract_steps(lines, fences, line_offset):
         blocks = [{"lang": lg, "looks_like_command": _looks_like_command(lines, a, b, lg)}
                   for a, b, lg in fences if start <= a and b <= end]
         heading_path = path_at[start]
-        if origin == "step-heading" and heading_path:
+        if origin in HEADING_ORIGINS and heading_path:
             heading_path = heading_path[:-1]
         steps.append({
             "id": f"s{n + 1}",
@@ -186,8 +228,15 @@ def _extract_steps(lines, fences, line_offset):
     return steps, chunks, orphans
 
 
-def _mentioned(name_path, stem, name, body):
-    return name in body or name_path in body or stem in body
+def _mentioned(name_path, name, body):
+    """True only on a full filename or path match.
+
+    A bare stem is not enough: stems like "check", "report", or "test" occur in
+    ordinary prose, and a false positive here routes a step to
+    ALREADY_DELEGATED, so it is silently never delegated. A missed mention only
+    costs a redundant proposal the agent can drop after reading the body.
+    """
+    return name in body or name_path in body
 
 
 def _audit_scripts(skill_dir, body, probe):
@@ -207,7 +256,7 @@ def _audit_scripts(skill_dir, body, probe):
         rec = {
             "path": rel,
             "lines": len(text.splitlines()),
-            "mentioned_in_body": _mentioned(rel, scr.stem, scr.name, body),
+            "mentioned_in_body": _mentioned(rel, scr.name, body),
             "has_argparse": ("argparse" in text) if scr.suffix == ".py" else None,
             "has_docstring": (after_shebang.startswith('"""') or
                               after_shebang.startswith("'''")) if scr.suffix == ".py" else None,
@@ -239,7 +288,7 @@ def _inventory_files(skill_dir, sub, body):
         except OSError:
             n_lines = None
         out.append({"path": rel, "lines": n_lines,
-                    "mentioned_in_body": _mentioned(rel, f.stem, f.name, body)})
+                    "mentioned_in_body": _mentioned(rel, f.name, body)})
     return out
 
 
@@ -249,8 +298,11 @@ def _summary(inv):
              f"steps: {s['n_steps']}  existing scripts: {s['n_existing_scripts']}  "
              f"references: {len(inv['references'])}  body: ~{inv['body']['approx_tokens']} tokens"]
     if s["n_steps"] == 0:
-        lines.append("0 steps extracted -- the workflow may be prose-only; "
-                     "read SKILL.md directly")
+        lines.append("0 steps extracted -- no numbered steps and no usable "
+                     "section headings; read SKILL.md directly")
+    elif any(st["origin"] == "heading-fallback" for st in inv["steps"]):
+        lines.append("no numbered steps found -- anchored on section headings "
+                     "instead; some anchors may not be workflow steps")
     for st in inv["steps"]:
         verbs = ",".join(st["mechanical_verb_hints"]) or "-"
         tools = ",".join(st["agent_tool_mentions"]) or "-"
@@ -302,20 +354,24 @@ def main(argv=None):
     steps, chunks, orphans = _extract_steps(lines, fences, line_offset)
 
     scripts = _audit_scripts(skill_dir, body, probe=not args.no_probe)
-    script_names = [(s["path"], Path(s["path"]).name, Path(s["path"]).stem)
-                    for s in scripts]
+    script_names = [(s["path"], Path(s["path"]).name) for s in scripts]
     for step, chunk in zip(steps, chunks):
-        step["mentions_existing_script"] = [rel for rel, name, stem in script_names
-                                            if name in chunk or stem in chunk]
+        step["mentions_existing_script"] = [rel for rel, name in script_names
+                                            if name in chunk or rel in chunk]
 
     inv = {
         "target": str(skill_dir.resolve()),
         "frontmatter": {
             "name": str(fm.get("name") or "").strip(),
             "description_chars": len(str(fm.get("description") or "").strip()),
+            # Claude Code-only keys are listed too: flagging them as unexpected
+            # would misreport every side-effecting skill, which needs
+            # disable-model-invocation.
             "unexpected_keys": sorted(set(fm.keys()) -
                                       {"name", "description", "license",
-                                       "allowed-tools", "metadata", "compatibility"}),
+                                       "allowed-tools", "metadata", "compatibility",
+                                       "disable-model-invocation", "user-invocable",
+                                       "argument-hint", "model"}),
         },
         "body": {"lines": len(lines), "approx_tokens": max(1, len(body) // 4)},
         "steps": steps,

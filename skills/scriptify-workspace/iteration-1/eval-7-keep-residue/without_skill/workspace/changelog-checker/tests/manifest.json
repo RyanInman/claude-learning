@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "description": "Smoke checks for the changelog-checker scripts. Run with: python3 tests/run_smoke_tests.py (from the skill folder).",
+  "python": "python3",
+  "checks": [
+    {
+      "id": "scan-clean",
+      "why": "A well-formed changelogs folder scans cleanly and counts every category.",
+      "script": "scripts/scan_changelogs.py",
+      "args": ["tests/fixtures/clean"],
+      "expect_exit": 0,
+      "expect_json": {
+        "file_count": 2,
+        "counted_entry_total": 5,
+        "entry_total": 5,
+        "totals.Added": 2,
+        "totals.Fixed": 1,
+        "totals.Changed": 1,
+        "totals.Removed": 1,
+        "totals.Misc": 0,
+        "files.0.version": "0.9.0",
+        "files.0.heading_ok": true,
+        "files.1.version": "1.0.0",
+        "files.1.date": "2025-12-20",
+        "problems.bad_heading": [],
+        "problems.unknown_categories": [],
+        "problems.misc_entries": [],
+        "problems.untagged_entries": []
+      }
+    },
+    {
+      "id": "scan-problems",
+      "why": "A malformed heading, a non-allowed tag, and a Misc entry are all reported.",
+      "script": "scripts/scan_changelogs.py",
+      "args": ["tests/fixtures/problems"],
+      "expect_exit": 0,
+      "expect_json": {
+        "file_count": 2,
+        "counted_entry_total": 2,
+        "entry_total": 4,
+        "files.0.heading_ok": false,
+        "files.0.version": "2.0.0",
+        "files.0.version_source": "filename",
+        "files.0.unknown_categories": ["Notes"],
+        "files.1.heading_ok": true,
+        "totals.Misc": 1,
+        "problems.bad_heading.0.filename": "v2.0.0.md",
+        "problems.unknown_categories.0.filename": "v2.0.0.md",
+        "problems.misc_entries.0.filename": "v2.1.0.md",
+        "problems.misc_entries.0.text": "Bumped the logo file"
+      }
+    },
+    {
+      "id": "scan-no-heading",
+      "why": "Regression: a file whose first content line is '### Added' still has that section counted; the entries are not orphaned.",
+      "script": "scripts/scan_changelogs.py",
+      "args": ["tests/fixtures/no-heading"],
+      "expect_exit": 0,
+      "expect_json": {
+        "file_count": 1,
+        "files.0.heading_ok": false,
+        "files.0.version": "3.0.0",
+        "files.0.version_source": "filename",
+        "files.0.date": null,
+        "files.0.categories.Added": 1,
+        "files.0.categories.Fixed": 1,
+        "counted_entry_total": 2,
+        "problems.untagged_entries": []
+      }
+    },
+    {
+      "id": "scan-empty",
+      "why": "A folder with no .md files exits non-zero instead of reporting a clean run.",
+      "script": "scripts/scan_changelogs.py",
+      "args": ["tests/fixtures/empty"],
+      "expect_exit": 2,
+      "expect_json": {
+        "file_count": 0
+      }
+    },
+    {
+      "id": "scan-missing-dir",
+      "why": "A missing folder fails loudly.",
+      "script": "scripts/scan_changelogs.py",
+      "args": ["tests/fixtures/does-not-exist"],
+      "expect_exit": 2,
+      "expect_stderr_contains": ["no such directory"]
+    },
+    {
+      "id": "render-clean",
+      "why": "The summary table renders version-descending and exits 0 when nothing is wrong.",
+      "script": "scripts/render_summary.py",
+      "stdin_from": "scan-clean",
+      "expect_exit": 0,
+      "expect_stdout_contains": [
+        "| Version | Date | Added | Fixed | Changed | Removed | Total |",
+        "| v1.0.0 | 2025-12-20 |",
+        "| v0.9.0 | 2025-11-04 |",
+        "**Total**",
+        "All files start with a valid"
+      ],
+      "expect_stdout_order": ["| v1.0.0 |", "| v0.9.0 |"]
+    },
+    {
+      "id": "render-problems",
+      "why": "Structural problems appear in the rendered report and set a non-zero exit.",
+      "script": "scripts/render_summary.py",
+      "stdin_from": "scan-problems",
+      "expect_exit": 1,
+      "expect_stdout_contains": [
+        "Heading check (1 problem(s))",
+        "v2.0.0.md",
+        "Category tags outside the allowed list (1 file(s))",
+        "`Notes`",
+        "`Misc` entries needing a judgement call (1)",
+        "Bumped the logo file"
+      ]
+    },
+    {
+      "id": "render-bad-input",
+      "why": "Non-report JSON is rejected rather than rendered as an empty table.",
+      "script": "scripts/render_summary.py",
+      "stdin": "{\"nope\": true}",
+      "expect_exit": 2,
+      "expect_stderr_contains": ["not a scan_changelogs.py report"]
+    }
+  ]
+}

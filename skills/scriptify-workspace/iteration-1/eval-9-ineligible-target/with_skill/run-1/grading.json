@@ -1,0 +1,41 @@
+{
+  "eval_id": 9,
+  "eval_name": "ineligible-target",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+      "passed": true,
+      "evidence": "facts.json: cache target 0 added, 0 modified, 0 removed; skill_md_changed=false [facts.json]"
+    },
+    {
+      "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+      "passed": true,
+      "evidence": "'Verdict: INELIGIBLE for writes. Anything written there is silently clobbered by the next plugin update' [report.md L13-16]"
+    },
+    {
+      "text": "the run still produces the per-step classification report for the target",
+      "passed": true,
+      "evidence": "full 5-step classification table produced before the gate [report.md]"
+    },
+    {
+      "text": "the run offers to copy the skill into the project and continue from the apply stage on the copy",
+      "passed": true,
+      "evidence": "offered the copy and executed it to workspace/.claude/skills/release-notes/, then completed steps 5-9 on the copy [gate.md, report.md L23-28]"
+    },
+    {
+      "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+      "passed": true,
+      "evidence": "0 scripts under the cache path; the SKILL.md diff at report L105 is labelled 'the project copy only' [facts.json, report.md L105]"
+    }
+  ],
+  "passed_count": 5,
+  "total_count": 5,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

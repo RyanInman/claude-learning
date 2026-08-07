@@ -1,0 +1,89 @@
+{
+  "eval": "eval-1-apply-and-smoke-test",
+  "config": "without_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-1-apply-and-smoke-test/without_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [],
+  "target_tree_diff": {
+    "added": [
+      "scripts/changelog_lib.py",
+      "scripts/check_categories.py",
+      "scripts/check_headers.py",
+      "scripts/count_entries.py",
+      "scripts/list_changelogs.py",
+      "scripts/manifest.json",
+      "scripts/render_table.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -7,12 +7,64 @@\n \n Review the changelog files in `changelogs/` and produce a release summary.\n \n+All mechanical parsing, counting, checking, and table rendering is done by the\n+scripts in `scripts/`. Run them; do not re-derive their output by reading the\n+files yourself. Every script takes the changelog directory as its one positional\n+argument and supports `--help`.\n+\n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n-2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n-4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n-5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n-6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n-7. Verify the entries are clearly written and flag any that a reader would find confusing.\n+1. List the changelog files, sorted by version, with a total count:\n+\n+   ```bash\n+   python3 scripts/list_changelogs.py changelogs/\n+   ```\n+\n+2. Check every file starts with `## vX.Y.Z \u2014 YYYY-MM-DD`:\n+\n+   ```bash\n+   python3 scripts/check_headers.py changelogs/\n+   ```\n+\n+   Exits 1 and prints one `FAIL <file>: <problem>` line per violation. Report\n+   those files verbatim.\n+\n+3. Count entries per category per file, plus totals across files:\n+\n+   ```bash\n+   python3 scripts/count_entries.py changelogs/\n+   ```\n+\n+4. Write a one-paragraph release narrative summarizing the overall direction of\n+   the changes for a non-technical reader. This is yours to write \u2014 read the\n+   entry text and judge what the release is actually about. Do not just restate\n+   the counts.\n+\n+5. Render the summary table (versions, dates, per-category counts, version\n+   descending):\n+\n+   ```bash\n+   python3 scripts/render_table.py changelogs/\n+   ```\n+\n+   Add `--include-misc` when step 6 found `Misc` entries. Paste the output as-is.\n+\n+6. Check every entry's category tag against the allowed list:\n+\n+   ```bash\n+   python3 scripts/check_categories.py changelogs/\n+   ```\n+\n+   Exits 1 on any tag outside `Added`, `Fixed`, `Changed`, `Removed`, `Misc`.\n+   For each `MISC` line it prints, judge whether the entry actually fits one of\n+   the other four categories and suggest the move, with a one-line reason. That\n+   judgment is yours; the script only finds the candidates.\n+\n+7. Verify the entries are clearly written and flag any that a reader would find\n+   confusing. Read the entry text and judge; there is no script for this.\n+\n+## Scripts\n+\n+`scripts/manifest.json` lists each script, the step it serves, and its known-good\n+and bad-data invocations. `scripts/changelog_lib.py` is the shared parser the\n+CLIs import \u2014 it is not a CLI itself.\n",
+  "scripts": [
+    {
+      "path": "scripts/changelog_lib.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 0,
+        "stderr_len": 0,
+        "ok": false
+      }
+    },
+    {
+      "path": "scripts/check_categories.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 591,
+        "stderr_len": 0,
+        "ok": true
+      }
+    },
+    {
+      "path": "scripts/check_headers.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 374,
+        "stderr_len": 0,
+        "ok": true
+      }
+    },
+    {
+      "path": "scripts/count_entries.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 310,
+        "stderr_len": 0,
+        "ok": true
+      }
+    },
+    {
+      "path": "scripts/list_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 318,
+        "stderr_len": 0,
+        "ok": true
+      }
+    },
+    {
+      "path": "scripts/render_table.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 395,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 6,
+  "new_scripts_all_help_ok": false
+}

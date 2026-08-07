@@ -1,0 +1,31 @@
+{
+  "eval_id": 6,
+  "eval_name": "name-collision",
+  "prompt": "Scriptify the docs-linter skill at <run>/workspace/docs-linter \u2014 find the steps worth delegating and apply all of them.",
+  "assertions": [
+    {
+      "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+      "type": "structure"
+    },
+    {
+      "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+      "type": "structure"
+    },
+    {
+      "text": "at least 2 newly generated Python scripts exist in docs-linter/scripts/ and each supports --help",
+      "type": "structure"
+    },
+    {
+      "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
+      "type": "structure"
+    },
+    {
+      "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+      "type": "content"
+    },
+    {
+      "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+      "type": "content"
+    }
+  ]
+}

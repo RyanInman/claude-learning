@@ -1,0 +1,77 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "glob plus version sort plus count; identical output for identical input every run",
+      "proposed_script": {
+        "name": "parse_changelogs.py",
+        "interface": "python3 scripts/parse_changelogs.py changelogs/ --json --out .changelog-check/parsed.json",
+        "stdout": "compact summary with --out; full parse JSON (file_count, files sorted by version, per-file counts, entries, totals) without it",
+        "exit": "0 parsed / 1 no changelog files found / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "SCRIPT",
+      "why": "fixed regex against a fixed heading form; a unit test can be written for the output today",
+      "proposed_script": {
+        "name": "check_headings.py",
+        "interface": "python3 scripts/check_headings.py changelogs/ --json",
+        "stdout": "findings JSON, each with file and reason (missing_version_header / malformed_version_header)",
+        "exit": "0 clean / 1 findings / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "per-category tally and cross-file totals; pure aggregation over the parsed entries",
+      "proposed_script": {
+        "name": "parse_changelogs.py",
+        "interface": "python3 scripts/parse_changelogs.py changelogs/ --json --out .changelog-check/parsed.json",
+        "stdout": "per-file counts under files[].counts and cross-file totals under totals",
+        "exit": "0 parsed / 1 no changelog files found / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "CLAUDE",
+      "why": "the narrative names the release's overall direction for a non-technical reader; two reasonable runs should word and frame that differently, and the counts it draws on are already produced by parse_changelogs.py, so no mechanical shell is left to strip",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "SCRIPT",
+      "why": "fixed markdown table from structured data with a fixed sort; report rendering, no judgment",
+      "proposed_script": {
+        "name": "render_summary_table.py",
+        "interface": "python3 scripts/render_summary_table.py .changelog-check/parsed.json",
+        "stdout": "markdown table of version, date, per-category counts, sorted by version descending",
+        "exit": "0 rendered / 1 parsed JSON holds no files / 2 usage or unreadable/invalid JSON"
+      }
+    },
+    {
+      "id": "s6",
+      "class": "HYBRID",
+      "why": "checking a tag against the allowed list is a fixed set membership test; deciding whether a Misc entry really belongs under Fixed reads the entry's intent and genuinely varies",
+      "proposed_script": {
+        "name": "check_tags.py",
+        "interface": "python3 scripts/check_tags.py changelogs/ --json",
+        "stdout": "JSON with invalid (tags outside the allowed list) and misc (every Misc entry, with file and text) for Claude to re-triage",
+        "exit": "0 no invalid tags and no Misc entries / 1 findings / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s7",
+      "class": "HYBRID",
+      "why": "whether a reader finds an entry confusing is judgment no fixed rule captures, but enumerating every entry to judge is mechanical, so the script hands Claude the list and Claude flags",
+      "proposed_script": {
+        "name": "parse_changelogs.py",
+        "interface": "python3 scripts/parse_changelogs.py changelogs/ --entries",
+        "stdout": "flat JSON list of every entry with file, category, and text",
+        "exit": "0 parsed / 1 no changelog files found / 2 usage or unreadable dir"
+      }
+    }
+  ]
+}

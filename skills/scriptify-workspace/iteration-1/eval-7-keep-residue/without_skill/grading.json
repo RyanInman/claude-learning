@@ -1,0 +1,41 @@
+{
+  "eval_id": 7,
+  "eval_name": "keep-residue",
+  "config": "without_skill",
+  "expectations": [
+    {
+      "text": "changelog-checker/scripts/tests/ exists and contains manifest.json plus the fixture files",
+      "passed": false,
+      "evidence": "residue placed at changelog-checker/tests/, not scripts/tests/; no scripts/tests/ directory exists. This path is specified only by scriptify, so a no-skill run cannot be expected to find it \u2014 the assertion is skill-specific by construction [facts.json]"
+    },
+    {
+      "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+      "passed": true,
+      "evidence": "its manifest holds 0 absolute paths and 0 .delegation-review references; the custom runner resolves fixtures relatively [manifest scan]"
+    },
+    {
+      "text": "re-running scriptify's smoke_test.py against the moved manifest exits 0",
+      "passed": false,
+      "evidence": "scriptify's smoke_test.py was never used; the run wrote its own tests/run_smoke_tests.py with an incompatible manifest schema, so the documented re-run command does not apply [facts.json, manifest scan]"
+    },
+    {
+      "text": "the rewritten changelog-checker SKILL.md body contains the smoke-test command",
+      "passed": true,
+      "evidence": "SKILL.md L66-68 documents python3 tests/run_smoke_tests.py with --only and -v variants [SKILL.md]"
+    },
+    {
+      "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+      "passed": true,
+      "evidence": "narrative (step 3), Misc judgment (step 4) and confusing-entry flagging (step 5) all remain prose [SKILL.md L37-60]"
+    }
+  ],
+  "passed_count": 3,
+  "total_count": 5,
+  "pass_rate": 0.6,
+  "summary": {
+    "pass_rate": 0.6,
+    "passed": 3,
+    "failed": 2,
+    "total": 5
+  }
+}

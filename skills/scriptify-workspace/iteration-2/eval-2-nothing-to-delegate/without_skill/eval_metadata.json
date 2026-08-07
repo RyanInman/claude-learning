@@ -1,0 +1,21 @@
+{
+  "eval_id": 2,
+  "eval_name": "nothing-to-delegate",
+  "config": "without_skill",
+  "prompt": "Which parts of the skill in /Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-2-nothing-to-delegate/without_skill/workspace/well-delegated/ should be scripts?",
+  "expected_output": "Report acknowledging scripts/check.py as already delegated (mentioned in body, argparse, working --help), classifying the remaining judgment steps CLAUDE, and recommending no new scripts.",
+  "assertions": [
+    {
+      "text": "no new files are written into evals/fixtures/well-delegated/",
+      "type": "structure"
+    },
+    {
+      "text": "scripts/check.py is acknowledged as already delegated",
+      "type": "content"
+    },
+    {
+      "text": "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts",
+      "type": "content"
+    }
+  ]
+}

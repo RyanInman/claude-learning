@@ -1,0 +1,50 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-1/eval-8-dead-step/with_skill/workspace/api-docs-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "glob endpoints/*.md, sort by path, count: pure function of the directory, identical every run",
+      "proposed_script": {
+        "name": "check_endpoints.py",
+        "interface": "python3 scripts/check_endpoints.py endpoints/ --json",
+        "stdout": "{count, files[], missing[{file, fields[]}]}",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "DEAD",
+      "why": "duplicative: step 3 checks summary AND description, a strict superset of this summary-only check. Same files, same frontmatter, same finding reported twice. Flag for skillit:review; the step 3 script covers the check with no loss",
+      "proposed_script": null
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "fixed-rule frontmatter validation: required keys present or not, with no interpretation of their values",
+      "proposed_script": {
+        "name": "check_endpoints.py",
+        "interface": "python3 scripts/check_endpoints.py endpoints/ --json",
+        "stdout": "{count, files[], missing[{file, fields[]}]}",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "DEAD",
+      "why": "writes legacy/index.txt for the legacy docs portal, which the skill's own Notes section says was retired in v2 along with the legacy/ directory. No consumer exists; scripting it would make dead output deterministic instead of removing it",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "HYBRID",
+      "why": "clarity for an unfamiliar external developer is genuine judgment and reasonable runs should differ, but the mechanical shell is scriptable: extract each description with pre-computed facts, then Claude judges only the text",
+      "proposed_script": {
+        "name": "list_descriptions.py",
+        "interface": "python3 scripts/list_descriptions.py endpoints/ --json",
+        "stdout": "[{file, description, words, chars, has_placeholder, vague_terms[]}] sorted by path",
+        "exit": "0 always when readable / 2 usage"
+      }
+    }
+  ]
+}

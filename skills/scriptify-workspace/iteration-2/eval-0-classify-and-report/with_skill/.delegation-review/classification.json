@@ -1,0 +1,77 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-0-classify-and-report/with_skill/workspace/changelog-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "file discovery plus a semver sort plus a count; a function of the folder contents, same answer every run",
+      "proposed_script": {
+        "name": "list_changelogs.py",
+        "interface": "python3 scripts/list_changelogs.py changelogs/ --json",
+        "stdout": "{\"files\": [{\"path\", \"version\"}], \"count\": N} sorted by version",
+        "exit": "0 files found / 1 no .md files or unparseable version / 2 usage"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "SCRIPT",
+      "why": "fixed-rule regex validation of one heading pattern; unit-testable now, runs should never differ",
+      "proposed_script": {
+        "name": "check_headings.py",
+        "interface": "python3 scripts/check_headings.py changelogs/ --json",
+        "stdout": "{\"findings\": [{\"file\", \"first_line\", \"reason\"}]}",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "per-category tally and totals; pure aggregation over parsed entries",
+      "proposed_script": {
+        "name": "count_entries.py",
+        "interface": "python3 scripts/count_entries.py changelogs/ --json",
+        "stdout": "{\"per_file\": {file: {category: n}}, \"totals\": {category: n}}",
+        "exit": "0 counted / 1 no parseable entries / 2 usage"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "CLAUDE",
+      "why": "the narrative must read the meaning of the changes and pitch it at a non-technical audience; two reasonable runs should word and frame it differently. Its only mechanical inputs, the counts and the table, already come from count_entries.py and render_summary.py, so no mechanical shell is left to strip",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "SCRIPT",
+      "why": "report rendering from structured data: fixed columns, fixed sort, fixed markdown template",
+      "proposed_script": {
+        "name": "render_summary.py",
+        "interface": "python3 scripts/render_summary.py .changelog-check/counts.json",
+        "stdout": "markdown table of version, date, per-category counts, sorted by version descending",
+        "exit": "0 rendered / 1 counts JSON invalid / 2 usage"
+      }
+    },
+    {
+      "id": "s6",
+      "class": "HYBRID",
+      "why": "the allowed-list check is mechanical and the Misc re-categorization is contextual; script validates every tag and isolates the Misc residue, Claude judges only that residue",
+      "proposed_script": {
+        "name": "check_tags.py",
+        "interface": "python3 scripts/check_tags.py changelogs/ --json",
+        "stdout": "{\"invalid\": [{\"file\", \"line\", \"tag\"}], \"misc\": [{\"file\", \"line\", \"text\"}]}",
+        "exit": "0 all tags valid and no misc / 1 invalid tags or misc entries present / 2 usage"
+      }
+    },
+    {
+      "id": "s7",
+      "class": "HYBRID",
+      "why": "clarity is a reader judgment no script can settle, but the enumeration and the measurable smells are mechanical; script lists every entry with length, vague-word hits, and missing-verb flags, Claude decides which are actually confusing",
+      "proposed_script": {
+        "name": "lint_entries.py",
+        "interface": "python3 scripts/lint_entries.py changelogs/ --json",
+        "stdout": "{\"entries\": [{\"file\", \"line\", \"text\", \"words\", \"vague_terms\", \"starts_with_verb\"}]}",
+        "exit": "0 no smells flagged / 1 candidates flagged / 2 usage"
+      }
+    }
+  ]
+}

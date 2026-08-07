@@ -1,0 +1,129 @@
+{
+  "changelogs_dir": "changelogs",
+  "file_count": 3,
+  "allowed_categories": [
+    "Added",
+    "Fixed",
+    "Changed",
+    "Removed",
+    "Misc"
+  ],
+  "files": [
+    {
+      "filename": "v1.0.0.md",
+      "path": "changelogs/v1.0.0.md",
+      "version": "1.0.0",
+      "version_source": "heading",
+      "date": "2026-01-15",
+      "heading_ok": true,
+      "heading_line": "## v1.0.0 — 2026-01-15",
+      "heading_problem": null,
+      "categories": {
+        "Added": 2,
+        "Fixed": 1
+      },
+      "counted_entry_total": 3,
+      "entry_total": 3,
+      "unknown_categories": [],
+      "misc_entries": [],
+      "untagged_entries": [],
+      "entries": {
+        "Added": [
+          "Initial release",
+          "User accounts"
+        ],
+        "Fixed": [
+          "Login redirect loop"
+        ]
+      }
+    },
+    {
+      "filename": "v1.1.0.md",
+      "path": "changelogs/v1.1.0.md",
+      "version": "1.1.0",
+      "version_source": "heading",
+      "date": "2026-03-02",
+      "heading_ok": true,
+      "heading_line": "## v1.1.0 — 2026-03-02",
+      "heading_problem": null,
+      "categories": {
+        "Added": 1,
+        "Changed": 1,
+        "Misc": 1
+      },
+      "counted_entry_total": 2,
+      "entry_total": 3,
+      "unknown_categories": [],
+      "misc_entries": [
+        {
+          "category": "Misc",
+          "text": "Corrected typo in settings page label"
+        }
+      ],
+      "untagged_entries": [],
+      "entries": {
+        "Added": [
+          "CSV export"
+        ],
+        "Changed": [
+          "Faster search indexing"
+        ],
+        "Misc": [
+          "Corrected typo in settings page label"
+        ]
+      }
+    },
+    {
+      "filename": "v1.2.0.md",
+      "path": "changelogs/v1.2.0.md",
+      "version": "1.2.0",
+      "version_source": "filename",
+      "date": null,
+      "heading_ok": false,
+      "heading_line": "### Added",
+      "heading_problem": "first content line '### Added' is not a '## ' version heading",
+      "categories": {
+        "Added": 1,
+        "Fixed": 1
+      },
+      "counted_entry_total": 2,
+      "entry_total": 2,
+      "unknown_categories": [],
+      "misc_entries": [],
+      "untagged_entries": [],
+      "entries": {
+        "Added": [
+          "Dark mode"
+        ],
+        "Fixed": [
+          "Crash on empty profile"
+        ]
+      }
+    }
+  ],
+  "totals": {
+    "Added": 4,
+    "Fixed": 2,
+    "Changed": 1,
+    "Removed": 0,
+    "Misc": 1
+  },
+  "counted_entry_total": 7,
+  "entry_total": 8,
+  "problems": {
+    "bad_heading": [
+      {
+        "filename": "v1.2.0.md",
+        "problem": "first content line '### Added' is not a '## ' version heading"
+      }
+    ],
+    "unknown_categories": [],
+    "misc_entries": [
+      {
+        "filename": "v1.1.0.md",
+        "text": "Corrected typo in settings page label"
+      }
+    ],
+    "untagged_entries": []
+  }
+}

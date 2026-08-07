@@ -1,0 +1,54 @@
+{
+  "eval": "eval-6-name-collision",
+  "config": "with_skill",
+  "target_exists": true,
+  "target_tree_diff": {
+    "added": [
+      "scripts/check_h1.py",
+      "scripts/docs_stats.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "outputs_present": [
+    "gate.md",
+    "report.md",
+    "transcript-notes.md"
+  ],
+  "skill_md_changed": true,
+  "scripts": [
+    {
+      "path": "scripts/check_h1.py",
+      "help": {
+        "exit": 0,
+        "stdout_len": 366,
+        "ok": true
+      },
+      "preexisting": false
+    },
+    {
+      "path": "scripts/check_headings.py",
+      "help": {
+        "exit": 2,
+        "stdout_len": 0,
+        "ok": false
+      },
+      "preexisting": true
+    },
+    {
+      "path": "scripts/docs_stats.py",
+      "help": {
+        "exit": 0,
+        "stdout_len": 362,
+        "ok": true
+      },
+      "preexisting": false
+    }
+  ],
+  "new_script_count": 2,
+  "new_scripts_all_help_ok": true,
+  "preexisting_check_headings_sha": "d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54",
+  "preexisting_check_headings_unchanged": true
+}

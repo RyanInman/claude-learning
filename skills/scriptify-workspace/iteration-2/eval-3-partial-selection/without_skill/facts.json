@@ -1,0 +1,46 @@
+{
+  "eval": "eval-3-partial-selection",
+  "config": "without_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-3-partial-selection/without_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/count_entries.py",
+      "scripts/list_changelogs.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -9,9 +9,9 @@\n \n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n+1. Run `python3 scripts/list_changelogs.py changelogs --json` to get every `.md` file in `changelogs/`, sorted by version, plus the total count. Use its output as-is.\n 2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n+3. Run `python3 scripts/count_entries.py changelogs --json` to get per-file entry counts per category (`Added`, `Fixed`, `Changed`, `Removed`, plus `other`) and the totals across files. Use its output as-is.\n 4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n 5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n 6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n",
+  "scripts": [
+    {
+      "path": "scripts/count_entries.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 506,
+        "stderr_len": 0,
+        "ok": true
+      }
+    },
+    {
+      "path": "scripts/list_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 494,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 2,
+  "new_scripts_all_help_ok": true
+}

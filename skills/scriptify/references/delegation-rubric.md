@@ -11,19 +11,30 @@
 
 ## The core test
 
-**Would two different Claude runs produce meaningfully different output on this
-step? If no — SCRIPT.**
+**Every step is SCRIPT until proven CLAUDE.** Do not ask "could this be a
+script?". Ask "what exactly stops this from being a script?". Only a named
+judgment, a conversation input, or a user interaction answers that question.
 
-A deterministic step re-derived in prose is paid for on every run: tokens to
+Operational form: **would two different Claude runs produce meaningfully
+different output on this step, and should they?** If runs should not differ →
+SCRIPT. If only part of the step should differ → HYBRID, and script the rest.
+A step stays CLAUDE only when its whole point is output that varies with
+context.
+
+Every run pays for a deterministic step re-derived in prose: tokens to
 re-think it, latency to re-generate it, and variance because generation is
 stochastic. A script pays that cost once, at authoring time. That is the whole
-economics of delegation (see skill-reviewer's `references/token-economics.md`
-for the long version).
+economics of delegation. The `skillit:review` skill's token-economics
+reference carries the long version.
 
-Secondary test for close calls: **could you write the unit test for this step's
-output right now?** If yes, the step is deterministic enough to script. If you
-cannot say what the correct output is without seeing the input, it needs
-judgment — CLAUDE or HYBRID.
+Secondary test for close calls: **could you write the unit test for this
+step's output right now?** If yes, the step is deterministic enough to script.
+If you cannot say what the correct output is without seeing the input, the
+step needs judgment somewhere. That still means HYBRID before it means CLAUDE.
+
+Tie-breaks: SCRIPT over HYBRID, HYBRID over CLAUDE. Aim for a SKILL.md that
+reads as an orchestrator: script invocations connected by the minimum prose
+needed for routing, judgment, and user interaction.
 
 ## The four classifications
 
@@ -31,77 +42,97 @@ judgment — CLAUDE or HYBRID.
 rewritten step becomes one exact command line ("Run exactly: ..."). Examples:
 "check every file starts with a version header", "count entries per category".
 
-**CLAUDE** — judgment, synthesis, or conversation-dependent. Scripting it
-would fake determinism: the script would encode one arbitrary answer to a
+**CLAUDE** — judgment, synthesis, or conversation-dependent. A script here
+would fake determinism, because it would encode one arbitrary answer to a
 question that genuinely varies. The step stays prose. Examples: "write the
-release narrative", "decide which findings matter to this user".
+release narrative", "decide which findings matter to this user". Treat CLAUDE
+as the classification of last resort. Before you assign it, try a HYBRID
+decomposition. Ask whether a script can enumerate candidates, pre-compute
+facts, validate the chosen answer, or render the result. Only a step that is
+judgment all the way through, with no mechanical shell to strip, is pure
+CLAUDE.
 
-**HYBRID** — a script prepares (gathers, counts, sorts, filters, structures),
-Claude decides. The rewritten step becomes "run X, then apply judgment to its
-output". In-repo precedent: skill-reviewer's `audit.py` produces a mechanical
-severity guess that the agent re-triages — that is the HYBRID shape.
+**HYBRID** — a script prepares the inputs (gathers, counts, sorts, filters,
+structures), then Claude decides. The rewritten step becomes "run X, then
+apply judgment to its output". Precedent: `audit.py` in `skillit:review`
+produces a mechanical severity guess that Claude re-triages. That is the
+HYBRID shape.
 
-**DEAD** — the step should not exist: stale, duplicative, or superseded.
-Do not force a script onto it. Flag it in the report and route it to a
-`skill-reviewer` follow-up; never auto-delete another skill's steps.
+**DEAD** — the step should not exist, because it is stale, duplicative, or
+superseded. Do not force a script onto it. Flag it in the report. Route it to
+a `skillit:review` follow-up. Never auto-delete another skill's steps, because
+the user owns the target's workflow.
 
-Steps already backed by an adequate existing script (the inventory's interface
-audit shows `mentioned_in_body`, `has_argparse`, `help_ok`) are classified
-**ALREADY_DELEGATED** and skipped.
+Classify a step already backed by an adequate existing script as
+**ALREADY_DELEGATED**, then skip it. The inventory's interface audit marks
+those steps `mentioned_in_body`, `has_argparse`, and `help_ok`.
 
 ## Commonly delegable (SCRIPT) categories
 
-- **Parsing/extraction** — frontmatter, JSON, log formats, structured text.
+- **Parsing and extraction** — frontmatter, JSON, log formats, structured text.
 - **Fixed-rule validation** — schema checks, required fields, regex-style
   lint rules ("every heading matches the version pattern").
-- **File discovery/inventory** — globbing, "list all X", mentioned-in-body
+- **File discovery and inventory** — globbing, "list all X", mentioned-in-body
   cross-checks.
 - **Report rendering from structured data** — sorting, tables, fixed markdown
   templates.
-- **Diffing** — baseline vs after, set differences.
-- **Aggregation/counting/statistics** — per-category tallies, totals, line
-  counts, token estimates.
+- **Diffing** — baseline against after, set differences.
+- **Aggregation, counting, and statistics** — per-category tallies, totals,
+  line counts, token estimates.
 - **Format conversion** — CSV to JSON, one markdown shape to another.
 
 ## Commonly Claude-needed (CLAUDE) categories
 
-- **Judgment and trade-offs** — anything where reasonable runs disagree.
-- **Contextual classification** — severity re-triage, intent inference,
-  "does this Misc entry really belong under Fixed?".
-- **Prose writing** — summaries, narratives, explanations, descriptions.
+Each category below keeps only its judgment core. The script-strippable shell
+around that core still goes to a script: gathering inputs, validating outputs,
+rendering results. Most of these categories are HYBRID in practice.
+
+- **Judgment and trade-offs** — anything where reasonable runs disagree. A
+  script still enumerates the options and the facts Claude judges them on.
+- **Contextual classification** — severity re-triage, intent inference, "does
+  this Misc entry really belong under Fixed?". A script lists the entries and
+  applies the mechanical rules first. Claude re-triages only the residue.
+- **Prose writing** — summaries, narratives, explanations, descriptions. A
+  script still gathers the source material and lints the result: required
+  sections present, length within bounds, links resolve.
 - **Design decisions and naming.**
 - **Conversation-reading** — a script cannot see pasted text or user answers.
-- **User negotiation** — AskUserQuestion steps, approval gates.
-- **Agent-runtime-tool steps** — anything invoking MCP tools, WebFetch,
-  AskUserQuestion, subagent/Task dispatch, or other permission-gated tools.
-  Never pure SCRIPT: a script reimplementation (e.g. curl instead of an MCP
-  call) silently loses auth, the permission model, and rate handling. At most
-  HYBRID around the tool call (script prepares input / digests output).
+- **User negotiation** — AskUserQuestion steps, approval gates. A script still
+  computes the options and defaults Claude presents.
+- **Agent-runtime-tool steps** — any step invoking MCP tools, WebFetch,
+  AskUserQuestion, subagent dispatch, or another permission-gated tool. Never
+  pure SCRIPT: a script reimplementation, such as curl in place of an MCP
+  call, silently loses auth, the permission model, and rate limiting. Script
+  at most the shell around the tool call, where the script prepares the input
+  or digests the output.
 
 ## Hybrid shapes
 
-1. **Extract-then-judge** — script lists candidates, Claude filters or
-   interprets. (inventory.py feeding classification is itself this shape.)
-2. **Judge-then-render** — Claude produces structured JSON, a script validates
-   and renders it. This is the plan-validate-execute pattern; render_report.py
-   is the in-skill example.
+1. **Extract-then-judge** — a script lists candidates, then Claude filters or
+   interprets them. inventory.py feeding classification is itself this shape.
+2. **Judge-then-render** — Claude produces structured JSON, then a script
+   validates and renders it. This is the plan-validate-execute pattern, and
+   render_report.py is the in-skill example.
 3. **Script-gates-judgment** — the script's exit code decides whether Claude
-   engages at all ("exit 0: nothing to review, stop here").
+   engages at all, as in "exit 0: nothing to review, stop here".
 
 ## Gotchas
 
 - **Mechanical verbs lie.** "Validate the approach with the user" contains
   "validate" and is CLAUDE. The inventory's verb hints are hints, not verdicts.
-- **A trivial one-liner needs no bundled script.** One `ls` or one `grep` is
-  fine inline. The threshold: hard to get right on the first try, or must run
-  identically on every invocation.
-- **Authoring-time vs run-time.** Don't script a step that runs once when the
-  skill is written rather than every time the skill runs.
+- **Pin a trivial one-liner even though it needs no bundled script.**
+  One `ls` or one `grep` stays inline as an exact verbatim command in the
+  rewritten step, never as prose to re-derive. Bundle a script once the
+  command is hard to get right on the first try, or once it has more than one
+  moving part.
+- **Authoring-time steps differ from run-time steps.** Do not script a step
+  that runs once when the author writes the skill, because the cost it saves
+  never repeats.
 - **Scripting judgment hides variance behind false authority.** A wrong script
-  is worse than prose: it fails silently and looks official.
-- **Watch output size.** A delegated step that dumps 40KB into context traded
-  token cost for token cost. Large output goes to a file via `--out`; stdout
-  carries a compact summary.
-- **Failure modes flip.** Prose degrades gracefully; scripts fail hard.
-  Meaningful exit codes and verbose error messages are what make hard failure
-  a feature instead of a trap.
+  is worse than prose, because it fails silently and looks official.
+- **Watch output size.** A delegated step that dumps 40KB into context trades
+  token cost for token cost. Send large output to a file with `--out`. Keep a
+  compact summary on stdout.
+- **Failure modes flip.** Prose degrades gracefully. Scripts fail hard.
+  Meaningful exit codes and verbose error messages turn hard failure into a
+  feature instead of a trap.

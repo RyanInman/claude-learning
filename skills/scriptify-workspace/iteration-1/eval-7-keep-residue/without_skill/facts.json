@@ -1,0 +1,58 @@
+{
+  "eval": "eval-7-keep-residue",
+  "config": "without_skill",
+  "target_exists": true,
+  "target_tree_diff": {
+    "added": [
+      "scripts/render_summary.py",
+      "scripts/scan_changelogs.py",
+      "tests/fixtures/clean/v0.9.0.md",
+      "tests/fixtures/clean/v1.0.0.md",
+      "tests/fixtures/empty/.gitkeep",
+      "tests/fixtures/no-heading/v3.0.0.md",
+      "tests/fixtures/problems/v2.0.0.md",
+      "tests/fixtures/problems/v2.1.0.md",
+      "tests/manifest.json",
+      "tests/run_smoke_tests.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "outputs_present": [
+    "gate.md",
+    "report.md",
+    "transcript-notes.md"
+  ],
+  "skill_md_changed": true,
+  "scripts": [
+    {
+      "path": "scripts/render_summary.py",
+      "help": {
+        "exit": 0,
+        "stdout_len": 232,
+        "ok": true
+      },
+      "preexisting": false
+    },
+    {
+      "path": "scripts/scan_changelogs.py",
+      "help": {
+        "exit": 0,
+        "stdout_len": 249,
+        "ok": true
+      },
+      "preexisting": false
+    }
+  ],
+  "new_script_count": 2,
+  "new_scripts_all_help_ok": true,
+  "residue": {
+    "tests_dir_exists": false,
+    "manifest": null,
+    "unresolved_paths": [],
+    "stale_delegation_review_paths": [],
+    "smoke_rerun_exit": null
+  }
+}

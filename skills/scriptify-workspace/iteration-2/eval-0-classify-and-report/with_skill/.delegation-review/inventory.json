@@ -1,0 +1,152 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-0-classify-and-report/with_skill/workspace/changelog-checker",
+  "frontmatter": {
+    "name": "changelog-checker",
+    "description_chars": 163,
+    "unexpected_keys": []
+  },
+  "body": {
+    "lines": 14,
+    "approx_tokens": 242
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Changelog Checker",
+        "Workflow"
+      ],
+      "line_start": 12,
+      "line_end": 12,
+      "approx_tokens": 21,
+      "snippet": "List every `.md` file in `changelogs/`, sorted by version, and note the total co",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "count",
+        "sort",
+        "list"
+      ],
+      "agent_tool_mentions": [],
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s2",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Changelog Checker",
+        "Workflow"
+      ],
+      "line_start": 13,
+      "line_end": 13,
+      "approx_tokens": 29,
+      "snippet": "Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`.",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "check"
+      ],
+      "agent_tool_mentions": [],
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s3",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Changelog Checker",
+        "Workflow"
+      ],
+      "line_start": 14,
+      "line_end": 14,
+      "approx_tokens": 29,
+      "snippet": "Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Remov",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "count"
+      ],
+      "agent_tool_mentions": [],
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s4",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Changelog Checker",
+        "Workflow"
+      ],
+      "line_start": 15,
+      "line_end": 15,
+      "approx_tokens": 29,
+      "snippet": "Write a one-paragraph release narrative summarizing the overall direction of the",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [],
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s5",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Changelog Checker",
+        "Workflow"
+      ],
+      "line_start": 16,
+      "line_end": 16,
+      "approx_tokens": 26,
+      "snippet": "Render a summary table of versions, dates, and per-category entry counts, sorted",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "count",
+        "sort",
+        "render"
+      ],
+      "agent_tool_mentions": [],
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s6",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Changelog Checker",
+        "Workflow"
+      ],
+      "line_start": 17,
+      "line_end": 17,
+      "approx_tokens": 54,
+      "snippet": "Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Ch",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "check",
+        "list"
+      ],
+      "agent_tool_mentions": [],
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s7",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Changelog Checker",
+        "Workflow"
+      ],
+      "line_start": 18,
+      "line_end": 18,
+      "approx_tokens": 22,
+      "snippet": "Verify the entries are clearly written and flag any that a reader would find con",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "verify"
+      ],
+      "agent_tool_mentions": [],
+      "mentions_existing_script": []
+    }
+  ],
+  "orphan_code_blocks": [],
+  "scripts": [],
+  "references": [],
+  "assets": [],
+  "stats": {
+    "n_steps": 7,
+    "n_steps_with_hints": 6,
+    "n_existing_scripts": 0
+  }
+}

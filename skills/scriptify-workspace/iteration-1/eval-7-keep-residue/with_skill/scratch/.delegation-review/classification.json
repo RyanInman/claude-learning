@@ -1,0 +1,77 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-1/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "glob plus version sort plus count; identical output every run",
+      "proposed_script": {
+        "name": "list_changelogs.py",
+        "interface": "python3 scripts/list_changelogs.py changelogs/ --json",
+        "stdout": "{count, files:[{path, version, date}]} sorted by version ascending",
+        "exit": "0 files found / 1 no changelog files / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "SCRIPT",
+      "why": "fixed regex check on the first heading; same rule every run",
+      "proposed_script": {
+        "name": "check_headings.py",
+        "interface": "python3 scripts/check_headings.py changelogs/ --json",
+        "stdout": "{findings:[{file, issue, line}]} with issue missing_version_header or malformed_version_header",
+        "exit": "0 clean / 1 findings / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "per-category tally and totals; arithmetic, not judgment",
+      "proposed_script": {
+        "name": "count_entries.py",
+        "interface": "python3 scripts/count_entries.py changelogs/ --json",
+        "stdout": "{per_file:[{file, version, date, counts}], totals:{category: n}, total_entries}",
+        "exit": "0 entries counted / 1 no entries found / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "CLAUDE",
+      "why": "the narrative is prose written for a non-technical reader; wording, emphasis and framing should differ run to run, and count_entries.py already hands it every fact it needs, so no mechanical shell is left to strip",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "SCRIPT",
+      "why": "fixed markdown table rendered from the counts, sorted by version descending; a template, not a decision",
+      "proposed_script": {
+        "name": "render_table.py",
+        "interface": "python3 scripts/render_table.py changelogs/",
+        "stdout": "markdown table: version, date, one column per category, total; version descending",
+        "exit": "0 every row complete / 1 a row has an unknown version or date / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s6",
+      "class": "HYBRID",
+      "why": "tag-against-allowed-list is a fixed set check the script does; whether a Misc entry belongs under another category is contextual re-triage the script must not fake",
+      "proposed_script": {
+        "name": "check_tags.py",
+        "interface": "python3 scripts/check_tags.py changelogs/ --json",
+        "stdout": "{invalid:[{file, tag, line}], misc:[{file, line, text}]} - invalid is mechanical, misc is the residue Claude re-triages",
+        "exit": "0 no invalid tags and no misc entries / 1 invalid tags or misc entries present / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s7",
+      "class": "HYBRID",
+      "why": "enumerating every entry with neutral length facts is mechanical; whether a reader finds an entry confusing is judgment no script should encode",
+      "proposed_script": {
+        "name": "list_entries.py",
+        "interface": "python3 scripts/list_entries.py changelogs/ --json",
+        "stdout": "{entries:[{file, version, category, line, text, word_count, char_count}]} - facts only, no clarity verdict",
+        "exit": "0 entries listed / 1 no entries found / 2 usage or unreadable dir"
+      }
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "target_skill": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+  "scripts": [
+    {
+      "path": "scripts/parse_changelogs.py",
+      "kind": "transform",
+      "invocations": [
+        {
+          "argv": ["python3", "scripts/parse_changelogs.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/parse_changelogs/changelogs-good", "--json"],
+          "expect_exit": 0,
+          "expect_stdout_json": true,
+          "expect_stdout_contains": "1.1.0"
+        },
+        {
+          "argv": ["python3", "scripts/parse_changelogs.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/parse_changelogs/changelogs-good", "--entries"],
+          "expect_exit": 0,
+          "expect_stdout_json": true,
+          "expect_stdout_contains": "Login redirect loop"
+        }
+      ],
+      "bad_data_invocation": {
+        "argv": ["python3", "scripts/parse_changelogs.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/parse_changelogs/changelogs-empty", "--json"],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "no_changelog_files"
+      },
+      "bad_invocation": {
+        "argv": ["python3", "scripts/parse_changelogs.py"],
+        "expect_exit_nonzero": true
+      }
+    },
+    {
+      "path": "scripts/check_headings.py",
+      "kind": "check",
+      "invocations": [
+        {
+          "argv": ["python3", "scripts/check_headings.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/check_headings/changelogs-good", "--json"],
+          "expect_exit": 0,
+          "expect_stdout_json": true,
+          "expect_stdout_contains": "[]"
+        }
+      ],
+      "bad_data_invocation": {
+        "argv": ["python3", "scripts/check_headings.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/check_headings/changelogs-bad", "--json"],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "missing_version_header"
+      },
+      "bad_invocation": {
+        "argv": ["python3", "scripts/check_headings.py"],
+        "expect_exit_nonzero": true
+      }
+    },
+    {
+      "path": "scripts/check_tags.py",
+      "kind": "check",
+      "invocations": [
+        {
+          "argv": ["python3", "scripts/check_tags.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/check_tags/changelogs-good", "--json"],
+          "expect_exit": 0,
+          "expect_stdout_json": true,
+          "expect_stdout_contains": "\"invalid\": []"
+        },
+        {
+          "argv": ["python3", "scripts/check_tags.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/check_tags/changelogs-bad", "--json"],
+          "expect_exit": 1,
+          "expect_stdout_json": true,
+          "expect_stdout_contains": "Corrected typo in settings page label"
+        }
+      ],
+      "bad_data_invocation": {
+        "argv": ["python3", "scripts/check_tags.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/check_tags/changelogs-bad", "--json"],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "Notes"
+      },
+      "bad_invocation": {
+        "argv": ["python3", "scripts/check_tags.py"],
+        "expect_exit_nonzero": true
+      }
+    },
+    {
+      "path": "scripts/render_summary_table.py",
+      "kind": "transform",
+      "invocations": [
+        {
+          "argv": ["python3", "scripts/render_summary_table.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/render_summary_table/parsed-good.json"],
+          "expect_exit": 0,
+          "expect_stdout_contains": "| 1.1.0 | 2026-03-02 | 1 | 0 | 1 | 1 | 0 |"
+        }
+      ],
+      "bad_data_invocation": {
+        "argv": ["python3", "scripts/render_summary_table.py", "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-7-keep-residue/with_skill/workspace/changelog-checker/scripts/tests/fixtures/render_summary_table/parsed-empty.json"],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "no_files"
+      },
+      "bad_invocation": {
+        "argv": ["python3", "scripts/render_summary_table.py"],
+        "expect_exit_nonzero": true
+      }
+    }
+  ]
+}

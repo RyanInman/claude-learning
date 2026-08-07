@@ -1,0 +1,41 @@
+{
+  "eval_id": 7,
+  "eval_name": "keep-residue",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "changelog-checker/scripts/tests/ exists and contains manifest.json plus the fixture files",
+      "passed": true,
+      "evidence": "scripts/tests/manifest.json plus 26 fixture files present under scripts/tests/fixtures/ [facts.json]"
+    },
+    {
+      "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+      "passed": true,
+      "evidence": "manifest scanned: 0 unresolved absolute paths, 0 references to .delegation-review [facts.json residue]"
+    },
+    {
+      "text": "re-running scriptify's smoke_test.py against the moved manifest exits 0",
+      "passed": true,
+      "evidence": "re-ran scriptify's smoke_test.py against the moved manifest from the target dir: 34/34 checks passed, exit 0 [live run]"
+    },
+    {
+      "text": "the rewritten changelog-checker SKILL.md body contains the smoke-test command",
+      "passed": true,
+      "evidence": "SKILL.md L30-32 documents the re-verify command [SKILL.md]"
+    },
+    {
+      "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+      "passed": false,
+      "evidence": "step 4 survives verbatim as prose, but step 7 was turned into `python3 scripts/list_entries.py changelogs/ --json` plus a judgment clause. The judgment is retained ('The script scores nothing'), so this is a HYBRID, which the skill's own rubric tie-break arguably mandates \u2014 the assertion, inherited from eval 1's 'step 7 CLAUDE' expectation, conflicts with the rubric rather than the run being wrong [SKILL.md L18,23-24]"
+    }
+  ],
+  "passed_count": 4,
+  "total_count": 5,
+  "pass_rate": 0.8,
+  "summary": {
+    "pass_rate": 0.8,
+    "passed": 4,
+    "failed": 1,
+    "total": 5
+  }
+}

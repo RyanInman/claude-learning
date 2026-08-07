@@ -1,0 +1,538 @@
+{
+  "metadata": {
+    "skill_name": "scriptify",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-08-06T17:23:11Z",
+    "evals_run": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "runs_per_configuration": 1,
+    "runs_per_configuration_note": "1 executed run per (eval, configuration). The stddev in run_summary is dispersion ACROSS the five evals, not across repeats of one eval. No repeat-run variance was measured."
+  },
+  "runs": [
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 223.3,
+        "tokens": 56793,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every one of the 7 workflow steps, each with a class",
+          "passed": true,
+          "evidence": "report table rows s1-s7, one class each (SCRIPT/HYBRID) [report.md L40-46]"
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "passed": true,
+          "evidence": "facts.json target_tree_diff empty: 0 added, 0 modified, 0 removed [facts.json]"
+        },
+        {
+          "text": "step 2 (WebFetch the top source) is NOT classified pure SCRIPT, and no proposed script reimplements the fetch with curl, requests, or urllib",
+          "passed": true,
+          "evidence": "s2 HYBRID; why cites 'a curl reimplementation loses auth and the permission model'; proposed fetch_plan.py plans paths and verifies, never fetches [report.md L41]"
+        },
+        {
+          "text": "step 5 (notion MCP page lookup and append) is NOT classified pure SCRIPT",
+          "passed": true,
+          "evidence": "s5 HYBRID; notion lookup and append stay tool calls, script renders the block only [report.md L44]"
+        },
+        {
+          "text": "step 3 (AskUserQuestion which sources to keep) is NOT classified pure SCRIPT",
+          "passed": true,
+          "evidence": "s3 HYBRID; AskUserQuestion retained, script builds the option list [report.md L42]"
+        },
+        {
+          "text": "steps 1 (dedupe and slugify topics), 4 (word counts and thin-source flags) and 7 (render sorted index table) are classified SCRIPT with concrete argv/exit-code interfaces",
+          "passed": true,
+          "evidence": "s1/s4/s7 SCRIPT, each with full argv plus exit 0/1/2 semantics [report.md L40,43,46]"
+        },
+        {
+          "text": "step 6 (write the 200-word brief in the house voice) keeps its prose-writing core with Claude",
+          "passed": true,
+          "evidence": "s6 HYBRID: prose stays with Claude, lint_brief.py checks only length and marketing phrases [report.md L45]"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 463.5,
+        "tokens": 83883,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+          "passed": true,
+          "evidence": "facts.json preexisting_check_headings_unchanged=true; sha256 matches baseline d60bc3d4... [facts.json]"
+        },
+        {
+          "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+          "passed": true,
+          "evidence": "collision pulled forward to the Step 4 gate with 4 options; new script named check_h1.py; existing file untouched [gate.md, facts.json]"
+        },
+        {
+          "text": "at least 2 newly generated Python scripts exist in docs-linter/scripts/ and each supports --help",
+          "passed": true,
+          "evidence": "2 new scripts (check_h1.py, docs_stats.py); both --help exit 0 with argparse usage text [facts.json help probe]"
+        },
+        {
+          "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
+          "passed": true,
+          "evidence": "'Step 7 \u2014 smoke test' (report L96) precedes 'Step 8 \u2014 SKILL.md diff' (report L128); 16/16 PASS [report.md section order]"
+        },
+        {
+          "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+          "passed": true,
+          "evidence": "ran check_h1.py docs/ directly: flags reference/api.md ('first line is a level-2 heading') and tutorial.md; exit 1 [live run]"
+        },
+        {
+          "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+          "passed": true,
+          "evidence": "rewritten SKILL.md step 4 keeps the sprint-priority judgment prose, gated on step 2's exit code [SKILL.md L23-24]"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 646.0,
+        "tokens": 110922,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "changelog-checker/scripts/tests/ exists and contains manifest.json plus the fixture files",
+          "passed": true,
+          "evidence": "scripts/tests/manifest.json plus 26 fixture files present under scripts/tests/fixtures/ [facts.json]"
+        },
+        {
+          "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+          "passed": true,
+          "evidence": "manifest scanned: 0 unresolved absolute paths, 0 references to .delegation-review [facts.json residue]"
+        },
+        {
+          "text": "re-running scriptify's smoke_test.py against the moved manifest exits 0",
+          "passed": true,
+          "evidence": "re-ran scriptify's smoke_test.py against the moved manifest from the target dir: 34/34 checks passed, exit 0 [live run]"
+        },
+        {
+          "text": "the rewritten changelog-checker SKILL.md body contains the smoke-test command",
+          "passed": true,
+          "evidence": "SKILL.md L30-32 documents the re-verify command [SKILL.md]"
+        },
+        {
+          "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+          "passed": false,
+          "evidence": "step 4 survives verbatim as prose, but step 7 was turned into `python3 scripts/list_entries.py changelogs/ --json` plus a judgment clause. The judgment is retained ('The script scores nothing'), so this is a HYBRID, which the skill's own rubric tie-break arguably mandates \u2014 the assertion, inherited from eval 1's 'step 7 CLAUDE' expectation, conflicts with the rubric rather than the run being wrong [SKILL.md L18,23-24]"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 204.5,
+        "tokens": 53590,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every one of the 5 workflow steps",
+          "passed": true,
+          "evidence": "report table rows s1-s5 [report.md L47-51]"
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "passed": true,
+          "evidence": "facts.json target_tree_diff empty [facts.json]"
+        },
+        {
+          "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+          "passed": true,
+          "evidence": "s4 DEAD, why cites 'the skill's own Notes section says was retired in v2 along with the legacy/ directory' [report.md L50]"
+        },
+        {
+          "text": "no script is proposed for the DEAD step and the step is not deleted from the target SKILL.md",
+          "passed": true,
+          "evidence": "proposed_script is '-' for both DEAD rows; target SKILL.md byte-identical to baseline [report.md L48,50 + facts.json]"
+        },
+        {
+          "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+          "passed": true,
+          "evidence": "s2 DEAD as 'duplicative: step 3 checks summary AND description, a strict superset' [report.md L48]"
+        },
+        {
+          "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+          "passed": true,
+          "evidence": "s5 HYBRID: list_descriptions.py precomputes word count and vague-term markers, Claude judges the text [report.md L51]"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 9,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 480.4,
+        "tokens": 83523,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+          "passed": true,
+          "evidence": "facts.json: cache target 0 added, 0 modified, 0 removed; skill_md_changed=false [facts.json]"
+        },
+        {
+          "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+          "passed": true,
+          "evidence": "'Verdict: INELIGIBLE for writes. Anything written there is silently clobbered by the next plugin update' [report.md L13-16]"
+        },
+        {
+          "text": "the run still produces the per-step classification report for the target",
+          "passed": true,
+          "evidence": "full 5-step classification table produced before the gate [report.md]"
+        },
+        {
+          "text": "the run offers to copy the skill into the project and continue from the apply stage on the copy",
+          "passed": true,
+          "evidence": "offered the copy and executed it to workspace/.claude/skills/release-notes/, then completed steps 5-9 on the copy [gate.md, report.md L23-28]"
+        },
+        {
+          "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+          "passed": true,
+          "evidence": "0 scripts under the cache path; the SKILL.md diff at report L105 is labelled 'the project copy only' [facts.json, report.md L105]"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.857,
+        "passed": 6,
+        "failed": 1,
+        "total": 7,
+        "time_seconds": 219.7,
+        "tokens": 42305,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every one of the 7 workflow steps, each with a class",
+          "passed": true,
+          "evidence": "verdict table rows 1-7 [report.md L12-18]"
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "passed": true,
+          "evidence": "facts.json target_tree_diff empty [facts.json]"
+        },
+        {
+          "text": "step 2 (WebFetch the top source) is NOT classified pure SCRIPT, and no proposed script reimplements the fetch with curl, requests, or urllib",
+          "passed": true,
+          "evidence": "step 2 Hybrid, 'agent keeps WebFetch, script owns the plan + manifest' [report.md L13]"
+        },
+        {
+          "text": "step 5 (notion MCP page lookup and append) is NOT classified pure SCRIPT",
+          "passed": true,
+          "evidence": "step 5 Hybrid, 'agent keeps the MCP calls, script renders the payload' [report.md L16]"
+        },
+        {
+          "text": "step 3 (AskUserQuestion which sources to keep) is NOT classified pure SCRIPT",
+          "passed": true,
+          "evidence": "step 3 Hybrid, 'agent keeps AskUserQuestion, script builds the options' [report.md L14]"
+        },
+        {
+          "text": "steps 1 (dedupe and slugify topics), 4 (word counts and thin-source flags) and 7 (render sorted index table) are classified SCRIPT with concrete argv/exit-code interfaces",
+          "passed": false,
+          "evidence": "script names are proposed (parse_topics.py, measure_sources.py, render_index.py) but the report contains no argv line, no --json flag and no exit-code semantics anywhere; grep for 'exit ', 'python3 ', 'usage:' returns zero hits [report.md, grep]"
+        },
+        {
+          "text": "step 6 (write the 200-word brief in the house voice) keeps its prose-writing core with Claude",
+          "passed": true,
+          "evidence": "step 6 'Prose (keep) \u2014 the only genuine judgment step' [report.md L17]"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.667,
+        "passed": 4,
+        "failed": 2,
+        "total": 6,
+        "time_seconds": 229.8,
+        "tokens": 45024,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+          "passed": true,
+          "evidence": "facts.json preexisting_check_headings_unchanged=true [facts.json]"
+        },
+        {
+          "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+          "passed": true,
+          "evidence": "new script named lint_docs.py; existing check_headings.py left byte-identical and the hazard documented in a Scripts table [report.md L20-42, facts.json]"
+        },
+        {
+          "text": "at least 2 newly generated Python scripts exist in docs-linter/scripts/ and each supports --help",
+          "passed": false,
+          "evidence": "only 1 new script written, and `python3 scripts/lint_docs.py --help` prints 'not a directory: --help' and exits 2 \u2014 the script has no argparse and treats --help as a positional path [live run]"
+        },
+        {
+          "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
+          "passed": false,
+          "evidence": "the report shows 'Rewritten: SKILL.md workflow' at L66 before 'Smoke tests' at L75; no PASS line precedes the rewrite [report.md section order]"
+        },
+        {
+          "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+          "passed": true,
+          "evidence": "ran lint_docs.py docs directly: flags docs/reference/api.md and docs/tutorial.md; exit 1 [live run]"
+        },
+        {
+          "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+          "passed": true,
+          "evidence": "rewritten SKILL.md step 2 keeps the sprint-priority judgment prose [SKILL.md L27-28]"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 3,
+        "failed": 2,
+        "total": 5,
+        "time_seconds": 363.4,
+        "tokens": 58659,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "changelog-checker/scripts/tests/ exists and contains manifest.json plus the fixture files",
+          "passed": false,
+          "evidence": "residue placed at changelog-checker/tests/, not scripts/tests/; no scripts/tests/ directory exists. This path is specified only by scriptify, so a no-skill run cannot be expected to find it \u2014 the assertion is skill-specific by construction [facts.json]"
+        },
+        {
+          "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+          "passed": true,
+          "evidence": "its manifest holds 0 absolute paths and 0 .delegation-review references; the custom runner resolves fixtures relatively [manifest scan]"
+        },
+        {
+          "text": "re-running scriptify's smoke_test.py against the moved manifest exits 0",
+          "passed": false,
+          "evidence": "scriptify's smoke_test.py was never used; the run wrote its own tests/run_smoke_tests.py with an incompatible manifest schema, so the documented re-run command does not apply [facts.json, manifest scan]"
+        },
+        {
+          "text": "the rewritten changelog-checker SKILL.md body contains the smoke-test command",
+          "passed": true,
+          "evidence": "SKILL.md L66-68 documents python3 tests/run_smoke_tests.py with --only and -v variants [SKILL.md]"
+        },
+        {
+          "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+          "passed": true,
+          "evidence": "narrative (step 3), Misc judgment (step 4) and confusing-entry flagging (step 5) all remain prose [SKILL.md L37-60]"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 108.2,
+        "tokens": 33810,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every one of the 5 workflow steps",
+          "passed": true,
+          "evidence": "verdict table rows 1-5 [report.md L12-16]"
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "passed": true,
+          "evidence": "facts.json target_tree_diff empty [facts.json]"
+        },
+        {
+          "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+          "passed": true,
+          "evidence": "step 4 'Neither \u2014 dead step, delete it', quoting the Notes line verbatim and confirming legacy/ does not exist [report.md L15,48-54]"
+        },
+        {
+          "text": "no script is proposed for the DEAD step and the step is not deleted from the target SKILL.md",
+          "passed": true,
+          "evidence": "no script proposed for step 4; target untouched (analysis-only run) [report.md L54 + facts.json]"
+        },
+        {
+          "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+          "passed": true,
+          "evidence": "step 2 'Script \u2014 but delete it, step 3 already covers it' [report.md L13]"
+        },
+        {
+          "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+          "passed": true,
+          "evidence": "step 5 'Keep in prose (Claude)', reasoning that no length or keyword heuristic catches vagueness without false positives [report.md L16]"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 9,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 308.1,
+        "tokens": 51011,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+          "passed": true,
+          "evidence": "facts.json: cache target 0 added, 0 modified, 0 removed [facts.json]"
+        },
+        {
+          "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+          "passed": true,
+          "evidence": "'the target is a plugin cache directory'; explains files there vanish silently on re-sync, verified against the real installed_plugins.json layout [report.md L6-22]"
+        },
+        {
+          "text": "the run still produces the per-step classification report for the target",
+          "passed": true,
+          "evidence": "full 5-step verdict table produced [report.md]"
+        },
+        {
+          "text": "the run offers to copy the skill into the project and continue from the apply stage on the copy",
+          "passed": false,
+          "evidence": "CORRECTED after debate Phase 2. The baseline explicitly DECLINED this route: its gate.md lists vendoring a local copy as option C and rejects it ('invents a destination the user did not ask for and creates a triggering conflict'), choosing instead to stage into outputs/proposed/ with a cp aimed at the external release-tools source repo. Verified: its workspace/ contains only .claude-personal/plugins, no project copy, and no apply stage was continued on a copy. Original verdict applied a loose 'any viable route forward' reading; the assertion text is literal. [live tree walk]"
+        },
+        {
+          "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+          "passed": true,
+          "evidence": "no scripts written under the cache path; SKILL.md there unchanged [facts.json]"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.96,
+        "stddev": 0.0894,
+        "min": 0.8,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 403.54,
+        "stddev": 187.3452,
+        "min": 204.5,
+        "max": 646.0
+      },
+      "tokens": {
+        "mean": 77742.2,
+        "stddev": 23421.2721,
+        "min": 53590,
+        "max": 110922
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.7848,
+        "stddev": 0.1579,
+        "min": 0.6,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 245.84,
+        "stddev": 96.9304,
+        "min": 108.2,
+        "max": 363.4
+      },
+      "tokens": {
+        "mean": 46161.8,
+        "stddev": 9333.156,
+        "min": 33810,
+        "max": 58659
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.18",
+      "time_seconds": "+157.7",
+      "tokens": "+31580"
+    }
+  },
+  "notes": []
+}

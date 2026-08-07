@@ -1,0 +1,20 @@
+{
+  "eval_id": 3,
+  "eval_name": "partial-selection",
+  "prompt": "Review /Users/admin/claude-learning/skills/scriptify-workspace/iteration-2/eval-3-partial-selection/with_skill/workspace/changelog-checker/ for delegable steps, but apply only the delegations for steps 1 and 3. Leave everything else untouched.",
+  "expected_output": "Exactly two scripts generated (file listing, category counting), both smoke-tested. Step 2's prose is byte-identical to before; the SKILL.md diff touches only steps 1 and 3.",
+  "assertions": [
+    {
+      "text": "exactly two generated scripts exist in changelog-checker/scripts/",
+      "type": "structure"
+    },
+    {
+      "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+      "type": "structure"
+    },
+    {
+      "text": "both generated scripts pass the smoke test before the rewrite",
+      "type": "content"
+    }
+  ]
+}

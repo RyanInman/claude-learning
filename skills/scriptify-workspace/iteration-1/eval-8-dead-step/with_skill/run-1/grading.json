@@ -1,0 +1,46 @@
+{
+  "eval_id": 8,
+  "eval_name": "dead-step",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "the report contains a row for every one of the 5 workflow steps",
+      "passed": true,
+      "evidence": "report table rows s1-s5 [report.md L47-51]"
+    },
+    {
+      "text": "no new files or directories are created inside the target skill folder",
+      "passed": true,
+      "evidence": "facts.json target_tree_diff empty [facts.json]"
+    },
+    {
+      "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+      "passed": true,
+      "evidence": "s4 DEAD, why cites 'the skill's own Notes section says was retired in v2 along with the legacy/ directory' [report.md L50]"
+    },
+    {
+      "text": "no script is proposed for the DEAD step and the step is not deleted from the target SKILL.md",
+      "passed": true,
+      "evidence": "proposed_script is '-' for both DEAD rows; target SKILL.md byte-identical to baseline [report.md L48,50 + facts.json]"
+    },
+    {
+      "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+      "passed": true,
+      "evidence": "s2 DEAD as 'duplicative: step 3 checks summary AND description, a strict superset' [report.md L48]"
+    },
+    {
+      "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+      "passed": true,
+      "evidence": "s5 HYBRID: list_descriptions.py precomputes word count and vague-term markers, Claude judges the text [report.md L51]"
+    }
+  ],
+  "passed_count": 6,
+  "total_count": 6,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6
+  }
+}

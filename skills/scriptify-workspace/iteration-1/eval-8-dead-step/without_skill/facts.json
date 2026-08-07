@@ -1,0 +1,18 @@
+{
+  "eval": "eval-8-dead-step",
+  "config": "without_skill",
+  "target_exists": true,
+  "target_tree_diff": {
+    "added": [],
+    "removed": [],
+    "modified": []
+  },
+  "outputs_present": [
+    "report.md",
+    "transcript-notes.md"
+  ],
+  "skill_md_changed": false,
+  "scripts": [],
+  "new_script_count": 0,
+  "new_scripts_all_help_ok": false
+}

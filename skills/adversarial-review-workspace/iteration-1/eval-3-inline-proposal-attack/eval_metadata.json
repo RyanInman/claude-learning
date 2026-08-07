@@ -1,0 +1,13 @@
+{
+  "eval_id": 3,
+  "eval_name": "inline-proposal-attack",
+  "prompt": "here's my plan: we ship the new billing service behind a feature flag next sprint, backfill invoices with a one-off script the same week, and delete the old billing tables the sprint after. play devil's advocate on this before I commit to it - what could go wrong?",
+  "expectations": [
+    "The inline proposal is written to a file before the review so both roles read the same fixed text",
+    "The review attacks deleting the old billing tables one sprint after cutover (lost rollback/audit path, reconciliation window too short)",
+    "The review attacks the backfill timing or integrity (drift between live writes and the one-off script, idempotency, verification against the old tables)",
+    "Every objection includes a concrete failure scenario or evidence and a proposed better way",
+    "A final report separates conceded/agreed changes from contested or open points",
+    "The output ends with a recommendation and explicitly leaves the final decision to the user"
+  ]
+}

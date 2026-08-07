@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "jwt-plan-redteam",
+  "prompt": "red-team the plan in jwt-migration-plan.md quickly before I pitch it to the team. What survives and what do I need to fix?",
+  "expectations": [
+    "The review identifies the localStorage token storage XSS/theft risk",
+    "The review identifies that client-side logout means tokens cannot be revoked until expiry",
+    "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+    "The defense does not invent environment facts absent from the plan file - unknowns are answered as unknown or flagged as assumptions",
+    "The output distinguishes what survived the review (fine as-is) from what needs fixing",
+    "The output ends with a recommendation and explicitly leaves the final decision to the user"
+  ]
+}

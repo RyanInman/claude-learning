@@ -1,0 +1,9 @@
+{
+  "tool_calls": {"Bash": 2, "Write": 3},
+  "total_tool_calls": 5,
+  "total_steps": 6,
+  "files_created": ["final_response.md", "metrics.json", "user_notes.md"],
+  "errors_encountered": 0,
+  "output_chars": 3079,
+  "transcript_chars": 16000
+}

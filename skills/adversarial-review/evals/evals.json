@@ -1,0 +1,50 @@
+{
+  "skill_name": "adversarial-review",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "cache-design-attack",
+      "prompt": "poke holes in cache-design.md for me before I start building it, I don't need a full debate, just attack it and tell me what actually needs fixing",
+      "expected_output": "A lightweight adversarial review: the main agent defends the design, fresh Adversary subagents attack it over questions, objections, and rebuttal, and a final report separates conceded fixes (e.g., per-worker incoherence after imports, TTL-expiry stampede) from contested points, with the decision left to the user.",
+      "files": ["evals/files/cache-design.md"],
+      "expectations": [
+        "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+        "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+        "Every objection includes a concrete proposed alternative (better way), not only the problem",
+        "The review contains a genuine defense: at least one objection is contested or answered with evidence, not all conceded",
+        "A final report separates conceded/agreed changes from contested or open points",
+        "The output ends with a recommendation and explicitly leaves the final decision to the user"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "jwt-plan-redteam",
+      "prompt": "red-team the plan in jwt-migration-plan.md quickly before I pitch it to the team. What survives and what do I need to fix?",
+      "expected_output": "The two-role review runs against the JWT migration plan: the Adversary surfaces localStorage XSS exposure, no-revocation logout, and big-bang cutover risk; the Defender concedes what it cannot answer and contests the rest with evidence; the report ends with a declared-interest recommendation and the user's options.",
+      "files": ["evals/files/jwt-migration-plan.md"],
+      "expectations": [
+        "The review identifies the localStorage token storage XSS/theft risk",
+        "The review identifies that client-side logout means tokens cannot be revoked until expiry",
+        "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+        "The defense does not invent environment facts absent from the plan file - unknowns are answered as unknown or flagged as assumptions",
+        "The output distinguishes what survived the review (fine as-is) from what needs fixing",
+        "The output ends with a recommendation and explicitly leaves the final decision to the user"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "inline-proposal-attack",
+      "prompt": "here's my plan: we ship the new billing service behind a feature flag next sprint, backfill invoices with a one-off script the same week, and delete the old billing tables the sprint after. play devil's advocate on this before I commit to it - what could go wrong?",
+      "expected_output": "The inline proposal is first written to a file so both roles read the same fixed text, then the review runs: the Adversary attacks the one-week backfill-plus-flag timing and the early table deletion with concrete failure scenarios and better ways, and the final report separates agreed changes from contested points with the decision left to the user.",
+      "files": [],
+      "expectations": [
+        "The inline proposal is written to a file before the review so both roles read the same fixed text",
+        "The review attacks deleting the old billing tables one sprint after cutover (lost rollback/audit path, reconciliation window too short)",
+        "The review attacks the backfill timing or integrity (drift between live writes and the one-off script, idempotency, verification against the old tables)",
+        "Every objection includes a concrete failure scenario or evidence and a proposed better way",
+        "A final report separates conceded/agreed changes from contested or open points",
+        "The output ends with a recommendation and explicitly leaves the final decision to the user"
+      ]
+    }
+  ]
+}

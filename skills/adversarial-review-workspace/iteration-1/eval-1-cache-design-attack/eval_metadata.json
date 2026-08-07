@@ -1,0 +1,13 @@
+{
+  "eval_id": 1,
+  "eval_name": "cache-design-attack",
+  "prompt": "poke holes in cache-design.md for me before I start building it, I don't need a full debate, just attack it and tell me what actually needs fixing",
+  "expectations": [
+    "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+    "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+    "Every objection includes a concrete proposed alternative (better way), not only the problem",
+    "The review contains a genuine defense: at least one objection is contested or answered with evidence, not all conceded",
+    "A final report separates conceded/agreed changes from contested or open points",
+    "The output ends with a recommendation and explicitly leaves the final decision to the user"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "tool_calls": {
+    "Read": 3,
+    "Bash": 4,
+    "Write": 5,
+    "Edit": 4,
+    "Agent": 7
+  },
+  "total_tool_calls": 23,
+  "total_steps": 19,
+  "files_created": [
+    "work/pytest-migration-proposal.md",
+    "work/debate-review/transcript.md",
+    "outputs/final-report.md",
+    "outputs/transcript.md",
+    "outputs/answer.md",
+    "outputs/metrics.json",
+    "outputs/user_notes.md"
+  ],
+  "errors_encountered": 1,
+  "output_chars": 5720,
+  "transcript_chars": 73492
+}

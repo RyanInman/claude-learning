@@ -1,0 +1,7 @@
+{
+  "total_tokens": 76508,
+  "duration_ms": 32120,
+  "total_duration_seconds": 32.1,
+  "partial": true,
+  "note": "Run was interrupted by a session limit and resumed; usage reflects only the final resumed segment, not the full debate. Undercounts the true cost."
+}

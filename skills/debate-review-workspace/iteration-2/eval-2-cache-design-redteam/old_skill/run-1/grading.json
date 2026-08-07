@@ -1,0 +1,116 @@
+{
+  "expectations": [
+    {
+      "text": "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+      "passed": true,
+      "evidence": "Defender Phase 1: 'per-worker TTLs expire independently, so two consecutive requests can hit workers with different cache ages — cross-worker inconsistency is visible for up to the TTL.' Adversary Objection 3 covers import staleness: 'during a rolling bulk import, lazy per-id population captures a mix of pre- and post-import rows, so the list page and detail pages can disagree, and prices from two import generations sit side by side for up to 10 minutes.' The rebuttal quantifies it: 'inconsistent views for up to 10 minutes past import completion, on every import.'"
+    },
+    {
+      "text": "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+      "passed": true,
+      "evidence": "Adversary Objection 4: 'Every 10 minutes, each worker's all_products entry expires and the expensive list query runs again. After a deploy, all 8 workers start cold together, so their TTLs stay roughly phase-aligned: 8 expensive list queries hit Postgres in the same window.' The Defender also pre-flagged 'cache-miss stampede' in Phase 1. Mitigations (serve-stale-while-revalidate, TTL jitter) were debated and adopted."
+    },
+    {
+      "text": "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+      "passed": true,
+      "evidence": "Advocate Phase 4 Part 1 is a five-point steelman: 'Rejecting Redis is correct at this scale, not merely convenient. The dataset is ~25MB... roughly a millisecond of RTT and a deserialize on every read, in a project whose stated goal is latency. Per-worker duplication costs ~200MB of RAM and zero operations.' Also 'The workload is the textbook case for TTL-only caching' and 'The failure mode is the status quo.' answer.md carries a dedicated section 'The case FOR the in-process cache (what survived attack)'."
+    },
+    {
+      "text": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+      "passed": true,
+      "evidence": "Multiple concrete mitigations from the assertion's example list appear and are adopted: 'Add ±20% TTL jitter and a per-worker refresh flag (serve stale while one request refreshes)' (final-report change 4), and an event-driven bust: 'Add a catalog_version value in Postgres that the import pipeline and any takedown path bump; each worker checks it at most once per second and drops its whole cache on change' (Objection 3, adopted conditionally in change 3)."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "transcript.md contains all five elements under separate role headings: Phase 1 'Defender: Opening Statement', Phase 3 'Adversary's Case' (5 numbered objections), Phase 4 'Advocate's Case' (steelman plus per-objection answers), Phase 5 'Adversary's Rebuttal' and Phase 6 'Advocate's Surrebuttal', Phase 9 'Judge's Final Report' with recommendation. Roles argue distinct positions (the Advocate concedes O1/O5 while disputing O2/O4; the Adversary drops four objections and sustains a narrowed O3), and metrics.json shows 7 Agent spawns, consistent with separately-run roles rather than one voice. Phases 7-8 are empty, but the transcript's own rule permits skipping them when every objection is dropped or conceded, which Phase 6 documents."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "final-report.md ends with a 'Judge's recommendation' section ('Adopt the design with all five agreed changes...') followed by a 'Your decision' section listing four numbered options for the user, including 'Where you might disagree with me: I am siding with the consensus that catalog_version stays conditional... you would be overriding the debate's sequencing, not its analysis.' answer.md likewise closes with the recommendation and the user-facing option set."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 7,
+      "Bash": 5,
+      "Edit": 3,
+      "Write": 3,
+      "Agent": 7,
+      "ToolSearch": 3,
+      "SendMessage": 1,
+      "TaskStop": 1
+    },
+    "total_tool_calls": 30,
+    "total_steps": 26,
+    "errors_encountered": 2,
+    "output_chars": 4628,
+    "transcript_chars": 39989
+  },
+  "timing": {
+    "executor_duration_seconds": 169.5,
+    "note": "timing.json marks the run partial: a session-limit interruption means ~47k earlier tokens are not counted; 74476 tokens and 169.5s reflect only the later segments."
+  },
+  "claims": [
+    {
+      "claim": "Phases 7-8 were skipped because every objection was dropped or conceded by end of Phase 6",
+      "type": "process",
+      "verified": true,
+      "evidence": "Transcript Phase 5 drops O1, O2, O4, O5; Phase 6 concedes O3's two sustained points and states 'No objection remains in dispute, so the Judge may proceed directly to the final report.' Phases 7-8 contain only template comments, and the Phase 7 comment documents the skip rule."
+    },
+    {
+      "claim": "Distinct subagents played the roles, with a continuity workaround after a SendMessage resumed in the background",
+      "type": "process",
+      "verified": true,
+      "evidence": "metrics.json records 7 Agent calls, 1 SendMessage, 1 TaskStop; user_notes.md describes the replacement Adversary detecting the already-written Phase 3 and not duplicating it. Phase 3 appears exactly once in the transcript."
+    },
+    {
+      "claim": "The Defender answered unknowns honestly as gaps rather than inventing facts",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Phase 2 answers repeatedly say 'The design does not specify', 'Not specified', 'Unknown — a fact to pin down before build', 'These are gaps, not accepted risks' instead of fabricating worker models, request rates, or PM sign-off scope not present in cache-design.md."
+    },
+    {
+      "claim": "All five objections trace to the design doc or the Defender's admitted gaps",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Spot-checked against work/cache-design.md context echoed in the transcript: region pricing (CDN section), single all_products key, 10-minute TTL with no invalidation, 8 gunicorn workers, two-line rollout plan all appear in the Defender's opening, and each objection cites the Defender's Phase 2 answers verbatim."
+    },
+    {
+      "claim": "Run was interrupted by a session limit and resumed",
+      "type": "process",
+      "verified": true,
+      "evidence": "timing.json: '\"partial\": true... Run was interrupted by a session limit and resumed'; user_notes.md: 'The Advocate's surrebuttal agent was killed by a session limit after completing its transcript write.'"
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Defender role was played without author context; the design doc arrived as input, so Defender material came from the doc itself with open questions flagged as gaps"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "SendMessage continuation of the Phase-2 Adversary resumed in the background; a replacement agent was spawned and correctly avoided duplicating the already-written Phase 3",
+      "All later phases used fresh synchronous subagents with the transcript as memory, per the skill's continuity fallback",
+      "Phases 7-8 skipped by rule since all objections were resolved, so the Defender's Phase-8 feasibility weigh-in never ran"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+        "reason": "A single agent writing all five sections in one voice would also pass this as worded. This run's metrics (7 Agent spawns) and genuine cross-role disagreement made distinctness verifiable, but consider tightening the assertion to require evidence of separately-executed roles (e.g., subagent spawns or roles taking opposing positions that later shift), since role isolation is the skill's core mechanism."
+      },
+      {
+        "reason": "No assertion checks that the review stays anchored to the eval prompt's framing ('argue both sides properly, don't just trash it' AND 'is the in-process cache going to bite us'). This run answered the owner's question directly ('Will the in-process cache bite us? Not as architecture...'), which is a meaningful outcome the assertions do not credit — a run that found the same issues but never answered the user's actual question would score identically."
+      }
+    ],
+    "overall": "The assertion set is well-targeted for this eval: each maps to a distinct failure mode of a one-sided or shallow review, and this run passed all six on substantive evidence rather than surface compliance."
+  }
+}

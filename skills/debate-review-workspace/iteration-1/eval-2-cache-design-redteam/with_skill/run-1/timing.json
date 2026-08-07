@@ -1,0 +1,6 @@
+{
+  "total_tokens": 108155,
+  "duration_ms": 193732,
+  "total_duration_seconds": 193.7,
+  "note": "Sum of observed segments; run was interrupted by orchestration stalls and a session-limit reset, so tokens/duration are lower-bound estimates and not cleanly comparable."
+}

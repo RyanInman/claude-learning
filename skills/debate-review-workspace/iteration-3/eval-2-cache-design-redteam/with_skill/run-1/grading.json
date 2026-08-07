@@ -1,0 +1,132 @@
+{
+  "expectations": [
+    {
+      "text": "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+      "passed": true,
+      "evidence": "Adversary rebuttal (Phase 5): 'a fill that straddles a bulk import pins a torn view: some entries pre-import, some post-import, frozen together for 10 minutes' and 'independently-filled all_products and per-id entries can contradict each other'. Judge R8 sustains the bulk-import staleness point: 'if one import touches 3,000 rows, 25% of the catalog is stale in every worker at once, and that arithmetic checks out.' Judge's agreed change 2 codifies the fix ('fill from a single snapshot... Nobody priced self-contradictory within one session'). answer.md item 2 relays it to the user. Divergence across the 8 independent worker processes is also covered in the Advocate's point 3 (per-worker staleness under missed invalidation) and the Adversary's Objection 2 (per-worker miss waves)."
+    },
+    {
+      "text": "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+      "passed": true,
+      "evidence": "Adversary Objection 2 is entirely this: 'after a deploy... the whole working set fills within a few seconds... and therefore expires within the same few seconds, ten minutes later. At that instant every one of the 8 workers has a synchronized miss wave' and 'the all_products key is the sharp edge... its expiry means 8 workers simultaneously run a full-catalog query and serialize 12k rows, repeating every 10 minutes forever.' The Defender's opening also flags 'thundering herd of misses' as a gap. The Judge adjudicates it in R1 with checked arithmetic (48 full-catalog queries/hour vs 3,600/hour uncached at 1 rps)."
+    },
+    {
+      "text": "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+      "passed": true,
+      "evidence": "The Advocate's case (Phase 4) makes all three named arguments substantively: latency ('A Python dict lookup is roughly 50-100ns. A Redis GET... 300us-1ms... a 3,000-10,000x difference'), no extra infra (point 7: 'Rollback is an environment variable... no new deployable, no new secret, no new on-call surface'; point 3 on how event-driven invalidation 'smuggles Redis back in'), and fits-in-memory (point 1: '12k x 2KB x 8 workers ~ 200MB total... small on any modern container fleet'). This is a nine-point steelman with original quantitative arguments (Redis bandwidth math, queueing-theory rho/(1-rho) analysis), not token praise. The Judge's ruling reflects it: the design's shape survives and the Adversary withdrew both shape-level attacks."
+    },
+    {
+      "text": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+      "passed": true,
+      "evidence": "Multiple concrete compromises, several adopted by both sides. Adversary Objection 2's 'Better way': 'Jitter the TTL: 600s x uniform(0.8, 1.2) per entry', 'Single-flight per key: a per-worker dict[key, Future]... roughly 15 lines', 'Serve stale while revalidating... hard stale ceiling (say 60 minutes)'. The Judge's 'Agreed changes' lists ten, including jitter (item 4), SWR with ceiling and refresh_failures counter (item 5), snapshot fill/dedup (items 1-2), and maxsize+LRU (item 9). R1 is an explicit brokered compromise: single-flight ships conditionally on the worker-class verification item."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md is structured by phase with distinct voices: Phase 1 'Defender: Opening Statement', Phase 2 clarifying questions from Adversary and Advocate separately, Phase 3 Defender's answers (marking unknowns), Phase 4 'Adversary's case' (5 objections) and 'Advocate's case' (9 points), Phase 5 both rebuttals (each engaging the other's specific numbered points, with withdrawals and concessions), Phase 6 'Judge's Final Report' with agreed changes, contested points C1-C8, and rulings R1-R8. The roles genuinely interact: the Adversary withdraws two claims, the Advocate concedes Objection 5 'almost entirely', and the Judge corrects both sides (R6: the Advocate's env-var canary claim is wrong under gunicorn prefork). metrics.json corroborates 7 Agent spawns matching user_notes.md's '2x questions, 2x cases, 2x rebuttals, 1 judge'."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "final-report.md ends with 'Judge's recommendation' (amended design: 'Do not ship the document as written, and do not narrow it...') followed by a 'Your decision' section listing five options with costs and when to pick each. answer.md closes: 'The decision is yours; the Judge only recommends.'"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 4,
+      "Write": 5,
+      "Edit": 6,
+      "Agent": 7,
+      "Bash": 3
+    },
+    "total_tool_calls": 25,
+    "total_steps": 18,
+    "errors_encountered": 1,
+    "output_chars": 4294,
+    "transcript_chars": 80325
+  },
+  "timing": {
+    "executor_total_tokens": 102509,
+    "executor_duration_seconds": 16546.6,
+    "note": "From run-1/timing.json: run was interrupted by a session limit and resumed; duration includes idle wait across the reset, so wall-clock is not comparable to uninterrupted runs, and tokens cover only the resumed segment."
+  },
+  "claims": [
+    {
+      "claim": "Crossover where the cache stops reducing full-catalog query volume is one list request every 75 seconds (48 queries/hour cached vs 3,600/hour at 1 rps)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "8 workers x 6 TTL cycles/hour = 48; 1 rps = 3,600/hour; 3600s/48 = 75s. Arithmetic checks out."
+    },
+    {
+      "claim": "24MB / 0.18s = 133 MB/s, so a full-catalog 24MB response at 180ms p95 is implausible throughput for ORM hydration plus serialization",
+      "type": "factual",
+      "verified": true,
+      "evidence": "24/0.18 = 133.3 MB/s. The arithmetic is correct; the implausibility inference is a reasonable engineering judgment the Judge flags as a question for the doc, not a settled fact."
+    },
+    {
+      "claim": "Staleness exposure is 0.003% of catalog-time (500 product-minutes / 17.28M per day)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "50 changes x 10 min = 500; 12,000 x 1,440 = 17.28M; ratio 0.0029%. Correct, and the Judge correctly scopes it in R8 to the '50 independent edits' reading only."
+    },
+    {
+      "claim": "100ns and 500us are 0.000056% and 0.28% of 180ms",
+      "type": "factual",
+      "verified": true,
+      "evidence": "100ns/180ms = 5.6e-7 = 0.000056%; 500us/180ms = 0.28%. Both check out, as the Judge states in R4."
+    },
+    {
+      "claim": "The debate used seven fresh-eyes subagents (2x questions, 2x cases, 2x rebuttals, 1 judge)",
+      "type": "process",
+      "verified": true,
+      "evidence": "metrics.json records Agent: 7; user_notes.md item 3 lists the same breakdown and says the read-only Explore agent type was used for all seven."
+    },
+    {
+      "claim": "A gunicorn SIGHUP reload does not re-read a changed master environment, so flipping the env flag is a redeploy, not a kill switch (Judge, R6)",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Consistent with gunicorn's prefork model (workers inherit the master environment; HUP re-forks workers from the same master), but not verifiable from the transcript or outputs alone. Flagged as unverified external fact rather than wrong."
+    },
+    {
+      "claim": "Nobody in the debate argued for Redis, a CDN, or event-driven invalidation (answer.md)",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The Adversary's rebuttal states 'None of my five objections asks for event-driven invalidation, pub/sub, or LISTEN/NOTIFY' and 'I never argued for a CDN'; no Redis advocacy appears anywhere in the transcript."
+    },
+    {
+      "claim": "The Defender held no facts beyond the artifact and marked unmeasured facts as unknown rather than inventing them",
+      "type": "process",
+      "verified": true,
+      "evidence": "Phase 3 answers every question 'unknown' where the document is silent (worker class, memory limits, import mechanics, request rates, 180ms composition). No invented facts appear later; both debaters and the Judge treat the unknowns as verification items."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Skipped the skill's overkill check (single-pass option for tiny artifacts) because the user explicitly asked for both sides argued properly and the run was unattended"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Session terminated after Phase 5 and resumed before the Judge phase; transcript on disk verified before continuing (counted as the 1 error in metrics.json)",
+      "HTML-entity escaping in subagent replies restored to literal characters during transcription",
+      "Judge report wrapper lines dropped in the transcript and headings demoted per the skill's packaging rule"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+        "reason": "A single-pass write with role headings would also pass this as worded. The observed run's distinguishing quality was genuine interaction: withdrawals, concessions, and a Judge who checks arithmetic and corrects both sides. Consider requiring evidence of cross-engagement (e.g., at least one side changes position in rebuttal, or the judge rules against each side at least once) to discriminate a real debate from a monologue in costume."
+      },
+      {
+        "reason": "No expectation checks that the review is grounded in the artifact's actual text (line references, quoted claims like the ~25MB figure). A review that raised generic caching concerns without reading cache-design.md could pass all six assertions. The observed run cites line numbers throughout; an assertion like 'objections cite specific claims or line numbers from cache-design.md' would catch ungrounded runs."
+      }
+    ],
+    "overall": "All six expectations passed on strong, non-superficial evidence. The assertion set covers the load-bearing outcomes well (both named failure modes, steelman, compromise, structure, user-owned decision); the two suggestions harden it against a low-effort run that mimics the format without doing the work."
+  }
+}

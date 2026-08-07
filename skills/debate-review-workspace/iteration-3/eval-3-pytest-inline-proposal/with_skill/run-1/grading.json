@@ -1,0 +1,125 @@
+{
+  "expectations": [
+    {
+      "text": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+      "passed": true,
+      "evidence": "work/pytest-migration-proposal.md contains the user's prompt verbatim plus a structured restatement (Position, 3 arguments for, 3 downsides). The debate transcript header names it as the Artifact: '**Artifact:** .../work/pytest-migration-proposal.md'. user_notes.md item 1: 'I wrote the request's inline proposal verbatim (plus a structured restatement) to work/pytest-migration-proposal.md before Phase 1.' Roles then argue against that fixed text; e.g., the Judge's Ruling 1 checks it directly: 'I checked the artifact. It is 26 lines, it lists \"6,000 existing tests\" as an unmitigated downside, and it contains no affordability claim.'"
+    },
+    {
+      "text": "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+      "passed": true,
+      "evidence": "Defender Phase 1 presents all three verbatim arguments with mechanism ('pytest fixtures are named, composable, request-scoped dependencies', '@pytest.mark.parametrize collapses those into one test body with a table of cases', 'pytest-xdist distributes tests across CPU cores with a command-line flag'). The Advocate's Phase 4 case deepens each: point 3 makes fixtures-vs-setUp a monorepo ownership argument ('conftest.py resolves by directory, which maps onto monorepo ownership boundaries'), point 5 details parametrize vs copy-paste ('adding a case is a one-line diff to a table. Under copy-paste, it is a new method'), point 4 defends xdist including '--dist loadfile' graceful degradation."
+    },
+    {
+      "text": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+      "passed": true,
+      "evidence": "Adversary Objection 1 engages the 6k-test cost precisely: parametrize and argument-injected fixtures do not work on TestCase methods, so 'in the cheap scope... arguments 1 and 2 deliver zero value against the existing 6,000 tests'. Objections 2 and 3 engage CI churn concretely (parallel-safety unknown, silent collection loss via load_tests/custom TestResult, dual-runner CI overlap). Objection 5 goes beyond the stated familiarity cost rather than strawmanning it: 'The proposal lists \"some devs know unittest well\" as the human downside. That is the weakest version of the real cost... the actual cost is... two test idioms simultaneously, for a duration the proposal does not bound.' The Adversary also concedes points where the pro side is right (subTest vs parametrize, ecosystem argument), which is the opposite of strawmanning."
+    },
+    {
+      "text": "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+      "passed": true,
+      "evidence": "Defender Phase 1 (transcript line 27): 'pytest runs unittest.TestCase suites natively. Switching the runner does not require rewriting the 6k tests up front.' Advocate point 2: 'The 6,000 tests are an inventory to convert opportunistically, not a bill due at migration time.' The compatibility limits are also mapped (Phase 3, Advocate Q2: load_tests ignored, no parametrize on TestCase methods). The final answer.md carries it to the user: 'The two arguments that emerged strongest were ones you did not make: the asymmetry (pytest runs unittest.TestCase natively...)' and the agreed scope sentence 'adopt pytest as the runner now; convert TestCase files only when already modifying them'."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md is structured by phase and role: 'Phase 1 — Defender: Opening Statement'; Phase 2 clarifying questions from Adversary and Advocate; Phase 3 Defender's answers (defense of the artifact's claims, conceding unknowns); Phase 4 'Adversary's case' (Objections 1-5) and 'Advocate's case' (points 1-8); Phase 5 'Adversary's rebuttal' and 'Advocate's rebuttal'; Phase 6 'Judge's Final Report' with Agreed changes, Dropped objections, Contested points, Rulings 1-8, and a recommendation. The contributions are substantively distinct (roles concede to each other, cite each other's phase text, and disagree in the rulings), not one voice relabeled."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "answer.md states the recommendation ('The Judge recommends approving the switch, with preconditions', 'My read matches the Judge: Option 1') and opens with 'You get final say.' Its closing section is titled 'Your decision' and lists Options 1-4 for the user to choose. The Judge's report in the transcript likewise ends with a 'Your decision' section presenting four options rather than deciding."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 3,
+      "Bash": 5,
+      "Write": 4,
+      "Edit": 8,
+      "Agent": 7
+    },
+    "total_tool_calls": 27,
+    "total_steps": 22,
+    "errors_encountered": 2,
+    "output_chars": 5203,
+    "transcript_chars": 78241
+  },
+  "timing": {
+    "executor_total_tokens": 101551,
+    "executor_duration_seconds": 395.6,
+    "note": "From run-1/timing.json: run was interrupted by a session limit and resumed; figures cover only the resumed segment and undercount the full run."
+  },
+  "claims": [
+    {
+      "claim": "pytest does not respect the load_tests protocol, bypasses custom TestRunner/TestResult subclasses, parametrize does not work on TestCase methods, and fixtures cannot be argument-injected into TestCase methods",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches pytest's documented unittest integration. These facts are load-bearing for Objection 3 and the collection-parity gate, and they are stated accurately."
+    },
+    {
+      "claim": "unittest has had -k since Python 3.7 and --failfast for longer; coverage.py runs unittest via 'coverage run -m unittest'; unittest-xml-reporting provides JUnit XML",
+      "type": "factual",
+      "verified": true,
+      "evidence": "All correct. The Judge additionally corrected the Adversary's '-k: not a delta' overstatement (pytest -k supports boolean expressions, unittest -k substring/glob patterns), which is also accurate."
+    },
+    {
+      "claim": "A session-scoped fixture runs once per xdist worker, so sharing one external resource across workers requires lock coordination",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct; each xdist worker is a separate process, and the pytest-xdist docs describe the file-lock pattern for once-per-session resources."
+    },
+    {
+      "claim": "The Judge checked the artifact directly: 'It is 26 lines... and it contains no affordability claim. The affordability fact appears only at transcript line 27'",
+      "type": "factual",
+      "verified": true,
+      "evidence": "work/pytest-migration-proposal.md is 26 lines and contains no compatibility/affordability claim. Line 27 of outputs/transcript.md is exactly the Defender's 'pytest runs unittest.TestCase suites natively' paragraph. user_notes.md item 5 warned the line-27 citation might sit ~10 lines off after a duplicate-heading fix, but in the final transcript the citation lands exactly."
+    },
+    {
+      "claim": "The session was terminated mid-run and resumed; transcript state was verified on disk before continuing",
+      "type": "process",
+      "verified": true,
+      "evidence": "user_notes.md item 4 documents the interruption; run-1/timing.json's note independently corroborates ('Run was interrupted by a session limit and resumed'). errors_encountered: 2 in metrics.json matches the stated definition."
+    },
+    {
+      "claim": "Role subagents ran as read-only Explore agents, so transcript edits by subagents were impossible",
+      "type": "process",
+      "verified": true,
+      "evidence": "user_notes.md item 6; metrics.json shows 7 Agent calls, and all transcript writes are attributed to the Defender/coordinator (transcript header: 'transcribed verbatim by the Defender'). Cannot inspect subagent tool permissions directly, but the transcript structure and tool-call distribution are consistent with the claim."
+    },
+    {
+      "claim": "The full debate was run rather than the single-pass fallback because the decision is not cheaply reversible and the run was unattended",
+      "type": "process",
+      "verified": true,
+      "evidence": "user_notes.md item 2; the transcript shows all six phases executed."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Advocate and Judge cite 'transcript line 27' for the Defender's compatibility note; after a duplicate-heading repair the executor believed the content sat ~10 lines earlier and left citations untouched per the verbatim rule (in the final outputs/transcript.md the citation is in fact accurate)"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Wrote the inline proposal verbatim to work/pytest-migration-proposal.md before Phase 1 so all roles argue the same fixed text",
+      "Session terminated after the Adversary's Phase 5 rebuttal; on resume, verified transcript state on disk and transcribed the Advocate's rebuttal from the retained tool result",
+      "Removed a self-inflicted duplicate empty 'Phase 2' heading block from the transcript on resume"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No expectation checks role isolation, which is the skill's core mechanism: the fresh-eyes Adversary and Advocate should be separate subagents that see only the artifact and transcript, not the coordinator's context. This run did it correctly (7 Agent calls, read-only Explore subagents per user_notes), but a run where one writer roleplays all four voices in a single context would pass every current assertion. Consider an assertion like 'the Adversary and Advocate roles run as separate fresh-context subagents, evidenced by Agent tool calls in the execution log'."
+      },
+      {
+        "reason": "No expectation checks the technical accuracy of the debate's load-bearing facts (pytest's unittest-compatibility limits: load_tests ignored, no parametrize on TestCase methods). This run got them right and the entire Objection 1/3 structure depends on them; a debate built on a wrong compatibility claim would still satisfy all six assertions. A spot-check assertion on one named compatibility fact would make the eval discriminate on correctness, not just structure."
+      }
+    ],
+    "overall": "The six assertions are well-chosen and discriminating for debate structure and content fidelity; this run passes all of them with strong evidence. The two gaps are mechanism (role isolation) and factual accuracy of the pytest claims the debate turns on."
+  }
+}

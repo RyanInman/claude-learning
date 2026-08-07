@@ -1,0 +1,116 @@
+{
+  "expectations": [
+    {
+      "text": "A final report file exists that separates agreed changes from still-contested points",
+      "passed": true,
+      "evidence": "outputs/final-report.md exists with distinct sections '## Agreed changes' (four numbered consensus amendments), '## Dropped objections', and '## Contested points' (two items: auth_epoch vs. account-status flag, httpOnly cookie vs. localStorage). Each contested point lists both sides' positions separately before the Judge's rulings."
+    },
+    {
+      "text": "The review identifies the localStorage token storage XSS/theft risk",
+      "passed": true,
+      "evidence": "Transcript Phase 4, Adversary Objection 2: 'Any injected script can read the token and exfiltrate a credential that ... cannot be revoked and stays valid up to 24 hours ... one XSS bug equals one day of undetectable, unstoppable account takeover.' Final report Ruling 2 rules on it: 'Token storage — Adversary wins on the evidence, narrowly,' recommending an HttpOnly; Secure; SameSite=Lax cookie."
+    },
+    {
+      "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+      "passed": true,
+      "evidence": "Transcript Phase 4, Adversary Objection 1 (severity: highest): 'V1 ships with zero per-user revocation ... disabling an account row does not stop an already-issued token. Employee offboarding, compromise response, and admin suspension ... lose their enforcement mechanism for up to 24 hours.' The final report makes per-user revocation (auth_epoch check) a v1 blocker in Agreed change 1."
+    },
+    {
+      "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+      "passed": true,
+      "evidence": "Both are identified. Objection 4: 'Single-release cutover on the auth path with an untested rollback and no fallback ... rollback is a 15–30 minute pipeline redeploy — untested — during which every JWT-holding user is locked out.' Objection 3: 'Key lifecycle is unspecified, and the literal plan text mass-logs-out all users 2–3 times a week,' with the kid-header fix so v2 rotation is not a flag day. Both appear as Agreed changes 2 and 3 in final-report.md."
+    },
+    {
+      "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+      "passed": true,
+      "evidence": "Transcript Phase 4, Advocate's case, is a nine-paragraph steelman: 'The core architectural bet is correct, and the alternatives are worse' (Redis retirement + mobile constraints), 'RS256 is the right signature choice,' '\"No refresh tokens in v1\" is internally consistent, not lazy,' 'The scope discipline is the meta-strength.' The final report and answer.md preserve what survived: 'the JWT migration itself, RS256 over HS256, no refresh tokens in v1, minimal user data in claims, and the two-sprint scope all survive intact.'"
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md (copy of work/debate-review/transcript.md) has all phases under separate headings: 'Phase 1 — Defender: Opening Statement', 'Phase 2 — Clarifying Questions' (separate Adversary and Advocate question sets), 'Phase 3 — Defender's Answers', 'Phase 4 — Cases' (Adversary's five objections and Advocate's steelman), 'Phase 5 — Rebuttals' (each side responding to the other's Phase 4 case point by point), 'Phase 6 — Judge's Final Report'. The roles argue distinct positions and reference each other's specific claims, not boilerplate."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "final-report.md ends with 'Judge's recommendation' ('Amend the plan and ship it. Adopt all four agreed changes plus both rulings') followed by a 'Your decision' section listing Options A/B/C and a sub-choice. answer.md states up front: 'The user decides — nothing below has been applied to the plan' and closes with the same A/B/C options ('Your options, per the Judge')."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 4,
+      "Bash": 3,
+      "Edit": 6,
+      "Agent": 7,
+      "Write": 5
+    },
+    "total_tool_calls": 25,
+    "total_steps": 17,
+    "errors_encountered": 0,
+    "output_chars": 3716,
+    "transcript_chars": 41392
+  },
+  "timing": {
+    "total_tokens": 76508,
+    "duration_ms": 32120,
+    "total_duration_seconds": 32.1,
+    "partial": true,
+    "note": "Run was interrupted by a session limit and resumed; usage reflects only the final resumed segment, not the full debate. Undercounts the true cost."
+  },
+  "claims": [
+    {
+      "claim": "The Advocate conceded four of five objections",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Phase 5 Advocate rebuttal marks Objections 1, 3, 4, 5 'conceded' and Objection 2 'conceded in its core, disputed on the mandatory remedy' — matching answer.md's count."
+    },
+    {
+      "claim": "Subagent replies were pasted verbatim into the transcript with only wrapper lines and heading levels adjusted",
+      "type": "process",
+      "verified": false,
+      "evidence": "metrics.json shows 7 Agent calls, consistent with subagent-driven roles, but the raw subagent outputs are not in the outputs directory, so verbatim fidelity cannot be checked. user_notes.md discloses the two mechanical adjustments."
+    },
+    {
+      "claim": "Debate evidence such as deploy cadence (2–3/week), two dangerouslySetInnerHTML sites, no CSP, revocation usage counts, and 15–30 min rollback reflects the plan's real environment",
+      "type": "factual",
+      "verified": false,
+      "evidence": "None of these facts appear in work/jwt-migration-plan.md; the Defender stipulated them, as user_notes.md admits: 'The debate's conclusions rest partly on those stipulations; the user should re-check them against reality before acting.' The stipulations are internally consistent with the plan but are invented."
+    },
+    {
+      "claim": "Nothing was applied to the plan; the review is advisory only",
+      "type": "process",
+      "verified": true,
+      "evidence": "work/jwt-migration-plan.md is unchanged from the eval fixture (still says 'generated at deploy time', localStorage, single-release cutover); all findings live in transcript/report files."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Defender context was thin: Phase 2 questions asked for facts the plan omits, so the Defender stipulated plausible facts (deploy cadence, XSS posture, revocation usage, rollback timing); conclusions rest partly on those stipulations and should be re-checked against reality"
+    ],
+    "needs_review": [
+      "User should verify the stipulated environmental facts before acting on the rulings"
+    ],
+    "workarounds": [
+      "Transcription dropped subagent wrapper lines and shifted heading levels to nest under the template's fixed headings; wording inside sections unchanged",
+      "Canonical transcript at work/debate-review/transcript.md; outputs/transcript.md is a copy"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No expectation checks whether the debate's evidence is grounded in the supplied artifact. The Defender invented specific facts (2–3 deploys/week, two dangerouslySetInnerHTML sites, offboarding counts, 15–30 min rollback) that appear nowhere in jwt-migration-plan.md, and the Judge's rulings lean on them. The run disclosed this honestly in user_notes.md, but a run that fabricated facts silently would score identically. Consider an expectation that stipulated or assumed facts are flagged as such."
+      },
+      {
+        "expectation": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+        "reason": "Headings alone would satisfy a literal reading even if one author wrote all roles with no genuine disagreement. This run passes on substance (roles concede, dispute, and reverse positions), but a sharper expectation would require at least one concession or position change traceable across phases."
+      }
+    ],
+    "overall": "All seven expectations pass on genuine substance: the debate surfaces every planted flaw (localStorage XSS, 24-hour revocation gap, big-bang cutover, key lifecycle) plus one unplanted finding (missing iss/aud and algorithm pinning), and the roles visibly change positions across phases. The main coverage gap is grounding: no expectation distinguishes artifact-derived evidence from Defender-stipulated facts."
+  }
+}

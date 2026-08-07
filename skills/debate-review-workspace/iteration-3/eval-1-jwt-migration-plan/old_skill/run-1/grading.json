@@ -1,0 +1,126 @@
+{
+  "expectations": [
+    {
+      "text": "A final report file exists that separates agreed changes from still-contested points",
+      "passed": true,
+      "evidence": "outputs/final-report.md exists with distinct sections '## Agreed changes' (four numbered amendments both sides support) and '## Contested points' ('Only one point remains genuinely live. Token storage: localStorage versus httpOnly cookie'), plus 'Dropped objections' and 'Rulings'. The separation reflects the actual debate: the Advocate conceded Objections 1, 3, 4 in rebuttal, and storage remained split."
+    },
+    {
+      "text": "The review identifies the localStorage token storage XSS/theft risk",
+      "passed": true,
+      "evidence": "Adversary Objection 2: 'Any XSS on any authenticated page exfiltrates a 24-hour irrevocable token... the plan maximizes the blast radius of token theft (long TTL, no revocation) while choosing the storage location most exposed to theft.' Carried into final-report.md Contested points ('The exfiltration delta is real — a stolen token grants offline, off-site access') and answer.md item 2 (XSS audit gate)."
+    },
+    {
+      "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+      "passed": true,
+      "evidence": "Adversary Objection 1: 'A stolen or abused token stays valid for up to 24 hours with no way to kill it. Offboarded employees, banned users, and compromised accounts keep API access for a full day.' It also catches the role-claim corollary (demoted admin keeps admin power) and rebuts the plan's 'denylist reintroduces Redis' premise. Final report amendment 1 adds jti + Postgres denylist."
+    },
+    {
+      "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+      "passed": true,
+      "evidence": "Both identified. Objection 3: 'The same deploy that starts issuing JWTs also deletes the session middleware... every user is locked out and the only recovery is redeploying the previous release — a path the Defender admits is untested.' Objection 4: 'generated at deploy time' ambiguity, missing kid header, and no JWKS endpoint make v2 rotation 'exactly the global-logout event the plan is trying to defer.' Both became agreed amendments 3 and 4."
+    },
+    {
+      "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+      "passed": true,
+      "evidence": "Phase 4 Advocate's case is a substantive seven-paragraph steelman: 'No refresh tokens, no denylist, client-side logout... are one principle applied three times'; the like-for-like 24-hour TTL argument; the httpOnly-buys-less-than-its-reputation argument (which the Adversary conceded in rebuttal and which won the storage ruling); Bearer auth 'chosen for the client that is coming'; scope discipline. The steelman changed outcomes — it defeated Objection 5 and won the storage contest — so it is genuine, not token."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md has six phases: Phase 1 Defender's Opening Statement, Phase 2 Clarifying Questions (Adversary and Advocate separately), Phase 3 Defender's Answers, Phase 4 Cases (Adversary's five ranked objections; Advocate's steelman), Phase 5 Rebuttals (both sides, with sustained/narrowed/dropped verdicts), Phase 6 Judge's Final Report. Roles argue distinctly and respond to each other's specific points (e.g., Adversary: 'That describes a strawman, not my proposal')."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "Final report ends with 'Judge's recommendation' ('Adopt the amended plan') followed by a 'Your decision' section listing five options ('You are choosing between: ...'). answer.md closes: 'The decision is yours — option 2 (ship as written) is on the table, but both debaters ended the review opposed to it.'"
+    },
+    {
+      "text": "The Defender's answers do not invent environment facts absent from the plan file (deploy cadence, CSP posture, usage counts) - unknowns are answered as unknown or flagged as assumptions",
+      "passed": true,
+      "evidence": "Phase 3 answers every unrecorded fact as unknown: revocation frequency 'Unknown... no compliance or contractual obligation... is documented'; XSS posture 'Unknown on every specific'; deploy time 'unknown — never measured for this purpose'; Redis cost 'Unknown. No monthly spend figure...'. The keypair intent is flagged as an unguarded ambiguity, not asserted as fact. Facts the Defender does cite (40k DAU, mobile next quarter, React SPA, session-TTL parity) all appear verbatim in work/jwt-migration-plan.md."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 4,
+      "Bash": 3,
+      "Edit": 7,
+      "Agent": 7,
+      "Write": 5
+    },
+    "total_tool_calls": 26,
+    "total_steps": 17,
+    "errors_encountered": 1,
+    "output_chars": 3314,
+    "transcript_chars": 40079
+  },
+  "timing": {
+    "executor_total_tokens": 80831,
+    "executor_duration_seconds": 46.9,
+    "note": "Run was interrupted by a session limit and resumed; figures cover only the resumed segment and undercount the full run."
+  },
+  "claims": [
+    {
+      "claim": "Seven fresh-eyes subagents were used (two question-askers, two case-builders, two rebutters, one Judge)",
+      "type": "process",
+      "verified": true,
+      "evidence": "metrics.json shows Agent: 7 tool calls, matching the claimed seven role subagents."
+    },
+    {
+      "claim": "The outputs transcript copy is byte-identical to the working copy",
+      "type": "factual",
+      "verified": true,
+      "evidence": "cmp work/debate-review/transcript.md outputs/transcript.md reports identical."
+    },
+    {
+      "claim": "The plan's reason for rejecting a denylist ('reintroduces Redis') is factually false because Postgres stays in the architecture",
+      "type": "factual",
+      "verified": true,
+      "evidence": "jwt-migration-plan.md line 13: 'Redis cluster is our only stateful infra besides Postgres' — Postgres is retained, so a Postgres denylist does not reintroduce Redis. The debate's central rebuttal is grounded in the plan text."
+    },
+    {
+      "claim": "The four amendments cost roughly two days and fit the two-sprint timeline",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The ~1 day denylist and ~2 day total estimates originate inside the debate (Adversary's estimates) with no external basis; plausible but unverifiable from available information."
+    },
+    {
+      "claim": "No subagent edited any file",
+      "type": "process",
+      "verified": false,
+      "evidence": "user_notes.md states each role prompt included 'do not create or edit any files' and no edits occurred, but subagent-internal actions are not visible in the available transcript; taken on the executor's word."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Defender ran without author context; all unmeasured operational facts answered as unknown per the phase-3 rule",
+      "Keypair 'generated at deploy time' intent stated as likely reading but flagged as unguarded ambiguity"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Overkill check skipped silently (unattended run, artifact clearly above the single-pass bar)",
+      "General-purpose subagents used instead of read-only; compensated with an explicit no-edit instruction in every role prompt",
+      "Subagent scaffolding lines dropped and objection headings re-nested during verbatim transcription; argument text unaltered",
+      "Session limit interrupted the run during output saving; on resume, disk state verified and only metrics.json needed writing (counted as the 1 error)"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+        "reason": "The OR lets a run pass while missing one of two independently planted risks. This run found both; a weaker run that catches only the cutover and never notices the missing kid/JWKS/rotation story would score identically. Split into two assertions."
+      },
+      {
+        "reason": "No expectation checks that the review produces actionable remedies (concrete fixes with cost estimates) rather than only naming risks. This run's strongest output — the four amendments with the jti/denylist fix and the Postgres-stays rebuttal of the plan's own denylist rationale — is exactly what a shallow run would lack, and nothing in the assertion set requires it."
+      }
+    ],
+    "overall": "The assertion set is discriminating overall: it checks the three planted flaws, the steelman, role structure, and the no-invented-facts constraint, all verifiable from the outputs. The two gaps above are the only ones worth closing."
+  }
+}

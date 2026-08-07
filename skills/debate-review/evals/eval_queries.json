@@ -1,0 +1,79 @@
+{
+  "skill_name": "debate-review",
+  "runs_per_query": 3,
+  "trigger_rate_threshold": 0.5,
+  "queries": [
+    {
+      "query": "debate review this plan, it's in migration-plan.md",
+      "should_trigger": true
+    },
+    {
+      "query": "red-team this design doc before I share it with the team",
+      "should_trigger": true
+    },
+    {
+      "query": "poke holes in my caching proposal, it's in cache-design.md",
+      "should_trigger": true
+    },
+    {
+      "query": "play devil's advocate on this refactor plan I wrote up",
+      "should_trigger": true
+    },
+    {
+      "query": "I want this architecture doc pressure-tested hard before we commit to it",
+      "should_trigger": true
+    },
+    {
+      "query": "argue both sides of the proposal in rpc-switch.md and tell me what survives",
+      "should_trigger": true
+    },
+    {
+      "query": "is this approach solid? I don't want to pitch deploy-plan.md until it's been properly attacked and defended",
+      "should_trigger": true
+    },
+    {
+      "query": "give me an adversarial review of the vendor writeup - steelman it too, then rule on what's contested",
+      "should_trigger": true
+    },
+    {
+      "query": "we're about to commit to this design, can you argue for and against it and give me a recommendation? I get final say",
+      "should_trigger": true
+    },
+    {
+      "query": "review this diff for bugs",
+      "should_trigger": false
+    },
+    {
+      "query": "quick sanity check on this idea: bust the cache with pub/sub instead of TTLs",
+      "should_trigger": false
+    },
+    {
+      "query": "help me write a migration plan for moving to postgres",
+      "should_trigger": false
+    },
+    {
+      "query": "review my PR please",
+      "should_trigger": false
+    },
+    {
+      "query": "is this regex correct for matching ISO dates?",
+      "should_trigger": false
+    },
+    {
+      "query": "what do you think of pytest vs unittest?",
+      "should_trigger": false
+    },
+    {
+      "query": "summarize this design doc for me",
+      "should_trigger": false
+    },
+    {
+      "query": "brainstorm some ideas for our caching layer",
+      "should_trigger": false
+    },
+    {
+      "query": "do a line-by-line review of this change",
+      "should_trigger": false
+    }
+  ]
+}

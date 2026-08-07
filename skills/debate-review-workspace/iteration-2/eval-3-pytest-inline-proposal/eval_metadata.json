@@ -1,0 +1,13 @@
+{
+  "eval_id": 3,
+  "eval_name": "pytest-inline-proposal",
+  "prompt": "ok so we're debating internally whether to switch our python monorepo from unittest to pytest. My take: we should switch, because fixtures beat setUp inheritance, parametrize kills our copy-pasted test variants, and plugins give us xdist parallelism for free. Downsides people raised: 6k existing tests, CI churn, and some devs know unittest well. Can you debate both sides of this properly and give me a recommendation? I get final say.",
+  "assertions": [
+    "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+    "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+    "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+    "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+    "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+    "The output ends with a recommendation and explicitly leaves the final decision to the user"
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "expectations": [
+    {
+      "text": "A final report file exists that separates agreed changes from still-contested points",
+      "passed": true,
+      "evidence": "outputs/final-report.md has 'Agreed amendments (all three roles converged...)' and an explicit contested-points verdict: '**Nothing remains contested** -- every objection ended with an explicit win, concession, or accepted compromise.' Transcript Phase 11 additionally has dedicated '## Agreed changes' and '## Contested points' sections."
+    },
+    {
+      "text": "The review identifies the localStorage token storage XSS/theft risk",
+      "passed": true,
+      "evidence": "Transcript Phase 3, Objection 3: '24h bearer token in localStorage, in an app with an admittedly weak XSS posture... Any one XSS or supply-chain script gives an attacker a token that is valid for 24h with no revocation.' Report amendment 2 mandates CSP nonces, SRI, dangerouslySetInnerHTML audit, plus a revival clause tying the localStorage/XSS objection to revocability."
+    },
+    {
+      "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+      "passed": true,
+      "evidence": "Report defect 1: 'Silent deletion of revocation... a stolen or offboarded admin token stays valid up to 24h.' Transcript Objection 1: 'Post-migration there is no per-user revocation at all... An admin token... remains valid for up to 24 hours after compromise or offboarding.'"
+    },
+    {
+      "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+      "passed": true,
+      "evidence": "Both identified. Report defect 2: 'Untested rollback on the auth path. Single-release cutover with rollback = \"redeploy previous release,\" never rehearsed.' Report defect 3: '\"Keypair generated at deploy time\" reads literally as per-deploy regeneration -> global logout on every release. And with no kid header, the first key rotation is a forced global logout.'"
+    },
+    {
+      "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+      "passed": true,
+      "evidence": "Transcript Phase 4 'Part 1 -- Steelman' argues five strengths ('Zero-dependency auth hot path is an availability win', 'Simplicity is itself a security property for this team', single cutover minimizes dual-auth attack surface). Report carries this forward: 'What survives unchanged' section plus 'Sharpest points worth keeping for your pitch' (e.g. HttpOnly cookies would not have prevented exploitation)."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md: Phase 1 'Defender: Opening Statement', Phase 3 'Adversary's Case' (5 objections), Phase 4 'Advocate's Case' (steelman + answers), Phase 5 'Adversary's Rebuttal' and Phase 6 'Advocate's Surrebuttal', Phase 7 'Judge's Interim' and Phase 11 'Judge's Final Report'. Each role writes under its own heading."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "Report closes with 'Judge's recommendation': 'Adopt the plan with all five amendments (option 1). Alternatives you could still choose: ship unamended... or the heavier variants...'. Transcript Phase 11 ends with '## Your decision / You are choosing between:' listing four options for the user."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "note": "No metrics.json present in outputs dir",
+    "output_chars": 70529,
+    "output_files": ["final-report.md (4610 chars)", "transcript.md (65919 chars)"]
+  },
+  "timing": {
+    "executor_duration_seconds": 500.6,
+    "total_tokens": 186457,
+    "note": "From timing.json: run interrupted by orchestration stalls and session-limit reset; tokens/duration are lower-bound estimates, not cleanly comparable."
+  },
+  "claims": [
+    {
+      "claim": "Four-role debate run to completion, 11 phases, one rebuttal cycle, compromise round",
+      "type": "process",
+      "verified": true,
+      "evidence": "transcript.md contains Phases 1 through 11 with Defender, Adversary, Advocate, and Judge headings, a rebuttal/surrebuttal cycle (Phases 5-6), and compromise phases (7-9)."
+    },
+    {
+      "claim": "All three defects fixable in ~4-5 days inside sprint 2",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with Defender's Phase 10 pricing: ~1 day (revocation column) + 2-3 days (CSP work) + ~1 day (rehearsal) + hours (key text fix); Phase 10 states 'roughly 4-5 days inside sprint 2'."
+    },
+    {
+      "claim": "Every heavier alternative was withdrawn by its own proposer",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Transcript: refresh-token architecture and HttpOnly cookie withdrawn by Adversary (Phase 5), per-role admin expiry withdrawn by Advocate (Phase 6), exclusive auth_mode flag withdrawn by Adversary (Phase 9)."
+    },
+    {
+      "claim": "Adversary and Advocate were 'fresh-eyes' roles",
+      "type": "process",
+      "verified": false,
+      "evidence": "Unverifiable from outputs: transcript is a single file; nothing in outputs proves the roles ran as isolated agents rather than one author writing all headings."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [],
+    "note": "No user_notes.md present. timing.json flags orchestration stalls and a session-limit reset during the run."
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "A final report file exists that separates agreed changes from still-contested points",
+        "reason": "This run resolved everything, so the 'contested' half is satisfied by the sentence 'Nothing remains contested'. The assertion would equally pass a report that hand-waves all disputes closed. Consider requiring that any contested point be listed OR that an explicit per-objection resolution record exists (this run happens to provide one in Phase 11)."
+      },
+      {
+        "reason": "No assertion checks role independence. A single author writing all role headings in one pass would satisfy assertion 6 identically to genuinely isolated debate agents; if the skill's value proposition is fresh-eyes adversarialism, an assertion on per-role artifacts or agent invocations would discriminate."
+      }
+    ],
+    "overall": "Assertions are mostly well-targeted at content outcomes and this run passes all of them on substance. Main gap is that structure assertions (1, 6) test presence of sections, not the independence or quality of the debate process."
+  }
+}

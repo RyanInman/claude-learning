@@ -1,0 +1,129 @@
+{
+  "expectations": [
+    {
+      "text": "A final report file exists that separates agreed changes from still-contested points",
+      "passed": true,
+      "evidence": "outputs/final-report.md exists with distinct sections: '## Agreed changes' (10 numbered items both sides support), '## Dropped objections', '## Contested points' (Contested point A: refresh tokens now vs mobile GA; Contested point B: storage sequencing), plus '## Rulings' and '## Your decision'. The separation is substantive, not just headings: each agreed change cites the concession that produced it, and each contested point states both sides' final positions."
+    },
+    {
+      "text": "The review identifies the localStorage token storage XSS/theft risk",
+      "passed": true,
+      "evidence": "Adversary Objection 4: 'any XSS exfiltrates a token that, per decision 4, cannot be revoked for 24 hours' and proposes 'HttpOnly; Secure; SameSite=Lax' cookie storage. The rebuttal round deepens it: 'Exfiltration means the attacker holds a bearer credential usable from their own infrastructure... and per decision 4, unrevocable for up to 24 hours.' The final report carries it as Agreed change 10 (state origin topology and CSP status) and Ruling B."
+    },
+    {
+      "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+      "passed": true,
+      "evidence": "Adversary Objection 1: 'password reset, admin force-logout, account suspension, and role demotion are no-ops for up to 24 hours' and 'Demoting an admin, or suspending a compromised account, leaves that principal fully privileged for up to a day. That is a privilege-persistence bug.' The Judge treats it as 'the Adversary's genuinely unanswered point' and the compromise adds a tokens_valid_after column to close it."
+    },
+    {
+      "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+      "passed": true,
+      "evidence": "Both are identified. Cutover: Objection 5 shows rollback is not a revert ('the cutover deploy... destroys the state a revert would restore'; 'a second outage'), and Agreed change 7 replaces it with a three-step staged cutover. Key rotation: Objection 2 shows the 'generated at deploy time' ambiguity is 'a production incident either way' (per-deploy = mass logout every release; once = no rotation path for a leaked key), fixed in Agreed change 4 with kid, a two-key set, and a JWKS endpoint."
+    },
+    {
+      "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+      "passed": true,
+      "evidence": "Phase 4 Advocate's case is a substantive steelman with original arguments: RS256-with-deferred-rotation as correct sequencing, holding the TTL constant as deliberate variable control, single-release cutover as failure-surfacing, localStorage as the unified-client choice, env-var keys as reusing an existing trust boundary. It is genuine, not decorative: two of its arguments win in the final ruling (the Adversary withdraws his RS256 and secret-manager objections; the Advocate wins the refresh-token schedule via the variable-control argument)."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md (84,489 chars) has six labeled phases: 'Phase 1 — Defender: Opening Statement', 'Phase 2 — Clarifying Questions' (Adversary's and Advocate's), 'Phase 3 — Defender's Answers', 'Phase 4 — Cases' (Adversary's five objections; Advocate's steelman), 'Phase 5 — Rebuttals' (both sides, with explicit concessions and sustained points), 'Phase 6 — Judge's Final Report'. The roles argue against each other with specifics, concede named sub-points, and reach different conclusions — clearly distinct contributions, not one voice relabeled."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "final-report.md ends with 'Judge's recommendation' followed by '## Your decision' — 'You are choosing between four options' with costed Options 1-4. answer.md closes: 'The full option set is in outputs/final-report.md under \"Your decision\" — the call is yours.'"
+    },
+    {
+      "text": "The Defender's answers do not invent environment facts absent from the plan file (deploy cadence, CSP posture, usage counts) - unknowns are answered as unknown or flagged as assumptions",
+      "passed": true,
+      "evidence": "Verified Phase 3 against work/jwt-migration-plan.md. All six answers mark absent facts as unknown: session TTL behavior ('Unknown. The plan says only...'), session contents and invalidation paths ('Unknown on both counts'), Redis drivers and rollback mechanism ('no cost number, deadline, or headcount is given... unknown'), keypair lifecycle ('Ambiguous in the text, honestly read... I will not stipulate'), threat model/origin topology ('Unknown'). Every fact the Defender does assert (40k DAU, Flask monolith, mobile next quarter, Redis as only other stateful infra) appears verbatim in the plan file."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 4,
+      "Bash": 4,
+      "Edit": 8,
+      "Agent": 7,
+      "Write": 4
+    },
+    "total_tool_calls": 27,
+    "total_steps": 23,
+    "errors_encountered": 1,
+    "output_chars": 4608,
+    "transcript_chars": 84489
+  },
+  "timing": {
+    "executor_total_tokens": 110398,
+    "executor_duration_seconds": 406.3,
+    "note": "Executor's timing.json states the run was interrupted by a session limit and resumed; figures cover only the resumed segment and undercount the full run."
+  },
+  "claims": [
+    {
+      "claim": "40k DAU x 8 refresh calls/day is ~3.7/sec and 40k x 200 requests/day is ~93/sec (~20x ratio)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Recomputed: 320,000/86,400 = 3.70/sec; 8,000,000/86,400 = 92.6/sec; ratio ~25x, consistent with the stated '~20x'. The Judge's claim of having checked the arithmetic holds."
+    },
+    {
+      "claim": "PyJWT 2.x requires algorithms as an argument to decode, so algorithm-confusion is not a default exposure on that library",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Accurate: PyJWT 2.0+ made the algorithms parameter to jwt.decode() required. The transcript correctly scopes the residual risk to python-jose and pre-2.0 PyJWT."
+    },
+    {
+      "claim": "Four distinct roles ran via subagents with fresh eyes per role",
+      "type": "process",
+      "verified": true,
+      "evidence": "metrics.json shows 7 Agent tool calls, consistent with separate role subagents across six phases. user_notes.md states role subagents ran as read-only Explore agents. The transcript's roles contradict and concede to each other in ways a single pass rarely produces."
+    },
+    {
+      "claim": "The session was interrupted mid-run and resumed without re-running any phase, preserving the fresh-eyes constraint",
+      "type": "process",
+      "verified": false,
+      "evidence": "user_notes.md item 1 and timing.json's note corroborate the interruption, but whether the Advocate's rebuttal was transcribed verbatim from the retained subagent reply cannot be verified from the available outputs. Flagged as unverifiable rather than false; the transcript shows no visible discontinuity."
+    },
+    {
+      "claim": "The Judge's Agreed changes accurately reflect concessions made in the rebuttal round",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Spot-checked all 10 against Phase 5: e.g. Agreed change 1 matches the Advocate's 'That sentence has to come out of the plan'; change 3 matches 'deleting a security control nobody has established exists is not a decision, it is an accident'; change 4 matches 'I concede objection 2 in full'; change 8 matches the Advocate's fail-closed refinement. No agreed change lacks a traceable concession."
+    },
+    {
+      "claim": "The compromise adds roughly a day and a half of work",
+      "type": "quality",
+      "verified": false,
+      "evidence": "An estimate, not checkable from outputs. It is internally consistent with the itemized costs both debaters gave (kid/JWKS ~half day, claims ~1 hour, tokens_valid_after 'hours'), but remains a judgment."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "timing.json undercounts the full run because it covers only the post-interruption segment"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Session interrupted after the Adversary's phase-5 rebuttal; Advocate's rebuttal transcribed from the retained subagent reply on resume, no phase re-run",
+      "Judge report title dropped in the transcript and headings demoted one level to nest under Phase 6, per the skill's transcription rule"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+        "reason": "A single-author transcript with five headings would also pass as written. This run's role distinctness was evidenced by cross-role concessions and 7 Agent subagent calls — consider requiring observable independence, e.g. 'the rebuttal round contains at least one explicit concession or withdrawal by each side' or 'roles ran as separate subagent calls'."
+      },
+      {
+        "reason": "No expectation checks the factual accuracy of the debate's technical claims (arithmetic, library behavior, rollback mechanics). A confident debate full of wrong facts would pass all eight assertions; this run's claims checked out, but nothing in the eval would catch a run where they did not."
+      }
+    ],
+    "overall": "The assertion set is discriminating: assertion 8 in particular (Defender must not invent environment facts) is hard to satisfy without genuinely disciplined role behavior, and this run passed it verifiably. The two gaps worth closing are role independence and technical-claim accuracy."
+  }
+}

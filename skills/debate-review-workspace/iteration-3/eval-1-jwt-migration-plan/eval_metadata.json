@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "jwt-migration-plan",
+  "prompt": "I wrote up a plan to migrate our auth from Redis sessions to JWTs, it's in jwt-migration-plan.md. Before I pitch it to the team I want it pressure-tested hard. Run a debate review on it and tell me what survives.",
+  "assertions": [
+    "A final report file exists that separates agreed changes from still-contested points",
+    "The review identifies the localStorage token storage XSS/theft risk",
+    "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+    "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+    "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+    "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+    "The output ends with a recommendation and explicitly leaves the final decision to the user",
+    "The Defender's answers do not invent environment facts absent from the plan file (deploy cadence, CSP posture, usage counts) - unknowns are answered as unknown or flagged as assumptions"
+  ]
+}

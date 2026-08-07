@@ -1,0 +1,120 @@
+{
+  "expectations": [
+    {
+      "text": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+      "passed": true,
+      "evidence": "work/proposal.md exists and captures the user's inline argument verbatim in structure (three arguments for, three known downsides, 'The proposal author has final say'). The transcript header declares it the fixed artifact: 'Artifact: .../old_skill/work/proposal.md ... Append-only. Each role writes under its own heading and never edits another role's text.' user_notes.md confirms sequencing: 'The proposal was inline, so per the skill's setup step 1 I wrote it to work/proposal.md as the fixed artifact all roles read.' All role contributions (Defender Phase 1, Adversary/Advocate/Judge questions in Phase 2) argue against the same three arguments and three downsides from that file."
+    },
+    {
+      "text": "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+      "passed": true,
+      "evidence": "Defender's Phase 1 opening argues all three specifics: 'Decision 1: adopt pytest fixtures over setUp inheritance... a test class inherits setUp state it never uses'; 'Decision 2: use parametrize to collapse copy-pasted variants... turns N copies into one test plus a case table'; 'Decision 3: buy parallelism via the plugin ecosystem. pytest-xdist gives multi-process test execution with a command-line flag.' The Advocate's Phase 4 extends the same specifics (Strength 2: 'every new test written from the cutover onward gets fixtures, plain asserts, and parametrize immediately')."
+    },
+    {
+      "text": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+      "passed": true,
+      "evidence": "Adversary's Phase 3 engages all three real costs with substance: Objection 1 attacks the 6k-test conversion gap ('all 6,000 tests stay as TestCase classes, where parametrize does not work on methods and fixtures cannot be injected'); Objection 3 and 5 attack CI churn concretely ('pytest's collection is not identical to unittest discovery... load_tests hooks are not honored', 'a one-day CI audit'); Objection 4 attacks team familiarity as a 'permanent tax' ('every developer must know unittest, pytest, and the interop seam... autouse fixtures reaching TestCase tests via class attributes'). The Adversary also opens by conceding 'pytest is the better tool' and attacks the plan as argued, the opposite of a strawman."
+    },
+    {
+      "text": "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+      "passed": true,
+      "evidence": "Surfaced in Defender's opening as load-bearing: 'A key fact lowering migration risk: pytest runs unittest-style TestCase classes natively. The 6,000 existing tests do not need rewriting on day one — the runner can switch first, and tests can migrate to pytest idioms incrementally, or never.' The Advocate builds Strength 1 on it ('the 6,000 tests stay byte-identical while the runner changes underneath them... rollback is a one-line revert'), and answer.md carries it to the user: 'Not a rewrite: pytest runs TestCase classes natively, so the cutover touches zero test files.' The review also correctly bounds the fact (parametrize/fixture injection do not reach unconverted TestCase tests; load_tests not honored)."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md (identical to work/transcript.md per diff) contains all five: 'Phase 1 — Defender: Opening Statement', 'Phase 3 — Adversary's Case' (five numbered objections, each with Problem/Evidence/Better way), 'Phase 4 — Advocate's Case' (steelman plus per-objection answers), 'Phase 5 — Adversary's Rebuttal' (dispositions: 'two dropped, three sustained') plus 'Phase 6 — Advocate's Surrebuttal', and 'Phase 9 — Judge's Final Report' with agreed changes, contested-point resolutions, and a recommendation. The roles are genuinely distinct: the Adversary drops Objections 1-2 citing the Advocate's counter-arguments, and the Advocate concedes Objection 3 outright."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "answer.md gives the recommendation ('Bottom line: switch, but sign it as a conditional approval with three hard gates...', and a 'Judge's recommendation' section) and ends with a 'Your decision' section listing four options; the opening states 'You have final say; your four options are at the end.' The transcript's Phase 9 mirrors this: 'Your decision — You are choosing between four options,' including option 4 'Reject / status quo... the null option you are entitled to.'"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 5,
+      "Bash": 7,
+      "Edit": 4,
+      "Write": 4,
+      "Agent": 7,
+      "SendMessage": 1,
+      "ToolSearch": 1
+    },
+    "total_tool_calls": 29,
+    "total_steps": 24,
+    "errors_encountered": 0,
+    "output_chars": 5278,
+    "transcript_chars": 42163
+  },
+  "timing": {
+    "executor_duration_seconds": 189.2,
+    "note": "timing.json marks the run partial: interrupted by a session limit and resumed; ~44k earlier tokens not counted, so duration/tokens undercount the true cost."
+  },
+  "claims": [
+    {
+      "claim": "pytest runs unittest TestCase classes natively, but unconverted TestCase tests cannot use @pytest.mark.parametrize on methods or receive fixtures as arguments, and load_tests is not honored",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches pytest's documented unittest integration: TestCase classes are collected and run, fixture parameters and parametrize do not apply to TestCase methods, and the load_tests protocol is unsupported. The debate's central technical facts are accurate."
+    },
+    {
+      "claim": "conftest.py autouse fixtures apply to TestCase tests implicitly, so the two-idiom seam leaks without deliberate mixing",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct pytest behavior: autouse fixtures in a conftest.py apply to all tests below it in the tree, including unittest-style TestCase tests. This Phase 5 point is technically sound, not invented."
+    },
+    {
+      "claim": "The Defender answered factual questions as 'unknown / not measured' rather than inventing numbers",
+      "type": "process",
+      "verified": true,
+      "evidence": "Phase 2 answers: 'Not scoped in engineer-days', 'unknown pending a one-day audit', 'Not measured. No one has run the suite under xdist', 'No trial pytest collection run has been done.' No fabricated CI or test-suite metrics appear anywhere in the transcript, consistent with the user prompt containing none."
+    },
+    {
+      "claim": "Phases 7-8 were skipped because no contested point remained for the Judge to broker",
+      "type": "process",
+      "verified": true,
+      "evidence": "Verified against the transcript: Phase 5 drops Objections 1-2, Objection 3 was conceded in Phase 4, Phase 6 accepts the Objection 4 amendment and the Objection 5 compromise 'in full and as worded.' Phase 6 closes: 'Nothing before the Judge remains contested.' user_notes.md also flags the side effect honestly: the Defender feasibility weigh-in has no transcript section because Phase 8 was skipped."
+    },
+    {
+      "claim": "Continuity workaround: after a SendMessage resume ran in the background, later phases were run as fresh synchronous spawns with the transcript as memory",
+      "type": "process",
+      "verified": true,
+      "evidence": "metrics.json shows SendMessage: 1 and Agent: 7, consistent with one resume attempt plus fresh spawns for the remaining phases. Cannot independently confirm the verbatim role briefs, but the transcript's phase-to-phase continuity (Phase 5 quotes Phase 4 arguments exactly) supports it."
+    },
+    {
+      "claim": "errors_encountered is 0",
+      "type": "quality",
+      "verified": true,
+      "evidence": "user_notes.md discloses the definition: the background-resume detour and the session-limit interruption were workarounds, not tool errors. Defensible given the disclosure, though the run was not clean end-to-end (timing.json: 'Run was interrupted by a session limit and resumed')."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Facts the roles asked for (CI coupling depth, shared-state fraction, trial pytest collection) were absent from the user's request; the debate treated them as first-class unknowns and converted them into gated checks"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "SendMessage resume ran in the background against the coordinator's synchronous directive; phases 4, 5, 6, and 9 were re-run as fresh synchronous spawns with the transcript as shared memory",
+      "Phases 7-8 skipped per the skill's gate, so the Defender feasibility weigh-in has no transcript section"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+        "reason": "The 'before the debate' ordering is only attested by self-report (user_notes.md and the transcript header) — a run that wrote proposal.md after the fact would produce identical evidence. Consider asserting something checkable from role output instead, e.g. that each role's contribution cites the proposal file's text rather than the user's chat message."
+      },
+      {
+        "reason": "No assertion checks that the debate avoids fabricating facts the user never supplied (CI wall-clock numbers, shared-state fractions). This run handled it well — every unknown was answered 'not measured' and converted into a gated check — but a weaker run could invent plausible metrics and still pass all six assertions."
+      }
+    ],
+    "overall": "The assertion set discriminates well on structure and argument quality; the two gaps are provenance of the fixed-proposal file and fabrication of unsupplied facts."
+  }
+}

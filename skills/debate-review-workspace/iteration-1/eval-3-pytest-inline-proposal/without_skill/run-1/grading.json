@@ -1,0 +1,72 @@
+{
+  "expectations": [
+    {
+      "text": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+      "passed": false,
+      "evidence": "No proposal file exists; without_skill/ contains only outputs/final-report.md and timing.json. The report debates the prompt directly with no fixed written artifact."
+    },
+    {
+      "text": "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+      "passed": true,
+      "evidence": "final-report.md 'Case FOR switching' sections 1-3: 'Fixtures beat setUp inheritance' (setUp/tearDown via inheritance and MRO-walking), 'Parametrize kills copy-pasted variants' (variant drift), 'Plugin ecosystem, xdist in particular' (3-8x CI wall-clock claim)."
+    },
+    {
+      "text": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+      "passed": true,
+      "evidence": "final-report.md 'Case AGAINST switching': '6k tests is real inertia' (including that unconverted tests get none of the headline benefits), 'CI churn is not free' (JUnit XML paths, node-ID renames, xdist exposing hidden coupling), 'Team knowledge is an asset you would be writing off' (fixture spaghetti, autouse misuse). Substantive, not strawmen."
+    },
+    {
+      "text": "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+      "passed": true,
+      "evidence": "final-report.md Framing: 'Key fact that shapes everything below: pytest runs unittest-style tests natively. You do not have to convert 6k tests to switch runners.' Recommendation: 'Switch, via incremental strangler migration. Do not big-bang rewrite the 6k tests.'"
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": false,
+      "evidence": "No transcript file and no roles. final-report.md is a single-author steelman document (Case FOR / Case AGAINST / Weighing / Recommendation) with no opening-vs-objection-vs-rebuttal exchange and no judge; positions never respond to each other across rounds."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "final-report.md ends with the Recommendation section ('Switch, via incremental strangler migration...') including a 'Dissent worth honoring' deferral option; decision authority is explicit at the top: 'Decision owner: you.'"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 2,
+    "total": 6,
+    "pass_rate": 0.67
+  },
+  "timing": {
+    "executor_duration_seconds": 77.0
+  },
+  "claims": [
+    {
+      "claim": "pytest fixtures cannot be injected into TestCase methods, and parametrize does not work on TestCase classes",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches pytest documentation; correctly used to argue unconverted tests get none of the headline benefits."
+    },
+    {
+      "claim": "pytest-xdist is frequently a 3-8x CI wall-clock reduction for 6k tests",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Unsourced generalization; the report itself later concedes suites 'often fail under -n auto' until coupling is fixed, so the range is a plausible ceiling, not a verified figure."
+    },
+    {
+      "claim": "The subset of pytest a team needs daily is learnable in an afternoon",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Asserted without support; contradicted in spirit by the report's own anti-case ('A team that half-learns pytest can produce test code worse than disciplined unittest')."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": ["No user_notes.md present."]
+  },
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "The two failed assertions (fixed proposal artifact, multi-role transcript) are exactly the skill-added structure, so this eval discriminates well. Note the baseline still produced a high-quality analysis and the same key insight (native unittest support) at ~22% of the token cost; the assertions measure structure, not analysis quality, which is fine as long as that is the intent."
+  }
+}

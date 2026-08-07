@@ -1,0 +1,117 @@
+{
+  "expectations": [
+    {
+      "text": "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+      "passed": true,
+      "evidence": "Defender Phase 1 flags 'cross-worker staleness skew — 8 workers each with independent TTL clocks means two consecutive requests can see different catalog states'. Adversary Objection 2 develops the bulk-import case: 'all_products cached at minute 2 of an import disagrees with /products/<id> entries cached at minute 5, and each of the 8 workers freezes a different partial state for up to 10 minutes'. The torn-catalog scenario carries through to the Judge's report (agreed change 2, contested Point B) and answer.md item 2."
+    },
+    {
+      "text": "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+      "passed": true,
+      "evidence": "Adversary Objection 3: 'Every 10 minutes, each worker's all_products entry expires. The next request eats the full uncached assembly — the most expensive query in the system — and under load, several concurrent requests in the same worker all miss and all rebuild, because a plain dict has no single-flight.' The debate then refines it honestly: the DB-overload framing is withdrawn (cached load is bounded by the uncached baseline), and what survives is the soft-TTL + per-key lock + jitter amendment (Judge agreed change 3)."
+    },
+    {
+      "text": "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+      "passed": true,
+      "evidence": "Advocate case points 1-2: '~12k products, ~2KB each, ~25MB total... the textbook profile for an in-process cache'; '~200MB across 8 workers buys removal of the network from the read path entirely'; 'Every failure mode of this cache degrades to read Postgres... Contrast Redis: a Redis outage either stampedes the DB... or takes reads down'. The defense is substantive enough that the Adversary concedes points 1, 2 (partially), and 8, and answer.md concludes 'the in-process cache is the right tool for a 25MB, 50-writes/day catalog'."
+    },
+    {
+      "text": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+      "passed": true,
+      "evidence": "Multiple concrete compromises: soft-TTL/serve-stale-while-revalidate with a per-key rebuild lock and ±60s jitter ('~15 lines of code, no infra', Objection 3 and Judge agreed change 3); a catalog_version read-time check as an event-driven bust alternative (Objection 2); and the Judge's Point B ruling brokers an explicit compromise: 'atomic imports as a stated precondition of the cache... If the import pipeline cannot be made atomic before rollout, the cache carries the catalog_version read-time check as its own mitigation'."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md is structured by phase: Phase 1 Defender opening statement, Phase 2 clarifying questions from Adversary and Advocate, Phase 3 Defender's answers, Phase 4 Adversary's five ranked objections and Advocate's eight-point steelman, Phase 5 cross-rebuttals from both sides, Phase 6 Judge's final report. The roles argue distinctly — e.g., the Adversary concedes some points ('Point 1 (sizing) — accepted') while sustaining others, rather than producing uniform text."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "The Judge's report ends with a 'Your decision' section listing Options 1-3 plus a sub-decision; answer.md closes with the Judge's recommendation ('Approve the architecture... three fact-finds before writing code'), the same option menu, and 'The decision is yours.'"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 4,
+      "Bash": 3,
+      "Write": 5,
+      "Edit": 4,
+      "Agent": 7
+    },
+    "total_tool_calls": 23,
+    "total_steps": 16,
+    "errors_encountered": 1,
+    "output_chars": 4813,
+    "transcript_chars": 41964
+  },
+  "timing": {
+    "executor_duration_seconds": 71.6,
+    "executor_total_tokens": 77845,
+    "note": "From run-1/timing.json: the run was interrupted by a session limit and resumed; figures cover only the resumed segment and undercount the full run."
+  },
+  "claims": [
+    {
+      "claim": "The design's numbers are ~12k products, ~2KB serialized each, ~25MB per worker, 8 gunicorn workers, 10-minute TTL, ~50 changes/day, p95 ~180ms",
+      "type": "factual",
+      "verified": true,
+      "evidence": "All match work/cache-design.md lines 5-19 exactly. The Objection 4 arithmetic (12k x 2KB = ~24MB response body) is correct, and the cited 'lines 13 and 18 of the artifact' do contain the cache-shape and memory figures."
+    },
+    {
+      "claim": "The design does not state where per-region pricing is applied relative to the cache, and the cache keys have no region component",
+      "type": "factual",
+      "verified": true,
+      "evidence": "cache-design.md line 13 gives keys as {product_id: serialized_product} plus one all_products key (no region), and line 22 states responses are personalized with per-region pricing only as the CDN rejection rationale. The design is silent on pricing placement, as the Defender's Phase 3 answer says."
+    },
+    {
+      "claim": "The PM staleness acceptance is a single sentence of unstated scope",
+      "type": "factual",
+      "verified": true,
+      "evidence": "cache-design.md lines 16-17: 'a stale product for up to 10 minutes is acceptable per the PM' — one sentence, no scope for imports or cross-worker skew."
+    },
+    {
+      "claim": "Seven subagent runs produced the debate; roles built cases blind to each other",
+      "type": "process",
+      "verified": true,
+      "evidence": "metrics.json records 7 Agent tool calls, matching the role structure (Adversary and Advocate questions, cases, rebuttals, Judge). Blindness between Phase 4 cases cannot be directly observed from the transcript alone but is consistent with the separate-agent execution and with the Advocate never referencing the Adversary's case in Phase 4."
+    },
+    {
+      "claim": "The Defender answered 'unknown' where the design is silent rather than inventing facts",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Phase 3 answers all three question clusters with 'Unknown — the design does not say', and every 'unknown' checks out against the source document. No invented traffic numbers, worker class, or PM scope appear anywhere in the debate."
+    },
+    {
+      "claim": "answer.md's summary faithfully reflects the debate outcome",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The four risks, the withdrawn thundering-herd strong form, the five amendments, and the three options in answer.md all trace to specific transcript and final-report.md passages with no additions."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Defender argued from the document only (no authorship, no codebase to consult); design-silent facts were answered 'unknown' rather than invented"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Proceeded with a full debate without offering the single-pass option (running unattended; user asked to 'argue both sides properly')",
+      "Trimmed subagent delivery-note wrapper text during transcription, keeping each agent's self-delimited section verbatim",
+      "Demoted Judge's ## headings to ### inside the transcript only, to avoid colliding with phase headings",
+      "Session hit a limit after final-report.md and transcript.md; coordinator resumed to write answer.md, metrics.json, user_notes.md (counted as the 1 error in metrics)"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No assertion checks that the review's claims stay grounded in the source design (correct numbers, no invented facts). A review that hallucinated traffic figures or misquoted the design could still pass all six assertions. This run happened to be fully grounded — every cited number matches cache-design.md — but an assertion like 'every objection cites facts actually present in cache-design.md' would discriminate against a plausible failure mode of debate-style skills."
+      }
+    ],
+    "overall": "The six assertions are well-chosen and discriminating: they cover both required failure modes, the both-sides requirement from the prompt, role structure, and the decision handoff. The one gap is factual grounding of the review against the source artifact."
+  }
+}

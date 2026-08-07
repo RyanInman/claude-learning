@@ -1,0 +1,6 @@
+{
+  "total_tokens": 110398,
+  "duration_ms": 406250,
+  "total_duration_seconds": 406.3,
+  "note": "Run was interrupted by a session limit and resumed; these figures cover only the resumed segment, so they undercount the full run."
+}

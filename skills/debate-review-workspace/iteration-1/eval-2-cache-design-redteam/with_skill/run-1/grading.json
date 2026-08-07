@@ -1,0 +1,85 @@
+{
+  "expectations": [
+    {
+      "text": "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+      "passed": true,
+      "evidence": "transcript.md Phase 3 Objection 3: 'Eight independent caches with two independent TTL clocks... the same user getting new-then-old data on consecutive requests as the load balancer rotates workers... mid-import mixed vintages'. final-report.md tooth 2: 'every import opens a window where list and detail views disagree for the whole import set at once. A daily scheduled anomaly.'"
+    },
+    {
+      "text": "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+      "passed": true,
+      "evidence": "transcript.md Phase 3 Objection 1: 'TTL expiry recreates the exact spike the design exists to prevent... across 8 workers, up to 8 concurrent rebuilds land on Postgres at its worst moment', with the 1-2s all_products rebuild cost quantified; final-report.md discusses 'Expiry stampede as a p95 risk' and the deploy-aligned TTL clock case."
+    },
+    {
+      "text": "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+      "passed": true,
+      "evidence": "transcript.md Phase 4 Advocate steelman: 'a dict hit removes both the DB round trip and any network hop... The in-process cache adds zero infrastructure and zero new failure modes... dataset that fits in RAM eight times over'; ~500,000:1 read:write analysis. The defense won points (Objections 1, 4 dropped on the Advocate's arithmetic and kill-switch arguments)."
+    },
+    {
+      "text": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+      "passed": true,
+      "evidence": "final-report.md amendment 2: 'Serve-stale/single-flight background refresh (~30-50 lines). On soft-TTL expiry keep serving stale while one refresher rebuilds' and amendment 3: atomic per-worker snapshot with one TTL clock — concrete middle-ground mitigations in the same class as the assertion's examples. (Note: the report's 'zero compromises were needed' refers to inter-role debate compromises, not design mitigations.)"
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "with_skill/outputs/transcript.md has 11 phases under distinct role headings: Phase 1 Defender Opening Statement, Phase 3 Adversary's Case (5 objections), Phase 4 Advocate's Case (defense), Phase 5 Adversary's Rebuttal, Phase 6 Advocate's Surrebuttal, Phases 7 and 11 Judge's assessment and final report."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "final-report.md ends with a 'Your decision' section listing 4 options and 'Judge's recommendation is option 1. Two five-minute conversations... are the only gates before you start building.' transcript.md Phase 11 likewise ends with 'Your decision / You are choosing between: 1...4.'"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 193.7,
+    "note": "timing.json: run interrupted by orchestration stalls and a session-limit reset; 108155 tokens and 193.7s are lower-bound estimates, not cleanly comparable to the without_skill run."
+  },
+  "claims": [
+    {
+      "claim": "Advocate's stampede arithmetic: ~0.2-0.6% of a worker's requests land in a rebuild window (p99 not p95 event)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Checks out from stated assumptions: 15-30 list RPS/worker, one 1-2s rebuild per 600s interval gives 15-60 affected of 9,000-18,000 requests. Judge re-verified in Phase 7."
+    },
+    {
+      "claim": "The snapshot's marginal cost is a dict comprehension because the full-catalog query is already run every TTL interval",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with the design's all_products rebuild described in Phase 1 and Defender's answer 2; internally coherent across Phases 5-7 and 10."
+    },
+    {
+      "claim": "No contested points reached the Judge and zero compromises were needed",
+      "type": "process",
+      "verified": true,
+      "evidence": "Transcript Phases 5-9 show 4 objections dropped, 1 sustained then conceded in Phase 6; Phases 8-9 confirm no compromises proposed."
+    },
+    {
+      "claim": "CATALOG_CACHE is read at process start, so kill switch is rolling restart",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Stated by Defender in Phase 10 but not verifiable from cache-design.md context provided; treated as scenario-internal working assumption."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [],
+    "note": "No user_notes.md or metrics.json present in outputs."
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+        "reason": "'Compromise' is ambiguous: this run's report literally states 'zero compromises were needed' (about inter-role bargaining) while proposing several concrete design mitigations. Reword to 'mitigation or middle-ground design change' to avoid a keyword-matching grader flipping this."
+      }
+    ],
+    "overall": "Assertions are discriminating (assertion 5 in particular separates skill from no-skill runs). Timing/token comparison is compromised by the interrupted with_skill run per its own timing.json note."
+  }
+}

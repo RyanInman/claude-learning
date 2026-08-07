@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "cache-design-redteam",
+  "prompt": "red-team this caching design in cache-design.md for me before I start building it. I mostly want to know if the in-process cache is going to bite us, but argue both sides properly, don't just trash it",
+  "assertions": [
+    "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+    "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+    "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+    "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+    "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+    "The output ends with a recommendation and explicitly leaves the final decision to the user"
+  ]
+}

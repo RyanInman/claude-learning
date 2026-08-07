@@ -1,0 +1,114 @@
+{
+  "expectations": [
+    {
+      "text": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+      "passed": true,
+      "evidence": "work/pytest-migration-proposal.md contains the user's request quoted verbatim plus a structured restatement. The debate transcript header names it as the fixed artifact ('Artifact: .../work/pytest-migration-proposal.md'), and Phase 1 opens by referencing it ('the artifact is the proposer's inline case, written out verbatim plus a structured restatement') before any debate content. user_notes.md item 2 confirms: 'Per skill Setup step 2, I wrote the request verbatim plus a structured restatement to work/pytest-migration-proposal.md so every role reads the same fixed text.'"
+    },
+    {
+      "text": "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+      "passed": true,
+      "evidence": "Defender Phase 1 argues all three as numbered decisions: 'Decision 1 - fixtures over setUp inheritance... Pytest fixtures are injected by name, compose without inheritance'; 'Decision 2 - parametrize over copy-pasted variants... collapses N copies into one test plus a data table'; 'Decision 3 - plugin ecosystem, specifically pytest-xdist.' The Advocate's Phase 4 case deepens each: point 2 argues the three claims are structural, point 3 sharpens fixtures-vs-base-classes into a monorepo import-graph argument, and point 2 bullet 3 argues the parallelism capability discontinuity ('unittest ships no parallel execution at all')."
+    },
+    {
+      "text": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+      "passed": true,
+      "evidence": "Adversary objection 1 engages the 6k tests directly and non-trivially: the compat layer 'cancels the two biggest upsides' because parametrize and non-autouse fixtures do not work on TestCase subclasses, so the benefits reach 'zero of the 6,000 existing tests'. Objection 3 makes CI churn concrete: identifier shape change 'silently invalidating flake history, quarantine lists, and ownership routing'. Objection 4 engages familiarity via the mixed-idiom suite ('every engineer must read both idioms'), and in rebuttal the Adversary concedes the strongest opposing point ('unittest fluency is a depreciating asset... I have no counter to it') - the opposite of strawmanning."
+    },
+    {
+      "text": "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+      "passed": true,
+      "evidence": "Defender Phase 1, 'Key mitigating fact': 'Pytest runs unittest.TestCase suites natively. Migration does not require rewriting 6k tests up front: the runner can switch first, and tests convert to pytest idioms incrementally or never.' The Advocate builds his case on it (P1: 'Pytest collects and runs unittest.TestCase subclasses as-is... this is not a migration with a rollback plan, it is a config flip'), and answer.md leads with it as 'The one fact that reshaped the debate'. The review also correctly bounds the fact (parametrize unavailable on unconverted tests), which is stronger than merely surfacing it."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md (identical to work/debate-review/transcript.md, verified by diff) has all phases under distinct role headings: Phase 1 'Defender: Opening Statement', Phase 2 clarifying questions from Adversary and Advocate, Phase 3 'Defender's Answers' (defense), Phase 4 'Adversary's case' (five objections) and 'Advocate's case' (eight points), Phase 5 'Adversary's rebuttal' and 'Advocate's rebuttal' (with explicit concessions and sustained/withdrawn ledger), Phase 6 'Judge's Final Report' with contested points C1-C7, per-point rulings, and a recommendation. The roles argue against each other rather than repeating one voice - e.g. the Adversary sustains objection 3 while withdrawing the 'doubles the familiarity downside' claim."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "The Judge's report gives an explicit recommendation ('Run the spike this week, with the pass/fail rule written before it runs') followed by a 'Your decision' section with four options and 'You have final say. The strongest reason to disagree with me: ...'. answer.md, the user-facing output, ends the same way: section 'Your options (you have final say)' lists four options and closes with the strongest reason to overrule the Judge."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 3,
+      "Bash": 4,
+      "Write": 5,
+      "Edit": 4,
+      "Agent": 7
+    },
+    "total_tool_calls": 23,
+    "total_steps": 19,
+    "errors_encountered": 1,
+    "output_chars": 5720,
+    "transcript_chars": 73492
+  },
+  "timing": {
+    "executor_duration_seconds": 410.8,
+    "note": "Executor timing.json states the run was interrupted by a session limit and resumed; figures cover only the resumed segment and undercount the full run."
+  },
+  "claims": [
+    {
+      "claim": "pytest runs unittest.TestCase suites natively, but @pytest.mark.parametrize and non-autouse fixtures do not work on TestCase subclasses",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches pytest's documented unittest support: TestCase subclasses are collected and run, and the docs carry an explicit warning that non-autouse fixtures and parametrization do not work on them. This fact is load-bearing for the whole debate and is stated accurately."
+    },
+    {
+      "claim": "Autouse fixtures can reach TestCase subclasses via request.instance/request.cls",
+      "type": "factual",
+      "verified": true,
+      "evidence": "This is the documented pytest pattern for injecting resources onto TestCase instances (Advocate rebuttal, endorsed by the Judge in ruling C1)."
+    },
+    {
+      "claim": "The transcript is append-only and role sections were transcribed verbatim",
+      "type": "process",
+      "verified": false,
+      "evidence": "user_notes.md items 4-5 say six role subagents were spawned read-only (Explore type) and their sections pasted verbatim minus duplicate headings, and item 6 documents a session-limit interruption handled without regenerating content. The final transcript is internally consistent with parallel authorship (the Judge notes rebuttals were written in parallel and neither rebuttal quotes the other), but no execution-step log of the Agent spawns is available in outputs, so the verbatim-transcription claim cannot be independently confirmed."
+    },
+    {
+      "claim": "outputs/transcript.md is a verbatim copy of the working transcript, and final-report.md was extracted rather than retyped",
+      "type": "process",
+      "verified": true,
+      "evidence": "diff confirms outputs/transcript.md is byte-identical to work/debate-review/transcript.md, and final-report.md's body matches the transcript's Phase 6 section with only a title line prepended."
+    },
+    {
+      "claim": "The two rebuttals were written in parallel, so unanswered rebuttal points were not scored as unopposed wins",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The Judge's 'Note on procedure' states this and the rulings honor it: C3 is ruled 'overstated rather than wrong... low decision weight' with the Advocate's available-but-unseen answers listed, rather than handed to the Adversary by default."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Overkill check (offering a single-pass review) was skipped without asking because the run was unattended; judged full debate appropriate for a 6k-test migration",
+      "Timing figures undercount the run because a session limit interrupted it"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Session terminated after Phase 5 rebuttals were returned but before transcription; resumed by verifying phase state on disk and transcribing the already-returned rebuttals (counted as the 1 error in metrics)",
+      "Duplicate top headings returned by subagents were dropped during transcription; body text unaltered",
+      "final-report.md extracted from the transcript via awk to guarantee verbatim match"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+        "reason": "A single author writing all five sections in one voice would also pass - the outputs contain no evidence of actual role isolation beyond user_notes' claim of six Explore-agent spawns. Consider an expectation that checks for independence signals, e.g. that a rebuttal concedes or withdraws at least one point, or that the roles disagree on at least one contested point the judge must rule on; this run would pass both and a monologue dressed as a debate would not."
+      },
+      {
+        "reason": "No expectation checks factual accuracy of the debate's load-bearing technical claims. The pivotal fact here (parametrize does not work on TestCase subclasses) happened to be correct, but a debate built on a hallucinated compat claim would pass all six assertions. Consider asserting that the compat-layer limitation (parametrize/fixtures unavailable on unconverted TestCase tests) is stated, since assertion 4's incremental-migration fact is only half the story and the skill's value hinges on getting both halves right."
+      }
+    ],
+    "overall": "The assertions discriminate well on structure and topical coverage, and this run passes them on substance, not surface. The two gaps: nothing verifies genuine multi-role independence, and nothing verifies the technical correctness of the facts the recommendation rests on."
+  }
+}

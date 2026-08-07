@@ -1,0 +1,49 @@
+{
+  "skill_name": "debate-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I wrote up a plan to migrate our auth from Redis sessions to JWTs, it's in jwt-migration-plan.md. Before I pitch it to the team I want it pressure-tested hard. Run a debate review on it and tell me what survives.",
+      "expected_output": "A complete debate transcript covering all 6 phases, distinct role voices (Adversary attacks localStorage XSS exposure, no-revocation logout, big-bang cutover, or key management; Advocate steelmans statelessness and simplicity), and a Judge final report with agreed changes, contested points, a recommendation, and the decision left to the user.",
+      "files": ["files/jwt-migration-plan.md"],
+      "assertions": [
+        "A final report file exists that separates agreed changes from still-contested points",
+        "The review identifies the localStorage token storage XSS/theft risk",
+        "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+        "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+        "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+        "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+        "The output ends with a recommendation and explicitly leaves the final decision to the user",
+        "The Defender's answers do not invent environment facts absent from the plan file (deploy cadence, CSP posture, usage counts) - unknowns are answered as unknown or flagged as assumptions"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "red-team this caching design in cache-design.md for me before I start building it. I mostly want to know if the in-process cache is going to bite us, but argue both sides properly, don't just trash it",
+      "expected_output": "Full debate structure runs: Adversary raises substantive issues (per-worker cache incoherence after imports, all_products memory/serialization cost, thundering herd on TTL expiry), Advocate defends the latency and infra-simplicity rationale, Judge rules on contested points or proposes compromises (e.g., pub/sub bust or shorter TTL on all_products) and gives a recommendation while leaving the decision to the user.",
+      "files": ["files/cache-design.md"],
+      "assertions": [
+        "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+        "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+        "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+        "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+        "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+        "The output ends with a recommendation and explicitly leaves the final decision to the user"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "ok so we're debating internally whether to switch our python monorepo from unittest to pytest. My take: we should switch, because fixtures beat setUp inheritance, parametrize kills our copy-pasted test variants, and plugins give us xdist parallelism for free. Downsides people raised: 6k existing tests, CI churn, and some devs know unittest well. Can you debate both sides of this properly and give me a recommendation? I get final say.",
+      "expected_output": "The inline proposal is first written to a file so all roles read the same fixed text, then the full 6-phase debate runs; the final report separates agreed changes from contested points and ends with a recommendation plus explicit user decision options rather than a unilateral verdict.",
+      "files": [],
+      "assertions": [
+        "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+        "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+        "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+        "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+        "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+        "The output ends with a recommendation and explicitly leaves the final decision to the user"
+      ]
+    }
+  ]
+}

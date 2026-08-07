@@ -1,0 +1,93 @@
+{
+  "expectations": [
+    {
+      "text": "A final report file exists that separates agreed changes from still-contested points",
+      "passed": true,
+      "evidence": "outputs/final-report.md separates 'Indefensible as written (Advocate conceded all four)' (settled/agreed defects) from 'Contested points, adjudicated' (localStorage, refresh tokens, cutover, premise), plus a scoreboard table and 'What to change before pitching' amendment list."
+    },
+    {
+      "text": "The review identifies the localStorage token storage XSS/theft risk",
+      "passed": true,
+      "evidence": "round1-critic-brief.md Decision 2 (Critical): 'One XSS... and the attacker exfiltrates a credential valid up to 24h from anywhere, no revocation.' final-report.md adjudicates it: 'an exfiltrated token gives durable offline access from attacker infra for the full remaining TTL... As written it fails.'"
+    },
+    {
+      "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+      "passed": true,
+      "evidence": "final-report.md defect 2: 'Zero revocation is worse than today. Banned user, fired employee, \"someone is in my account\", password change: all keep working for up to 24h with no kill switch.' Critic brief Decision 4: 'Logout that isn't logout: token remains valid server-side up to 24h.'"
+    },
+    {
+      "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+      "passed": true,
+      "evidence": "Both identified. final-report.md defect 3: 'No rollback. Session middleware removed in the same deploy... locks out the entire user base in both directions.' Defect 1: '\"Generated at deploy time\" literally means every deploy mints a new keypair... no kid, no rotation path.'"
+    },
+    {
+      "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+      "passed": true,
+      "evidence": "round1-advocate-brief.md is a full steelman: premise defense ('Ops mandate is real... Stateless auth is the only auth design that lets Redis actually retire'), per-decision defenses (e.g. 'If an attacker has XSS on your SPA, httpOnly cookies do NOT save you'), and an 'Overblown for this context' section rebutting five criticisms. Final report credits the winning defense arguments."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "Distinct role documents: round1-critic-brief.md (objections), round1-advocate-brief.md (affirmative case for the plan plus defenses and concessions), round2-adjudication.md ('Critic rebuttal summary (round 2)' with five rebuttal points, then judge rulings per contested point). Caveat: no separate defender opening statement exists (the Advocate's premise defense serves as the opening case), and the Critic rebuttal appears only as a judge-written summary, not verbatim."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": false,
+      "evidence": "final-report.md ends with 'Bottom line': 'Architecture... survives the debate once amended; roughly two days of added work...' -- a recommendation exists, but nowhere does the report explicitly hand the adopt/reject decision to the user or present it as the user's choice. Closest is a sub-decision delegation ('Decide localStorage vs httpOnly cookie as an explicit XSS-vs-CSRF tradeoff'), which is not the final decision. Contrast: no 'your decision' / 'the call is yours' framing anywhere."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 1,
+    "total": 7,
+    "pass_rate": 0.86
+  },
+  "execution_metrics": {
+    "note": "No metrics.json present in outputs dir",
+    "output_chars": 30217,
+    "output_files": ["final-report.md (8515 chars)", "round1-advocate-brief.md (6885 chars)", "round1-critic-brief.md (8378 chars)", "round2-adjudication.md (6439 chars)"]
+  },
+  "timing": {
+    "executor_duration_seconds": 412.0,
+    "total_tokens": 82127
+  },
+  "claims": [
+    {
+      "claim": "Advocate conceded all four indefensible points",
+      "type": "factual",
+      "verified": true,
+      "evidence": "round1-advocate-brief.md section 3 'Conceded (indefensible as written)' lists exactly the same four items (deploy-time keys, no revocation, no rollback, stale role claims) that the final report and adjudication mark as settled by concession."
+    },
+    {
+      "claim": "Roughly two days of added work, inside the existing timeline",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Priced items in 'What to change before pitching' sum to 2.5 days (0.5+0.5+1+0.5), and items 5-8 (rationale rewrite, storage tradeoff decision, alternatives section, stale-role statement) are unpriced. 'Roughly two days' understates its own list."
+    },
+    {
+      "claim": "Critic agent attacked, Advocate agent steelmanned, Critic rebutted, judge adjudicated",
+      "type": "process",
+      "verified": false,
+      "evidence": "Briefs are labeled '(Verbatim output of the ... agent)' but the Critic rebuttal exists only as a summary inside the judge's document ('delivered late, summarized below'); nothing in outputs proves separate agents ran."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [],
+    "note": "No user_notes.md present."
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+        "reason": "This run passes with the rebuttal existing only as a judge-written summary and no defender opening statement -- a single author fabricating all role sections in one pass would pass identically. Consider requiring verbatim per-role output or evidence of role isolation."
+      },
+      {
+        "assertion": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+        "reason": "Good discriminating assertion -- it caught a real difference: this run issues verdicts ('fails as written') without ever returning the adoption decision to the user, which matters given the prompt's 'tell me what survives' framing implies the user decides what to pitch."
+      }
+    ],
+    "overall": "Assertions discriminated well here: the run produced strong analytical content (arguably deeper on the premise-level critique than the with_skill run) but failed the decision-handoff requirement, which is exactly the kind of workflow guarantee a skill should enforce."
+  }
+}

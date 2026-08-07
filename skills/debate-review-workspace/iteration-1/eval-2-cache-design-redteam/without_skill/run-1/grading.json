@@ -1,0 +1,79 @@
+{
+  "expectations": [
+    {
+      "text": "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+      "passed": true,
+      "evidence": "final-report.md 'Case against' items 2-3: 'Cross-worker inconsistency. Consecutive requests land on different workers with different snapshots... a price flips new, old, new'; 'Bulk-import capture... the freshest data after an import arrives up to 10 minutes late, per worker, at different times per worker.'"
+    },
+    {
+      "text": "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+      "passed": true,
+      "evidence": "final-report.md item 1: 'Deploy-time stampede. All 8 workers restart cold... the all_products rebuild is a full-catalog query, times 8, at once' and item 5: 'Blocking rebuilds... 8 workers can all be stuck rebuilding simultaneously; the cache amplifies rather than absorbs the spike.'"
+    },
+    {
+      "text": "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+      "passed": true,
+      "evidence": "final-report.md 'Case for (also steelman)': 'Workload fit is textbook. Small (tens of MB), bounded, read-dominated... The Redis alternative buys little here... new infra dependency, new failure modes... Duplication cost is trivial... Simplicity and reversibility.' Verdict: 'In-process is the right architecture for this workload.'"
+    },
+    {
+      "text": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+      "passed": true,
+      "evidence": "final-report.md 'Required changes' item 3: 'TTL jitter (e.g. 10min +/- 20%)... plus per-worker single-flight on the all_products rebuild' and item 4: 'Serve-stale-while-revalidate for all_products'. TTL jitter is one of the assertion's own examples."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": false,
+      "evidence": "No transcript exists. without_skill/outputs/ contains only final-report.md, a single-voice review. It has 'Case against' and 'Case for' sections, but no distinct roles, no opening statement, no rebuttal exchange, and no separate judge assessment; 'Where the balance lands' is the same author weighing both sides."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": false,
+      "evidence": "final-report.md ends with 'Rollout notes' ('Test the flag-off path stays exercised (it is the incident escape hatch).'). The recommendation appears in the Verdict at the top; nothing at the end (or anywhere) explicitly hands the final decision back to the user."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 2,
+    "total": 6,
+    "pass_rate": 0.67
+  },
+  "timing": {
+    "executor_duration_seconds": 96.7,
+    "note": "timing.json: 27071 tokens, 96.7s."
+  },
+  "claims": [
+    {
+      "claim": "Memory estimate is ~50MB/worker (~400MB across 8 workers) once all_products is counted",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic consistent: 12k x 2KB ~ 24MB per-product entries plus ~24MB all_products value; challenges the doc's 25MB estimate reasonably."
+    },
+    {
+      "claim": "Redis with the same cache key has the same region-pricing bug",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Follows directly: keying by product_id alone omits the region dimension regardless of cache location."
+    },
+    {
+      "claim": "Negative caching with unbounded dict makes key space attacker-controlled",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct given caller-supplied <id>; a distinct finding the with_skill run treated more lightly."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [],
+    "note": "No user_notes.md or metrics.json present in outputs."
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+        "reason": "This run gives a clear recommendation (Verdict at top) but fails on placement and on the leave-it-to-the-user phrasing. If the eval author cares about deference more than document ordering, splitting this into two assertions (recommendation present; decision explicitly deferred) would make failures more diagnostic."
+      }
+    ],
+    "overall": "Assertions discriminated correctly: baseline produced strong technical analysis (arguably deeper on memory bounds and negative caching) but failed the two skill-specific structural assertions (role transcript, decision handback), which is exactly what this eval should measure."
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "total_tokens": 102509,
+  "duration_ms": 16546636,
+  "total_duration_seconds": 16546.6,
+  "note": "Run was interrupted by a session limit and resumed; duration_ms includes the idle wait across the limit reset, so wall-clock is not comparable to uninterrupted runs, and tokens cover only the resumed segment."
+}

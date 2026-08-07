@@ -1,0 +1,400 @@
+{
+  "metadata": {
+    "skill_name": "debate-review",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-08-07T15:11:37Z",
+    "evals_run": [
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 222.9,
+        "tokens": 80965,
+        "tool_calls": 26,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "A final report file exists that separates agreed changes from still-contested points",
+          "passed": true,
+          "evidence": "outputs/final-report.md exists with distinct sections '## Agreed changes' (seven numbered items, e.g. 'Key lifecycle (Objection 1)... token_version revocation (Objection 2)') and '## Contested points' ('Nothing remained contested after Phase 6... Two for-the-record disagreements survive, neither blocking'), plus '## Compromises' and '## Judge's recommendation'."
+        },
+        {
+          "text": "The review identifies the localStorage token storage XSS/theft risk",
+          "passed": true,
+          "evidence": "Transcript Phase 3, Objection 4: '24-hour tokens in localStorage with no CSP and third-party scripts on authenticated pages... Any XSS \u2014 including a compromise of the analytics snippet or chat widget... exfiltrates a credential that is valid for 24 hours and (per Objection 2) unrevocable.' answer.md item 4 restates it and the debate develops it further (allowlisted-vendor silent exfiltration, connect-src, vendor isolation)."
+        },
+        {
+          "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+          "passed": true,
+          "evidence": "Transcript Phase 3, Objection 2: 'Under the plan... a stolen or downgraded token stays valid for up to 24 hours and nobody can revoke it. The plan frames logout as a UX decision; it is actually the removal of the existing incident-response lever.' answer.md: 'Client-side-only logout silently regresses three live behaviors... Revocation latency drops from 24h to ~1 minute' with the token_version fix."
+        },
+        {
+          "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+          "passed": true,
+          "evidence": "Both are identified. Objection 5: 'Single-release cutover has an untested, slow rollback... the only recovery is redeploying the previous release: 15\u201330 minutes of full-site auth outage, via a path nobody has tested, with no feature flag.' Objection 1: '\"One RS256 keypair, generated at deploy time\" means each deploy mints a new keypair... the plan specs no kid header and no multi-key verification, so the first real rotation... is itself a full-user logout.'"
+        },
+        {
+          "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+          "passed": true,
+          "evidence": "Transcript Phase 4 Part 1 is a four-point steelman: 'The plan optimizes for its two real constraints... Ops mandates retiring Redis; the team has two sprints'; 'It changes nothing users can feel'; 'The token design is forward-compatible where it counts'; 'Its deferrals are additive, not corrective.' The Advocate also substantively disputes Objection 3 ('This is where I hold the line... The evidence is hearsay') rather than conceding everything, and answer.md carries the defense forward ('The core bet... all stand')."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md has phase headings per role: 'Phase 1 \u2014 Defender: Opening Statement', 'Phase 2 \u2014 Clarifying Questions' (Adversary/Advocate/Judge questions with Defender answers), 'Phase 3 \u2014 Adversary's Case' (five objections), 'Phase 4 \u2014 Advocate's Case' (steelman plus per-objection answers), 'Phase 5 \u2014 Adversary's Rebuttal' (DROPPED/SUSTAINED verdicts), 'Phase 6 \u2014 Advocate's Surrebuttal', and 'Phase 9 \u2014 Judge's Final Report'. The roles argue against each other with position changes, not parallel monologues."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "final-report.md ends with '## Judge's recommendation' ('Adopt the amended plan') followed by '## Your decision: You are choosing between:' listing four options with trade-offs. answer.md mirrors this: 'Your options, from the Judge's report:' with the same four options and pitch-ready framing, leaving the choice to the user."
+        }
+      ],
+      "notes": [
+        "Defender-supplied contextual facts (XSS posture, force-logout frequency, mobile expectations, Redis retirement timing) are not in the plan file; the executor asks that they be graded as scenario facts.",
+        "Session-limit interruption during Phase 6; resumed from the transcript with no content loss (counted as the 1 error in metrics.json).",
+        "SendMessage resume of the Phase 2 Adversary ran in the background; later phases fell back to fresh synchronous spawns briefed with the transcript, per the skill's documented fallback."
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 169.5,
+        "tokens": 74476,
+        "tool_calls": 30,
+        "errors": 2
+      },
+      "expectations": [
+        {
+          "text": "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+          "passed": true,
+          "evidence": "Defender Phase 1: 'per-worker TTLs expire independently, so two consecutive requests can hit workers with different cache ages \u2014 cross-worker inconsistency is visible for up to the TTL.' Adversary Objection 3 covers import staleness: 'during a rolling bulk import, lazy per-id population captures a mix of pre- and post-import rows, so the list page and detail pages can disagree, and prices from two import generations sit side by side for up to 10 minutes.' The rebuttal quantifies it: 'inconsistent views for up to 10 minutes past import completion, on every import.'"
+        },
+        {
+          "text": "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+          "passed": true,
+          "evidence": "Adversary Objection 4: 'Every 10 minutes, each worker's all_products entry expires and the expensive list query runs again. After a deploy, all 8 workers start cold together, so their TTLs stay roughly phase-aligned: 8 expensive list queries hit Postgres in the same window.' The Defender also pre-flagged 'cache-miss stampede' in Phase 1. Mitigations (serve-stale-while-revalidate, TTL jitter) were debated and adopted."
+        },
+        {
+          "text": "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+          "passed": true,
+          "evidence": "Advocate Phase 4 Part 1 is a five-point steelman: 'Rejecting Redis is correct at this scale, not merely convenient. The dataset is ~25MB... roughly a millisecond of RTT and a deserialize on every read, in a project whose stated goal is latency. Per-worker duplication costs ~200MB of RAM and zero operations.' Also 'The workload is the textbook case for TTL-only caching' and 'The failure mode is the status quo.' answer.md carries a dedicated section 'The case FOR the in-process cache (what survived attack)'."
+        },
+        {
+          "text": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+          "passed": true,
+          "evidence": "Multiple concrete mitigations from the assertion's example list appear and are adopted: 'Add \u00b120% TTL jitter and a per-worker refresh flag (serve stale while one request refreshes)' (final-report change 4), and an event-driven bust: 'Add a catalog_version value in Postgres that the import pipeline and any takedown path bump; each worker checks it at most once per second and drops its whole cache on change' (Objection 3, adopted conditionally in change 3)."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "transcript.md contains all five elements under separate role headings: Phase 1 'Defender: Opening Statement', Phase 3 'Adversary's Case' (5 numbered objections), Phase 4 'Advocate's Case' (steelman plus per-objection answers), Phase 5 'Adversary's Rebuttal' and Phase 6 'Advocate's Surrebuttal', Phase 9 'Judge's Final Report' with recommendation. Roles argue distinct positions (the Advocate concedes O1/O5 while disputing O2/O4; the Adversary drops four objections and sustains a narrowed O3), and metrics.json shows 7 Agent spawns, consistent with separately-run roles rather than one voice. Phases 7-8 are empty, but the transcript's own rule permits skipping them when every objection is dropped or conceded, which Phase 6 documents."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "final-report.md ends with a 'Judge's recommendation' section ('Adopt the design with all five agreed changes...') followed by a 'Your decision' section listing four numbered options for the user, including 'Where you might disagree with me: I am siding with the consensus that catalog_version stays conditional... you would be overriding the debate's sequencing, not its analysis.' answer.md likewise closes with the recommendation and the user-facing option set."
+        }
+      ],
+      "notes": [
+        "Defender role was played without author context; the design doc arrived as input, so Defender material came from the doc itself with open questions flagged as gaps",
+        "SendMessage continuation of the Phase-2 Adversary resumed in the background; a replacement agent was spawned and correctly avoided duplicating the already-written Phase 3",
+        "All later phases used fresh synchronous subagents with the transcript as memory, per the skill's continuity fallback",
+        "Phases 7-8 skipped by rule since all objections were resolved, so the Defender's Phase-8 feasibility weigh-in never ran"
+      ]
+    },
+    {
+      "eval_id": 3,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 189.2,
+        "tokens": 73976,
+        "tool_calls": 29,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+          "passed": true,
+          "evidence": "work/proposal.md exists and captures the user's inline argument verbatim in structure (three arguments for, three known downsides, 'The proposal author has final say'). The transcript header declares it the fixed artifact: 'Artifact: .../old_skill/work/proposal.md ... Append-only. Each role writes under its own heading and never edits another role's text.' user_notes.md confirms sequencing: 'The proposal was inline, so per the skill's setup step 1 I wrote it to work/proposal.md as the fixed artifact all roles read.' All role contributions (Defender Phase 1, Adversary/Advocate/Judge questions in Phase 2) argue against the same three arguments and three downsides from that file."
+        },
+        {
+          "text": "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+          "passed": true,
+          "evidence": "Defender's Phase 1 opening argues all three specifics: 'Decision 1: adopt pytest fixtures over setUp inheritance... a test class inherits setUp state it never uses'; 'Decision 2: use parametrize to collapse copy-pasted variants... turns N copies into one test plus a case table'; 'Decision 3: buy parallelism via the plugin ecosystem. pytest-xdist gives multi-process test execution with a command-line flag.' The Advocate's Phase 4 extends the same specifics (Strength 2: 'every new test written from the cutover onward gets fixtures, plain asserts, and parametrize immediately')."
+        },
+        {
+          "text": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+          "passed": true,
+          "evidence": "Adversary's Phase 3 engages all three real costs with substance: Objection 1 attacks the 6k-test conversion gap ('all 6,000 tests stay as TestCase classes, where parametrize does not work on methods and fixtures cannot be injected'); Objection 3 and 5 attack CI churn concretely ('pytest's collection is not identical to unittest discovery... load_tests hooks are not honored', 'a one-day CI audit'); Objection 4 attacks team familiarity as a 'permanent tax' ('every developer must know unittest, pytest, and the interop seam... autouse fixtures reaching TestCase tests via class attributes'). The Adversary also opens by conceding 'pytest is the better tool' and attacks the plan as argued, the opposite of a strawman."
+        },
+        {
+          "text": "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+          "passed": true,
+          "evidence": "Surfaced in Defender's opening as load-bearing: 'A key fact lowering migration risk: pytest runs unittest-style TestCase classes natively. The 6,000 existing tests do not need rewriting on day one \u2014 the runner can switch first, and tests can migrate to pytest idioms incrementally, or never.' The Advocate builds Strength 1 on it ('the 6,000 tests stay byte-identical while the runner changes underneath them... rollback is a one-line revert'), and answer.md carries it to the user: 'Not a rewrite: pytest runs TestCase classes natively, so the cutover touches zero test files.' The review also correctly bounds the fact (parametrize/fixture injection do not reach unconverted TestCase tests; load_tests not honored)."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md (identical to work/transcript.md per diff) contains all five: 'Phase 1 \u2014 Defender: Opening Statement', 'Phase 3 \u2014 Adversary's Case' (five numbered objections, each with Problem/Evidence/Better way), 'Phase 4 \u2014 Advocate's Case' (steelman plus per-objection answers), 'Phase 5 \u2014 Adversary's Rebuttal' (dispositions: 'two dropped, three sustained') plus 'Phase 6 \u2014 Advocate's Surrebuttal', and 'Phase 9 \u2014 Judge's Final Report' with agreed changes, contested-point resolutions, and a recommendation. The roles are genuinely distinct: the Adversary drops Objections 1-2 citing the Advocate's counter-arguments, and the Advocate concedes Objection 3 outright."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "answer.md gives the recommendation ('Bottom line: switch, but sign it as a conditional approval with three hard gates...', and a 'Judge's recommendation' section) and ends with a 'Your decision' section listing four options; the opening states 'You have final say; your four options are at the end.' The transcript's Phase 9 mirrors this: 'Your decision \u2014 You are choosing between four options,' including option 4 'Reject / status quo... the null option you are entitled to.'"
+        }
+      ],
+      "notes": [
+        "Facts the roles asked for (CI coupling depth, shared-state fraction, trial pytest collection) were absent from the user's request; the debate treated them as first-class unknowns and converted them into gated checks",
+        "SendMessage resume ran in the background against the coordinator's synchronous directive; phases 4, 5, 6, and 9 were re-run as fresh synchronous spawns with the transcript as shared memory",
+        "Phases 7-8 skipped per the skill's gate, so the Defender feasibility weigh-in has no transcript section"
+      ]
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 32.1,
+        "tokens": 3716,
+        "tool_calls": 25,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "A final report file exists that separates agreed changes from still-contested points",
+          "passed": true,
+          "evidence": "outputs/final-report.md exists with distinct sections '## Agreed changes' (four numbered consensus amendments), '## Dropped objections', and '## Contested points' (two items: auth_epoch vs. account-status flag, httpOnly cookie vs. localStorage). Each contested point lists both sides' positions separately before the Judge's rulings."
+        },
+        {
+          "text": "The review identifies the localStorage token storage XSS/theft risk",
+          "passed": true,
+          "evidence": "Transcript Phase 4, Adversary Objection 2: 'Any injected script can read the token and exfiltrate a credential that ... cannot be revoked and stays valid up to 24 hours ... one XSS bug equals one day of undetectable, unstoppable account takeover.' Final report Ruling 2 rules on it: 'Token storage \u2014 Adversary wins on the evidence, narrowly,' recommending an HttpOnly; Secure; SameSite=Lax cookie."
+        },
+        {
+          "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+          "passed": true,
+          "evidence": "Transcript Phase 4, Adversary Objection 1 (severity: highest): 'V1 ships with zero per-user revocation ... disabling an account row does not stop an already-issued token. Employee offboarding, compromise response, and admin suspension ... lose their enforcement mechanism for up to 24 hours.' The final report makes per-user revocation (auth_epoch check) a v1 blocker in Agreed change 1."
+        },
+        {
+          "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+          "passed": true,
+          "evidence": "Both are identified. Objection 4: 'Single-release cutover on the auth path with an untested rollback and no fallback ... rollback is a 15\u201330 minute pipeline redeploy \u2014 untested \u2014 during which every JWT-holding user is locked out.' Objection 3: 'Key lifecycle is unspecified, and the literal plan text mass-logs-out all users 2\u20133 times a week,' with the kid-header fix so v2 rotation is not a flag day. Both appear as Agreed changes 2 and 3 in final-report.md."
+        },
+        {
+          "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+          "passed": true,
+          "evidence": "Transcript Phase 4, Advocate's case, is a nine-paragraph steelman: 'The core architectural bet is correct, and the alternatives are worse' (Redis retirement + mobile constraints), 'RS256 is the right signature choice,' '\"No refresh tokens in v1\" is internally consistent, not lazy,' 'The scope discipline is the meta-strength.' The final report and answer.md preserve what survived: 'the JWT migration itself, RS256 over HS256, no refresh tokens in v1, minimal user data in claims, and the two-sprint scope all survive intact.'"
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md (copy of work/debate-review/transcript.md) has all phases under separate headings: 'Phase 1 \u2014 Defender: Opening Statement', 'Phase 2 \u2014 Clarifying Questions' (separate Adversary and Advocate question sets), 'Phase 3 \u2014 Defender's Answers', 'Phase 4 \u2014 Cases' (Adversary's five objections and Advocate's steelman), 'Phase 5 \u2014 Rebuttals' (each side responding to the other's Phase 4 case point by point), 'Phase 6 \u2014 Judge's Final Report'. The roles argue distinct positions and reference each other's specific claims, not boilerplate."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "final-report.md ends with 'Judge's recommendation' ('Amend the plan and ship it. Adopt all four agreed changes plus both rulings') followed by a 'Your decision' section listing Options A/B/C and a sub-choice. answer.md states up front: 'The user decides \u2014 nothing below has been applied to the plan' and closes with the same A/B/C options ('Your options, per the Judge')."
+        }
+      ],
+      "notes": [
+        "Defender context was thin: Phase 2 questions asked for facts the plan omits, so the Defender stipulated plausible facts (deploy cadence, XSS posture, revocation usage, rollback timing); conclusions rest partly on those stipulations and should be re-checked against reality",
+        "User should verify the stipulated environmental facts before acting on the rulings",
+        "Transcription dropped subagent wrapper lines and shifted heading levels to nest under the template's fixed headings; wording inside sections unchanged",
+        "Canonical transcript at work/debate-review/transcript.md; outputs/transcript.md is a copy"
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 60.2,
+        "tokens": 76186,
+        "tool_calls": 22,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+          "passed": true,
+          "evidence": "Transcript Phase 1 names the incoherence directly: 'Different workers may serve different versions of a product within the window; that is accepted.' The Adversary escalates it in Objection 1 (first region to populate a key 'sets the price every region sees for up to 10 minutes') and Objection 2 ('an urgent price correction or legal takedown waits up to 10 minutes with no override' across 8 worker processes). answer.md item 2 carries it to the user: 'There is no emergency purge. An urgent price fix or legal takedown waits up to 10 minutes plus a restart.' The bulk-import angle appears as the TTL-boundary staleness/refill discussion in Objection 3 rather than as a named 'stale after import' scenario, but the core finding \u2014 8 independent dict caches with no cross-worker invalidation \u2014 is identified and remediated (cache_generation counter)."
+        },
+        {
+          "text": "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+          "passed": true,
+          "evidence": "Adversary Objection 3 is exactly this: 'Every 10 minutes, the all_products entry \u2014 the full 12k-product list query, the heaviest read in the system \u2014 expires in each of 8 workers and is lazily refilled. There is no jitter, no single-flight lock, no stale-while-revalidate... the DB takes 8+ copies of its worst query while under write load.' The rebuttal round narrows it honestly (refill load is bounded by the status quo; the surviving harm is the p99 tail at TTL boundaries), and answer.md item 4 flags the all_products key as 'the weak spot' whose 'TTL expiry puts the heaviest query on user requests every 10 minutes.'"
+        },
+        {
+          "text": "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+          "passed": true,
+          "evidence": "The Advocate's case runs 9 substantive points, including a novel dominance argument ('on every latency component, an in-process hit is less than or equal to a Redis hit'), the fits-in-memory point ('~25MB per worker, ~200MB across 8 workers, a rounding error'), the no-new-infra failure-mode argument ('A dict cache has no outage mode... Every failure path degrades to read Postgres'), and migration economics. The defense is strong enough that the Adversary explicitly capitulates on the architecture: 'Redis deserves reconsideration is dead; I withdraw it.' answer.md leads with 'The architecture survived the red-team,' matching the user's ask to argue both sides."
+        },
+        {
+          "text": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+          "passed": true,
+          "evidence": "Multiple concrete mechanisms are proposed and agreed: a cache_generation integer in Postgres polled every ~10s (event-driven bust without new infra, Objection 2 'Better way' and agreed change 2), 'TTL jitter (\u00b120%)... a per-key in-worker lock... serve-stale-while-revalidate for the all_products key' (Objection 3, agreed change 4), and per-product-only caching replacing the all_products blob. Judge ruling B is a genuine brokered compromise: 'Add per-key single-flight only if workers are threaded or async; skip it for sync workers... The Adversary gives up unconditional inclusion of all ~45 lines; the Advocate gives up leaving the precondition unchecked.'"
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md contains all six phases with distinct voices: 'Phase 1 \u2014 Defender: Opening Statement', 'Phase 2 \u2014 Clarifying Questions' (separate Adversary and Advocate question sets), 'Phase 3 \u2014 Defender's Answers', 'Phase 4 \u2014 Cases' (Adversary's 5 numbered objections; Advocate's 9-point steelman), 'Phase 5 \u2014 Rebuttals' (both sides, with explicit concessions like 'SUSTAINED, NARROWED' and 'DROPPED IN PART'), and 'Phase 6 \u2014 Judge's Final Report' with agreed changes, contested points, and rulings. The roles genuinely interact rather than restating each other \u2014 e.g., the Adversary's rebuttal adopts the Advocate's dominance argument while sustaining Objections 1-4."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "final-report.md ends with 'Judge's recommendation' ('Build it, amended, without a measurement gate') followed by a 'Your decision' section listing 4 options. answer.md closes: 'The decision is yours; the debate's full reasoning is in the transcript if you want to disagree with any ruling.' The recommendation also supplies 'the reasoning to disagree with,' preserving the user's authority over the outcome."
+        }
+      ],
+      "notes": [
+        "The Defender role ran without the artifact's author present; where cache-design.md was silent it answered 'the doc does not say' rather than inventing facts, and those silences became findings",
+        "The Adversary's rebuttal introduced a new finding (all_products blob doubling the memory math) that the parallel Advocate rebuttal could not answer under the fixed-rounds rule; the Judge handled it as an unanswered contested point and verified the arithmetic personally",
+        "Session hit a limit after final-report.md was saved; the coordinator resumed to finish transcript copy, answer.md, and metrics.json \u2014 timing/token metrics undercount the full run",
+        "Duplicate subagent wrapper headings normalized and out-of-section meta lines excluded during transcription"
+      ]
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 45.8,
+        "tokens": 76372,
+        "tool_calls": 25,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+          "passed": true,
+          "evidence": "work/proposal.md exists (mtime Aug 6 20:05, seven minutes before the debate transcript at 20:12) and captures the user's inline argument verbatim in structure: three 'Arguments for' (fixtures beat setUp inheritance, parametrize kills copy-pasted variants, xdist parallelism for free) and the three downsides (6,000 tests, CI churn, unittest familiarity). The transcript header cites it as the fixed artifact: 'Artifact: .../work/proposal.md'. user_notes.md item 1 confirms: 'The skill requires every role to read the same fixed text, so I wrote the user's argument to work/proposal.md before starting.'"
+        },
+        {
+          "text": "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+          "passed": true,
+          "evidence": "Defender Phase 1 argues all three specifics: 'Fixtures over setUp inheritance... each test declares exactly the fixtures it uses as parameters'; 'parametrize over copy-pasted variants... turns each variant into its own reported test case'; 'Plugin ecosystem, especially xdist... multi-core parallelism with a command-line flag.' The Advocate deepens each: fixtures as dependency injection ('the same argument the industry accepted for dependency injection over inherited globals'), 'parametrize dominates subTest on every axis that matters operationally', and 'xdist is the only credible path to parallelism that does not mean building a test runner.'"
+        },
+        {
+          "text": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+          "passed": true,
+          "evidence": "The Adversary attacks the actual costs with mechanisms, not strawmen. 6k migration: Objection 1 ('6,000 tests written over years against a deterministic serial runner are exactly the population where shared databases, module-level globals... hide') and Objection 2 (unaudited compatibility layer, 'dropped tests fail green'). CI churn: Objection 5 quotes the proposal's own list ('runner invocation, coverage wiring, result reporting, flake detection all change \u2014 acknowledged, unmitigated') and proposes shadow CI. Team familiarity is engaged via Objection 3's governance gap (no owner for 'conftest.py conventions and fixture-scoping standards') and the Defender's Phase 1 concession that 'pytest's fixture resolution and conftest.py scoping have a genuine learning curve, and misused fixtures can create action-at-a-distance.' It is the thinnest of the three but present and non-strawmanned."
+        },
+        {
+          "text": "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+          "passed": true,
+          "evidence": "Defender Phase 1: 'pytest runs unittest-style TestCase suites natively, so the 6,000 tests do not need a big-bang rewrite \u2014 we can switch the runner first and migrate test style incrementally, per-package, as files are touched.' Advocate point 1 builds on it ('the actual first commitment is closer to a CI configuration change'), and answer.md relays it to the user: 'pytest runs unittest-style suites natively, so the first commitment is a runner swap plus CI config, not a rewrite.' The review also surfaces the compatibility layer's documented holes (load_tests, custom TestRunner/TestResult, subTest, no fixture injection into TestCase), so the claim is qualified rather than oversold."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md contains all six phases under distinct headings: 'Phase 1 \u2014 Defender: Opening Statement', 'Phase 2 \u2014 Clarifying Questions' (separate Adversary and Advocate question sets), 'Phase 3 \u2014 Defender's Answers' (defense), 'Phase 4 \u2014 Cases' with 'Adversary's case' (five numbered objections in Problem/Evidence/Better-way form) and 'Advocate's case' (six steelman points), 'Phase 5 \u2014 Rebuttals' from both sides (the Adversary drops Objection 4, the Advocate concedes Objections 2 and 5), and 'Phase 6 \u2014 Judge's Final Report' with rulings on the two surviving contested points. The roles have genuinely distinct voices and cross-reference each other's specific claims."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "final-report.md ends with 'Judge's recommendation' ('Adopt the proposal amended with a gates-before-commitment section') followed by a 'Your decision' section listing four options with option 1 recommended, including 'one genuine decision only you can make.' answer.md closes: 'You have final say. The four options the Judge laid out, with option 1 recommended, are at the end of final-report.md.'"
+        }
+      ],
+      "notes": [
+        "No codebase exists in the workspace, so Defender answered Phase 2 questions with 'unmeasured / unknown / not stated', steering the debate toward verification gates rather than numbers",
+        "Wrote the inline proposal to work/proposal.md before starting so all roles argue the same fixed text",
+        "Dropped subagent meta framing lines during transcription while keeping section content verbatim",
+        "Normalized the Judge's doubled heading markers in final-report.md only",
+        "Session hit a limit after answer.md and final-report.md were saved; remaining outputs written after reset"
+      ]
+    }
+  ],
+  "run_summary": {
+    "old_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 193.8667,
+        "stddev": 27.0041,
+        "min": 169.5,
+        "max": 222.9
+      },
+      "tokens": {
+        "mean": 76472.3333,
+        "stddev": 3898.787,
+        "min": 73976,
+        "max": 80965
+      }
+    },
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 46.0333,
+        "stddev": 14.0515,
+        "min": 32.1,
+        "max": 60.2
+      },
+      "tokens": {
+        "mean": 52091.3333,
+        "stddev": 41894.3708,
+        "min": 3716,
+        "max": 76372
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.00",
+      "time_seconds": "+147.8",
+      "tokens": "+24381"
+    }
+  },
+  "notes": [
+    "All 38 assertions pass in both configurations (19/19 with the reworked 6-phase skill, 19/19 with the old 9-phase skill) - no assertion discriminates between the two flows; they verify debate outcomes, not the flow mechanics that changed.",
+    "Time and token columns are unreliable this iteration: every run was killed by a session limit mid-debate and resumed, so each timing.json covers only the resumed segment (all six are flagged 'partial'). The apparent with-skill time advantage is an artifact of where the interruption fell, not a real speedup.",
+    "Both old-skill runs that reached phase 7 skipped phases 7-8 by the skill's own rule (every objection was dropped or conceded in the rebuttal cycle). The compromise-brokering machinery the rework removed went unused in these debates, which supports the simplification.",
+    "New-flow runs consistently spawned 7 fresh subagents (three Adversary/Advocate pairs plus a Judge) and produced full 6-phase transcripts of 40-43k chars - structurally equivalent depth to the old flow's 40-42k chars.",
+    "Grounding gap (both arms of eval 1): the Defender stipulated environment facts absent from the artifact (deploy cadence, CSP posture, vendor script count) and the Judge's rulings lean on them. Disclosed in user_notes.md, but no assertion checks evidence grounding - a fabricating run would score identically. Eval 3's old-skill run answered 'unknown/not measured' instead, which is the behavior the skill should mandate.",
+    "Graders flagged the 'distinct role contributions' assertion as passable by a single-voice transcript; nothing verifies the fresh-eyes independence that is the skill's core mechanism.",
+    "One factual slip in eval-1 old_skill answer.md: 'Six of your write-ups needed no defense change' contradicts the transcript (five of six decisions drew amendments)."
+  ]
+}

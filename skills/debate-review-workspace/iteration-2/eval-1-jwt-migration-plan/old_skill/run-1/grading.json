@@ -1,0 +1,119 @@
+{
+  "expectations": [
+    {
+      "text": "A final report file exists that separates agreed changes from still-contested points",
+      "passed": true,
+      "evidence": "outputs/final-report.md exists with distinct sections '## Agreed changes' (seven numbered items, e.g. 'Key lifecycle (Objection 1)... token_version revocation (Objection 2)') and '## Contested points' ('Nothing remained contested after Phase 6... Two for-the-record disagreements survive, neither blocking'), plus '## Compromises' and '## Judge's recommendation'."
+    },
+    {
+      "text": "The review identifies the localStorage token storage XSS/theft risk",
+      "passed": true,
+      "evidence": "Transcript Phase 3, Objection 4: '24-hour tokens in localStorage with no CSP and third-party scripts on authenticated pages... Any XSS — including a compromise of the analytics snippet or chat widget... exfiltrates a credential that is valid for 24 hours and (per Objection 2) unrevocable.' answer.md item 4 restates it and the debate develops it further (allowlisted-vendor silent exfiltration, connect-src, vendor isolation)."
+    },
+    {
+      "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+      "passed": true,
+      "evidence": "Transcript Phase 3, Objection 2: 'Under the plan... a stolen or downgraded token stays valid for up to 24 hours and nobody can revoke it. The plan frames logout as a UX decision; it is actually the removal of the existing incident-response lever.' answer.md: 'Client-side-only logout silently regresses three live behaviors... Revocation latency drops from 24h to ~1 minute' with the token_version fix."
+    },
+    {
+      "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+      "passed": true,
+      "evidence": "Both are identified. Objection 5: 'Single-release cutover has an untested, slow rollback... the only recovery is redeploying the previous release: 15–30 minutes of full-site auth outage, via a path nobody has tested, with no feature flag.' Objection 1: '\"One RS256 keypair, generated at deploy time\" means each deploy mints a new keypair... the plan specs no kid header and no multi-key verification, so the first real rotation... is itself a full-user logout.'"
+    },
+    {
+      "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+      "passed": true,
+      "evidence": "Transcript Phase 4 Part 1 is a four-point steelman: 'The plan optimizes for its two real constraints... Ops mandates retiring Redis; the team has two sprints'; 'It changes nothing users can feel'; 'The token design is forward-compatible where it counts'; 'Its deferrals are additive, not corrective.' The Advocate also substantively disputes Objection 3 ('This is where I hold the line... The evidence is hearsay') rather than conceding everything, and answer.md carries the defense forward ('The core bet... all stand')."
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "outputs/transcript.md has phase headings per role: 'Phase 1 — Defender: Opening Statement', 'Phase 2 — Clarifying Questions' (Adversary/Advocate/Judge questions with Defender answers), 'Phase 3 — Adversary's Case' (five objections), 'Phase 4 — Advocate's Case' (steelman plus per-objection answers), 'Phase 5 — Adversary's Rebuttal' (DROPPED/SUSTAINED verdicts), 'Phase 6 — Advocate's Surrebuttal', and 'Phase 9 — Judge's Final Report'. The roles argue against each other with position changes, not parallel monologues."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "final-report.md ends with '## Judge's recommendation' ('Adopt the amended plan') followed by '## Your decision: You are choosing between:' listing four options with trade-offs. answer.md mirrors this: 'Your options, from the Judge's report:' with the same four options and pitch-ready framing, leaving the choice to the user."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 4,
+      "Bash": 6,
+      "ToolSearch": 2,
+      "Edit": 3,
+      "Agent": 7,
+      "SendMessage": 1,
+      "Write": 3
+    },
+    "total_tool_calls": 26,
+    "total_steps": 20,
+    "errors_encountered": 1,
+    "output_chars": 5567,
+    "transcript_chars": 40412
+  },
+  "timing": {
+    "executor_duration_seconds": 222.9,
+    "note": "timing.json marked partial: run was interrupted by a session limit and resumed; token/duration figures undercount the true cost (~47k earlier tokens uncounted)."
+  },
+  "claims": [
+    {
+      "claim": "final-report.md is the Judge's phase 9 section extracted verbatim from the transcript",
+      "type": "process",
+      "verified": true,
+      "evidence": "final-report.md content matches transcript.md Phase 9 (lines 224-265) word for word, including the seven agreed changes and the four-option decision section."
+    },
+    {
+      "claim": "Phases 7-8 were skipped because all objections resolved in debate",
+      "type": "process",
+      "verified": true,
+      "evidence": "Transcript Phase 5 marks Objections 1, 2, 5 DROPPED; Phase 6 concedes the narrowed 3 and 4 on the Adversary's stated sustain conditions. Phase 7 reads 'Skipped — every objection was dropped in phase 5 or conceded in phase 6.' Phase 8 subsections remain as empty placeholder comments, consistent with the skip though slightly untidy."
+    },
+    {
+      "claim": "Defender's Phase 2 answers (two third-party scripts, ~10 force-logouts/year, Redis retired next quarter, mobile expects persistent login) are scenario facts",
+      "type": "factual",
+      "verified": false,
+      "evidence": "None of these facts appear in work/jwt-migration-plan.md; the Defender invented them as plan-author context. user_notes.md discloses this ('contextual details... were supplied as the plan author's context') and asks that they be treated as scenario facts. The invention is internally consistent and load-bearing for Objections 2-5, but it is fabricated context, not derived from the input."
+    },
+    {
+      "claim": "answer.md: 'Six of your write-ups needed no defense change'",
+      "type": "factual",
+      "verified": false,
+      "evidence": "The plan has six design decisions and five of them drew objections that produced amendments (key management, logout, cutover, storage, no-refresh). No reading of the transcript supports 'six write-ups needed no defense change'; the sentence contradicts the same paragraph's 'two outright defects and three under-priced risks'."
+    },
+    {
+      "claim": "The amendments cost days and hours, not sprints, and preserve the two-sprint budget and no-Redis end state",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Each agreed change is individually sized in the transcript (kid header 'one line', token_version 'one integer column, one claim, one middleware comparison', CSP 'hours of work', vendor isolation 'time-boxed to two days', sid fallback 'one small conditional for one release'); none reintroduces Redis."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Defender-supplied contextual facts (XSS posture, force-logout frequency, mobile expectations, Redis retirement timing) are not in the plan file; the executor asks that they be graded as scenario facts."
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Session-limit interruption during Phase 6; resumed from the transcript with no content loss (counted as the 1 error in metrics.json).",
+      "SendMessage resume of the Phase 2 Adversary ran in the background; later phases fell back to fresh synchronous spawns briefed with the transcript, per the skill's documented fallback."
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No assertion checks whether the debate's evidence is grounded in the input plan. The Defender fabricated the facts (no CSP, two vendor scripts, ~10 force-logouts/year, Redis staying through cutover) that most objections and resolutions rest on — disclosed in user_notes.md but uncaught by any expectation. An assertion like 'claims about the current system either come from the plan file or are marked as assumptions/questions for the author' would discriminate between grounded review and confident fabrication."
+      },
+      {
+        "expectation": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+        "reason": "The disjunction lets a run pass while missing one of two independent plan defects. This run found both; splitting into two assertions would catch a weaker run that finds only one."
+      }
+    ],
+    "overall": "All seven assertions pass on strong, non-superficial evidence: the transcript shows real adversarial exchange with position changes on both sides, and the final report separates agreed from contested outcomes. The main blind spot is evidence grounding — the debate's quality rests heavily on facts the Defender invented rather than facts from the plan file."
+  }
+}

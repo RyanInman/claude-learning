@@ -1,0 +1,413 @@
+{
+  "metadata": {
+    "skill_name": "debate-review",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-08-07T20:55:32Z",
+    "evals_run": [
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 46.9,
+        "tokens": 80831,
+        "tool_calls": 26,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "A final report file exists that separates agreed changes from still-contested points",
+          "passed": true,
+          "evidence": "outputs/final-report.md exists with distinct sections '## Agreed changes' (four numbered amendments both sides support) and '## Contested points' ('Only one point remains genuinely live. Token storage: localStorage versus httpOnly cookie'), plus 'Dropped objections' and 'Rulings'. The separation reflects the actual debate: the Advocate conceded Objections 1, 3, 4 in rebuttal, and storage remained split."
+        },
+        {
+          "text": "The review identifies the localStorage token storage XSS/theft risk",
+          "passed": true,
+          "evidence": "Adversary Objection 2: 'Any XSS on any authenticated page exfiltrates a 24-hour irrevocable token... the plan maximizes the blast radius of token theft (long TTL, no revocation) while choosing the storage location most exposed to theft.' Carried into final-report.md Contested points ('The exfiltration delta is real \u2014 a stolen token grants offline, off-site access') and answer.md item 2 (XSS audit gate)."
+        },
+        {
+          "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+          "passed": true,
+          "evidence": "Adversary Objection 1: 'A stolen or abused token stays valid for up to 24 hours with no way to kill it. Offboarded employees, banned users, and compromised accounts keep API access for a full day.' It also catches the role-claim corollary (demoted admin keeps admin power) and rebuts the plan's 'denylist reintroduces Redis' premise. Final report amendment 1 adds jti + Postgres denylist."
+        },
+        {
+          "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+          "passed": true,
+          "evidence": "Both identified. Objection 3: 'The same deploy that starts issuing JWTs also deletes the session middleware... every user is locked out and the only recovery is redeploying the previous release \u2014 a path the Defender admits is untested.' Objection 4: 'generated at deploy time' ambiguity, missing kid header, and no JWKS endpoint make v2 rotation 'exactly the global-logout event the plan is trying to defer.' Both became agreed amendments 3 and 4."
+        },
+        {
+          "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+          "passed": true,
+          "evidence": "Phase 4 Advocate's case is a substantive seven-paragraph steelman: 'No refresh tokens, no denylist, client-side logout... are one principle applied three times'; the like-for-like 24-hour TTL argument; the httpOnly-buys-less-than-its-reputation argument (which the Adversary conceded in rebuttal and which won the storage ruling); Bearer auth 'chosen for the client that is coming'; scope discipline. The steelman changed outcomes \u2014 it defeated Objection 5 and won the storage contest \u2014 so it is genuine, not token."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md has six phases: Phase 1 Defender's Opening Statement, Phase 2 Clarifying Questions (Adversary and Advocate separately), Phase 3 Defender's Answers, Phase 4 Cases (Adversary's five ranked objections; Advocate's steelman), Phase 5 Rebuttals (both sides, with sustained/narrowed/dropped verdicts), Phase 6 Judge's Final Report. Roles argue distinctly and respond to each other's specific points (e.g., Adversary: 'That describes a strawman, not my proposal')."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "Final report ends with 'Judge's recommendation' ('Adopt the amended plan') followed by a 'Your decision' section listing five options ('You are choosing between: ...'). answer.md closes: 'The decision is yours \u2014 option 2 (ship as written) is on the table, but both debaters ended the review opposed to it.'"
+        },
+        {
+          "text": "The Defender's answers do not invent environment facts absent from the plan file (deploy cadence, CSP posture, usage counts) - unknowns are answered as unknown or flagged as assumptions",
+          "passed": true,
+          "evidence": "Phase 3 answers every unrecorded fact as unknown: revocation frequency 'Unknown... no compliance or contractual obligation... is documented'; XSS posture 'Unknown on every specific'; deploy time 'unknown \u2014 never measured for this purpose'; Redis cost 'Unknown. No monthly spend figure...'. The keypair intent is flagged as an unguarded ambiguity, not asserted as fact. Facts the Defender does cite (40k DAU, mobile next quarter, React SPA, session-TTL parity) all appear verbatim in work/jwt-migration-plan.md."
+        }
+      ],
+      "notes": [
+        "Defender ran without author context; all unmeasured operational facts answered as unknown per the phase-3 rule",
+        "Keypair 'generated at deploy time' intent stated as likely reading but flagged as unguarded ambiguity",
+        "Overkill check skipped silently (unattended run, artifact clearly above the single-pass bar)",
+        "General-purpose subagents used instead of read-only; compensated with an explicit no-edit instruction in every role prompt",
+        "Subagent scaffolding lines dropped and objection headings re-nested during verbatim transcription; argument text unaltered",
+        "Session limit interrupted the run during output saving; on resume, disk state verified and only metrics.json needed writing (counted as the 1 error)"
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 71.6,
+        "tokens": 77845,
+        "tool_calls": 23,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+          "passed": true,
+          "evidence": "Defender Phase 1 flags 'cross-worker staleness skew \u2014 8 workers each with independent TTL clocks means two consecutive requests can see different catalog states'. Adversary Objection 2 develops the bulk-import case: 'all_products cached at minute 2 of an import disagrees with /products/<id> entries cached at minute 5, and each of the 8 workers freezes a different partial state for up to 10 minutes'. The torn-catalog scenario carries through to the Judge's report (agreed change 2, contested Point B) and answer.md item 2."
+        },
+        {
+          "text": "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+          "passed": true,
+          "evidence": "Adversary Objection 3: 'Every 10 minutes, each worker's all_products entry expires. The next request eats the full uncached assembly \u2014 the most expensive query in the system \u2014 and under load, several concurrent requests in the same worker all miss and all rebuild, because a plain dict has no single-flight.' The debate then refines it honestly: the DB-overload framing is withdrawn (cached load is bounded by the uncached baseline), and what survives is the soft-TTL + per-key lock + jitter amendment (Judge agreed change 3)."
+        },
+        {
+          "text": "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+          "passed": true,
+          "evidence": "Advocate case points 1-2: '~12k products, ~2KB each, ~25MB total... the textbook profile for an in-process cache'; '~200MB across 8 workers buys removal of the network from the read path entirely'; 'Every failure mode of this cache degrades to read Postgres... Contrast Redis: a Redis outage either stampedes the DB... or takes reads down'. The defense is substantive enough that the Adversary concedes points 1, 2 (partially), and 8, and answer.md concludes 'the in-process cache is the right tool for a 25MB, 50-writes/day catalog'."
+        },
+        {
+          "text": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+          "passed": true,
+          "evidence": "Multiple concrete compromises: soft-TTL/serve-stale-while-revalidate with a per-key rebuild lock and \u00b160s jitter ('~15 lines of code, no infra', Objection 3 and Judge agreed change 3); a catalog_version read-time check as an event-driven bust alternative (Objection 2); and the Judge's Point B ruling brokers an explicit compromise: 'atomic imports as a stated precondition of the cache... If the import pipeline cannot be made atomic before rollout, the cache carries the catalog_version read-time check as its own mitigation'."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md is structured by phase: Phase 1 Defender opening statement, Phase 2 clarifying questions from Adversary and Advocate, Phase 3 Defender's answers, Phase 4 Adversary's five ranked objections and Advocate's eight-point steelman, Phase 5 cross-rebuttals from both sides, Phase 6 Judge's final report. The roles argue distinctly \u2014 e.g., the Adversary concedes some points ('Point 1 (sizing) \u2014 accepted') while sustaining others, rather than producing uniform text."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "The Judge's report ends with a 'Your decision' section listing Options 1-3 plus a sub-decision; answer.md closes with the Judge's recommendation ('Approve the architecture... three fact-finds before writing code'), the same option menu, and 'The decision is yours.'"
+        }
+      ],
+      "notes": [
+        "Defender argued from the document only (no authorship, no codebase to consult); design-silent facts were answered 'unknown' rather than invented",
+        "Proceeded with a full debate without offering the single-pass option (running unattended; user asked to 'argue both sides properly')",
+        "Trimmed subagent delivery-note wrapper text during transcription, keeping each agent's self-delimited section verbatim",
+        "Demoted Judge's ## headings to ### inside the transcript only, to avoid colliding with phase headings",
+        "Session hit a limit after final-report.md and transcript.md; coordinator resumed to write answer.md, metrics.json, user_notes.md (counted as the 1 error in metrics)"
+      ]
+    },
+    {
+      "eval_id": 3,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 410.8,
+        "tokens": 95735,
+        "tool_calls": 23,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+          "passed": true,
+          "evidence": "work/pytest-migration-proposal.md contains the user's request quoted verbatim plus a structured restatement. The debate transcript header names it as the fixed artifact ('Artifact: .../work/pytest-migration-proposal.md'), and Phase 1 opens by referencing it ('the artifact is the proposer's inline case, written out verbatim plus a structured restatement') before any debate content. user_notes.md item 2 confirms: 'Per skill Setup step 2, I wrote the request verbatim plus a structured restatement to work/pytest-migration-proposal.md so every role reads the same fixed text.'"
+        },
+        {
+          "text": "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+          "passed": true,
+          "evidence": "Defender Phase 1 argues all three as numbered decisions: 'Decision 1 - fixtures over setUp inheritance... Pytest fixtures are injected by name, compose without inheritance'; 'Decision 2 - parametrize over copy-pasted variants... collapses N copies into one test plus a data table'; 'Decision 3 - plugin ecosystem, specifically pytest-xdist.' The Advocate's Phase 4 case deepens each: point 2 argues the three claims are structural, point 3 sharpens fixtures-vs-base-classes into a monorepo import-graph argument, and point 2 bullet 3 argues the parallelism capability discontinuity ('unittest ships no parallel execution at all')."
+        },
+        {
+          "text": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+          "passed": true,
+          "evidence": "Adversary objection 1 engages the 6k tests directly and non-trivially: the compat layer 'cancels the two biggest upsides' because parametrize and non-autouse fixtures do not work on TestCase subclasses, so the benefits reach 'zero of the 6,000 existing tests'. Objection 3 makes CI churn concrete: identifier shape change 'silently invalidating flake history, quarantine lists, and ownership routing'. Objection 4 engages familiarity via the mixed-idiom suite ('every engineer must read both idioms'), and in rebuttal the Adversary concedes the strongest opposing point ('unittest fluency is a depreciating asset... I have no counter to it') - the opposite of strawmanning."
+        },
+        {
+          "text": "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+          "passed": true,
+          "evidence": "Defender Phase 1, 'Key mitigating fact': 'Pytest runs unittest.TestCase suites natively. Migration does not require rewriting 6k tests up front: the runner can switch first, and tests convert to pytest idioms incrementally or never.' The Advocate builds his case on it (P1: 'Pytest collects and runs unittest.TestCase subclasses as-is... this is not a migration with a rollback plan, it is a config flip'), and answer.md leads with it as 'The one fact that reshaped the debate'. The review also correctly bounds the fact (parametrize unavailable on unconverted tests), which is stronger than merely surfacing it."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md (identical to work/debate-review/transcript.md, verified by diff) has all phases under distinct role headings: Phase 1 'Defender: Opening Statement', Phase 2 clarifying questions from Adversary and Advocate, Phase 3 'Defender's Answers' (defense), Phase 4 'Adversary's case' (five objections) and 'Advocate's case' (eight points), Phase 5 'Adversary's rebuttal' and 'Advocate's rebuttal' (with explicit concessions and sustained/withdrawn ledger), Phase 6 'Judge's Final Report' with contested points C1-C7, per-point rulings, and a recommendation. The roles argue against each other rather than repeating one voice - e.g. the Adversary sustains objection 3 while withdrawing the 'doubles the familiarity downside' claim."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "The Judge's report gives an explicit recommendation ('Run the spike this week, with the pass/fail rule written before it runs') followed by a 'Your decision' section with four options and 'You have final say. The strongest reason to disagree with me: ...'. answer.md, the user-facing output, ends the same way: section 'Your options (you have final say)' lists four options and closes with the strongest reason to overrule the Judge."
+        }
+      ],
+      "notes": [
+        "Overkill check (offering a single-pass review) was skipped without asking because the run was unattended; judged full debate appropriate for a 6k-test migration",
+        "Timing figures undercount the run because a session limit interrupted it",
+        "Session terminated after Phase 5 rebuttals were returned but before transcription; resumed by verifying phase state on disk and transcribing the already-returned rebuttals (counted as the 1 error in metrics)",
+        "Duplicate top headings returned by subagents were dropped during transcription; body text unaltered",
+        "final-report.md extracted from the transcript via awk to guarantee verbatim match"
+      ]
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 406.3,
+        "tokens": 110398,
+        "tool_calls": 27,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "A final report file exists that separates agreed changes from still-contested points",
+          "passed": true,
+          "evidence": "outputs/final-report.md exists with distinct sections: '## Agreed changes' (10 numbered items both sides support), '## Dropped objections', '## Contested points' (Contested point A: refresh tokens now vs mobile GA; Contested point B: storage sequencing), plus '## Rulings' and '## Your decision'. The separation is substantive, not just headings: each agreed change cites the concession that produced it, and each contested point states both sides' final positions."
+        },
+        {
+          "text": "The review identifies the localStorage token storage XSS/theft risk",
+          "passed": true,
+          "evidence": "Adversary Objection 4: 'any XSS exfiltrates a token that, per decision 4, cannot be revoked for 24 hours' and proposes 'HttpOnly; Secure; SameSite=Lax' cookie storage. The rebuttal round deepens it: 'Exfiltration means the attacker holds a bearer credential usable from their own infrastructure... and per decision 4, unrevocable for up to 24 hours.' The final report carries it as Agreed change 10 (state origin topology and CSP status) and Ruling B."
+        },
+        {
+          "text": "The review identifies that stateless client-side logout means tokens cannot be revoked for 24 hours",
+          "passed": true,
+          "evidence": "Adversary Objection 1: 'password reset, admin force-logout, account suspension, and role demotion are no-ops for up to 24 hours' and 'Demoting an admin, or suspending a compromised account, leaves that principal fully privileged for up to a day. That is a privilege-persistence bug.' The Judge treats it as 'the Adversary's genuinely unanswered point' and the compromise adds a tokens_valid_after column to close it."
+        },
+        {
+          "text": "The review identifies the big-bang single-release cutover risk or the missing key-rotation story",
+          "passed": true,
+          "evidence": "Both are identified. Cutover: Objection 5 shows rollback is not a revert ('the cutover deploy... destroys the state a revert would restore'; 'a second outage'), and Agreed change 7 replaces it with a three-step staged cutover. Key rotation: Objection 2 shows the 'generated at deploy time' ambiguity is 'a production incident either way' (per-deploy = mass logout every release; once = no rotation path for a leaked key), fixed in Agreed change 4 with kid, a two-key set, and a JWKS endpoint."
+        },
+        {
+          "text": "The output contains a genuine defense/steelman of the plan (statelessness, simplicity, Redis retirement), not only criticism",
+          "passed": true,
+          "evidence": "Phase 4 Advocate's case is a substantive steelman with original arguments: RS256-with-deferred-rotation as correct sequencing, holding the TTL constant as deliberate variable control, single-release cutover as failure-surfacing, localStorage as the unified-client choice, env-var keys as reusing an existing trust boundary. It is genuine, not decorative: two of its arguments win in the final ruling (the Adversary withdraws his RS256 and secret-manager objections; the Advocate wins the refresh-token schedule via the variable-control argument)."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md (84,489 chars) has six labeled phases: 'Phase 1 \u2014 Defender: Opening Statement', 'Phase 2 \u2014 Clarifying Questions' (Adversary's and Advocate's), 'Phase 3 \u2014 Defender's Answers', 'Phase 4 \u2014 Cases' (Adversary's five objections; Advocate's steelman), 'Phase 5 \u2014 Rebuttals' (both sides, with explicit concessions and sustained points), 'Phase 6 \u2014 Judge's Final Report'. The roles argue against each other with specifics, concede named sub-points, and reach different conclusions \u2014 clearly distinct contributions, not one voice relabeled."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "final-report.md ends with 'Judge's recommendation' followed by '## Your decision' \u2014 'You are choosing between four options' with costed Options 1-4. answer.md closes: 'The full option set is in outputs/final-report.md under \"Your decision\" \u2014 the call is yours.'"
+        },
+        {
+          "text": "The Defender's answers do not invent environment facts absent from the plan file (deploy cadence, CSP posture, usage counts) - unknowns are answered as unknown or flagged as assumptions",
+          "passed": true,
+          "evidence": "Verified Phase 3 against work/jwt-migration-plan.md. All six answers mark absent facts as unknown: session TTL behavior ('Unknown. The plan says only...'), session contents and invalidation paths ('Unknown on both counts'), Redis drivers and rollback mechanism ('no cost number, deadline, or headcount is given... unknown'), keypair lifecycle ('Ambiguous in the text, honestly read... I will not stipulate'), threat model/origin topology ('Unknown'). Every fact the Defender does assert (40k DAU, Flask monolith, mobile next quarter, Redis as only other stateful infra) appears verbatim in the plan file."
+        }
+      ],
+      "notes": [
+        "timing.json undercounts the full run because it covers only the post-interruption segment",
+        "Session interrupted after the Adversary's phase-5 rebuttal; Advocate's rebuttal transcribed from the retained subagent reply on resume, no phase re-run",
+        "Judge report title dropped in the transcript and headings demoted one level to nest under Phase 6, per the skill's transcription rule"
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 16546.6,
+        "tokens": 102509,
+        "tool_calls": 25,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "The review identifies per-worker cache incoherence (workers serving divergent data, staleness after bulk imports)",
+          "passed": true,
+          "evidence": "Adversary rebuttal (Phase 5): 'a fill that straddles a bulk import pins a torn view: some entries pre-import, some post-import, frozen together for 10 minutes' and 'independently-filled all_products and per-id entries can contradict each other'. Judge R8 sustains the bulk-import staleness point: 'if one import touches 3,000 rows, 25% of the catalog is stale in every worker at once, and that arithmetic checks out.' Judge's agreed change 2 codifies the fix ('fill from a single snapshot... Nobody priced self-contradictory within one session'). answer.md item 2 relays it to the user. Divergence across the 8 independent worker processes is also covered in the Advocate's point 3 (per-worker staleness under missed invalidation) and the Adversary's Objection 2 (per-worker miss waves)."
+        },
+        {
+          "text": "The review identifies TTL-expiry stampede/thundering-herd or the cost of rebuilding the all_products entry",
+          "passed": true,
+          "evidence": "Adversary Objection 2 is entirely this: 'after a deploy... the whole working set fills within a few seconds... and therefore expires within the same few seconds, ten minutes later. At that instant every one of the 8 workers has a synchronized miss wave' and 'the all_products key is the sharp edge... its expiry means 8 workers simultaneously run a full-catalog query and serialize 12k rows, repeating every 10 minutes forever.' The Defender's opening also flags 'thundering herd of misses' as a gap. The Judge adjudicates it in R1 with checked arithmetic (48 full-catalog queries/hour vs 3,600/hour uncached at 1 rps)."
+        },
+        {
+          "text": "The output contains a genuine defense of the in-process choice (latency, no extra infra, catalog fits in memory), not only criticism",
+          "passed": true,
+          "evidence": "The Advocate's case (Phase 4) makes all three named arguments substantively: latency ('A Python dict lookup is roughly 50-100ns. A Redis GET... 300us-1ms... a 3,000-10,000x difference'), no extra infra (point 7: 'Rollback is an environment variable... no new deployable, no new secret, no new on-call surface'; point 3 on how event-driven invalidation 'smuggles Redis back in'), and fits-in-memory (point 1: '12k x 2KB x 8 workers ~ 200MB total... small on any modern container fleet'). This is a nine-point steelman with original quantitative arguments (Redis bandwidth math, queueing-theory rho/(1-rho) analysis), not token praise. The Judge's ruling reflects it: the design's shape survives and the Adversary withdrew both shape-level attacks."
+        },
+        {
+          "text": "At least one concrete compromise is proposed (e.g., shorter TTL on all_products, TTL jitter, pub/sub invalidation, event-driven bust)",
+          "passed": true,
+          "evidence": "Multiple concrete compromises, several adopted by both sides. Adversary Objection 2's 'Better way': 'Jitter the TTL: 600s x uniform(0.8, 1.2) per entry', 'Single-flight per key: a per-worker dict[key, Future]... roughly 15 lines', 'Serve stale while revalidating... hard stale ceiling (say 60 minutes)'. The Judge's 'Agreed changes' lists ten, including jitter (item 4), SWR with ceiling and refresh_failures counter (item 5), snapshot fill/dedup (items 1-2), and maxsize+LRU (item 9). R1 is an explicit brokered compromise: single-flight ships conditionally on the worker-class verification item."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md is structured by phase with distinct voices: Phase 1 'Defender: Opening Statement', Phase 2 clarifying questions from Adversary and Advocate separately, Phase 3 Defender's answers (marking unknowns), Phase 4 'Adversary's case' (5 objections) and 'Advocate's case' (9 points), Phase 5 both rebuttals (each engaging the other's specific numbered points, with withdrawals and concessions), Phase 6 'Judge's Final Report' with agreed changes, contested points C1-C8, and rulings R1-R8. The roles genuinely interact: the Adversary withdraws two claims, the Advocate concedes Objection 5 'almost entirely', and the Judge corrects both sides (R6: the Advocate's env-var canary claim is wrong under gunicorn prefork). metrics.json corroborates 7 Agent spawns matching user_notes.md's '2x questions, 2x cases, 2x rebuttals, 1 judge'."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "final-report.md ends with 'Judge's recommendation' (amended design: 'Do not ship the document as written, and do not narrow it...') followed by a 'Your decision' section listing five options with costs and when to pick each. answer.md closes: 'The decision is yours; the Judge only recommends.'"
+        }
+      ],
+      "notes": [
+        "Skipped the skill's overkill check (single-pass option for tiny artifacts) because the user explicitly asked for both sides argued properly and the run was unattended",
+        "Session terminated after Phase 5 and resumed before the Judge phase; transcript on disk verified before continuing (counted as the 1 error in metrics.json)",
+        "HTML-entity escaping in subagent replies restored to literal characters during transcription",
+        "Judge report wrapper lines dropped in the transcript and headings demoted per the skill's packaging rule"
+      ]
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 395.6,
+        "tokens": 101551,
+        "tool_calls": 27,
+        "errors": 2
+      },
+      "expectations": [
+        {
+          "text": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+          "passed": true,
+          "evidence": "work/pytest-migration-proposal.md contains the user's prompt verbatim plus a structured restatement (Position, 3 arguments for, 3 downsides). The debate transcript header names it as the Artifact: '**Artifact:** .../work/pytest-migration-proposal.md'. user_notes.md item 1: 'I wrote the request's inline proposal verbatim (plus a structured restatement) to work/pytest-migration-proposal.md before Phase 1.' Roles then argue against that fixed text; e.g., the Judge's Ruling 1 checks it directly: 'I checked the artifact. It is 26 lines, it lists \"6,000 existing tests\" as an unmitigated downside, and it contains no affordability claim.'"
+        },
+        {
+          "text": "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+          "passed": true,
+          "evidence": "Defender Phase 1 presents all three verbatim arguments with mechanism ('pytest fixtures are named, composable, request-scoped dependencies', '@pytest.mark.parametrize collapses those into one test body with a table of cases', 'pytest-xdist distributes tests across CPU cores with a command-line flag'). The Advocate's Phase 4 case deepens each: point 3 makes fixtures-vs-setUp a monorepo ownership argument ('conftest.py resolves by directory, which maps onto monorepo ownership boundaries'), point 5 details parametrize vs copy-paste ('adding a case is a one-line diff to a table. Under copy-paste, it is a new method'), point 4 defends xdist including '--dist loadfile' graceful degradation."
+        },
+        {
+          "text": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+          "passed": true,
+          "evidence": "Adversary Objection 1 engages the 6k-test cost precisely: parametrize and argument-injected fixtures do not work on TestCase methods, so 'in the cheap scope... arguments 1 and 2 deliver zero value against the existing 6,000 tests'. Objections 2 and 3 engage CI churn concretely (parallel-safety unknown, silent collection loss via load_tests/custom TestResult, dual-runner CI overlap). Objection 5 goes beyond the stated familiarity cost rather than strawmanning it: 'The proposal lists \"some devs know unittest well\" as the human downside. That is the weakest version of the real cost... the actual cost is... two test idioms simultaneously, for a duration the proposal does not bound.' The Adversary also concedes points where the pro side is right (subTest vs parametrize, ecosystem argument), which is the opposite of strawmanning."
+        },
+        {
+          "text": "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+          "passed": true,
+          "evidence": "Defender Phase 1 (transcript line 27): 'pytest runs unittest.TestCase suites natively. Switching the runner does not require rewriting the 6k tests up front.' Advocate point 2: 'The 6,000 tests are an inventory to convert opportunistically, not a bill due at migration time.' The compatibility limits are also mapped (Phase 3, Advocate Q2: load_tests ignored, no parametrize on TestCase methods). The final answer.md carries it to the user: 'The two arguments that emerged strongest were ones you did not make: the asymmetry (pytest runs unittest.TestCase natively...)' and the agreed scope sentence 'adopt pytest as the runner now; convert TestCase files only when already modifying them'."
+        },
+        {
+          "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+          "passed": true,
+          "evidence": "outputs/transcript.md is structured by phase and role: 'Phase 1 \u2014 Defender: Opening Statement'; Phase 2 clarifying questions from Adversary and Advocate; Phase 3 Defender's answers (defense of the artifact's claims, conceding unknowns); Phase 4 'Adversary's case' (Objections 1-5) and 'Advocate's case' (points 1-8); Phase 5 'Adversary's rebuttal' and 'Advocate's rebuttal'; Phase 6 'Judge's Final Report' with Agreed changes, Dropped objections, Contested points, Rulings 1-8, and a recommendation. The contributions are substantively distinct (roles concede to each other, cite each other's phase text, and disagree in the rulings), not one voice relabeled."
+        },
+        {
+          "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+          "passed": true,
+          "evidence": "answer.md states the recommendation ('The Judge recommends approving the switch, with preconditions', 'My read matches the Judge: Option 1') and opens with 'You get final say.' Its closing section is titled 'Your decision' and lists Options 1-4 for the user to choose. The Judge's report in the transcript likewise ends with a 'Your decision' section presenting four options rather than deciding."
+        }
+      ],
+      "notes": [
+        "Advocate and Judge cite 'transcript line 27' for the Defender's compatibility note; after a duplicate-heading repair the executor believed the content sat ~10 lines earlier and left citations untouched per the verbatim rule (in the final outputs/transcript.md the citation is in fact accurate)",
+        "Wrote the inline proposal verbatim to work/pytest-migration-proposal.md before Phase 1 so all roles argue the same fixed text",
+        "Session terminated after the Adversary's Phase 5 rebuttal; on resume, verified transcript state on disk and transcribed the Advocate's rebuttal from the retained tool result",
+        "Removed a self-inflicted duplicate empty 'Phase 2' heading block from the transcript on resume"
+      ]
+    }
+  ],
+  "run_summary": {
+    "old_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 176.4333,
+        "stddev": 203.3429,
+        "min": 46.9,
+        "max": 410.8
+      },
+      "tokens": {
+        "mean": 84803.6667,
+        "stddev": 9583.8189,
+        "min": 77845,
+        "max": 95735
+      }
+    },
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 5782.8333,
+        "stddev": 9321.6969,
+        "min": 395.6,
+        "max": 16546.6
+      },
+      "tokens": {
+        "mean": 104819.3333,
+        "stddev": 4854.9544,
+        "min": 101551,
+        "max": 110398
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.00",
+      "time_seconds": "-5606.4",
+      "tokens": "-20016"
+    }
+  },
+  "notes": [
+    "Timing and token columns are not comparable this iteration: all 6 runs were interrupted by an account session limit and resumed. Token counts cover only the resumed segment, and the with-skill eval-2 duration (16,547s) includes ~4.5h of idle wait across the limit reset.",
+    "Pass rate does not discriminate (100% in both configurations, as in iteration 2). The iteration-3 fixes targeted process friction, and that signal shows in user_notes.md: with-fixes runs cite the skill's transcription/packaging rules where baseline runs improvised the same operations as ad-hoc judgment calls.",
+    "Fix verification \u2014 non-author Defender: all 3 with-fixes runs explicitly played the Defender as non-author and stipulated zero facts; eval-1's new assertion ('no invented environment facts') passed on line-by-line verification in both configurations.",
+    "Fix verification \u2014 rebuttal-only findings: eval-2's Judge adjudicated the phase-5-only finding with checked arithmetic instead of treating the missing reply as concession, matching the new Judge-brief rule.",
+    "New friction for a future iteration: HTML-entity escaping in subagent replies (eval-2 with-fixes restored &lt;id&gt; to <id> as packaging), and line-number citations in transcripts break when transcription fixes shift lines (eval-3 with-fixes).",
+    "Grader eval feedback, recurring across runs: the transcript-structure assertion would pass a single-author monologue wearing role headings (suggest requiring independence signals such as concessions/withdrawals), and no assertion checks factual grounding of load-bearing technical claims."
+  ]
+}

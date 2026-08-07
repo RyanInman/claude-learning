@@ -1,0 +1,87 @@
+{
+  "expectations": [
+    {
+      "text": "The inline proposal is written to a file before the debate so every role argues against the same fixed text",
+      "passed": true,
+      "evidence": "work/proposal.md contains the formalized inline proposal (Position, 3 arguments, 3 downsides, decision context); transcript.md header line 3 cites it as the fixed artifact: '**Artifact:** .../with_skill/work/proposal.md', and all phases argue against it. Amendments were appended only at Phase 10 per compromise C2."
+    },
+    {
+      "text": "The pro side argues with the user's specifics (fixtures vs setUp inheritance, parametrize vs copy-paste, xdist parallelism)",
+      "passed": true,
+      "evidence": "Transcript Phase 1 (Defender) argues all three by name: 'Fixtures over setUp inheritance', '`parametrize` over copy-pasted variants', 'Plugin ecosystem, primarily `pytest-xdist`'; Phase 4 Advocate steelman extends each."
+    },
+    {
+      "text": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+      "passed": true,
+      "evidence": "Adversary Objection 3 targets the 6,000 legacy tests ('leaves all 6,000 existing tests as they are, indefinitely'); Objection 2 and clarifying Q2 price CI churn against a concrete integration-point inventory; Objection 5 raises 'onboarding cost for the two-thirds of developers without pytest experience'. Objections quote the Defender's own answers as evidence."
+    },
+    {
+      "text": "The review surfaces that pytest runs existing unittest tests, enabling incremental migration instead of a rewrite",
+      "passed": true,
+      "evidence": "Transcript Phase 1: 'pytest runs unittest-style tests natively — the migration does not require rewriting 6,000 tests up front'; final-report.md: '6k existing tests: mostly a non-issue for the switch itself — pytest runs unittest tests natively, so day-one cost is a runner change, not a rewrite.'"
+    },
+    {
+      "text": "A debate transcript shows distinct role contributions: opening case, objections, defense, rebuttal, and a judge assessment",
+      "passed": true,
+      "evidence": "transcript.md has 11 phases under role headings: Phase 1 Defender opening statement, Phase 3 Adversary's five objections, Phase 4 Advocate's defense, Phase 5 Adversary's rebuttal (sustain/drop per objection), Phase 6 surrebuttal, Phases 7 and 11 Judge assessment and final report. Roles reference and concede to each other's specific arguments."
+    },
+    {
+      "text": "The output ends with a recommendation and explicitly leaves the final decision to the user",
+      "passed": true,
+      "evidence": "final-report.md ends with 'Your decision' listing 4 options and closes 'You have final say.'; Judge's recommendation stated: 'Approve the amended proposal and proceed to the week-one pilot.'"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 265.9,
+    "note": "timing.json flags run interrupted by orchestration stalls and a session-limit reset; 116504 tokens is a lower-bound estimate, not cleanly comparable to without_skill."
+  },
+  "claims": [
+    {
+      "claim": "pytest ignores the load_tests protocol and does not properly support subTest without pytest-subtests",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches pytest's documented unittest-integration limitations; the debate correctly used it as the cutover-gate rationale."
+    },
+    {
+      "claim": "parametrize (and non-autouse fixtures) do not work inside TestCase subclasses",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches pytest documentation; correctly used to show the parametrize benefit is gated on conversion."
+    },
+    {
+      "claim": "Full suite is ~30 minutes single-process, sharded 4 ways, longest shard ~15 min; one package hits a shared Postgres; two services already run pytest; a third of devs know pytest",
+      "type": "factual",
+      "verified": false,
+      "evidence": "None of these specifics appear in the user's prompt; the Defender fabricated concrete context (Phase 2 answers) and later reasoning (shard math, appetite numbers) is built on it. Internally consistent but unverifiable."
+    },
+    {
+      "claim": "All six amendments were verified as landed in proposal.md",
+      "type": "process",
+      "verified": true,
+      "evidence": "work/proposal.md contains the 'Amendments (adopted per debate review, phases 7-10)' section with all six amendments matching the Phase 6 list."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": ["No user_notes.md present. timing.json notes orchestration stalls and a session-limit reset during the run."]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No assertion checks whether the debate invents project facts the user never gave. The with_skill run fabricated CI wall times, shard counts, a shared Postgres, and team pytest-experience ratios and built its quantitative rulings on them. An assertion like 'quantitative claims about the user's environment are either sourced from the prompt or flagged as assumptions' would catch this."
+      },
+      {
+        "assertion": "The con side engages the real costs (6k-test migration, CI churn, team familiarity), not strawmen",
+        "reason": "Passes on engagement alone; a run that engages the costs but resolves them with fabricated favorable numbers (as partly happened here, e.g., CI churn priced at 'a day of pipeline work' from invented inventory) still passes. Consider requiring that cost resolutions cite prompt-given facts or be marked as assumptions."
+      }
+    ],
+    "overall": "Assertions discriminate structure well (the without_skill run fails the file-artifact and role-transcript checks) but do not police factual grounding, which is where this skill's failure mode showed up."
+  }
+}

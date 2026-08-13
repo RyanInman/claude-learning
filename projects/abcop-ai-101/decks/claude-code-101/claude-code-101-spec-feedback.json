@@ -1,0 +1,1066 @@
+[
+  {
+    "id": "nmsjkf74h335",
+    "slide": 0,
+    "slideTitle": "Installing Claude Code",
+    "text": "include the Claude logo in the upper right corner",
+    "created": "2026-08-07T23:17:54.257Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjkgavh22f",
+    "slide": 2,
+    "slideTitle": "Every turn carries the whole conversation",
+    "text": "Change the terminal image - instead use a chat message screen",
+    "created": "2026-08-07T23:18:45.774Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjki8sp536",
+    "slide": 4,
+    "slideTitle": "Too much context",
+    "text": "change this terminal image into a representation of the \"Memory\" or \"Simon Says\" game where the red, green, yellow, blue buttons must be pressed in an increasingly long sequence",
+    "created": "2026-08-07T23:20:16.393Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjkjtdn25l",
+    "slide": 6,
+    "slideTitle": "Two ways to start strong",
+    "text": "Prompt Engineering block should be highlighted in this slide",
+    "created": "2026-08-07T23:21:29.723Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjkmd0d3q6",
+    "slide": 8,
+    "slideTitle": "The same request, twice",
+    "text": "Remove cost - this is completely made up",
+    "created": "2026-08-07T23:23:28.477Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjkmonti3",
+    "slide": 9,
+    "slideTitle": "Your setup loads context for you",
+    "text": "add a helpful visual",
+    "created": "2026-08-07T23:23:43.577Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjkno6k6t5",
+    "slide": 12,
+    "slideTitle": "Skills are recipes for repeatable work",
+    "text": "Change the skill prose to something else - not Lab651 related",
+    "created": "2026-08-07T23:24:29.612Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjkq7bo1dn",
+    "slide": 13,
+    "slideTitle": "Match the model to the task",
+    "text": "Include a snippet on effort in the lower half of this slide.\n\nThen note Sonnet + Medium and Opus + Low as pro-tips",
+    "created": "2026-08-07T23:26:27.732Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjkqx7n47w",
+    "slide": 14,
+    "slideTitle": "Plan mode is the biggest token saver",
+    "text": "Move Opus + plan mode block to bottom of screen, in vertical layout",
+    "created": "2026-08-07T23:27:01.283Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjkt1bz2s6",
+    "slide": 16,
+    "slideTitle": "What's already built for you",
+    "text": "split this content into multiple slides - this slide should mostly be about the playbooks repo, prompt-helper and karpathy.md should be smaller points on this page\n\nFor every other point, these will each need their own slide",
+    "created": "2026-08-07T23:28:39.935Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjlarun3af",
+    "slide": 2,
+    "slideTitle": "Every turn carries the whole conversation",
+    "text": "Add a final chat bubble on the claude side \"Removed Login.test.tsx\"",
+    "created": "2026-08-07T23:42:27.455Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjlcnsf6gz",
+    "slide": 8,
+    "slideTitle": "The same request, twice",
+    "text": "center the two bottom points, Specific Examples and Success Criteria",
+    "created": "2026-08-07T23:43:55.503Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjlfzzn5gq",
+    "slide": 11,
+    "slideTitle": "Rules load only when they apply",
+    "text": "Add a note \"Rules without a path scope always load like a CLAUDE.md\"",
+    "created": "2026-08-07T23:46:31.283Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjliwdl2u0",
+    "slide": 14,
+    "slideTitle": "Plan mode is the biggest token saver",
+    "text": "include an example of a plan",
+    "created": "2026-08-07T23:48:46.569Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjll1j45f2",
+    "slide": 15,
+    "slideTitle": "Three moves to keep a session sharp",
+    "text": "update the icons - Clear should use a broom icon, rewind should use a clock, compact should show a hydraulic press",
+    "created": "2026-08-07T23:50:26.560Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjlmphp2hb",
+    "slide": 16,
+    "slideTitle": "The playbooks repo",
+    "text": "add these elements\n\nskill - session-review\nrules - typescript-general, csharp-general",
+    "created": "2026-08-07T23:51:44.270Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjlrlfq2zo",
+    "slide": 20,
+    "slideTitle": "simplify",
+    "text": "/simplify is modeled after the built-in skill, so the notes should reflect how that works",
+    "created": "2026-08-07T23:55:32.294Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjlsajecg",
+    "slide": 21,
+    "slideTitle": "findskills",
+    "text": "findskills is a skill to help find new skills to download",
+    "created": "2026-08-07T23:56:04.826Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsjlun9d664",
+    "slide": 17,
+    "slideTitle": "brainstorming",
+    "text": "brainstorming helps take a vague idea or prompt and turn it into a better fleshed out plan",
+    "created": "2026-08-07T23:57:54.625Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsne4cph1cq",
+    "slide": 1,
+    "slideTitle": "Three ways in — pick one and go",
+    "text": "Highlight the VS Code extension block instead of Claude Code CLI",
+    "created": "2026-08-10T15:32:35.286Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnqpf0510p",
+    "slide": 6,
+    "slideTitle": "Two ways to start strong",
+    "text": "Move this so that it's slide 3",
+    "created": "2026-08-10T21:24:53.429Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnqpmvv451",
+    "slide": 7,
+    "slideTitle": "The Five S's",
+    "text": "Move this so it's slide 4",
+    "created": "2026-08-10T21:25:03.643Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnqpx905ts",
+    "slide": 8,
+    "slideTitle": "The same request, twice",
+    "text": "move this to slide 5",
+    "created": "2026-08-10T21:25:17.076Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnqse8n7ck",
+    "slide": 6,
+    "slideTitle": "Two ways to start strong",
+    "text": "Create a copy of this slide with the other item selected - place this before slide 10",
+    "created": "2026-08-10T21:27:12.407Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnqumgk26q",
+    "slide": 13,
+    "slideTitle": "Match the model to the task",
+    "text": "replace the terminal image with an actual dial (like a volume knob)",
+    "created": "2026-08-10T21:28:56.372Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnqvque5om",
+    "slide": 15,
+    "slideTitle": "Three moves to keep a session sharp",
+    "text": "the icons used should be slightly larger, and white - similar but not exactly like material design",
+    "created": "2026-08-10T21:29:48.710Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnqym6i2b2",
+    "slide": 18,
+    "slideTitle": "diagnose",
+    "text": "add a terminal graphic showing the diagnose skill in action",
+    "created": "2026-08-10T21:32:02.634Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsns5j5i362",
+    "slide": 1,
+    "slideTitle": "Three ways in — pick one and go",
+    "text": "add a note underneath VS code - \"Most likely install\" and underneath Claude Code CLI add \"For Power Users\"",
+    "created": "2026-08-10T22:05:24.918Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsns7p233mv",
+    "slide": 2,
+    "slideTitle": "Prompt engineering",
+    "text": "this content is all wrong - focus on introducing the concept and landing on a definition for prompt-engineering and why it's important",
+    "created": "2026-08-10T22:07:05.883Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsns8dl91li",
+    "slide": 5,
+    "slideTitle": "Context engineering",
+    "text": "Follow the same structure as the redesigned Prompt Engineering intro slide",
+    "created": "2026-08-10T22:07:37.677Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnsal2w66g",
+    "slide": 7,
+    "slideTitle": "Every turn carries the whole conversation",
+    "text": "add a note on this page as a lead-in for the next slide - This fills up your context window",
+    "created": "2026-08-10T22:09:20.696Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnsbi6l4bu",
+    "slide": 8,
+    "slideTitle": "The context window is a memory load",
+    "text": "Update title \"What is the Context Window?\"",
+    "created": "2026-08-10T22:10:03.597Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnscb122ut",
+    "slide": 6,
+    "slideTitle": "What is Context?",
+    "text": "Follow the same design and style for slide 12",
+    "created": "2026-08-10T22:10:40.982Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnsdm087cn",
+    "slide": 17,
+    "slideTitle": "Pro-Tips",
+    "text": "Follow the same style and design as slide 12",
+    "created": "2026-08-10T22:11:41.864Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnseox854e",
+    "slide": 18,
+    "slideTitle": "Match the model to the task",
+    "text": "the volume dial should show labels for all of the effort levels - low, medium, high, xhigh",
+    "created": "2026-08-10T22:12:32.300Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnshbl75qv",
+    "slide": 17,
+    "slideTitle": "Pro-Tips",
+    "text": "and move this to after slide 21",
+    "created": "2026-08-10T22:14:34.987Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnsqied5pm",
+    "slide": 2,
+    "slideTitle": "What is Prompt Engineering?",
+    "text": "match the design and style of slide 12",
+    "created": "2026-08-10T22:21:43.717Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnss5lr71h",
+    "slide": 6,
+    "slideTitle": "What is Context?",
+    "text": "combine slides 6 and 7 using the design and style used for slide 6",
+    "created": "2026-08-10T22:23:00.447Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnsvgd37bf",
+    "slide": 16,
+    "slideTitle": "Managing context",
+    "text": "Add a slide before 17 following the style and design of slide 12 - Title is Context Management - briefly describe what it is and why it's important.",
+    "created": "2026-08-10T22:25:34.359Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnswbk94hy",
+    "slide": 16,
+    "slideTitle": "Managing context",
+    "text": "Update this slide's title to Chat Functions",
+    "created": "2026-08-10T22:26:14.793Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnsxixe7el",
+    "slide": 20,
+    "slideTitle": "Five Pro-Tips",
+    "text": "Update so it's just \"Pro-Tips\" - move this so it's slide 20",
+    "created": "2026-08-10T22:27:10.994Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnt2kpj5xn",
+    "slide": 5,
+    "slideTitle": "What is Context Engineering?",
+    "text": "update the design and style to match slide 3",
+    "created": "2026-08-10T22:31:06.583Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnt4np91h0",
+    "slide": 0,
+    "slideTitle": "Installing Claude Code",
+    "text": "This is the title slide - make this unique and attention grabbing - right now it follows the design and style of section headers, but it should be its own thing now\n\nAlso read the current slide deck state and update the sections listed here",
+    "created": "2026-08-10T22:32:43.773Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsntbz2m6w",
+    "slide": 16,
+    "slideTitle": "Chat functions",
+    "text": "Add a bullet point for /resume - the command to resume a previous conversation",
+    "created": "2026-08-10T22:38:25.102Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnthkhf60x",
+    "slide": 26,
+    "slideTitle": "Three things to try before Friday",
+    "text": "Add a slide after this - include an offer 1:1 sessions and suggestions for topic deep-dives",
+    "created": "2026-08-10T22:42:46.131Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnttoen6e0",
+    "slide": 1,
+    "slideTitle": "Three ways in — pick one and go",
+    "text": "Add a slide before this modeled after Slide 11 - Installation is the title for it",
+    "created": "2026-08-10T22:52:11.087Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnv39db52i",
+    "slide": 25,
+    "slideTitle": "simplify",
+    "text": "add a terminal graphic with an example prompt: /simplify DRY the selected code so it is under 100 lines - also add an example window of a class with an example method that's highlighted",
+    "created": "2026-08-10T23:27:37.775Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnv874b5jd",
+    "slide": 23,
+    "slideTitle": "diagnose",
+    "text": "place the terminal graphic on the left-hand side - update so it says /diagnose When I run <insert_command> I get this error <error_log> - list top 3 causes and suggest a fix",
+    "created": "2026-08-10T23:31:28.139Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnvir9d5bg",
+    "slide": 22,
+    "slideTitle": "brainstorming",
+    "text": "update the terminal image to say /brainstorming I want to build a new page in this app",
+    "created": "2026-08-10T23:39:40.801Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnwbhlu57k",
+    "slide": 0,
+    "slideTitle": "Installing Claude Code",
+    "text": "update the intro slide with the actual content of the slide deck",
+    "created": "2026-08-11T00:02:01.314Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnwc9ty5py",
+    "slide": 1,
+    "slideTitle": "Installation",
+    "text": "update the description to only say - Three surfaces, same models",
+    "created": "2026-08-11T00:02:37.894Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnweak55zi",
+    "slide": 2,
+    "slideTitle": "Three ways in — pick one and go",
+    "text": "Add a note under all of these - I will use Claude Code CLI for this tutorial, but all will work",
+    "created": "2026-08-11T00:04:12.149Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnwew2114g",
+    "slide": 3,
+    "slideTitle": "What is Prompt Engineering?",
+    "text": "Update the description - \"Deciding what goes into a request so the right answer comes back the first time\"",
+    "created": "2026-08-11T00:04:40.009Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnwjsaxh6",
+    "slide": 6,
+    "slideTitle": "What is Context Engineering?",
+    "text": "Update the title to say \"What is Context?\"",
+    "created": "2026-08-11T00:08:28.425Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsnwtt6z54s",
+    "slide": 8,
+    "slideTitle": "What is the Context Window?",
+    "text": "Add a bar element - divide it into colored segments\n\nPlan\n- initial prompt - small in size\n- project structure - slightly larger in size\n- writing plan - slightly larger in size again\n\nExecuting work\n- writing tests\n- writing code\n- verifying\n\nThen show the rest of the bar as still needing to be filled up",
+    "created": "2026-08-11T00:16:16.139Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp90rlx5kd",
+    "slide": 5,
+    "slideTitle": "The same request, twice",
+    "text": "Update title to \"A worked example\"",
+    "created": "2026-08-11T22:45:22.245Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp91oms71n",
+    "slide": 6,
+    "slideTitle": "What is Context?",
+    "text": "Update description: \"Context is everything your session is carrying\"",
+    "created": "2026-08-11T22:46:05.045Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp93x8b1s5",
+    "slide": 7,
+    "slideTitle": "Every turn carries the whole conversation",
+    "text": "Capitalize title",
+    "created": "2026-08-11T22:47:49.499Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp95wuk18e",
+    "slide": 9,
+    "slideTitle": "Too much context",
+    "text": "Capitalize title. Add a final row \"Turn N\" at the bottom of the graphic",
+    "created": "2026-08-11T22:49:22.316Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp96wgh4ur",
+    "slide": 10,
+    "slideTitle": "Too little context",
+    "text": "Capitalize title.",
+    "created": "2026-08-11T22:50:08.465Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp99gk83e3",
+    "slide": 12,
+    "slideTitle": "Your setup loads context for you",
+    "text": "Capitalize title",
+    "created": "2026-08-11T22:52:07.832Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp99sow7ka",
+    "slide": 13,
+    "slideTitle": "CLAUDE.md — the project map",
+    "text": "Capitalize title",
+    "created": "2026-08-11T22:52:23.552Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9ab11497",
+    "slide": 14,
+    "slideTitle": "Rules load only when they apply",
+    "text": "Capitalize title",
+    "created": "2026-08-11T22:52:47.317Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9adju79d",
+    "slide": 15,
+    "slideTitle": "Skills are recipes for repeatable work",
+    "text": "Capitalize title",
+    "created": "2026-08-11T22:52:50.586Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9at4e7kp",
+    "slide": 17,
+    "slideTitle": "Chat functions",
+    "text": "Capitalize title",
+    "created": "2026-08-11T22:53:10.766Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9axauvl",
+    "slide": 18,
+    "slideTitle": "Match the model to the task",
+    "text": "Capitalize title",
+    "created": "2026-08-11T22:53:16.182Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9bh82x",
+    "slide": 19,
+    "slideTitle": "Plan mode is the biggest token saver",
+    "text": "Change title to \"Plan First and Save Tokens\" - capitalize",
+    "created": "2026-08-11T22:53:42.002Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9bmxn31c",
+    "slide": 21,
+    "slideTitle": "The playbooks repo",
+    "text": "capitalize title",
+    "created": "2026-08-11T22:53:49.403Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9ce5rmd",
+    "slide": 22,
+    "slideTitle": "brainstorming",
+    "text": "update point 2 to \"Claude Asks You\"",
+    "created": "2026-08-11T22:54:24.687Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9cr7q2ko",
+    "slide": 22,
+    "slideTitle": "brainstorming",
+    "text": "update Point 1 to \"Start with an idea\"",
+    "created": "2026-08-11T22:54:41.606Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9h7vl5mk",
+    "slide": 23,
+    "slideTitle": "diagnose",
+    "text": "Remove the current 6 points - replace with the following:\n\nDescribe the Issue\nPaste a Log\nExpected vs Actual",
+    "created": "2026-08-11T22:58:09.825Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9miyr5ls",
+    "slide": 24,
+    "slideTitle": "adversarial-review",
+    "text": "update the title - adversarial review - capitalize\n\nUpdate the terminal graphic. It now says \"Review @my-plan.md looking for high-value criticism\"\n\nReview @my-plan.md and f",
+    "created": "2026-08-11T23:02:17.475Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsp9uznt3us",
+    "slide": 8,
+    "slideTitle": "What is the Context Window?",
+    "text": "update the context bar graphic - use different colors, not just shades of orange",
+    "created": "2026-08-11T23:08:52.361Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspawf3t6cc",
+    "slide": 15,
+    "slideTitle": "Skills Are Recipes for Repeatable Work",
+    "text": "Make two points:\n\nInvoke implicitly\n- Description does the triggering\n- Claude picks it up by matching\n\nInvoke explicitly with /",
+    "created": "2026-08-11T23:37:58.649Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspb3v526am",
+    "slide": 18,
+    "slideTitle": "Match the Model to the Task",
+    "text": "Place the effort description closer to the subtitle \"Effort is the second dial\"",
+    "created": "2026-08-11T23:43:46.022Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspb4ogiaq",
+    "slide": 19,
+    "slideTitle": "Plan First and Save Tokens",
+    "text": "terminal needs a better example of a plan mode doc. generate an example plan and use that",
+    "created": "2026-08-11T23:44:24.018Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspb5pg011f",
+    "slide": 22,
+    "slideTitle": "brainstorming",
+    "text": "update \"Start with an idea\" point - description should say \"A half-formed idea that needs some iteration\"",
+    "created": "2026-08-11T23:45:11.952Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspb9ocv52h",
+    "slide": 2,
+    "slideTitle": "Three ways in — pick one and go",
+    "text": "Update the title to \"Install Options\"",
+    "created": "2026-08-11T23:48:17.167Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspc1mb6sp",
+    "slide": 4,
+    "slideTitle": "The Five S's",
+    "text": "Update description: \"Simple principles to stay on track\"\n\nAdd disclaimer \"Not an official term, just my own rules\"",
+    "created": "2026-08-12T00:10:00.882Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspc9xox4z7",
+    "slide": 7,
+    "slideTitle": "Every Turn Carries the Whole Conversation",
+    "text": "move the \"And all of it fills up your context window\" to the bottom right of the screen - add an arrow pointing to the right edge of the screen",
+    "created": "2026-08-12T00:16:28.881Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspcg6zl11x",
+    "slide": 9,
+    "slideTitle": "Too Much Context",
+    "text": "Split the description into two lines and bold the second line",
+    "created": "2026-08-12T00:21:20.865Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspcjkfq4qm",
+    "slide": 12,
+    "slideTitle": "Your Setup Loads Context for You",
+    "text": "place the circles on the timelines, centering the circles underneath the session start and mid-task items",
+    "created": "2026-08-12T00:23:58.262Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspcn11z3sa",
+    "slide": 14,
+    "slideTitle": "Rules Load Only When They Apply",
+    "text": "underneath the title, add a description \"Guardrails for reading and writing in specific files and folders\"",
+    "created": "2026-08-12T00:26:39.767Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspcvhnmsc",
+    "slide": 17,
+    "slideTitle": "Chat Functions",
+    "text": "add a description under the title: \"Simple commands to master your chat sessions\"",
+    "created": "2026-08-12T00:33:14.530Z",
+    "resolved": true
+  },
+  {
+    "id": "nmspd7o693po",
+    "slide": 23,
+    "slideTitle": "diagnose",
+    "text": "update the terminal component - it should only have /diagnose When I run <insert_command> I get this error <error_log> - list top 3 causes and suggest a fix - remove everything else\n\nUpdate bottom text box - \"Great for troubleshooting bugs or cryptic errors\"",
+    "created": "2026-08-12T00:42:42.849Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsq9stfh5qi",
+    "slide": 21,
+    "slideTitle": "The Playbooks Repo",
+    "text": "After this slide, add 1 slide for each point on this page. keep the template blank so I can add information on specifics later - also include an install instruction page (I will fill out later",
+    "created": "2026-08-12T15:54:57.149Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqafdmo6uk",
+    "slide": 8,
+    "slideTitle": "What is the Context Window?",
+    "text": "too much on this slide - move the bar so it shows under the description, move the 3 points (Too much, too little, Just right) to the bottom.\n\nRemove the component \"You control this.\"",
+    "created": "2026-08-12T16:12:29.760Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqag5naac",
+    "slide": 14,
+    "slideTitle": "Rules Load Only When They Apply",
+    "text": "Update title \"Rules Load When They Apply\"",
+    "created": "2026-08-12T16:13:06.070Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqagl9s7dp",
+    "slide": 15,
+    "slideTitle": "Skills Are Recipes for Repeatable Work",
+    "text": "Update title \"Skills are Recipes for Repeated Work\"",
+    "created": "2026-08-12T16:13:26.320Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqahgck4rj",
+    "slide": 19,
+    "slideTitle": "Plan First and Save Tokens",
+    "text": "move terminal graphic to the left-hand side",
+    "created": "2026-08-12T16:14:06.596Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqb2xq82r0",
+    "slide": 20,
+    "slideTitle": "Pro-Tips",
+    "text": "Copy this slide and place it directly before slide 29 - then rename this current slide \"ABCOP AI Playbooks\"",
+    "created": "2026-08-12T16:30:48.896Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqb3s2n20y",
+    "slide": 21,
+    "slideTitle": "The Playbooks Repo",
+    "text": "Combine this slide with Installation Slide (next slide)",
+    "created": "2026-08-12T16:31:28.223Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqb485r3xf",
+    "slide": 32,
+    "slideTitle": "findskills",
+    "text": "remove this slide",
+    "created": "2026-08-12T16:31:49.071Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqg8eoz1wg",
+    "slide": 4,
+    "slideTitle": "The Five S's",
+    "text": "Shorten to 3 S's - keep Situation, Specific Examples and Success Criterial",
+    "created": "2026-08-12T18:55:02.244Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqge40m4yc",
+    "slide": 5,
+    "slideTitle": "A Worked Example",
+    "text": "update the points - Include only Situation, Specific Examples and Success Criteria",
+    "created": "2026-08-12T18:59:28.342Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqjgwor5r0",
+    "slide": 3,
+    "slideTitle": "What is Prompt Engineering?",
+    "text": "Update title \"How to Communicate with Claude?\"",
+    "created": "2026-08-12T20:25:37.659Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqk7p15h5",
+    "slide": 10,
+    "slideTitle": "Too Little Context",
+    "text": "remove the second terminal graphic\n\nRemove the bottom component that contains \"A good bug report is a good prompt\"\n\nAdd description below title: \"Like a vague bug report is not helpful, so too is a vague prompt\"\n\nFor side points, include:\n\n- No Steps to Reproduce\n- Unclear Expected vs Outcome\n- Need to ask questions and investigate\n\n\nThen at the bottom:\n\n\"And now you're making Claude do its own investigation which leads to wasted tokens, wasted time...\"",
+    "created": "2026-08-12T20:46:27.449Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqkw15w5mv",
+    "slide": 17,
+    "slideTitle": "Chat Functions",
+    "text": "Update the points:\n\nClear - /clear - Moving to a new task? Start a new chat and fresh context\nRewind - /rewind or double-esc - Unhappy with a result? Go down the wrong path? Rewind instead of re-prompt\nResume - /resume - Cleared too soon? Resume a previous session\nCompact - /compact <what_to_keep> - Running out of context but still need to continue the work?\n\nReword the component at the bottom:\n\nCheck your Context!\nUse /context to see your current usage",
+    "created": "2026-08-12T21:05:22.916Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqle2blg6",
+    "slide": 19,
+    "slideTitle": "Plan First and Save Tokens",
+    "text": "update the terminal graphic to show a real-life example plan task",
+    "created": "2026-08-12T21:19:24.225Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqlun6a4tw",
+    "slide": 5,
+    "slideTitle": "A Worked Example",
+    "text": "Add a description: \"Turning a vague prompt into a useful one\"\n\nAdd a disclaimer at the bottom: \"Not a checklist, just guiding principles\"",
+    "created": "2026-08-12T21:32:17.747Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqm5m5u1cn",
+    "slide": 27,
+    "slideTitle": "Pro-Tips",
+    "text": "update the description: \"Best practices used across the industry\"",
+    "created": "2026-08-12T21:40:49.650Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqmm5lc4w0",
+    "slide": 28,
+    "slideTitle": "brainstorming",
+    "text": "Update title: \"Ask Me Questions\"\nDescription: Tell Claude to ask you questions to help you solidify your idea\n\nIn the terminal, include a prompt <you generate the prompt> - at the end though, include \"Ask Me Clarifying Questions\"\n\nFor the second part, include a set of relevant multiple choice questions exactly how they would be presented in CLI or the VS Code extension\n\nAdd a disclaimer at the bottom referencing /brainstorming and /grill-me skills",
+    "created": "2026-08-12T21:53:41.329Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqnsq212ir",
+    "slide": 29,
+    "slideTitle": "diagnose",
+    "text": "Update title \"Debug Loop\"",
+    "created": "2026-08-12T22:26:47.402Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqnteci5me",
+    "slide": 3,
+    "slideTitle": "How to Communicate with Claude?",
+    "text": "Update title: How to Communicate with Claude",
+    "created": "2026-08-12T22:27:18.882Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqntq7fvf",
+    "slide": 4,
+    "slideTitle": "The Three S's",
+    "text": "Update the header to match the new section title",
+    "created": "2026-08-12T22:27:34.251Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqnu0xi59h",
+    "slide": 5,
+    "slideTitle": "A Worked Example",
+    "text": "Update the header to match the new section title",
+    "created": "2026-08-12T22:27:48.150Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqnu95eav",
+    "slide": 7,
+    "slideTitle": "Every Turn Carries the Whole Conversation",
+    "text": "Update the header to match the new section title",
+    "created": "2026-08-12T22:27:58.802Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqnubuz4ga",
+    "slide": 8,
+    "slideTitle": "What is the Context Window?",
+    "text": "Update the header to match the new section title",
+    "created": "2026-08-12T22:28:02.315Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqnuekr6tr",
+    "slide": 9,
+    "slideTitle": "Too Much Context",
+    "text": "Update the header to match the new section title",
+    "created": "2026-08-12T22:28:05.835Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqnuh142vp",
+    "slide": 10,
+    "slideTitle": "Too Little Context",
+    "text": "Update the header to match the new section title",
+    "created": "2026-08-12T22:28:09.016Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqnzc4g3m3",
+    "slide": 19,
+    "slideTitle": "Plan First and Save Tokens",
+    "text": "Update the header to match the new section title",
+    "created": "2026-08-12T22:31:55.936Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqo8nd26b4",
+    "slide": 18,
+    "slideTitle": "Match the Model to the Task",
+    "text": "Move this to Pro-Tips section\n\nUpdate the header to match the new section title",
+    "created": "2026-08-12T22:39:10.406Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqsix0931y",
+    "slide": 30,
+    "slideTitle": "Adversarial Review",
+    "text": "Update the header to match the new section title\n\nUpdate description:\n\nNormal review - Getting a check-up with your primary doctor\nAdversarial review - Getting a second opinion\n\nUpdate points:\nCritical Eye - Criticizes instead of agreeing\nFresh Perspective - Approaches without prior knowledge\nReduces Bias - Sees outside the context of the original session",
+    "created": "2026-08-13T00:39:07.929Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqsj46k23h",
+    "slide": 31,
+    "slideTitle": "simplify",
+    "text": "Remove this slide",
+    "created": "2026-08-13T00:39:17.228Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqsozlg68g",
+    "slide": 32,
+    "slideTitle": "Three things to try before Friday",
+    "text": "replace point 1 - use /context to inspect your context mid-session",
+    "created": "2026-08-13T00:43:51.221Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqt4zas7eq",
+    "slide": 33,
+    "slideTitle": "Want to go deeper?",
+    "text": "Update \"Book a 1:1\" description:\nBring a task from your team and we'll work on it together",
+    "created": "2026-08-13T00:56:17.332Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqu1eh013s",
+    "slide": 7,
+    "slideTitle": "Every Turn Carries the Whole Conversation",
+    "text": "Update the component on the top right hand side:\n\nThe entire transcript is re-sent <black lettering>\nEVERY SINGLE TURN <orange bold lettering>\nand all of it fills up your context window <black lettering>\n\nManaging it is your job, not the model's",
+    "created": "2026-08-13T01:21:29.989Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqu1okt7hr",
+    "slide": 8,
+    "slideTitle": "What is the Context Window?",
+    "text": "Remove \"One task, filling the window\"",
+    "created": "2026-08-13T01:21:43.085Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqu2oqq32u",
+    "slide": 9,
+    "slideTitle": "Too Much Context",
+    "text": "Update the points on the right-hand side of the slide to match the format and layout of slide 11",
+    "created": "2026-08-13T01:22:29.954Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqu3iqwfx",
+    "slide": 18,
+    "slideTitle": "Match the Model to the Task",
+    "text": "Padding in each of the model components is too compressed - redesign so there is better spacing",
+    "created": "2026-08-13T01:23:08.840Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqu4kbk1rl",
+    "slide": 17,
+    "slideTitle": "Chat Functions",
+    "text": "Move /context portion to a new slide\n\nInclude a sample image of the /context command in action",
+    "created": "2026-08-13T01:23:57.536Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqu573z3px",
+    "slide": 19,
+    "slideTitle": "Plan First and Save Tokens",
+    "text": "Update the title in the claude terminal:\n\nPlan: Fix the Flaky Checkout Test",
+    "created": "2026-08-13T01:24:27.071Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqu6kta3xt",
+    "slide": 19,
+    "slideTitle": "Plan First and Save Tokens",
+    "text": "Update the bottom component:\n\nOpus + Plan Mode, switch to Sonnet to run the plan",
+    "created": "2026-08-13T01:25:31.486Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqu713y1al",
+    "slide": 18,
+    "slideTitle": "Match the Model to the Task",
+    "text": "Add description: Set with /model",
+    "created": "2026-08-13T01:25:52.606Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqukofn1v3",
+    "slide": 2,
+    "slideTitle": "Install Options",
+    "text": "Remove the Strong and Weak points",
+    "created": "2026-08-13T01:36:29.363Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqunedd73f",
+    "slide": 7,
+    "slideTitle": "Every Turn Carries the Whole Conversation",
+    "text": "bold - The entire transcript is re-sent  \nmove - and all of it fills up your context window - put it in a text box below and add \"...\"",
+    "created": "2026-08-13T01:38:36.289Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqupopm6qe",
+    "slide": 8,
+    "slideTitle": "What is the Context Window?",
+    "text": "Shorten the descriptions for the \"Too much, Too little and Just Right points\"\n\nToo Much - Hallucinations\nToo Little - Adds Investigation Overhead\nJust Right - Enough to do the task right",
+    "created": "2026-08-13T01:40:23.002Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsqus6cuzm",
+    "slide": 16,
+    "slideTitle": "Context Management",
+    "text": "Shorten description: \"Know your budget and use it wisely\"",
+    "created": "2026-08-13T01:42:19.182Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsquuc8g6mw",
+    "slide": 19,
+    "slideTitle": "Match the Model to the Task",
+    "text": "Add a disclaimer: \"Too high can be expensive, Too Low costs retries\"",
+    "created": "2026-08-13T01:44:00.112Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsquva325pp",
+    "slide": 21,
+    "slideTitle": "Plan First and Save Tokens",
+    "text": "Update the disclaimer at the bottom: \"Switch to Sonnet to run\"",
+    "created": "2026-08-13T01:44:43.982Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsquvvx213w",
+    "slide": 31,
+    "slideTitle": "Debug Loop",
+    "text": "add a disclaimer and reference to /diagnose skill",
+    "created": "2026-08-13T01:45:12.278Z",
+    "resolved": true
+  },
+  {
+    "id": "nmsquw7mt5w8",
+    "slide": 32,
+    "slideTitle": "Adversarial Review",
+    "text": "Add disclaimer and reference /adversarial-review skill",
+    "created": "2026-08-13T01:45:27.461Z",
+    "resolved": true
+  },
+  {
+    "id": "nmss19b51d5",
+    "slide": 1,
+    "slideTitle": "Installation",
+    "text": "Update description: \"How to get started\"",
+    "created": "2026-08-13T21:31:22.405Z",
+    "resolved": true
+  }
+]

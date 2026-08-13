@@ -1,0 +1,324 @@
+# Deck spec — Claude Code lightning-talk training deck.
+# Every visible string in the deck lives in this file. Edit anything here,
+# rerun the generator, and the fresh .pptx shows exactly those changes.
+#
+#   node scripts/generate_deck.js this-file.yaml output.pptx
+
+meta:
+  name: claude-code-training
+  source_plan: claude-code-lightning-talk-plan.md
+
+slides:
+
+  # ---------------------------------------------------------- 1 · opener
+  - background: dark
+    margin: 0.9
+    contentTop: 1.15
+    kicker: "Claude Code · Team Training"
+    title: { text: "Claude Code in 12 Minutes", size: 48, w: 7.5 }
+    subtitle: "How to ask, how to keep a session sharp, and the setup that\nmakes short prompts work every time."
+    elements:
+      - type: terminal
+        at: { x: 8.55, y: 1.55, w: 4.1 }
+        title: "~/repo"
+        lines:
+          - { t: "$ claude", c: white, b: true }
+          - { t: "" }
+          - { t: "> /status", c: accent }
+          - { t: "  model    sonnet ✓" }
+          - { t: "  context  4% used" }
+          - { t: "  effort   default" }
+          - { t: "" }
+          - { t: "> ready when you are_", c: codeDim }
+      - type: callout
+        at: { x: 0.9, y: 5.7, w: 7.0 }
+        style: darkOnDark
+        icon: FiTerminal
+        h: 0.85
+        runs:
+          - { text: "Pre-work check: ", bold: true, color: white, size: 12.5 }
+          - { text: "you installed Claude Code and ran /status — if you saw a model name, you're ready.", color: darkSub, size: 12.5 }
+    notes: >-
+      Open by asking who got a model name from /status. Anyone who didn't gets help
+      right after the session. Through-line for the talk: you control two things —
+      what you ask for, and what you set up around the agent.
+
+  # ---------------------------------------------- 2 · installing (cards)
+  - kicker: "01 · Installing Claude Code"
+    title: "Three ways in — pick one and go"
+    elements:
+      - type: cards
+        height: 3.75
+        cards:
+          - icon: FiTerminal
+            name: CLI
+            rows:
+              - { label: Pro, labelColor: ok, text: "The full product: every command, hooks, skills, plan mode, subagents." }
+              - { label: Con, labelColor: bad, text: "Least gentle on-ramp if you avoid the terminal." }
+          - icon: FiCode
+            name: VS Code
+            tag: RECOMMENDED START
+            rows:
+              - { label: Pro, labelColor: ok, text: "Same agent with inline diffs in your editor. Gentlest start." }
+              - { label: Con, labelColor: bad, text: "Newest features land in the CLI first." }
+          - icon: FiMonitor
+            name: Desktop
+            rows:
+              - { label: Pro, labelColor: ok, text: "Good for longer, delegated tasks and work outside a repo." }
+              - { label: Con, labelColor: bad, text: "Less natural for tight edit-test loops." }
+      - type: text
+        runs:
+          - { text: "Whichever you pick: ", bold: true, color: text, size: 13.5 }
+          - { text: "it's the same agent underneath. Start where you're comfortable; graduate to the CLI when you want hooks and the full command set.", color: muted, size: 13.5 }
+    notes: >-
+      60-90 seconds. Installation was pre-work, so this is orientation only. Say the
+      team recommendation out loud so the menu produces installs. If someone couldn't
+      install, catch them after.
+
+  # ------------------------------------------- 3 · good prompt (pair)
+  - kicker: "02 · Before You Prompt"
+    title: "What makes a good prompt?"
+    elements:
+      - type: columns
+        widths: [0.31, 0.69]
+        items:
+          - - type: terminal
+              title: weak
+              lines:
+                - { t: "> fix the login bug" }
+                - { t: "" }
+                - { t: "…30 min of searching_", c: codeDim }
+          - - type: terminal
+              title: strong
+              fontSize: 12.5
+              lines:
+                - { t: "> Users get a 500 when logging in with an email" }
+                - { t: "  containing a \"+\"." }
+                - { t: "  The error is in auth/session.py." }
+                - { t: "  Fix the validation so plus-addressing works," }
+                - { t: "  and add a test case." }
+            - type: chips
+              labels: [SYMPTOM, LOCATION, DONE, PROOF]
+      - type: spacer
+        h: 0.2
+      - type: icon_rows
+        columns: 2
+        rowHeight: 1.2
+        rows:
+          - { icon: FiZap, head: "Paste the raw error", body: "Stack traces, failing tests, CI logs — unsummarized. Prose makes Claude rebuild what's in your clipboard." }
+          - { icon: FiFeather, head: "One task per ask", body: "Three bundled asks get three mediocre results. Three separate asks get three good, reviewable diffs." }
+    notes: >-
+      The heart of the talk. Four things in the strong prompt: the symptom, where it
+      lives, what done means, how to prove it. Each one saves a round of searching.
+      On 'more is better': more RELEVANT detail is better — then stop. Padding the
+      prompt fills the desk (next slide).
+
+  # -------------------------------------- 4 · context window (meter)
+  - kicker: "02 · Before You Prompt"
+    title: "Why does it get worse after a while?"
+    elements:
+      - type: columns
+        widths: [0.24, 0.76]
+        items:
+          - - type: meter
+              percent: 78
+              fillLabel: context used
+              label: "One desk, fixed size.\nAs it fills, the work gets sloppier."
+              caption: "your messages · every file read\n· every command output"
+          - - type: commands
+              rows:
+                - { cmd: /context, head: "See what's filling the desk", body: "Run it whenever answers start feeling off." }
+                - { cmd: /clear, head: "Sweep it — at every task boundary", body: "New problem, fresh session. CLAUDE.md and project memory survive." }
+                - { cmd: /compact, head: "Summarize to keep continuity", body: "Steerable:  /compact focus on the auth changes and failing tests" }
+            - type: callout
+              bold: "Compact for continuity. Clear for a clean slate."
+              text: "Either way, act around 60–80% full — before you're forced to."
+    notes: >-
+      Introduce the term: that desk is the CONTEXT WINDOW. Everything in a session
+      sits on it — your messages, every file Claude opened, every command output.
+      Old context follows you into the new problem and makes it worse, and you pay
+      tokens to drag it along. If people keep ONE habit from this talk: /clear at
+      task boundaries. Waiting until the desk is buried means the summary itself
+      gets written by a cluttered session.
+
+  # ----------------------------------------------- 5 · models (tiers)
+  - kicker: "03 · Model Selection"
+    title: "Match the brain to the task"
+    elements:
+      - type: cards
+        height: 3.3
+        cards:
+          - { name: Haiku, sub: "Fastest, cheapest", rows: [ { text: "Lookups, boilerplate, routine renames, small mechanical edits." } ] }
+          - { name: Sonnet, sub: "Strong all-rounder", emphasis: true, tag: THE DEFAULT, tagStyle: solid, rows: [ { text: "Everyday coding. Start here and move on purpose." } ] }
+          - { name: Opus, sub: "Deepest reasoning", rows: [ { text: "Architecture, subtle bugs, big cross-cutting refactors." } ] }
+      - type: command_strip
+        items:
+          - { cmd: /model, desc: switch mid-session }
+          - { cmd: /effort, desc: tune thinking depth }
+          - { cmd: /status, desc: "what's actually running" }
+    notes: >-
+      One minute. Spoken: a lot of 'why is this slow' and 'why is this shallow' is
+      someone sitting on a model they didn't mean to be on — /status settles it.
+      Model names change; /model shows today's lineup. Full table is on the handout.
+
+  # ------------------------------------ 6 · CLAUDE.md thesis (grid)
+  - kicker: "04 · Adding Context"
+    gapAfterTitle: 0.1
+    title:
+      size: 30
+      lines:
+        - { text: "Build the environment once —" }
+        - { text: "short prompts work every time.", color: accent }
+    elements:
+      - type: text
+        size: 14.5
+        color: muted
+        text: "Context you inject through setup is context you never have to type again. CLAUDE.md is the note that's always on the desk when a session starts."
+      - type: icon_rows
+        columns: 2
+        rowHeight: 1.35
+        rows:
+          - { icon: FiMap, head: "A short repo map", body: "“Payments logic lives in services/billing. legacy/ is frozen.”" }
+          - { icon: FiPlay, head: "Build, test, and lint commands", body: "The real ones — a CLAUDE.md that lies about the build command hurts more than none." }
+          - { icon: FiAlertTriangle, head: "Hard rules and landmines", body: "“Never touch generated files in gen/.”" }
+          - { icon: FiBookOpen, head: "Pointers to deeper docs", body: "Links and paths only — the docs themselves stay out." }
+      - type: callout
+        style: tint
+        h: 0.95
+        runs:
+          - { text: /init, mono: true, bold: true, color: accent, size: 14 }
+          - { text: " generates a starter — then delete everything in it that isn't true.  Keep it short: it loads every session, so every line costs tokens forever.", size: 13 }
+    notes: >-
+      Thesis of the whole section: rather than a longer prompt every time, build the
+      environment once. Spoken team line: we ship a baseline settings file with
+      permission rules — leave the deny rules alone, pre-approve the safe tools you
+      use constantly.
+
+  # ------------------------- 7 · with/without CLAUDE.md (side by side)
+  - kicker: "04 · Adding Context"
+    title: "Same prompt, with and without CLAUDE.md"
+    elements:
+      - type: prompt_bar
+        text: "> add a health check endpoint"
+      - type: columns
+        gap: 0.25
+        items:
+          - - type: terminal
+              title: without CLAUDE.md
+              lines:
+                - { t: "grepping for framework…", c: codeDim }
+                - { t: "guessing conventions…", c: codeDim }
+                - { t: "" }
+                - { t: "✗ endpoint in the wrong module", c: badCode }
+                - { t: "✗ house route conventions missed", c: badCode }
+                - { t: "✗ ran the wrong test command", c: badCode }
+                - { t: "✗ 20 min of back-and-forth", c: badCode }
+          - - type: terminal
+              title: with CLAUDE.md
+              lines:
+                - { t: "repo map loaded ✓", c: codeDim }
+                - { t: "conventions + test cmd known ✓", c: codeDim }
+                - { t: "" }
+                - { t: "✓ endpoint in api/health.py", c: okCode }
+                - { t: "✓ follows existing route style", c: okCode }
+                - { t: "✓ test written and passing", c: okCode }
+                - { t: "✓ right on the first try", c: okCode }
+      - type: columns
+        widths: [0.42, 0.58]
+        items:
+          - - type: chips
+              style: muted
+              fit: true
+              labels: ["REPLACE WITH REAL CAPTURES FROM OUR REPO"]
+          - - type: text
+              text: "The prompt didn't change. The environment did."
+              bold: true
+              italic: true
+              color: accent
+              size: 15
+              align: right
+              h: 0.4
+    notes: >-
+      The most persuasive slide in the deck — worth staging real screenshots from our
+      actual repo before this circulates (keep the transcripts for skeptics). Mock
+      content here is a placeholder showing the shape.
+
+  # ------------------------------------- 8 · skills and rules (panels)
+  - kicker: "05 · Skills and Rules"
+    title: "Both are context you set up once"
+    elements:
+      - type: cards
+        height: 3.6
+        cards:
+          - icon: FiFileText
+            name: Rules
+            mono: "CLAUDE.md + settings"
+            lead: "Guardrails, stylistic choices, landmines."
+            bullets:
+              - "Load every session — always on the desk"
+              - "Cost tokens every session, so keep them short"
+            example: "“always run make test-fast before claiming done”"
+          - icon: FiLayers
+            name: Skills
+            mono: ".claude/skills/<name>/SKILL.md"
+            lead: "A workflow — repeatable steps for a job."
+            bullets:
+              - "Load only when a request matches the description"
+              - "Cost nothing until they fire, so they can be long"
+            example: "the deploy checklist · the migration recipe"
+      - type: callout
+        align: center
+        h: 1.0
+        text: "If you keep typing the same instructions into prompts, that's a skill you haven't written yet."
+    notes: >-
+      The bridge from the previous section: both are context injected through setup.
+      The difference is when they load. Skills also double as slash commands — every
+      skill is invocable as /skill-name.
+
+  # ---------------------------------------------- 9 · example flows
+  - kicker: "06 · Example Flows"
+    title: "Five moves to steal this week"
+    elements:
+      - type: icon_rows
+        layout: list
+        dividers: true
+        rows:
+          - { icon: FiCompass, name: "Plan mode", cmd: "Shift+Tab", body: "Claude proposes an approach and touches zero files until you approve. Use it whenever the change is bigger than one sentence." }
+          - { icon: FiTool, name: "Prompt Helper", cmd: "/prompt-helper", body: "Rough idea in — stronger prompt, model recommendation, and a plan-mode call out. Training wheels for weeks one and two." }
+          - { icon: FiPackage, name: "Superpowers", cmd: "[install cmd]", body: "Our team bundle: the rules and skills you just saw, pre-configured with one install. [TODO: command + contents]" }
+          - { icon: FiSearch, name: "Diagnose", cmd: "cause first", body: "Paste the raw evidence, then: “tell me what's actually happening — don't change any code yet.” Agree on the cause, then ask for the fix plus a test." }
+          - { icon: FiEye, name: "Review", cmd: "/diff · /code-review", body: "First-pass review of the diff; a human owns the merge. Ask “what is this code assuming?” — the scrutiny you'd give a patch from a stranger." }
+    notes: >-
+      ~20 seconds each. Diagnose is the one where beginner instinct is most wrong —
+      when you're debugging you don't know the fix yet, so asking for a fix is asking
+      it to guess; ask for the diagnosis first. Close on Review: it sets up the final
+      slide.
+
+  # ---------------------------------------------------- 10 · closing
+  - background: dark
+    margin: 0.9
+    contentTop: 0.75
+    kicker: "This Week"
+    title: { text: "Three things before Friday", size: 34 }
+    elements:
+      - type: numbered
+        items:
+          - "Run /init in your main repo — then delete everything in the result that isn't true."
+          - "Use /clear at every task boundary, for one full week."
+          - "Run /prompt-helper on your first real ask of the day, twice."
+      - type: divider
+      - type: columns
+        widths: [0.66, 0.34]
+        items:
+          - - type: text
+              size: 13
+              runs:
+                - { text: "Honest expectations: ", bold: true, color: white }
+                - { text: "most people are slower in week one and clearly faster by month two. The payoff comes from the desk habits and CLAUDE.md quality above.", color: darkSub }
+          - - type: quote
+              text: "“What is this code assuming?”"
+              caption: "the review question — every merge, every time"
+    notes: >-
+      Ask for a scorecard: where it saved time, and where it produced almost-right
+      code that cost time — send us the second list. Point at the handout: everything
+      skipped today is on that page.

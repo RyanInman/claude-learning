@@ -1,0 +1,1470 @@
+meta:
+  title: Claude Code 101
+  author: Abcop
+design:
+  theme: ember
+  personality: keynote
+  vcenter: true
+slides:
+  - background: dark
+    vcenter: false
+    contentTop: 1.75
+    margin: 1
+    title:
+      size: 62
+      w: 6.5
+      lines:
+        - text: Claude Code
+        - text: '101'
+          color: accent
+    notes: >-
+      Welcome. Roughly forty minutes, seven short sections.
+
+      We'll do the CLI, but almost everything applies to Desktop and the VS Code extension too —
+      I'll flag the places they differ.
+
+      The through-line: everything in this deck is really a decision about context. If you leave
+      with only that, it was worth it.
+
+      Ask questions as we go rather than saving them for the end.
+    elements:
+      - type: image
+        at:
+          x: 11.55
+          'y': 0.75
+          w: 0.78
+        h: 0.78
+        path: assets/claude-logo-light.png
+        alt: Claude logo
+      - type: divider
+        w: 1.7
+        color: accent
+        thickness: 3
+        gap: 0.3
+      - type: text
+        text: >-
+          What context is, why it decides the quality of everything Claude does, and the setup that
+          makes short prompts work every time.
+        w: 6.2
+        color: darkMuted
+        size: 15
+      - type: chips
+        labels:
+          - 7 sections
+          - ~45 min
+          - Questions welcome
+        style: tint
+      - type: text
+        at:
+          x: 8.15
+          'y': 1.95
+          w: 4.2
+        text: In this session
+        bold: true
+        size: 12
+        color: accent
+      - type: bullets
+        at:
+          x: 8.15
+          'y': 2.35
+          w: 4.2
+        marker: dash
+        items:
+          - 01  Installation
+          - 02  How to Communicate with Claude
+          - 03  Context
+          - 04  Context Management
+          - 05  Claude Customization
+          - 06  ABCOP AI Playbooks
+          - 07  Pro-Tips
+  - background: dark
+    vcenter: true
+    kicker: 01 · Installation
+    title:
+      size: 52
+      lines:
+        - text: Installation
+          color: accent
+    subtitle: How to get started
+    notes: >-
+      Quick section — one slide after this.
+
+      The thing worth saying out loud: these are three front ends onto the same model. Picking one
+      is about which workflow fits you, not about getting a smarter Claude.
+
+      Most people here will end up on the VS Code extension. I will be in the CLI, because that is
+      where skills and rules live.
+    elements:
+      - type: chips
+        labels:
+          - Desktop
+          - VS Code
+          - CLI
+        style: tint
+  - kicker: 01 · Installation
+    title: Install Options
+    notes: >-
+      Three surfaces, same model underneath. Desktop is the friendliest for reading output. The VS
+      Code extension is best when you're already in a file and want a targeted edit.
+
+      This training is the CLI, because that's where skills, hooks, subagents and the rest live. The
+      principles carry over regardless.
+    elements:
+      - type: cards
+        cards:
+          - icon: star
+            name: Claude Desktop
+            sub: Best for reading
+            tag: Casual use
+          - icon: layers
+            name: VS Code extension
+            sub: Best inside code
+            emphasis: true
+            example: Most likely install
+            tag: Daily driver
+          - icon: terminal
+            name: Claude Code CLI
+            sub: Most capable
+            example: For power users
+            tag: This training
+            tagStyle: solid
+      - type: callout
+        style: tint
+        icon: terminal
+        text: I will use the Claude Code CLI for this tutorial, but everything here works on all three.
+  - background: dark
+    vcenter: true
+    kicker: 02 · How to Communicate with Claude
+    title:
+      size: 42
+      lines:
+        - text: How to Communicate
+        - text: with Claude
+          color: accent
+    subtitle: Deciding what goes into a request so the right answer comes back the first time.
+    notes: >-
+      Start with the familiar version. When you ask a teammate for something, you say what you need,
+      point at the file, and say what done looks like. Nobody calls that prompt engineering — it is
+      just asking properly.
+
+      The important half of the definition is "the first time", because the alternative is three
+      rounds of clarification you pay for every round.
+
+      Two slides: a checklist, then the same request written badly and well.
+    elements:
+      - type: chips
+        labels:
+          - The Three S's
+          - A worked example
+        style: tint
+  - kicker: 02 · How to Communicate with Claude
+    title: The Three S's
+    subtitle: Simple principles to stay on track.
+    notes: >-
+      Not an industry term — this is just something I find useful.
+
+      Fill in what you can. These are guidelines, not a form to complete. A three-line prompt that
+      hits two of the three is a good prompt.
+
+      There's a prompt-helper skill in our playbooks that grades a draft against exactly this list.
+    elements:
+      - type: icon_rows
+        layout: list
+        dividers: true
+        items:
+          - icon: search
+            name: Situation
+            cmd: what & why
+            body: What are you actually trying to do? One sentence of framing before the ask.
+          - icon: doc
+            name: Specific examples
+            cmd: paste it
+            body: Reference files with @, paste the real error log. Don't describe what you could show.
+          - icon: check
+            name: Success criteria
+            cmd: definition of done
+            body: What does finished look like? Tests pass, tsc clean, the page renders.
+  - kicker: 02 · How to Communicate with Claude
+    title: A Worked Example
+    subtitle: Turning a vague prompt into a useful one.
+    notes: >-
+      Read the weak one out loud. "Fix the login bug and any other bugs you find along the way and
+      make no mistakes."
+
+      Three problems. No situation. Three tasks, not one. And "make no mistakes" is not a success
+      criterion, it's a wish.
+
+      The fixed version is barely longer. It's three short sentences that happen to hit all three
+      S's.
+    elements:
+      - type: columns
+        items:
+          - - type: code
+              title: before
+              fontSize: 12
+              lines:
+                - t: Fix the login bug and any
+                  c: badCode
+                - t: other bugs you find along
+                  c: badCode
+                - t: the way and make no
+                  c: badCode
+                - t: mistakes
+                  c: badCode
+          - - type: code
+              title: after
+              fontSize: 12
+              lines:
+                - t: Fix the login bug in
+                  c: okCode
+                - t: '@Login.tsx. Here is the'
+                  c: okCode
+                - t: 'error log: <pasted>.'
+                  c: okCode
+                - t: Tests must pass and tsc
+                  c: okCode
+                - t: must compile clean.
+                  c: okCode
+      - type: icon_rows
+        columns: 3
+        rowHeight: 0.72
+        items:
+          - icon: search
+            head: Situation
+            body: Fixing a bug
+          - icon: doc
+            head: Specific examples
+            body: '@Login.tsx + real log'
+          - icon: check
+            head: Success criteria
+            body: Tests green, tsc clean
+      - type: text
+        text: Not a checklist, just guiding principles.
+        color: muted
+        italic: true
+        size: 13
+  - background: dark
+    vcenter: true
+    kicker: 03 · Context
+    title:
+      size: 42
+      lines:
+        - text: What is
+        - text: Context?
+          color: accent
+    subtitle: Context is everything your session is carrying.
+    notes: >-
+      Two words people use interchangeably. They are not the same.
+
+      Context is the stuff itself — the whole load the agent is holding at this moment. Context
+      engineering is deciding what goes in there before you type a prompt.
+
+      Same goal as a good prompt, except you do it once, in files, instead of retyping it every
+      session. That is this whole training in one sentence.
+
+      Next four slides: how a conversation accumulates, what the context window is, and what too
+      much and too little each look like.
+    elements:
+      - type: chips
+        labels:
+          - Turns
+          - The context window
+          - Too much
+          - Too little
+        style: tint
+  - kicker: 03 · Context
+    title: Every Turn Carries the Whole Conversation
+    notes: >-
+      A session is turns. You type, Claude answers, you type again.
+
+      The thing people miss: on turn four, Claude is re-reading turns one through three. The history
+      isn't a log it can consult, it's the input.
+
+      That's why sessions get slower and sloppier the longer they run — and it's the single most
+      useful thing to understand today.
+    elements:
+      - type: columns
+        widths:
+          - 0.46
+          - 0.54
+        items:
+          - - type: chat
+              size: 12
+              gap: 0.06
+              rows:
+                - from: user
+                  text: Fix the login redirect
+                - from: claude
+                  text: Edited Login.tsx
+                - from: user
+                  text: Now add a test
+                  note: re-reads turns 1-2
+                - from: claude
+                  text: Added Login.test.tsx
+                - from: user
+                  text: Actually, revert that
+                  note: re-reads turns 1-4
+                - from: claude
+                  text: Removed Login.test.tsx
+          - - type: callout
+              style: tint
+              runs:
+                - text: 'The entire transcript is re-sent '
+                  bold: true
+                - text: EVERY SINGLE TURN
+                  bold: true
+                  color: accent
+                  break: true
+            - type: callout
+              style: outline
+              text: and all of it fills up your context window...
+            - type: text
+              text: Managing it is your job, not the model's.
+  - kicker: 03 · Context
+    title: What is the Context Window?
+    subtitle: >-
+      Everything the agent is carrying right now: your prompts, its replies, every file it read,
+      every command it ran.
+    notes: >-
+      Think of it as what the agent is holding in its arms at this moment.
+
+      There's a sweet spot. Too much and it starts dropping things. Too little and it's guessing.
+      The next three slides are those three states.
+    elements:
+      - type: bar
+        h: 0.42
+        remainder: 38
+        remainderLabel: still free
+        segments:
+          - label: initial prompt
+            size: 4
+            group: Plan
+            c: 2E86C1
+          - label: project structure
+            size: 8
+            c: 5DADE2
+          - label: writing the plan
+            size: 12
+            c: 8E44AD
+          - label: writing tests
+            size: 12
+            group: Executing work
+            c: 27AE60
+          - label: writing code
+            size: 17
+            c: F1C40F
+          - label: verifying
+            size: 9
+            c: E67E22
+      - type: icon_rows
+        columns: 3
+        rowHeight: 1.1
+        items:
+          - icon: warn
+            head: Too much
+            body: Hallucinations.
+          - icon: search
+            head: Too little
+            body: Adds investigation overhead.
+          - icon: check
+            head: Just right
+            body: Enough to do the task right.
+  - kicker: 03 · Context
+    title: Too Much Context
+    notes: >-
+      Simon Says. Red. Red, green. Red, green, green. Red, green, green, blue.
+
+      Nobody fails at step two. Everyone fails eventually, and it's not because the game got harder
+      — it's because the list got longer.
+
+      Same thing here. A session with forty files read and three abandoned approaches in it will
+      make mistakes a fresh session wouldn't.
+    elements:
+      - type: columns
+        widths:
+          - 0.44
+          - 0.56
+        items:
+          - - type: dots
+              size: 0.32
+              labelWidth: 0.95
+              rows:
+                - label: Turn 1
+                  colors:
+                    - C0392B
+                - label: Turn 2
+                  colors:
+                    - C0392B
+                    - 27AE60
+                - label: Turn 3
+                  colors:
+                    - C0392B
+                    - 27AE60
+                    - 27AE60
+                - label: Turn 4
+                  colors:
+                    - C0392B
+                    - 27AE60
+                    - 27AE60
+                    - 2E86C1
+                - label: Turn 5
+                  colors:
+                    - C0392B
+                    - 27AE60
+                    - 27AE60
+                    - 2E86C1
+                    - F1C40F
+                - label: Turn 6
+                  colors:
+                    - C0392B
+                    - 27AE60
+                    - 27AE60
+                    - 2E86C1
+                    - F1C40F
+                    - C0392B
+                - label: Turn N
+                  colors:
+                    - C0392B
+                    - 27AE60
+                    - 27AE60
+                    - 2E86C1
+                    - F1C40F
+                    - C0392B
+                    - 27AE60
+                    - 2E86C1
+                  trail: '  ?'
+            - type: text
+              text: Nobody fails at turn two.
+              color: muted
+              italic: true
+          - - type: text
+              size: 15
+              runs:
+                - text: You don't fail because the task got harder.
+                - text: You fail because there's too much to hold.
+                  bold: true
+                  break: true
+            - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: layers
+                  name: Contradictory information
+                  body: Lots of detail in the window, some of it no longer true.
+                - icon: undo
+                  name: Abandoned approaches
+                  body: Old attempts still sitting in memory, competing with the current one.
+                - icon: warn
+                  name: Hallucinations and mistakes
+                  body: Small errors creep in, and they compound as the session runs on.
+                - icon: erase
+                  name: Costs effort to clear
+                  body: You now pay to get the memory back to something clean.
+  - kicker: 03 · Context
+    title: Too Little Context
+    subtitle: Like a vague bug report is not helpful, so too is a vague prompt.
+    notes: >-
+      The flip side. Everyone here has received a bug report that says "it doesn't work."
+
+      What do you do with that? You investigate. You ask questions. You guess. That's exactly what
+      Claude does with a thin prompt, except it guesses silently and confidently.
+
+      A good bug report and a good prompt are the same document.
+    elements:
+      - type: columns
+        widths:
+          - 0.44
+          - 0.56
+        items:
+          - - type: code
+              title: unhelpful
+              fontSize: 12
+              lines:
+                - t: It doesn't work.
+                  c: badCode
+                - t: ''
+                - t: Page doesn't look right.
+                  c: badCode
+                - t: ''
+                - t: Can you fix the thing?
+                  c: badCode
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: cross
+                  name: No steps to reproduce
+                  body: Nothing to run, so nothing can be confirmed before a fix is attempted.
+                - icon: warn
+                  name: Unclear expected vs outcome
+                  body: No way to tell whether the change worked or only looked like it did.
+                - icon: search
+                  name: Need to ask questions and investigate
+                  body: The work starts with a hunt for the information you already had.
+      - type: callout
+        style: tint
+        text: >-
+          And now you're making Claude do its own investigation — which leads to wasted tokens,
+          wasted time...
+  - background: dark
+    vcenter: true
+    kicker: 04 · Context Management
+    title:
+      size: 44
+      lines:
+        - text: Context
+        - text: Management
+          color: accent
+    subtitle: Know your budget and use it wisely.
+    notes: >-
+      So that is what context is. Now the during: managing it as you work.
+
+      Every long session drifts toward too much context — that is not a failure, it is just what
+      accumulation does. These are the three functions that pull it back, and they take about two
+      seconds each.
+
+      Building the habit matters more than knowing the commands.
+    elements:
+      - type: chips
+        labels:
+          - Clear
+          - Rewind
+          - Compact
+          - Model & effort
+          - Plan mode
+        style: tint
+  - kicker: 04 · Context Management
+    title: Chat Functions
+    subtitle: Simple commands to master your chat sessions.
+    notes: >-
+      These are the three habits worth building.
+
+      Clear when you change task — a fresh session is free and a stale one is expensive.
+
+      Rewind is the underused one. If a prompt went badly, don't argue with the result and don't
+      re-prompt on top of it. Go back to before you sent it. The bad turn stops existing.
+
+      Compact when you genuinely need to keep working but you're full. Describe what to retain — an
+      unqualified compact keeps the wrong things.
+    elements:
+      - type: icon_rows
+        layout: list
+        dividers: true
+        rowHeight: 0.71
+        iconSize: 0.5
+        items:
+          - icon: erase
+            name: Clear
+            cmd: /clear
+            body: Moving to a new task? Start a new chat and fresh context.
+          - icon: undo
+            name: Rewind
+            cmd: /rewind or double-esc
+            body: Unhappy with a result? Go down the wrong path? Rewind instead of re-prompt.
+          - icon: redo
+            name: Resume
+            cmd: /resume
+            body: Cleared too soon? Resume a previous session.
+          - icon: compress
+            name: Compact
+            cmd: /compact <what_to_keep>
+            body: Running out of context but still need to continue the work?
+  - kicker: 04 · Context Management
+    title: Check Your Context
+    subtitle: Use /context to see what the session is carrying right now.
+    notes: >-
+      Two seconds, and it turns "the session feels sluggish" into a number.
+
+      The breakdown matters more than the total. If messages are eating the window, clear or
+      compact. If your own setup is eating it — skills, memory files, MCP tools — that is a
+      configuration problem no amount of clearing will fix.
+
+      [TODO: swap the mock panel for a real screenshot of my own /context output.]
+    elements:
+      - type: columns
+        widths:
+          - 0.55
+          - 0.45
+        items:
+          - - type: code
+              title: /context
+              fontSize: 11
+              lines:
+                - t: '> /context'
+                  c: okCode
+                - t: ''
+                - t: Context Usage
+                  b: true
+                - t: claude-opus-5 · 152k/1m tokens (15%)
+                  c: codeDim
+                - t: ''
+                - t: 'System prompt      4.6k    0.5%'
+                - t: 'System tools      11.5k    1.2%'
+                - t: 'Memory files       1.2k    0.1%'
+                - t: 'Skills             9.8k    1.0%'
+                - t: 'Messages           125k     12%'
+                  c: badCode
+                - t: 'Free space         848k     85%'
+                  c: okCode
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: search
+                  name: See what you are carrying
+                  body: A breakdown by category, not just a total.
+                - icon: chat
+                  name: Messages climbing?
+                  body: That is the part /clear and /compact actually shrink.
+                - icon: gear
+                  name: Setup climbing?
+                  body: Skills, memory and MCP tools cost the same on every single turn.
+  - kicker: 04 · Context Management
+    title: Match the Model to the Task
+    subtitle: Set with /model.
+    notes: >-
+      Three tiers. Most of your day is Sonnet.
+
+      Reach for Opus when the task is genuinely hard or when you're planning — planning is where the
+      extra capability pays for itself, because a bad plan costs far more than a slow one.
+
+      Haiku for quick lookups where you just need an answer fast.
+    elements:
+      - type: cards
+        height: 2.9
+        cards:
+          - icon: bolt
+            name: Haiku
+            rows:
+              - label: Use for
+                text: Quick lookups and simple questions
+                labelColor: ok
+            tag: Cheap and fast
+          - icon: check
+            name: Sonnet
+            emphasis: true
+            rows:
+              - label: Use for
+                text: Most day-to-day coding work
+                labelColor: ok
+            tag: Your default
+            tagStyle: solid
+          - icon: brain
+            name: Opus
+            rows:
+              - label: Use for
+                text: Complex problems and planning
+                labelColor: ok
+            tag: When it's hard
+      - type: text
+        text: Too high can be expensive, too low costs retries.
+        color: muted
+        italic: true
+        size: 13
+  - kicker: 04 · Context Management
+    title: Effort Is the Second Dial
+    subtitle: How much thinking the model spends before it answers — set independently of the model.
+    notes: >-
+      Two dials, not one. The model is who is doing the thinking; effort is how long they think
+      before they start typing.
+
+      Sonnet + medium is the everyday default. Opus + low is the one people miss — the stronger
+      model without paying for deliberation you did not need.
+    elements:
+      - type: columns
+        widths:
+          - 0.46
+          - 0.54
+        items:
+          - - type: dial
+              size: 1.3
+              active: 1
+              labelAll: true
+              labelWidth: 0.9
+              labels:
+                - low
+                - medium
+                - high
+                - xhigh
+              caption: 'effortLevel: medium'
+              captionMono: true
+          - - type: callout
+              style: tint
+              icon: bolt
+              bold: Two pairings worth knowing
+              text: >-
+                Sonnet + medium is the everyday default. Opus + low gets you the stronger model
+                without paying for deliberation you don't need.
+  - kicker: 04 · Context Management
+    title: Plan First and Save Tokens
+    notes: >-
+      Counter-intuitive one. Plan mode makes Claude gather everything it can before proposing
+      anything, and it shows you the plan before touching code.
+
+      That feels slower. It isn't. You get to see the work before it happens and redirect it —
+      instead of reading a diff that went the wrong direction twenty files ago.
+
+      Use it with Opus for anything non-trivial.
+    elements:
+      - type: columns
+        widths:
+          - 0.5
+          - 0.5
+        items:
+          - - type: code
+              title: 'Plan: Fix the Flaky Checkout Test'
+              fontSize: 11
+              lines:
+                - t: Read first
+                  c: codeDim
+                - t: '  src/checkout/CheckoutForm.tsx'
+                - t: '  tests/checkout.e2e.ts (3 failures)'
+                - t: ''
+                - t: 1. Await the /cart response instead
+                - t: '   of the 500ms timeout'
+                - t: 2. Seed the cart via API in beforeEach
+                - t: 3. Re-run the suite 10x to confirm
+                - t: ''
+                - t: 'Files: 1 source, 1 test'
+                  c: codeDim
+                - t: 'Verify: pnpm test:e2e --repeat 10'
+                  c: okCode
+                - t: 'Not doing: the wider timeout cleanup'
+                  c: badCode
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: search
+                  name: It gathers first
+                  body: Forces Claude to read and investigate before proposing anything.
+                - icon: doc
+                  name: You review the plan
+                  body: The work is described before it is done. Redirect while that is cheap.
+                - icon: bolt
+                  name: It saves tokens
+                  body: Catching a wrong direction in a plan costs far less than in a diff.
+      - type: callout
+        style: solid
+        bold: Opus + plan mode
+        text: Switch to Sonnet to run.
+        align: center
+  - background: dark
+    vcenter: true
+    kicker: 05 · Claude Customization
+    title:
+      size: 44
+      lines:
+        - text: Claude
+        - text: Customization
+          color: accent
+    subtitle: Four mechanisms that load context for you. This is the part you set up once.
+    notes: >-
+      Managing context by hand is half the job. The other half is setup: the four places you put
+      context so Claude loads it without being asked.
+
+      CLAUDE.md, memory, rules, skills. They differ mainly in when they fire.
+
+      You do not have to set all four up today. CLAUDE.md alone gets you most of the way there.
+    elements:
+      - type: chips
+        labels:
+          - CLAUDE.md
+          - MEMORY.md
+          - Rules
+          - Skills
+        style: tint
+  - kicker: 05 · Claude Customization
+    title: Your Setup Loads Context for You
+    notes: >-
+      This is the leverage. Four mechanisms, and they differ mainly in when they load.
+
+      CLAUDE.md is always there. Memory is Claude's own notes. Rules fire when a matching file gets
+      touched. Skills fire when the task matches.
+
+      You don't have to set all four up today. CLAUDE.md alone gets you most of the way.
+    elements:
+      - type: icon_rows
+        layout: list
+        dividers: true
+        items:
+          - icon: book
+            name: CLAUDE.md
+            cmd: at session start
+            body: Map of the project, key commands, gotchas. Global ~/.claude/CLAUDE.md loads in every project.
+          - icon: brain
+            name: MEMORY.md
+            cmd: auto-managed
+            body: Claude's own notes, kept per project.
+          - icon: flag
+            name: Rules
+            cmd: on matching paths
+            body: Path-scoped guidance in .claude/rules/.
+          - icon: gear
+            name: Skills
+            cmd: on matching task
+            body: Repeatable workflows, by slash or by match.
+      - type: timeline
+        items:
+          - label: Session start
+            sub: CLAUDE.md + MEMORY.md
+          - label: You open a file
+            sub: matching rules
+          - label: You name a task
+            sub: matching skill
+          - label: Mid-task
+            sub: whatever Claude reads
+  - kicker: 05 · Claude Customization
+    title: CLAUDE.md — The Project Map
+    notes: >-
+      Run /init in a repo and Claude drafts one of these for you. Then edit it, because the
+      generated version is always too generic.
+
+      Keep it short. This loads on every single session, so every line is rent you pay forever.
+      Architecture notes, the commands, the gotchas that bite newcomers.
+
+      User-level CLAUDE.md applies to every project you touch. Use that one sparingly.
+    elements:
+      - type: columns
+        widths:
+          - 0.58
+          - 0.42
+        items:
+          - - type: code
+              title: CLAUDE.md
+              fontSize: 11
+              lines:
+                - t: '# Payments API'
+                  b: true
+                - t: ''
+                - t: '## Commands'
+                  c: codeDim
+                - t: 'pnpm dev      # local, needs Docker up'
+                - t: 'pnpm test:int # integration, slow'
+                - t: ''
+                - t: '## Architecture'
+                  c: codeDim
+                - t: '- Routes in src/routes, thin.'
+                - t: '- Business logic in src/domain.'
+                - t: '- Never call Stripe outside'
+                - t: '  src/domain/billing.'
+                - t: ''
+                - t: '## Gotchas'
+                  c: codeDim
+                - t: '- Migrations are NOT auto-run.'
+                - t: '- CI uses Node 20, not 22.'
+          - - type: callout
+              style: tint
+              bold: /init
+              text: Drafts a project-level CLAUDE.md from the codebase. Always edit what it produces.
+            - type: bullets
+              items:
+                - Architecture notes
+                - Build, test, deploy commands
+                - Gotchas that bite newcomers
+                - Links to external docs
+                - text: Keep it short — it loads every time
+                  bold: true
+  - kicker: 05 · Claude Customization
+    title: Rules Load When They Apply
+    subtitle: Guardrails for reading and writing in specific files and folders.
+    notes: >-
+      This is the part people underuse. A rule file has a paths glob in its frontmatter, and it only
+      enters context when Claude touches a matching file.
+
+      So your C# conventions cost nothing on a TypeScript day. That's the whole point — targeted
+      context instead of one enormous always-on file.
+
+      A rule with no paths behaves like CLAUDE.md.
+    elements:
+      - type: columns
+        items:
+          - - type: code
+              title: .claude/rules/dotnet.md
+              fontSize: 11
+              lines:
+                - t: '---'
+                  c: codeDim
+                - t: 'paths: ["**/*.cs"]'
+                  c: okCode
+                - t: '---'
+                  c: codeDim
+                - t: ''
+                - t: '- Async methods end in Async.'
+                - t: '- No LINQ in hot paths.'
+                - t: '- xUnit, not NUnit.'
+          - - type: code
+              title: .claude/rules/react.md
+              fontSize: 11
+              lines:
+                - t: '---'
+                  c: codeDim
+                - t: 'paths: ["src/**/*.tsx"]'
+                  c: okCode
+                - t: '---'
+                  c: codeDim
+                - t: ''
+                - t: '- Function components only.'
+                - t: '- Co-locate tests as *.test.tsx.'
+                - t: '- No default exports.'
+      - type: callout
+        icon: bolt
+        text: Path-scoped beats always-on — your C# conventions cost zero context on a TypeScript day.
+      - type: text
+        text: Rules without a path scope always load like a CLAUDE.md.
+        color: muted
+        italic: true
+  - kicker: 05 · Claude Customization
+    title: Skills are Recipes for Repeated Work
+    notes: >-
+      A skill is a set of instructions for a task you do more than once. Could be five steps, could
+      be a branching workflow with scripts attached.
+
+      The description field is what makes it fire. Claude reads descriptions and picks the skill
+      that matches — so a vague description means the skill never triggers.
+
+      You can also invoke one deliberately with a slash.
+    elements:
+      - type: columns
+        widths:
+          - 0.55
+          - 0.45
+        items:
+          - - type: code
+              title: SKILL.md
+              fontSize: 11
+              lines:
+                - t: '---'
+                  c: codeDim
+                - t: 'name: pr-description'
+                  c: okCode
+                - t: 'description: Write the PR'
+                  c: okCode
+                - t: '  description for a branch. Use'
+                  c: okCode
+                - t: '  when asked to open a PR or'
+                  c: okCode
+                - t: '  write a PR body.'
+                  c: okCode
+                - t: '---'
+                  c: codeDim
+                - t: ''
+                - t: 1. Diff the branch against main.
+                - t: 2. Group changes by intent.
+                - t: 3. Fill the PR template.
+                - t: 4. List anything needing review.
+          - - type: text
+              text: >-
+                A skill can be a simple list of steps, a branching workflow, or a full instruction
+                book with scripts attached.
+            - type: text
+              text: Invoke implicitly
+              bold: true
+              size: 15
+              gap: 0.12
+            - type: bullets
+              items:
+                - Description does the triggering
+                - Claude picks it up by matching
+            - type: text
+              text: Invoke explicitly with /
+              bold: true
+              size: 15
+              gap: 0.12
+            - type: bullets
+              items:
+                - 'Name the skill yourself: /pr-description'
+  - background: dark
+    vcenter: true
+    kicker: 06 · ABCOP AI Playbooks
+    title:
+      size: 52
+      lines:
+        - text: ABCOP AI
+        - text: Playbooks
+          color: accent
+    subtitle: One shared repo of rules and skills. Install it once, and it works on every project.
+    notes: >-
+      This is the part you do not have to build yourself.
+
+      One repo, installed once. After that the rules and skills load themselves exactly like we
+      covered in section five.
+
+      I will show you what is in it, then the handful I reach for most weeks.
+    elements:
+      - type: chips
+        labels:
+          - prompt-helper
+          - karpathy.md
+          - session-review
+          - typescript-general
+          - csharp-general
+        style: tint
+  - kicker: 06 · ABCOP AI Playbooks
+    title: The Playbooks Repo
+    subtitle: One shared repo of rules and skills, installed once.
+    notes: >-
+      This is the part you don't have to build yourself.
+
+      One repo, installed once. After that the rules and skills load themselves exactly like we
+      covered in section five — you don't invoke most of them.
+
+      [TODO: walk through the install live.]
+    elements:
+      - type: columns
+        widths:
+          - 0.36
+          - 0.64
+        items:
+          - - type: code
+              title: install
+              fontSize: 11
+              lines:
+                - t: '# [TODO: clone / install'
+                  c: badCode
+                - t: '#  command]'
+                  c: badCode
+                - t: ''
+                - t: '# [TODO: where it lands]'
+                  c: badCode
+                - t: ~/.claude/rules/
+                - t: ~/.claude/skills/
+                - t: ~/.claude/CLAUDE.md
+          - - type: icon_rows
+              columns: 2
+              items:
+                - icon: check
+                  head: prompt-helper
+                  body: Skill. Grades a draft prompt against the Three S's.
+                - icon: flag
+                  head: karpathy.md
+                  body: Rule. Keeps changes surgical and scoped.
+                - icon: search
+                  head: session-review
+                  body: Skill. Audits a session and fixes your setup.
+                - icon: doc
+                  head: typescript-general
+                  body: Rule. TypeScript files only.
+                - icon: doc
+                  head: csharp-general
+                  body: Rule. C# files only.
+      - type: callout
+        icon: bolt
+        text: '[TODO: install steps and how to verify it loaded.]'
+  - kicker: 06 · ABCOP AI Playbooks
+    title: prompt-helper
+    subtitle: '[TODO: one-line description]'
+    notes: '[TODO: speaker notes]'
+    elements:
+      - type: columns
+        widths:
+          - 0.44
+          - 0.56
+        items:
+          - - type: code
+              title: prompt-helper
+              fontSize: 12
+              lines:
+                - t: '[TODO: example invocation]'
+                  c: okCode
+                - t: ''
+                - t: '> [TODO: what it says back]'
+                  c: codeDim
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: search
+                  name: '[TODO: point 1]'
+                  body: '[TODO]'
+                - icon: bulb
+                  name: '[TODO: point 2]'
+                  body: '[TODO]'
+                - icon: check
+                  name: '[TODO: point 3]'
+                  body: '[TODO]'
+  - kicker: 06 · ABCOP AI Playbooks
+    title: karpathy.md
+    subtitle: '[TODO: one-line description]'
+    notes: '[TODO: speaker notes]'
+    elements:
+      - type: columns
+        widths:
+          - 0.44
+          - 0.56
+        items:
+          - - type: code
+              title: .claude/rules/karpathy.md
+              fontSize: 11
+              lines:
+                - t: '[TODO: excerpt from the rule]'
+                  c: okCode
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: flag
+                  name: '[TODO: point 1]'
+                  body: '[TODO]'
+                - icon: pin
+                  name: '[TODO: point 2]'
+                  body: '[TODO]'
+                - icon: check
+                  name: '[TODO: point 3]'
+                  body: '[TODO]'
+  - kicker: 06 · ABCOP AI Playbooks
+    title: session-review
+    subtitle: '[TODO: one-line description]'
+    notes: '[TODO: speaker notes]'
+    elements:
+      - type: columns
+        widths:
+          - 0.44
+          - 0.56
+        items:
+          - - type: code
+              title: session-review
+              fontSize: 12
+              lines:
+                - t: '[TODO: example invocation]'
+                  c: okCode
+                - t: ''
+                - t: '> [TODO: what it reports]'
+                  c: codeDim
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: search
+                  name: '[TODO: point 1]'
+                  body: '[TODO]'
+                - icon: doc
+                  name: '[TODO: point 2]'
+                  body: '[TODO]'
+                - icon: check
+                  name: '[TODO: point 3]'
+                  body: '[TODO]'
+  - kicker: 06 · ABCOP AI Playbooks
+    title: typescript-general
+    subtitle: '[TODO: one-line description]'
+    notes: '[TODO: speaker notes]'
+    elements:
+      - type: columns
+        widths:
+          - 0.44
+          - 0.56
+        items:
+          - - type: code
+              title: .claude/rules/typescript-general.md
+              fontSize: 11
+              lines:
+                - t: '---'
+                  c: codeDim
+                - t: 'paths: ["[TODO]"]'
+                  c: okCode
+                - t: '---'
+                  c: codeDim
+                - t: ''
+                - t: '- [TODO: convention]'
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: doc
+                  name: '[TODO: point 1]'
+                  body: '[TODO]'
+                - icon: flag
+                  name: '[TODO: point 2]'
+                  body: '[TODO]'
+                - icon: check
+                  name: '[TODO: point 3]'
+                  body: '[TODO]'
+  - kicker: 06 · ABCOP AI Playbooks
+    title: csharp-general
+    subtitle: '[TODO: one-line description]'
+    notes: '[TODO: speaker notes]'
+    elements:
+      - type: columns
+        widths:
+          - 0.44
+          - 0.56
+        items:
+          - - type: code
+              title: .claude/rules/csharp-general.md
+              fontSize: 11
+              lines:
+                - t: '---'
+                  c: codeDim
+                - t: 'paths: ["[TODO]"]'
+                  c: okCode
+                - t: '---'
+                  c: codeDim
+                - t: ''
+                - t: '- [TODO: convention]'
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: doc
+                  name: '[TODO: point 1]'
+                  body: '[TODO]'
+                - icon: flag
+                  name: '[TODO: point 2]'
+                  body: '[TODO]'
+                - icon: check
+                  name: '[TODO: point 3]'
+                  body: '[TODO]'
+  - background: dark
+    vcenter: true
+    kicker: 07 · Pro-Tips
+    title:
+      size: 52
+      lines:
+        - text: Pro-Tips
+          color: accent
+    subtitle: Best practices used across the industry.
+    notes: |-
+      The habits and playbooks I reach for most weeks.
+      Do not try to adopt all of them. Pick the one that matches a problem you had this week.
+    elements:
+      - type: chips
+        labels:
+          - Ask me questions
+          - Debug loop
+          - Adversarial review
+        style: tint
+  - kicker: 07 · Pro-Tips
+    title: Ask Me Questions
+    subtitle: Tell Claude to ask you questions to help you solidify your idea.
+    notes: >-
+      This is the one for when you know roughly what you want but could not write a ticket for it
+      yet.
+
+      Adding one line — ask me clarifying questions — flips the whole exchange. Instead of guessing
+      at the half of the idea you did not say, it asks, and you answer with a keypress.
+
+      Two skills do this properly: /brainstorming for shaping an idea, /grill-me for stress-testing
+      one you have already shaped.
+    elements:
+      - type: columns
+        widths:
+          - 0.46
+          - 0.54
+        items:
+          - - type: code
+              title: your prompt
+              fontSize: 11
+              lines:
+                - t: I want to add a saved-reports
+                  c: okCode
+                - t: page to the admin app.
+                  c: okCode
+                - t: ''
+                  c: okCode
+                - t: Ask Me Clarifying Questions
+                  c: okCode
+                  b: true
+            - type: code
+              title: false
+              fontSize: 11
+              lines:
+                - t: Who can see a saved report?
+                  b: true
+                - t: ❯ 1. Any signed-in user
+                  c: okCode
+                - t: '  2. Admins only'
+                - t: '  3. Only the person who saved it'
+                - t: ''
+                - t: Where do reports get stored?
+                  b: true
+                - t: '  1. A new reports table'
+                - t: ❯ 2. Reuse reports + a saved flag
+                  c: okCode
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: chat
+                  name: Start with an idea
+                  body: A half-formed idea that needs some iteration.
+                - icon: bulb
+                  name: Claude Asks You
+                  body: What you actually mean, what is in and out of scope, what done looks like.
+                - icon: check
+                  name: End specific
+                  body: A fleshed-out plan, concrete enough to hand straight to plan mode.
+            - type: callout
+              style: tint
+              icon: gear
+              text: The /brainstorming and /grill-me skills run this loop for you.
+  - kicker: 07 · Pro-Tips
+    title: Debug Loop
+    subtitle: A disciplined loop for hard bugs and performance regressions.
+    notes: >-
+      This is the one that stops the guess-and-check spiral.
+
+      The discipline is that a fix does not count until there is a regression test that would have
+      caught the bug. That is the whole difference between fixing a bug and appearing to.
+    elements:
+      - type: columns
+        widths:
+          - 0.5
+          - 0.5
+        items:
+          - - type: code
+              title: diagnose
+              fontSize: 11
+              lines:
+                - t: /diagnose When I run
+                  c: okCode
+                - t: <insert_command> I get this
+                  c: okCode
+                - t: error <error_log> - list top
+                  c: okCode
+                - t: 3 causes and suggest a fix
+                  c: okCode
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: search
+                  name: Describe the Issue
+                  body: What you did, what broke.
+                - icon: doc
+                  name: Paste a Log
+                  body: The real error text, not a summary.
+                - icon: check
+                  name: Expected vs Actual
+                  body: What should have happened, and what happened instead.
+      - type: callout
+        style: tint
+        icon: gear
+        bold: /diagnose
+        text: Great for troubleshooting bugs or cryptic errors.
+  - kicker: 07 · Pro-Tips
+    title: Adversarial Review
+    subtitle: |-
+      Normal review — getting a check-up with your primary doctor.
+      Adversarial review — getting a second opinion.
+    notes: >-
+      Cheapest review you will ever run, because nothing has been built yet.
+
+      Point it at a plan, a design doc, or a PR description. It argues the other side properly
+      instead of agreeing with you.
+    elements:
+      - type: columns
+        widths:
+          - 0.42
+          - 0.58
+        items:
+          - - type: code
+              title: adversarial review
+              fontSize: 12
+              lines:
+                - t: Review @my-plan.md looking
+                  c: okCode
+                - t: for high-value criticism
+                  c: okCode
+                - t: ''
+                - t: '> 3 assumptions that do not'
+                  c: codeDim
+                - t: '>   survive contact'
+                  c: codeDim
+                - t: '> 1 cheaper alternative'
+                  c: codeDim
+          - - type: icon_rows
+              layout: list
+              dividers: true
+              items:
+                - icon: cross
+                  name: Critical Eye
+                  body: Criticizes instead of agreeing.
+                - icon: bulb
+                  name: Fresh Perspective
+                  body: Approaches without prior knowledge.
+                - icon: search
+                  name: Reduces Bias
+                  body: Sees outside the context of the original session.
+            - type: callout
+              style: tint
+              icon: gear
+              bold: /adversarial-review
+              text: Runs the second opinion for you, on a plan or a diff.
+  - background: dark
+    contentTop: 0.8
+    margin: 0.95
+    kicker: This Week
+    title:
+      size: 38
+      lines:
+        - text: Three things to try
+        - text: before Friday
+          color: accent
+    notes: >-
+      If you take nothing else: the context window is the whole game, and you control what's in it.
+
+      Three concrete things. Run /init on one repo. Try plan mode on the next non-trivial task. And
+      build the rewind habit — that's the one that compounds fastest.
+
+      Questions.
+    elements:
+      - type: numbered
+        rowHeight: 0.62
+        items:
+          - Use /context to inspect your context mid-session
+          - Use plan mode on your next non-trivial task
+          - Rewind instead of re-prompting, at least once
+      - type: callout
+        style: onDark
+        icon: bolt
+        bold: The context window is the whole game.
+        text: Every habit here is a decision about what Claude is carrying right now.
+  - background: dark
+    vcenter: true
+    kicker: Next Steps
+    title:
+      size: 40
+      lines:
+        - text: Want to
+        - text: go deeper?
+          color: accent
+    notes: >-
+      Two offers, and I mean both of them.
+
+      One-to-one sessions: bring a real task from your own repo and we will do it together. That is
+      worth more than any deck, because the setup work is specific to your codebase.
+
+      And if a few people want the same deep dive, I will run it as a session. Tell me which of
+      these you want, or suggest your own.
+    elements:
+      - type: callout
+        style: onDark
+        icon: chat
+        bold: Book a 1:1
+        text: Bring a task from your team and we'll work on it together.
+      - type: text
+        text: Deep dives I can run if there is interest
+        bold: true
+        size: 14
+        gap: 0.16
+      - type: icon_rows
+        columns: 3
+        items:
+          - icon: gear
+            head: Writing your first skill
+            body: Turn a weekly chore into a playbook.
+          - icon: flag
+            head: Rules for your stack
+            body: Path-scoped TypeScript and C# conventions.
+          - icon: book
+            head: CLAUDE.md for your repo
+            body: Run /init, then cut it back.
+          - icon: doc
+            head: Plan mode and subagents
+            body: Bigger changes without losing the thread.
+          - icon: bolt
+            head: Hooks
+            body: Enforce what prose only asks for.
+          - icon: search
+            head: Session review
+            body: Audit a session, fix what slowed it.

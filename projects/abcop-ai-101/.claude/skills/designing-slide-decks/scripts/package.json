@@ -1,0 +1,9 @@
+{
+  "name": "designing-slide-decks-scripts",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "pptxgenjs": "^3.12.0"
+  }
+}

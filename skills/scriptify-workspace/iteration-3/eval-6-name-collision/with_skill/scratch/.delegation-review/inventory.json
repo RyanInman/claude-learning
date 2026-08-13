@@ -1,0 +1,108 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/workspace/docs-linter",
+  "frontmatter": {
+    "name": "docs-linter",
+    "description_chars": 155,
+    "unexpected_keys": []
+  },
+  "body": {
+    "lines": 15,
+    "approx_tokens": 128
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Docs Linter",
+        "Workflow"
+      ],
+      "line_start": 13,
+      "line_end": 14,
+      "approx_tokens": 21,
+      "snippet": "List every `.md` file under `docs/`, sorted by path, and note the total",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "count",
+        "sort",
+        "list"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s2",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Docs Linter",
+        "Workflow"
+      ],
+      "line_start": 15,
+      "line_end": 16,
+      "approx_tokens": 28,
+      "snippet": "Check that each file starts with a level-1 heading followed by a blank line.",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "check"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s3",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Docs Linter",
+        "Workflow"
+      ],
+      "line_start": 17,
+      "line_end": 17,
+      "approx_tokens": 18,
+      "snippet": "Count the fenced code blocks in each file and total them across files.",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "count"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s4",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Docs Linter",
+        "Workflow"
+      ],
+      "line_start": 18,
+      "line_end": 19,
+      "approx_tokens": 30,
+      "snippet": "Decide which of the flagged files matter most to fix this sprint, given that",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    }
+  ],
+  "orphan_code_blocks": [],
+  "scripts": [
+    {
+      "path": "scripts/check_headings.py",
+      "lines": 43,
+      "mentioned_in_body": false,
+      "has_argparse": false,
+      "has_docstring": true,
+      "help_ok": false
+    }
+  ],
+  "references": [],
+  "assets": [],
+  "stats": {
+    "n_steps": 4,
+    "n_steps_with_hints": 3,
+    "n_existing_scripts": 1
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-2-nothing-to-delegate/with_skill/workspace/well-delegated",
+  "frontmatter": {
+    "name": "release-note-advisor",
+    "description_chars": 124,
+    "unexpected_keys": []
+  },
+  "body": {
+    "lines": 11,
+    "approx_tokens": 111
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Release Note Advisor",
+        "Workflow"
+      ],
+      "line_start": 10,
+      "line_end": 11,
+      "approx_tokens": 35,
+      "snippet": "Run exactly: `python3 scripts/check.py notes/ --json` to lint structure",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "check",
+        "lint"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": [
+        "scripts/check.py"
+      ]
+    },
+    {
+      "id": "s2",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Release Note Advisor",
+        "Workflow"
+      ],
+      "line_start": 12,
+      "line_end": 13,
+      "approx_tokens": 39,
+      "snippet": "Read the findings JSON and decide which flagged items actually matter for",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s3",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Release Note Advisor",
+        "Workflow"
+      ],
+      "line_start": 14,
+      "line_end": 15,
+      "approx_tokens": 26,
+      "snippet": "Write a short, plainly-worded explanation for each item worth fixing, in",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    }
+  ],
+  "orphan_code_blocks": [],
+  "scripts": [
+    {
+      "path": "scripts/check.py",
+      "lines": 38,
+      "mentioned_in_body": true,
+      "has_argparse": true,
+      "has_docstring": true,
+      "help_ok": true
+    }
+  ],
+  "references": [],
+  "assets": [],
+  "stats": {
+    "n_steps": 3,
+    "n_steps_with_hints": 1,
+    "n_existing_scripts": 1
+  }
+}

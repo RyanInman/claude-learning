@@ -15,17 +15,14 @@
 script?". Ask "what exactly stops this from being a script?". Only a named
 judgment, a conversation input, or a user interaction answers that question.
 
-Operational form: **would two different Claude runs produce meaningfully
-different output on this step, and should they?** If runs should not differ →
-SCRIPT. If only part of the step should differ → HYBRID, and script the rest.
+Operational form: **do two Claude runs produce different output on this step,
+and must they?** If runs must not differ → SCRIPT. If only part of the step
+must differ → HYBRID, and script the rest.
 A step stays CLAUDE only when its whole point is output that varies with
 context.
 
-Every run pays for a deterministic step re-derived in prose: tokens to
-re-think it, latency to re-generate it, and variance because generation is
-stochastic. A script pays that cost once, at authoring time. That is the whole
-economics of delegation. The `skillit:review` skill's token-economics
-reference carries the long version.
+The `skillit:review` skill's token-economics reference carries the long
+version of the delegation economics.
 
 Secondary test for close calls: **could you write the unit test for this
 step's output right now?** If yes, the step is deterministic enough to script.
@@ -43,14 +40,16 @@ rewritten step becomes one exact command line ("Run exactly: ..."). Examples:
 "check every file starts with a version header", "count entries per category".
 
 **CLAUDE** — judgment, synthesis, or conversation-dependent. A script here
-would fake determinism, because it would encode one arbitrary answer to a
+would fake determinism. It would encode one arbitrary answer to a
 question that genuinely varies. The step stays prose. Examples: "write the
 release narrative", "decide which findings matter to this user". Treat CLAUDE
-as the classification of last resort. Before you assign it, try a HYBRID
+as the classification of last resort.
+
+Before you assign it, try a HYBRID
 decomposition. Ask whether a script can enumerate candidates, pre-compute
-facts, validate the chosen answer, or render the result. Only a step that is
-judgment all the way through, with no mechanical shell to strip, is pure
-CLAUDE.
+facts, validate the chosen answer, or render the result. A step is pure CLAUDE
+only when it is judgment all the way through, with no mechanical shell to
+strip.
 
 **HYBRID** — a script prepares the inputs (gathers, counts, sorts, filters,
 structures), then Claude decides. The rewritten step becomes "run X, then
@@ -58,7 +57,15 @@ apply judgment to its output". Precedent: `audit.py` in `skillit:review`
 produces a mechanical severity guess that Claude re-triages. That is the
 HYBRID shape.
 
-**DEAD** — the step should not exist, because it is stale, duplicative, or
+The HYBRID test: **the script must produce a fact the judgment consumes.** If
+its only output is the set of items Claude has to read anyway, the step is
+CLAUDE, not HYBRID. A script that wraps a read adds an invocation and removes
+no reasoning. Step 8 keeps the judgment prose either way, so the run pays for a
+script that buys nothing. "Check every entry reads clearly" is the canonical
+trap. A script can list the entries. Claude must read every one regardless, so
+the list changes no decision.
+
+**DEAD** — the step must not exist, because it is stale, duplicative, or
 superseded. Do not force a script onto it. Flag it in the report. Route it to
 a `skillit:review` follow-up. Never auto-delete another skill's steps, because
 the user owns the target's workflow.
@@ -101,8 +108,8 @@ rendering results. Most of these categories are HYBRID in practice.
   computes the options and defaults Claude presents.
 - **Agent-runtime-tool steps** — any step invoking MCP tools, WebFetch,
   AskUserQuestion, subagent dispatch, or another permission-gated tool. Never
-  pure SCRIPT: a script reimplementation, such as curl in place of an MCP
-  call, silently loses auth, the permission model, and rate limiting. Script
+  classify these pure SCRIPT. A curl call in place of an MCP call silently
+  loses auth, the permission model, and rate limiting. Script
   at most the shell around the tool call, where the script prepares the input
   or digests the output.
 
@@ -123,14 +130,14 @@ rendering results. Most of these categories are HYBRID in practice.
 - **Pin a trivial one-liner even though it needs no bundled script.**
   One `ls` or one `grep` stays inline as an exact verbatim command in the
   rewritten step, never as prose to re-derive. Bundle a script once the
-  command is hard to get right on the first try, or once it has more than one
-  moving part.
+  command has more than one moving part, or once it is hard to get right on
+  the first try.
 - **Authoring-time steps differ from run-time steps.** Do not script a step
   that runs once when the author writes the skill, because the cost it saves
   never repeats.
 - **Scripting judgment hides variance behind false authority.** A wrong script
   is worse than prose, because it fails silently and looks official.
-- **Watch output size.** A delegated step that dumps 40KB into context trades
+- **Cap output size.** A delegated step that dumps 40KB into context trades
   token cost for token cost. Send large output to a file with `--out`. Keep a
   compact summary on stdout.
 - **Failure modes flip.** Prose degrades gracefully. Scripts fail hard.

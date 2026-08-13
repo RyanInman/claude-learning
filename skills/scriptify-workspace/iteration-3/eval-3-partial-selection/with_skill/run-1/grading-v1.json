@@ -1,0 +1,46 @@
+{
+  "expectations": [
+    {
+      "text": "exactly two generated scripts exist in changelog-checker/scripts/",
+      "passed": false,
+      "evidence": "`ls -1 with_skill/workspace/changelog-checker/scripts/*.py | wc -l` -> 1 (exit 0); only scripts/scan_changelogs.py exists. facts.json agrees: new_script_count=1, target_tree_diff.added=['scripts/scan_changelogs.py']. The run deliberately merged steps 1 and 3 into one script (report: \"Rows s1 and s3 share one script\"), so both selected steps are delegated, but the assertion as written asks for two scripts and one exists. FAIL."
+    },
+    {
+      "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+      "passed": true,
+      "evidence": "`diff -u fixture-baseline/changelog-checker/SKILL.md with_skill/workspace/changelog-checker/SKILL.md` -> exit 1 (differences present) with only the step 1 and step 3 lines replaced; frontmatter, intro, and steps 2,4,5,6,7 appear as context lines. `grep -n '^2\\.'` returns the byte-identical step 2 text in baseline and run ('Check that each file starts with a heading of the form `## vX.Y.Z - YYYY-MM-DD`. Record every file that does not.'), only its line number shifts from 13 to 14 because step 1 grew to two lines. NON-DISCRIMINATING: without_skill passes this too."
+    },
+    {
+      "text": "both generated scripts pass the smoke test before the rewrite",
+      "passed": true,
+      "evidence": "Only one script was generated, and it passes every smoke check: `python3 scripts/scan_changelogs.py --help` exit 0 with non-empty usage; `python3 scripts/scan_changelogs.py changelogs/ --json` exit 0 emitting valid JSON (file_count 3, totals Added 4/Fixed 2/Changed 1/Removed 0, other_categories {\"Misc\":1}, total_entries 8); no-arg invocation exit 2 with argparse usage on stderr. facts.json: help exit 0, new_scripts_all_help_ok=true. Ordering: transcript-notes step 23 records `smoke_test.py manifest.json` exit 0, 6/6 PASS, before step 25's two Edits to SKILL.md, and the report reproduces the 6/6 PASS block. Graded on 'pass the smoke test before the rewrite', which every generated script did; the two-script count is graded in assertion 1 and not re-charged here."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.6666666666666666,
+    "passed": 2,
+    "failed": 1,
+    "total": 3
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 7,
+      "Bash": 17,
+      "Write": 5,
+      "Edit": 2
+    },
+    "total_tool_calls": 31,
+    "total_steps": 24,
+    "files_created": [
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/workspace/changelog-checker/scripts/scan_changelogs.py",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/report.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/gate.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/transcript-notes.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/metrics.json",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 7429,
+    "transcript_chars": 5246
+  }
+}

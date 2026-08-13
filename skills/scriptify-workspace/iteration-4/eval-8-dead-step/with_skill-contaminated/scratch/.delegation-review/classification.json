@@ -1,0 +1,45 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-8-dead-step/with_skill/workspace/api-docs-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "globbing endpoints/*.md, sorting by path and counting is a pure function of the directory; two runs must not differ",
+      "proposed_script": {
+        "name": "check_endpoints.py",
+        "interface": "python3 scripts/check_endpoints.py endpoints/ --json",
+        "stdout": "JSON: {count, files[sorted], missing:{file:[fields]}, descriptions:{file:text}}",
+        "exit": "0 all files complete / 1 missing fields found / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "DEAD",
+      "why": "superseded by s3, which checks summary AND description in one pass; running both re-reads the same frontmatter and reports the same summary gaps twice",
+      "proposed_script": null
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "fixed-rule frontmatter validation: required keys present or absent, same verdict every run, unit-testable today",
+      "proposed_script": {
+        "name": "check_endpoints.py",
+        "interface": "python3 scripts/check_endpoints.py endpoints/ --json",
+        "stdout": "JSON: {count, files[sorted], missing:{file:[fields]}, descriptions:{file:text}}",
+        "exit": "0 all files complete / 1 missing fields found / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "DEAD",
+      "why": "the target's own Notes section says the legacy docs portal was retired in v2 and legacy/ went with it; the directory does not exist in the target, so this step writes to a consumer that is gone",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "CLAUDE",
+      "why": "'reads clearly for an external developer who has never seen this API' is a judgment reasonable runs should disagree on; a script would encode one arbitrary readability rule, and it would only hand back the description strings Claude must read in full anyway",
+      "proposed_script": null
+    }
+  ]
+}

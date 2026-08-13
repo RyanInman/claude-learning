@@ -1,0 +1,1 @@
+I want my research-brief-writer skill to stop re-deriving the same busywork on every run. Which of its steps should become scripts? The skill is at /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-5-agent-tool-steps/without_skill/workspace/research-brief-writer/. Report only for now, don't change anything.

@@ -1,0 +1,32 @@
+{
+  "eval_id": 3,
+  "eval_name": "partial-selection",
+  "prompt": "Review /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-3-partial-selection/with_skill/workspace/changelog-checker/ for delegable steps, but apply only the delegations for steps 1 and 3. Leave everything else untouched.",
+  "expected_output": "Exactly two scripts generated (file listing, category counting), both smoke-tested. Step 2's prose is byte-identical to before; the SKILL.md diff touches only steps 1 and 3.",
+  "expectations": [
+    "the rewritten SKILL.md invokes a generated script at steps 1 and 3, and no other step gained a script invocation",
+    "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+    "every generated script exits 0 on --help and nonzero on bad args, and the smoke test exits 0 against the final on-disk state"
+  ],
+  "assertions": [
+    {
+      "text": "the rewritten SKILL.md invokes a generated script at steps 1 and 3, and no other step gained a script invocation",
+      "type": "structure",
+      "tier": "signal",
+      "property": "delegation-coverage"
+    },
+    {
+      "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+      "type": "structure",
+      "tier": "guardrail",
+      "property": "scoped-edit",
+      "check": "skill_md_diff_touches_only_steps_1_3"
+    },
+    {
+      "text": "every generated script exits 0 on --help and nonzero on bad args, and the smoke test exits 0 against the final on-disk state",
+      "type": "content",
+      "tier": "signal",
+      "property": "interface-hygiene"
+    }
+  ]
+}

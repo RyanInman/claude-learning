@@ -1,0 +1,5 @@
+# Notes
+
+1. **s1, s2, and s3 share one script.** They all walk the same `docs/` tree, so three separate scripts would mean three traversals and three tool calls for one pass of work. `render_report.py` accepts the shared `proposed_script.name`, and `new_manifest.py` scaffolded one entry covering `steps=s1,s2,s3`. If the grader expects one script per row, this run produces one script for three rows on purpose.
+2. **`.delegation-review/` was deleted at Step 9.** The residue question took its recommended default (No), and `references/applying.md` says to remove the review directory after a fully green run. That deletion took the fixtures, manifest, inventory, classification, and the `SKILL.md.orig` restore point with it. Their contents are reproduced in `report.md` and `transcript-notes.md`.
+3. **The interface audit ran the existing script.** `check_headings.py` is code the user did not write, and probing executes it. It is a 43-line read-only markdown scan with no side effects, so running it on the target's own `docs/` was safe and produced a real finding (`docs/reference/api.md` has an image with empty alt text).

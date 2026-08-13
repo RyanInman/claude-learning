@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "no new files are written into evals/fixtures/well-delegated/",
+      "passed": true,
+      "evidence": "Ran `diff -r /Users/admin/claude-learning/skills/scriptify/evals/fixtures/well-delegated without_skill/workspace/well-delegated` -> exit 0, no output. facts.json target_tree_diff empty, new_script_count 0, skill_md_changed false. The run did create a probe fixture, but at without_skill/scratch/notes-bad/bad.md, outside the target and outside evals/fixtures/. NON-DISCRIMINATING: the with_skill arm also left the fixture byte-identical."
+    },
+    {
+      "text": "scripts/check.py is acknowledged as already delegated",
+      "passed": true,
+      "evidence": "report.md verdict names check.py as the delegated deterministic step, classifies workflow step 1 'SCRIPT - already done', and adds a section 'Why scripts/check.py counts as properly delegated' covering exact invocation in the body, argparse/--help, exit codes 0/1/2, and the --json handoff into step 2. I reproduced `python3 scripts/check.py --help` -> exit 0 and `python3 scripts/check.py notes/ --json` -> `[]`, exit 0, matching facts.json (preexisting true, help ok). NON-DISCRIMINATING: the with_skill arm also acknowledged it (as ALREADY_DELEGATED)."
+    },
+    {
+      "text": "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts",
+      "passed": true,
+      "evidence": "report.md classifies step 2 (audience-fit) CLAUDE -- 'A script has no way to know an internal note may skip its heading' -- and step 3 (house-voice explanations) CLAUDE -- 'Prose in a house voice is generative'. A 'What I deliberately did not recommend' section rejects both scripting the audience call and templating the explanations. gate.md is `none`, changes made: none, new_script_count 0. NON-DISCRIMINATING: the with_skill arm classified both steps CLAUDE too."
+    }
+  ]
+}

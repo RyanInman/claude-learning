@@ -1,0 +1,46 @@
+{
+  "eval_id": 7,
+  "eval_name": "keep-residue",
+  "prompt": "Review /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/with_skill/workspace/changelog-checker/ for steps to delegate to scripts and apply all of them. Keep the test fixtures and the manifest inside the skill afterward so I can re-run the checks myself later.",
+  "expected_output": "Scripts written and smoke-tested, then the fixtures and manifest moved into changelog-checker/scripts/tests/ with every absolute fixture path rewritten to the new location, then the smoke test re-run green against the moved manifest. The rewritten SKILL.md carries the smoke-test command.",
+  "expectations": [
+    "test fixtures and a manifest persist inside the target skill folder, at a path the rewritten SKILL.md names",
+    "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+    "the residue's own documented re-run command, executed from the target skill folder, exits 0",
+    "the rewritten SKILL.md body contains the command that re-runs the kept checks",
+    "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script"
+  ],
+  "assertions": [
+    {
+      "text": "test fixtures and a manifest persist inside the target skill folder, at a path the rewritten SKILL.md names",
+      "type": "structure",
+      "tier": "signal",
+      "property": "residue"
+    },
+    {
+      "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+      "type": "structure",
+      "tier": "guardrail",
+      "property": "residue",
+      "check": "manifest_paths_resolve"
+    },
+    {
+      "text": "the residue's own documented re-run command, executed from the target skill folder, exits 0",
+      "type": "content",
+      "tier": "signal",
+      "property": "residue"
+    },
+    {
+      "text": "the rewritten SKILL.md body contains the command that re-runs the kept checks",
+      "type": "structure",
+      "tier": "signal",
+      "property": "residue"
+    },
+    {
+      "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+      "type": "content",
+      "tier": "signal",
+      "property": "classification"
+    }
+  ]
+}

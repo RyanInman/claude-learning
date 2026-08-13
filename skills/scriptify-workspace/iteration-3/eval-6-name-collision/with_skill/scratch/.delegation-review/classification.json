@@ -1,0 +1,44 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/workspace/docs-linter",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "glob docs/**/*.md, sort by path, count - same output every run",
+      "proposed_script": {
+        "name": "lint_docs.py",
+        "interface": "python3 scripts/lint_docs.py docs/ --json",
+        "stdout": "findings JSON: files[] sorted, file_count, h1_violations[], fence counts",
+        "exit": "0 clean / 1 h1 violations found / 2 usage"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "SCRIPT",
+      "why": "fixed regex rule (first line is '# ' and line 2 blank); a unit test is writable now. NOT already delegated: scripts/check_headings.py checks image alt text despite its name",
+      "proposed_script": {
+        "name": "lint_docs.py",
+        "interface": "python3 scripts/lint_docs.py docs/ --json",
+        "stdout": "findings JSON: h1_violations[] with path and reason",
+        "exit": "0 clean / 1 h1 violations found / 2 usage"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "counting fenced blocks per file and totalling is pure aggregation",
+      "proposed_script": {
+        "name": "lint_docs.py",
+        "interface": "python3 scripts/lint_docs.py docs/ --json",
+        "stdout": "findings JSON: per-file fenced_blocks and fenced_blocks_total",
+        "exit": "0 clean / 1 h1 violations found / 2 usage"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "CLAUDE",
+      "why": "prioritising which flagged files to fix this sprint weighs traffic against effort; reasonable runs should differ, and the script shell around it (the flagged list) is already produced by lint_docs.py",
+      "proposed_script": null
+    }
+  ]
+}

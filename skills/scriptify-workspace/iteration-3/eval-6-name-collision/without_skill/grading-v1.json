@@ -1,0 +1,34 @@
+{
+  "expectations": [
+    {
+      "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+      "passed": true,
+      "evidence": "Ran `shasum -a 256 without_skill/workspace/docs-linter/scripts/check_headings.py` (exit 0) -> d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54, matching the baseline hash; facts.json collision.byte_identical_to_baseline=true. NON-DISCRIMINATING: with_skill matches the same hash."
+    },
+    {
+      "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+      "passed": true,
+      "evidence": "outputs/gate.md presents 'The naming conflict' with options A (new file), B (fold into check_headings.py), C (rename), and recommends A; the generated script is scripts/lint_docs_structure.py. facts.json target_tree_diff shows only scripts/lint_docs_structure.py added and SKILL.md modified. SKILL.md also gained a Gotchas entry explaining why the two files coexist. NON-DISCRIMINATING: with_skill also asks and renames."
+    },
+    {
+      "text": "at least 2 newly generated Python scripts exist in docs-linter/scripts/ and each supports --help",
+      "passed": false,
+      "evidence": "Fails on both halves. Count: `ls without_skill/workspace/docs-linter/scripts/` -> check_headings.py (pre-existing), lint_docs_structure.py (new); facts.json new_script_count=1, so >=2 is not met. Help: `python3 scripts/lint_docs_structure.py --help` -> 'not a directory: --help', exit 2, and `-h` likewise exit 2 - the script hand-rolls argv parsing instead of using argparse, so it has no --help at all (facts.json new_scripts_all_help_ok=false). NON-DISCRIMINATING on the count (with_skill also produced 1), but with_skill's single new script does support --help (exit 0)."
+    },
+    {
+      "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
+      "passed": false,
+      "evidence": "No smoke test with a PASS result appears anywhere in outputs/report.md. The '## Verification' section pastes raw invocations (`python3 scripts/lint_docs_structure.py docs` exit 1, --json, missing-arg exit 2, plus a re-run of check_headings.py exit 1) with no pass/fail assertions and no PASS lines; no test harness, manifest, or fixtures were created (transcript-notes.md lists only the script and the outputs files). Ordering also fails: the report announces the SKILL.md rewrite in the 'What changed' table at line 11, well before the Verification section at line 62. DIFFERS from with_skill, which reports 11/11 PASS before showing its SKILL.md diff."
+    },
+    {
+      "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+      "passed": true,
+      "evidence": "Ran `python3 scripts/lint_docs_structure.py docs` in without_skill/workspace/docs-linter (exit 1). Output flags reference/api.md (\"first line is not a level-1 heading: '## API Reference'\") and tutorial.md (\"first line is not a level-1 heading: 'Some intro prose that arrives before any heading at all.'\"), and the summary line reads 'flagged for heading structure: reference/api.md, tutorial.md'. NON-DISCRIMINATING: with_skill's script flags the same two files."
+    },
+    {
+      "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+      "passed": true,
+      "evidence": "Read without_skill/workspace/docs-linter/SKILL.md: the former step 4 survives verbatim as step 2 - 'Decide which of the flagged files matter most to fix this sprint, given that the tutorial pages get the most traffic.' No script invocation attached; report.md classifies it 'Kept as prose - a judgment call'. NON-DISCRIMINATING: with_skill keeps the same sentence as prose."
+    }
+  ]
+}

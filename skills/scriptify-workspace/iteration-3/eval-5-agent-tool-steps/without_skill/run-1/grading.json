@@ -1,0 +1,69 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "the report contains a row for every one of the 7 workflow steps, each with a class",
+      "passed": true,
+      "evidence": "outputs/report.md lines 11-19 hold a markdown table with a Verdict column and exactly 7 rows numbered 1-7, matching the 7 SKILL.md steps: 1 Script, 2 Keep (agent), 3 Keep (agent), 4 Script, 5 Split, 6 Keep (model), 7 Script. Per calibration C1 a per-row outcome in any vocabulary counts as a class; the literal tokens SCRIPT/HYBRID/CLAUDE are not required. NON-DISCRIMINATING: with_skill also covers all 7."
+    },
+    {
+      "text": "no new files or directories are created inside the target skill folder",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, skill_md_changed false, workspace_extra []. Independently confirmed: `find without_skill/workspace -type f` returns only SKILL.md and topics.txt, and `diff -r` against the with_skill copy exits 0. The run's one scratch file, scratch/parse_topics_demo.py, sits outside workspace/. NON-DISCRIMINATING: with_skill target_tree_diff is also empty."
+    },
+    {
+      "text": "step 2 (WebFetch the top source) is NOT classified pure SCRIPT, and no proposed script reimplements the fetch with curl, requests, or urllib",
+      "passed": true,
+      "evidence": "report.md line 14 classes step 2 'Keep (agent)': 'WebFetch is an agent tool; picking the top source is judgment'. Line 104 leaves the step unchanged in the rewritten workflow. `grep -niE 'curl|requests|urllib|http\\.client' report.md` returns one hit, line 123, and it is the prohibition: 'Do not try to script step 2 with curl ... network access from a bundled script is not something the skill should depend on'. Neither proposed script (parse_topics.py, index_report.py) touches the network. NON-DISCRIMINATING: with_skill also keeps the fetch agent-side."
+    },
+    {
+      "text": "step 5 (notion MCP page lookup and append) is NOT classified pure SCRIPT",
+      "passed": true,
+      "evidence": "report.md line 17 classes step 5 'Split': 'The MCP call stays; the summary block it appends is rendered by script'. Lines 60-66 elaborate: 'Script the payload, not the call. The render script emits the summary block to stdout or a file, and the agent passes that text to the MCP append.' Not pure SCRIPT. NON-DISCRIMINATING: with_skill classes s5 HYBRID."
+    },
+    {
+      "text": "step 3 (AskUserQuestion which sources to keep) is NOT classified pure SCRIPT",
+      "passed": true,
+      "evidence": "report.md line 15 classes step 3 'Keep (agent)': 'Interactive; a script cannot ask'. Lines 70-72 keep the AskUserQuestion call and only move the option list into step 1's JSON. NON-DISCRIMINATING: with_skill classes s3 HYBRID."
+    },
+    {
+      "text": "steps 1 (dedupe and slugify topics), 4 (word counts and thin-source flags) and 7 (render sorted index table) are classified SCRIPT with concrete argv/exit-code interfaces",
+      "passed": false,
+      "evidence": "The classification half holds: report.md lines 13, 16, 19 mark steps 1, 4 and 7 **Script**. The interface half does not. The two interface blocks (lines 78-94) give argv and a stdout contract only - `Usage: parse_topics.py topics.txt` with 'Output: JSON array to stdout' and `Usage: index_report.py --sources sources/ --kept kept.json [--thin 200]` with 'Output: JSON to stdout' - and neither states what the script exits with. `grep -niE 'exit|status code|returncode' outputs/report.md outputs/gate.md` returns nothing, exit 1: the word exit appears nowhere in the arm's output. The assertion requires concrete argv AND exit-code interfaces; exit codes are absent, so this fails as written. DISCRIMINATING: with_skill gives 0/1/2 with a distinct meaning for each of the three scripts."
+    },
+    {
+      "text": "step 6 (write the 200-word brief in the house voice) keeps its prose-writing core with Claude",
+      "passed": true,
+      "evidence": "report.md line 18 classes step 6 'Keep (model)': 'Prose judgment; the only step that needs a model'. Line 110 leaves it unchanged in the rewritten workflow, and line 128 states 'Do not script step 6. A 200-word brief in a house voice is the reason this skill uses a model.' NON-DISCRIMINATING: with_skill classes s6 CLAUDE."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.8571428571428571,
+    "passed": 6,
+    "failed": 1,
+    "total": 7
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 3,
+      "Bash": 5,
+      "Write": 2
+    },
+    "total_tool_calls": 10,
+    "total_steps": 8,
+    "files_created": [
+      "scratch/parse_topics_demo.py",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/user_notes.md",
+      "outputs/metrics.json"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 6404,
+    "transcript_chars": 1745
+  }
+}

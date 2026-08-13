@@ -1,0 +1,65 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}. Confirmed independently: `diff -r fixture-baseline/plugin-cached-release-notes with_skill/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes` exit 0 (no output). NON-DISCRIMINATING: without_skill also passes."
+    },
+    {
+      "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+      "passed": true,
+      "evidence": "outputs/report.md heading 'Step 0 - eligibility: the target is INELIGIBLE' names the path as a plugin cache and states 'Anything I write there is silently clobbered by the next update of the `release-tools` plugin'. outputs/gate.md repeats it: 'the next plugin update silently clobbers any script written there'. Both the ineligibility and its reason are present. NON-DISCRIMINATING: without_skill also passes."
+    },
+    {
+      "text": "the run still produces the per-step classification report for the target",
+      "passed": true,
+      "evidence": "outputs/report.md 'Step 3 - report' contains a 5-row table, one row per workflow step (s1-s5), each with Current form, Tokens, Class (SCRIPT x4, CLAUDE x1), Why, and a proposed script interface, plus 'No DEAD and no ALREADY_DELEGATED steps.' Covers every step of the target's 5-step workflow. NON-DISCRIMINATING: without_skill also passes."
+    },
+    {
+      "text": "the run offers at least one durable write destination outside the plugin cache and applies the delegations there",
+      "passed": true,
+      "evidence": "Clause 1 (offers): outputs/gate.md Question 1 offers 'Copy into the project and continue (Recommended)' -> `workspace/.claude/skills/release-notes`, a project skills dir, which survives a plugin update. Clause 2 (applies there): verified on disk, not from the report. `find . -name '*.py'` under the run dir returns with_skill/workspace/.claude/skills/release-notes/scripts/{scan_notes.py,render_notes.py}; facts.json workspace_extra lists both scripts plus the copied SKILL.md and notes/. Ran them myself from that directory: `python3 scripts/scan_notes.py --help` exit 0, `python3 scripts/render_notes.py --help` exit 0, `python3 scripts/scan_notes.py notes/ --json` exit 1 (the documented bad_header finding on pr-104.md), `python3 scripts/render_notes.py notes/` exit 1 (same finding). The copy's SKILL.md was rewritten to invoke them (lines 12 and 22 call scan_notes.py and render_notes.py). Both clauses hold. DISCRIMINATING: without_skill fails clause 2."
+    },
+    {
+      "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: new_script_count = 0, scripts = [], skill_md_changed = false, skill_md_diff = \"\". Confirmed by the same `diff -r` against fixture-baseline/plugin-cached-release-notes (exit 0). The two generated .py files landed under workspace/.claude/skills/, outside the cache. NON-DISCRIMINATING: without_skill also passes."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 7,
+      "Bash": 18,
+      "Write": 7,
+      "Edit": 2
+    },
+    "total_tool_calls": 34,
+    "total_steps": 10,
+    "files_created": [
+      "workspace/.claude/skills/release-notes/SKILL.md",
+      "workspace/.claude/skills/release-notes/notes/pr-101.md",
+      "workspace/.claude/skills/release-notes/notes/pr-104.md",
+      "workspace/.claude/skills/release-notes/notes/pr-109.md",
+      "workspace/.claude/skills/release-notes/scripts/scan_notes.py",
+      "workspace/.claude/skills/release-notes/scripts/render_notes.py",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 8394,
+    "transcript_chars": 3825
+  }
+}

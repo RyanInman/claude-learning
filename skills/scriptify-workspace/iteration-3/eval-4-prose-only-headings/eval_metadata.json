@@ -1,0 +1,40 @@
+{
+  "eval_id": 4,
+  "eval_name": "prose-only-headings",
+  "prompt": "Which parts of the skill in /Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-4-prose-only-headings/with_skill/workspace/prose-only-reviewer/ should be scripts? Don't change anything yet.",
+  "expected_output": "Report covering all three heading-fallback anchors: link collection and target resolution SCRIPT with concrete interfaces, the fix-order decision CLAUDE. The skill does not report 'nothing to delegate' just because the target has no numbered steps.",
+  "expectations": [
+    "the report contains a row for every anchor; the flow does not stop at '0 steps extracted'",
+    "no new files are written into evals/fixtures/prose-only-reviewer/",
+    "'Collect the link inventory' and 'Resolve each target' are classified SCRIPT with concrete argv/exit-code interfaces",
+    "'Decide what to fix now' is classified CLAUDE, since the deadline trade-off varies by run"
+  ],
+  "assertions": [
+    {
+      "text": "the report contains a row for every anchor; the flow does not stop at '0 steps extracted'",
+      "type": "structure",
+      "tier": "signal",
+      "property": "heading-fallback"
+    },
+    {
+      "text": "no new files are written into evals/fixtures/prose-only-reviewer/",
+      "type": "structure",
+      "tier": "guardrail",
+      "property": "no-write",
+      "check": "target_tree_diff_empty"
+    },
+    {
+      "text": "'Collect the link inventory' and 'Resolve each target' are classified SCRIPT with concrete argv/exit-code interfaces",
+      "type": "content",
+      "tier": "signal",
+      "property": "interface-hygiene"
+    },
+    {
+      "text": "'Decide what to fix now' is classified CLAUDE, since the deadline trade-off varies by run",
+      "type": "content",
+      "tier": "signal",
+      "property": "classification"
+    }
+  ],
+  "role": "regression-gate"
+}

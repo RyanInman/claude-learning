@@ -1,0 +1,76 @@
+{
+  "description": "Smoke-test manifest for scripts/check_changelogs.py. Paths are absolute and point inside this skill folder.",
+  "script": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/check_changelogs.py",
+  "runner": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/run_tests.py",
+  "rerun_command": "python3 scripts/tests/run_tests.py",
+  "cases": [
+    {
+      "name": "sample",
+      "fixture_dir": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/fixtures/sample",
+      "fixture_files": [
+        "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/fixtures/sample/v1.0.0.md",
+        "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/fixtures/sample/v1.1.0.md",
+        "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/fixtures/sample/v1.2.0.md"
+      ],
+      "expected": {
+        "file_count": 3,
+        "files_sorted": [
+          "v1.0.0.md",
+          "v1.1.0.md",
+          "v1.2.0.md"
+        ],
+        "heading_violations": [
+          "v1.2.0.md"
+        ],
+        "totals": {
+          "Added": 4,
+          "Fixed": 2,
+          "Changed": 1,
+          "Removed": 0,
+          "Misc": 1
+        },
+        "grand_total": 8,
+        "unknown_tags": [],
+        "misc_entries": [
+          {
+            "file": "v1.1.0.md",
+            "entry": "Corrected typo in settings page label"
+          }
+        ],
+        "table_first_row_version": "v1.2.0"
+      }
+    },
+    {
+      "name": "edge",
+      "fixture_dir": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/fixtures/edge",
+      "fixture_files": [
+        "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/fixtures/edge/v2.0.0.md"
+      ],
+      "expected": {
+        "file_count": 1,
+        "files_sorted": [
+          "v2.0.0.md"
+        ],
+        "heading_violations": [],
+        "totals": {
+          "Added": 0,
+          "Fixed": 0,
+          "Changed": 0,
+          "Removed": 1,
+          "Misc": 1
+        },
+        "grand_total": 2,
+        "unknown_tags": [
+          "Security"
+        ],
+        "misc_entries": [
+          {
+            "file": "v2.0.0.md",
+            "entry": "Bumped dependency pins"
+          }
+        ],
+        "table_first_row_version": "v2.0.0"
+      }
+    }
+  ]
+}

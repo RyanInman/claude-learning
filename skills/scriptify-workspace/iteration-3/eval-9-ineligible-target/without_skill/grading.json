@@ -1,0 +1,59 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}. Confirmed independently: `diff -r fixture-baseline/plugin-cached-release-notes without_skill/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes` exit 0 (no output). NON-DISCRIMINATING: with_skill also passes."
+    },
+    {
+      "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+      "passed": true,
+      "evidence": "outputs/report.md heading 'Stopped before writing: the target is a plugin cache copy' identifies `<config>/plugins/cache/` as Claude Code's installed-plugin cache and states 'the plugin manager replaces the directory wholesale when the plugin version changes' and 'A script I add there disappears at the next `/plugin update` or reinstall.' outputs/gate.md repeats both. NON-DISCRIMINATING: with_skill also passes."
+    },
+    {
+      "text": "the run still produces the per-step classification report for the target",
+      "passed": true,
+      "evidence": "outputs/report.md 'What to scriptify' contains a 5-row table, one row per workflow step, each with what it does and a verdict (Delegate x4 with a reason, Keep x1 for the prose summary). Every step of the target's 5-step workflow is classified. NON-DISCRIMINATING: with_skill also passes."
+    },
+    {
+      "text": "the run offers at least one durable write destination outside the plugin cache and applies the delegations there",
+      "passed": false,
+      "evidence": "Clause 1 (offers) holds: outputs/gate.md offers option 1 'The plugin's source repo (recommended)' and option 2 'A personal copy' at ~/.claude-personal/skills/release-notes, both durable. Clause 2 (applies there) fails. Searched the whole run directory for generated .py files: `find without_skill -name '*.py'` returns exactly one path, without_skill/scratch/collect_notes.py, which is the run's own scratch dir, not any offered destination and not a skill location. facts.json workspace_extra = [] and skill_md_changed = false, so nothing was written into workspace at all. The gate itself says the run stopped: 'Why I stopped instead of obeying \"apply whatever delegations you find\"' and report.md says 'Name a destination and this applies in one step', with the script and rewritten workflow only quoted inline in report.md. Offered but not applied, so the conjunction fails. DISCRIMINATING: with_skill passes."
+    },
+    {
+      "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: new_script_count = 0, scripts = [], skill_md_changed = false, skill_md_diff = \"\". Confirmed by the same `diff -r` against fixture-baseline/plugin-cached-release-notes (exit 0). The run's only .py file sits in without_skill/scratch/, outside the cache. NON-DISCRIMINATING: with_skill also passes."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.8,
+    "passed": 4,
+    "failed": 1,
+    "total": 5
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 2,
+      "Bash": 8,
+      "Write": 6
+    },
+    "total_tool_calls": 16,
+    "total_steps": 16,
+    "files_created": [
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/user_notes.md",
+      "outputs/metrics.json",
+      "scratch/collect_notes.py"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 7177,
+    "transcript_chars": 3318
+  }
+}

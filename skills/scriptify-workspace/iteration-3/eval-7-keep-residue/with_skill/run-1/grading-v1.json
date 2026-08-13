@@ -1,0 +1,75 @@
+{
+  "expectations": [
+    {
+      "text": "changelog-checker/scripts/tests/ exists and contains manifest.json plus the fixture files",
+      "passed": true,
+      "evidence": "`ls with_skill/workspace/changelog-checker/scripts/tests/` (exit 0) -> fixtures/, manifest.json, smoke_test.py. facts.json target_tree_diff.added lists manifest.json plus 14 fixture files under scripts/tests/fixtures/ (check_changelogs good+bad, render_summary good+bad, scan_changelogs good+bad). residue.tests_dir_exists=true."
+    },
+    {
+      "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+      "passed": true,
+      "evidence": "Walked every string in scripts/tests/manifest.json with python3 (exit 0), expanded {skill} to target_skill: all 10 fixture path tokens resolve on disk (scan_changelogs/good, scan_changelogs/bad, check_changelogs/good, check_changelogs/bad x5, render_summary/good/scan.json, render_summary/bad/scan.json). No token in the manifest contains '.delegation-review'; `grep -rn delegation-review` in the workspace hits only the smoke_test.py docstring, never the manifest. facts.json residue.unresolved_paths is an artifact of the collector not expanding {skill}; expanded, none are unresolved, and residue.stale_delegation_review_paths is empty."
+    },
+    {
+      "text": "re-running scriptify's smoke_test.py against the moved manifest exits 0",
+      "passed": true,
+      "evidence": "Four runs, exit code taken from the python3 process itself (echo $? immediately after, no pipeline). (A) shipped copy from its own dir: `python3 <skill>/scripts/tests/smoke_test.py <skill>/scripts/tests/manifest.json` -> EXIT 0, 21/21 checks passed. (B) canonical /Users/admin/claude-learning/skills/scriptify/scripts/smoke_test.py against the same manifest -> EXIT 0, 21/21. The shipped copy is byte-identical to the canonical one (`diff` exit 0). (C) whole target copied to a scratchpad path, relocated copy's own smoke_test.py + relocated manifest -> EXIT 0, 21/21, with stderr note 'residue manifest sits in <new path>; using that as target_skill instead of the recorded <old path> (the skill was moved).' (D) canonical smoke_test.py against the relocated manifest -> EXIT 0, 21/21, same note. Both requested checks (own directory and relocated target) exit 0."
+    },
+    {
+      "text": "the rewritten changelog-checker SKILL.md body contains the smoke-test command",
+      "passed": true,
+      "evidence": "SKILL.md lines 23-26 add a '## Verifying the scripts' section: 'Run exactly: `python3 scripts/tests/smoke_test.py scripts/tests/manifest.json`' plus the exit-code legend (0 pass, 1 check failed, 2 manifest missing/malformed). The command is in the body, not only in report.md, and it is the command that exits 0 when run."
+    },
+    {
+      "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+      "passed": true,
+      "evidence": "SKILL.md step 4 is unchanged from the baseline ('Write a one-paragraph release narrative...'), confirmed by skill_md_diff showing it as an unmodified context line. Step 7 reads 'Read `entries` in `scan.json` and flag any entry a reader would find confusing' - it consumes step 1's artifact and invokes no script; the judgment stays with the reader. `grep -niE 'narrative|confusing|clearly written|readab'` over the three new scripts returns no narrative/clarity logic (only two 'Usage error' lines matched on 'readab'-adjacent text). report.md classifies s4 CLAUDE and s7 HYBRID with only the extraction half scripted."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 7,
+      "Write": 9,
+      "Bash": 22
+    },
+    "total_tool_calls": 38,
+    "total_steps": 27,
+    "files_created": [
+      "scratch/.delegation-review/SKILL.md.orig",
+      "scratch/.delegation-review/inventory.json",
+      "scratch/.delegation-review/classification.json",
+      "scratch/.delegation-review/manifest.json",
+      "scratch/.delegation-review/fixtures/scan_changelogs/good/v2.0.0.md",
+      "scratch/.delegation-review/fixtures/scan_changelogs/good/v2.1.0.md",
+      "scratch/.delegation-review/fixtures/scan_changelogs/bad/README.txt",
+      "scratch/.delegation-review/fixtures/check_changelogs/good/v1.0.0.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/good/v1.1.0.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/bad/no-heading.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/bad/malformed.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/bad/not-first.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/bad/badtag.md",
+      "scratch/.delegation-review/fixtures/render_summary/good/scan.json",
+      "scratch/.delegation-review/fixtures/render_summary/bad/scan.json",
+      "workspace/changelog-checker/scripts/scan_changelogs.py",
+      "workspace/changelog-checker/scripts/check_changelogs.py",
+      "workspace/changelog-checker/scripts/render_summary.py",
+      "workspace/changelog-checker/scripts/tests/manifest.json",
+      "workspace/changelog-checker/scripts/tests/smoke_test.py",
+      "workspace/changelog-checker/scripts/tests/fixtures/ (11 fixture files)",
+      "workspace/changelog-checker/SKILL.md (rewritten)",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json"
+    ],
+    "errors_encountered": 0,
+    "output_chars": 8442,
+    "transcript_chars": 5299
+  }
+}

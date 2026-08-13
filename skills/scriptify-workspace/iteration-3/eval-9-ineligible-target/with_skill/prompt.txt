@@ -1,0 +1,1 @@
+Scriptify the release-notes skill at /Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-9-ineligible-target/with_skill/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes and apply whatever delegations you find.

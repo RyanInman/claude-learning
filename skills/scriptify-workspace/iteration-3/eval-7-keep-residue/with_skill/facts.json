@@ -1,0 +1,97 @@
+{
+  "eval": "eval-7-keep-residue",
+  "config": "with_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/check_changelogs.py",
+      "scripts/render_summary.py",
+      "scripts/scan_changelogs.py",
+      "scripts/tests/fixtures/check_changelogs/bad/badtag.md",
+      "scripts/tests/fixtures/check_changelogs/bad/malformed.md",
+      "scripts/tests/fixtures/check_changelogs/bad/no-heading.md",
+      "scripts/tests/fixtures/check_changelogs/bad/not-first.md",
+      "scripts/tests/fixtures/check_changelogs/good/v1.0.0.md",
+      "scripts/tests/fixtures/check_changelogs/good/v1.1.0.md",
+      "scripts/tests/fixtures/render_summary/bad/scan.json",
+      "scripts/tests/fixtures/render_summary/good/scan.json",
+      "scripts/tests/fixtures/scan_changelogs/bad/README.txt",
+      "scripts/tests/fixtures/scan_changelogs/good/v2.0.0.md",
+      "scripts/tests/fixtures/scan_changelogs/good/v2.1.0.md",
+      "scripts/tests/manifest.json",
+      "scripts/tests/smoke_test.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -9,10 +9,18 @@\n \n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n-2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n+1. Run exactly: `python3 scripts/scan_changelogs.py changelogs/ --out scan.json`\n+   Exit 0 the scan is written and stdout carries the file count, the entry total, and one line per file, sorted by version; exit 1 the folder holds no `.md` files, so say so and stop; exit 2 usage error.\n+2. Run exactly: `python3 scripts/check_changelogs.py changelogs/ --json`\n+   Exit 0 clean, 1 findings, 2 usage error. Heading problems arrive under `violations` with codes `no_version_heading`, `version_heading_not_first`, and `malformed_version_heading`. Report every file named there. Keep this JSON; step 6 reads it too.\n+3. Per-category counts come from `scan.json`: `counts` per file, `totals` across files.\n 4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n-5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n-6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n-7. Verify the entries are clearly written and flag any that a reader would find confusing.\n+5. Run exactly: `python3 scripts/render_summary.py scan.json`\n+   Exit 0 the markdown table is on stdout, sorted by version descending; exit 1 `invalid_scan`, so re-run step 1.\n+6. Read the step 2 findings. Entries under a category outside the allowed list arrive as `invalid_tag`. For each entry under `misc`, judge whether it actually fits `Added`, `Fixed`, `Changed`, or `Removed`, and suggest the move.\n+7. Read `entries` in `scan.json` and flag any entry a reader would find confusing.\n+\n+## Verifying the scripts\n+\n+Run exactly: `python3 scripts/tests/smoke_test.py scripts/tests/manifest.json`\n+Exit 0 every script still meets its contract, 1 a check failed, 2 the manifest is missing or malformed.\n",
+  "scripts": [
+    {
+      "path": "scripts/check_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 271,
+        "stderr_len": 0,
+        "ok": true
+      }
+    },
+    {
+      "path": "scripts/render_summary.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 226,
+        "stderr_len": 0,
+        "ok": true
+      }
+    },
+    {
+      "path": "scripts/scan_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 337,
+        "stderr_len": 0,
+        "ok": true
+      }
+    },
+    {
+      "path": "scripts/tests/smoke_test.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 457,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 4,
+  "new_scripts_all_help_ok": true,
+  "residue": {
+    "tests_dir_exists": true,
+    "manifests_found": [
+      "scripts/tests/manifest.json"
+    ],
+    "manifest": "scripts/tests/manifest.json",
+    "manifest_target_skill": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+    "manifest_target_skill_exists": true,
+    "unresolved_paths": [],
+    "stale_delegation_review_paths": [],
+    "runner": "scriptify smoke_test.py (manifest declared none)",
+    "smoke_rerun_exit": 0,
+    "smoke_rerun_tail": "PASS  scripts/scan_changelogs.py  exists\nPASS  scripts/scan_changelogs.py  help\nPASS  scripts/scan_changelogs.py  fixture-run[0]\nPASS  scripts/scan_changelogs.py  fixture-run[1]\nPASS  scripts/scan_changelogs.py  bad-args\nPASS  scripts/check_changelogs.py  exists\nPASS  scripts/check_changelogs.py  help\nPASS  scripts/check_changelogs.py  fixture-run[0]\nPASS  scripts/check_changelogs.py  fixture-run[1]\nPASS  scripts/check_changelogs.py  fixture-run[2]\nPASS  scripts/check_changelogs.py  fixture-run[3]\nPASS  scripts/check_changelogs.py  fixture-run[4]\nPASS  scripts/check_changelogs.py  bad-data\nPASS  scripts/check_changelogs.py  bad-args\nPASS  scripts/check_changelogs.py  codes-distinct\nPASS  scripts/render_summary.py  exists\nPASS  scripts/render_summary.py  help\nPASS  scripts/render_summary.py  fixture-run[0]\nPASS  scripts/render_summary.py  bad-data\nPASS  scripts/render_summary.py  bad-args\nPASS  scripts/render_summary.py  codes-distinct\n\n21/21 checks passed\n"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "eval_id": 8,
+  "eval_name": "dead-step",
+  "prompt": "Which steps in the api-docs-checker skill at /Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-8-dead-step/with_skill/workspace/api-docs-checker/ should be scripts? Just tell me \u2014 don't write anything yet.",
+  "expected_output": "Report covering all 5 steps. Step 4 (append to legacy/index.txt) is DEAD: the Notes section says the legacy portal was retired in v2. Step 2 is superseded by step 3. No script is proposed for a DEAD step and no step is deleted from the target.",
+  "expectations": [
+    "the report contains a row for every one of the 5 workflow steps",
+    "no new files or directories are created inside the target skill folder",
+    "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+    "no script is proposed for the DEAD step",
+    "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+    "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude"
+  ],
+  "assertions": [
+    {
+      "text": "the report contains a row for every one of the 5 workflow steps",
+      "type": "structure",
+      "tier": "signal",
+      "property": "classification"
+    },
+    {
+      "text": "no new files or directories are created inside the target skill folder",
+      "type": "structure",
+      "tier": "guardrail",
+      "property": "no-write",
+      "check": "target_tree_diff_empty"
+    },
+    {
+      "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+      "type": "content",
+      "tier": "signal",
+      "property": "dead-step"
+    },
+    {
+      "text": "no script is proposed for the DEAD step",
+      "type": "content",
+      "tier": "signal",
+      "property": "dead-step"
+    },
+    {
+      "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+      "type": "content",
+      "tier": "signal",
+      "property": "dead-step"
+    },
+    {
+      "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+      "type": "content",
+      "tier": "signal",
+      "property": "classification"
+    }
+  ]
+}

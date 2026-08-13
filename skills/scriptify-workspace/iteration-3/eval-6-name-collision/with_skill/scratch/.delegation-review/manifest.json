@@ -1,0 +1,88 @@
+{
+  "target_skill": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/workspace/docs-linter",
+  "scripts": [
+    {
+      "path": "scripts/lint_docs.py",
+      "kind": "check",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/lint_docs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/scratch/.delegation-review/fixtures/lint_docs/good",
+            "--json"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "\"fenced_blocks_total\": 1"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/lint_docs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/scratch/.delegation-review/fixtures/lint_docs/good",
+            "--json"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "\"file_count\": 2"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/lint_docs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/scratch/.delegation-review/fixtures/lint_docs/bad/h1_not_first",
+            "--json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "h1_not_first"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/lint_docs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/scratch/.delegation-review/fixtures/lint_docs/bad/no_h1",
+            "--json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "no_h1"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/lint_docs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/scratch/.delegation-review/fixtures/lint_docs/bad/missing_blank",
+            "--json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "missing_blank_after_h1"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/lint_docs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/scratch/.delegation-review/fixtures/lint_docs/bad/empty",
+            "--json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "empty_file"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/lint_docs.py"
+        ],
+        "expect_exit_nonzero": true
+      },
+      "bad_data_invocation": {
+        "argv": [
+          "python3",
+          "scripts/lint_docs.py",
+          "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/scratch/.delegation-review/fixtures/lint_docs/bad",
+          "--json"
+        ],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "h1_not_first"
+      }
+    }
+  ]
+}

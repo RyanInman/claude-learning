@@ -1,0 +1,63 @@
+{
+  "expectations": [
+    {
+      "text": "changelog-checker/scripts/ contains at least 3 Python scripts and each supports --help",
+      "passed": false,
+      "evidence": "FAIL on count. `ls without_skill/workspace/changelog-checker/scripts/` shows 1 .py file (scan_changelogs.py); facts.json new_script_count=1. It does support --help: `python3 scripts/scan_changelogs.py --help` exit 0. 1 < 3. The run chose one script deliberately (report: 'One script, not five'), but the assertion as written fails. NON-DISCRIMINATING: with_skill shipped 2 and also fails."
+    },
+    {
+      "text": "the rewritten SKILL.md invokes each generated script by exact command line",
+      "passed": true,
+      "evidence": "PASS. Only one script was generated. SKILL.md step 1 gives `python3 scripts/scan_changelogs.py changelogs` and step 2 gives `python3 scripts/scan_changelogs.py changelogs --format table`. Ran both verbatim from without_skill/workspace/changelog-checker/: exit 0 (JSON) and exit 0 (markdown table). NON-DISCRIMINATING: with_skill also passes."
+    },
+    {
+      "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
+      "passed": true,
+      "evidence": "PASS. outputs/transcript-notes.md items 9-11 run the script on the real changelogs plus three edge cases (exit 0, 0, 0, 2-as-designed) before item 12 rewrites SKILL.md; outputs/report.md carries a Verification table with all five checks and their results. Graded on the eval's expected_output framing (rewrite only after the smoke test passes). NON-DISCRIMINATING: with_skill also verified before rewriting."
+    },
+    {
+      "text": "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
+      "passed": false,
+      "evidence": "FAIL on the exit code. Ran `python3 scripts/scan_changelogs.py changelogs` from without_skill/workspace/changelog-checker/: JSON contains `\"bad_headings\": [\"v1.2.0.md\"]` and `heading_ok: false`, so the file is flagged, but exit=0. `--format table` also exits 0. The script reserves nonzero only for a bad path (exit 2). Flagged, not nonzero. DISCRIMINATING: with_skill exits 1 on findings."
+    },
+    {
+      "text": "step 4 (release narrative) remains a prose instruction with no script",
+      "passed": true,
+      "evidence": "PASS. Rewritten SKILL.md step 3: `Write a one-paragraph release narrative for a non-technical reader, using the entry text from the JSON.` No command. The report's classification table marks step 4 'Keep - audience judgment, no correct output to compute'. NON-DISCRIMINATING: with_skill keeps it as prose step 2."
+    },
+    {
+      "text": "step 6's judgment about re-homing Misc entries remains prose",
+      "passed": true,
+      "evidence": "PASS. Rewritten SKILL.md step 4: `For each item in misc_entries, judge whether it belongs under Added, Fixed, Changed, or Removed, and recommend the move with a one-line reason.` The live run confirms the script only extracts the text (`misc_entries: [{file: v1.1.0.md, entry: 'Corrected typo in settings page label'}]`) without deciding. NON-DISCRIMINATING: with_skill keeps it as prose step 4."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.6666666666666666,
+    "passed": 4,
+    "failed": 2,
+    "total": 6
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 2,
+      "Write": 3,
+      "Bash": 12
+    },
+    "total_tool_calls": 17,
+    "total_steps": 17,
+    "files_created": [
+      "workspace/changelog-checker/scripts/scan_changelogs.py",
+      "workspace/changelog-checker/SKILL.md",
+      "scratch/edge/weird/v2.0.0.md",
+      "scratch/edge/weird/empty-file.md",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 4730,
+    "transcript_chars": 3397
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "eval": "eval-3-partial-selection",
+  "config": "without_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/without_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/count_categories.py",
+      "scripts/list_changelogs.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -9,9 +9,9 @@\n \n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n+1. Run `python3 scripts/list_changelogs.py changelogs` to list every `.md` file sorted by version with the total count. It prints JSON as `{\"files\": [{\"file\", \"version\"}], \"count\"}`.\n 2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n+3. Run `python3 scripts/count_categories.py changelogs` to count entries per category per file and across files. It prints JSON as `{\"per_file\", \"totals\", \"categories\", \"grand_total\"}` and reports every category it finds, including unexpected tags such as `Misc`, so step 6 has the raw tags to judge.\n 4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n 5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n 6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n",
+  "scripts": [
+    {
+      "path": "scripts/count_categories.py",
+      "preexisting": false,
+      "help": {
+        "exit": 1,
+        "stdout_len": 0,
+        "stderr_len": 31,
+        "ok": false
+      }
+    },
+    {
+      "path": "scripts/list_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 1,
+        "stdout_len": 0,
+        "stderr_len": 31,
+        "ok": false
+      }
+    }
+  ],
+  "new_script_count": 2,
+  "new_scripts_all_help_ok": false
+}

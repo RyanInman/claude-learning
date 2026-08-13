@@ -1,0 +1,932 @@
+{
+  "metadata": {
+    "skill_name": "scriptify",
+    "skill_path": "/Users/admin/claude-learning/skills/scriptify",
+    "executor_model": "claude-opus-5",
+    "analyzer_model": "unrecorded",
+    "timestamp": "2026-08-12T16:10:51Z",
+    "evals_run": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8333333333333334,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 156.8,
+        "tokens": 49541,
+        "tool_calls": 18,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
+          "passed": true,
+          "evidence": "outputs/report.md lines 5-13 hold a 7-row table (s1-s7) with a Class column reading literally SCRIPT/CLAUDE/HYBRID and a 'Proposed script interface' column. Every SCRIPT/HYBRID row (s1,s2,s3,s5,s6,s7) carries a concrete invocation with argv and exit codes, e.g. `python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json` -> exit 0 clean / 1 findings / 2 usage, and s5 `python3 scripts/render_summary.py .changelog-scan.json` -> exit 0 rendered / 2 usage. The single CLAUDE row (s4) has '-' in that column, as expected. Checked with grep -c on the table rows (exit 0)."
+        },
+        {
+          "text": "no new files or directories are created inside evals/fixtures/changelog-checker/",
+          "passed": true,
+          "evidence": "GUARDRAIL, decided mechanically by collect_facts.py: with_skill/facts.json target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false. Copying that result rather than re-deciding by eye. NON-DISCRIMINATING: without_skill/facts.json shows the identical empty diff. (The run's only writes outside outputs/ went to scratch/.delegation-review/, which is not inside the fixture.)"
+        },
+        {
+          "text": "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
+          "passed": true,
+          "evidence": "report.md line 8, row s2 ('Check that each file starts with a heading of the form `## vX.Y.Z - YYYY-MM-DD`'): Class = SCRIPT; interface = `python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json` with stated exit codes 0 clean / 1 findings / 2 usage. Argv (positional dir plus --json/--out flags) and exit codes are both concrete."
+        },
+        {
+          "text": "step 6 (category tags + Misc re-homing) is classified HYBRID",
+          "passed": true,
+          "evidence": "report.md line 12, row s6 ('Check every entry's category tag against the allowed list ... for entries tagged Misc, judge whether they actually fit'): Class = HYBRID, with the split spelled out (script owns the allowed-list set check and lists the Misc/unknown-tag entries; Claude re-triages). Line 29 repeats 'Steps 6 and 7 stay half yours'. NON-DISCRIMINATING: without_skill marks the same step 'Split' with the same two-way division."
+        },
+        {
+          "text": "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
+          "passed": false,
+          "evidence": "report.md line 13, row s7 ('Verify the entries are clearly written and flag any that a reader would find confusing'): Class = HYBRID, not CLAUDE. The run assigns the scan script the enumeration of every entry and keeps only the clarity judgment for Claude; line 3 counts s7 among the '6 of 7 steps are mechanical (SCRIPT/HYBRID)', line 29 says 'Steps 6 and 7 stay half yours', and gate.md line 10 lists s7 among the six SCRIPT/HYBRID rows to apply. The assertion as written requires CLAUDE, so this fails."
+        },
+        {
+          "text": "step 4 (release narrative) is classified CLAUDE",
+          "passed": true,
+          "evidence": "report.md line 10, row s4 ('Write a one-paragraph release narrative ... for a non-technical reader'): Class = CLAUDE, interface column '-', reason given as prose whose wording should vary. Line 29: 'Step 4 stays yours'. NON-DISCRIMINATING: without_skill classifies step 4 'Keep in the skill'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 481.8,
+        "tokens": 89507,
+        "tool_calls": 37,
+        "errors": 2
+      },
+      "expectations": [
+        {
+          "text": "steps 1, 2, 3 and 5 are each invoked by an exact command line in the rewritten SKILL.md, and every generated script exits 0 on --help",
+          "passed": true,
+          "evidence": "Read workspace/changelog-checker/SKILL.md. Original steps 1 (list files sorted by version), 2 (header check) and 3 (per-category counts) are all invoked by the exact line `python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json` (new step 1, which names all three jobs); original step 5 (summary table) is invoked by the exact line `python3 scripts/render_summary.py .changelog-scan.json` (new step 3). Ran `python3 scripts/scan_changelogs.py --help` -> exit 0 and `python3 scripts/render_summary.py --help` -> exit 0, matching facts.json (new_scripts_all_help_ok: true, both help.exit 0)."
+        },
+        {
+          "text": "the rewritten SKILL.md invokes each generated script by exact command line",
+          "passed": true,
+          "evidence": "facts.json target_tree_diff.added lists exactly two scripts: scripts/scan_changelogs.py and scripts/render_summary.py. Both appear as runnable command lines in the rewritten SKILL.md (lines 12 and 23, each prefixed 'Run exactly:'), plus a Scripts table repeating the argv shapes. NON-DISCRIMINATING: the without_skill arm also invokes its single generated script by exact command line."
+        },
+        {
+          "text": "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
+          "passed": true,
+          "evidence": "Ran `python3 scripts/scan_changelogs.py changelogs/ --out /tmp/none.json` from workspace/changelog-checker -> exit 1 (nonzero), stdout 'scan: 3 files, 8 entries, 1 findings, 1 misc (changelogs)' and the finding line 'header_not_first v1.2.0.md: first non-empty line is \"### Added\", not a \"## v\" heading'."
+        },
+        {
+          "text": "step 4 (release narrative) remains a prose instruction with no script",
+          "passed": true,
+          "evidence": "Original step 4 survives as new step 2 of the rewritten SKILL.md: 'Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader. Source it from `.changelog-scan.json`.' No command line and no script named. The Scripts table lists only scan_changelogs.py and render_summary.py, neither of which produces a narrative. NON-DISCRIMINATING: the baseline also kept it as prose."
+        },
+        {
+          "text": "step 6's judgment about re-homing Misc entries remains prose",
+          "passed": true,
+          "evidence": "New step 4 reads: 'For each entry under `misc_entries` in `.changelog-scan.json`, judge whether it actually fits `Added`, `Fixed`, `Changed`, or `Removed`, and suggest the move.' The mechanical half (tag validation) moved into scan_changelogs.py as the `unknown_tag` finding, and the trailer states a `Misc` entry is deliberately not a finding 'because re-filing one is a judgment call left to step 4'. No script decides the move. NON-DISCRIMINATING: the baseline also kept the judgment as prose."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 156.4,
+        "tokens": 50347,
+        "tool_calls": 23,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "no new files are written into evals/fixtures/well-delegated/",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = []. Independently confirmed: `diff -r fixture-baseline/well-delegated eval-2-nothing-to-delegate/with_skill/workspace/well-delegated` exit 0 (no differences). Run's own scratch files live in with_skill/scratch/.delegation-review/, outside the target. NON-DISCRIMINATING: without_skill also has an empty target_tree_diff."
+        },
+        {
+          "text": "scripts/check.py is acknowledged as already delegated",
+          "passed": true,
+          "evidence": "GUARDRAIL (property: classification). report.md row s1 classifies the check.py step ALREADY_DELEGATED and states the interface audit result: 'mentioned in body, argparse present, --help works, exit codes 0/1/2 documented in the step itself'. Verdict line: '0 of 3 steps are mechanical'. facts.json lists scripts/check.py preexisting=true, help.exit 0; reproduced: `python3 scripts/check.py --help` exit 0. new_script_count = 0, so nothing was re-scripted over it. NON-DISCRIMINATING: without_skill also acknowledges it."
+        },
+        {
+          "text": "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts",
+          "passed": true,
+          "evidence": "GUARDRAIL (property: classification). report.md classifies s2 ('decide which flagged items actually matter') CLAUDE and s3 ('write a short, plainly-worded explanation') CLAUDE, with 'Proposed script interface' empty (-) for both. The 'Why nothing else converts' section argues against scripting either. facts.json new_script_count = 0 and skill_md_changed = false, so neither step was forced into a script. NON-DISCRIMINATING: without_skill classifies the same two steps CLAUDE."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 401.0,
+        "tokens": 80494,
+        "tool_calls": 31,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "the rewritten SKILL.md invokes a generated script at steps 1 and 3, and no other step gained a script invocation",
+          "passed": true,
+          "evidence": "Read workspace/changelog-checker/SKILL.md. Step 1 reads: 'Run exactly: `python3 scripts/scan_changelogs.py changelogs/ --json`'. Step 3 reads: 'Take the per-category counts from the same scan JSON: `versions[].counts` per file, `totals` across files.' One generated script (scripts/scan_changelogs.py, facts.json new_script_count=1) serves both steps: the single invocation named in the file produces step 1's file list and step 3's counts, so step 3's work is delegated to the generated script rather than re-derived in prose. Verified the referenced keys exist by running `python3 scripts/scan_changelogs.py changelogs/ --json` (exit 0): output carries files, file_count, versions[].counts, totals, other_categories. Nuance recorded: step 3 consumes the step-1 invocation instead of carrying its own command line; graded as satisfying the assertion on the same principle as calibration C1 (substance of the delegation over literal surface form), and consistent with one script covering both steps. `diff -u fixture-baseline/changelog-checker/SKILL.md workspace/changelog-checker/SKILL.md` (exit 1) shows steps 2 and 4-7 byte-identical, so no other step gained a script invocation. NON-DISCRIMINATING: both arms pass."
+        },
+        {
+          "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+          "passed": true,
+          "evidence": "Guardrail; mechanical result from facts.json skill_md_diff, reproduced with `diff -u fixture-baseline/changelog-checker/SKILL.md workspace/changelog-checker/SKILL.md` (exit 1). The only changed lines are the '1.' and '3.' workflow lines; a byte comparison of the '2.', '4.', '5.', '6.', '7.' lines against the pristine fixture returned True for each, and the frontmatter, title, and intro are unchanged. target_tree_diff.modified is SKILL.md alone plus the added scripts/scan_changelogs.py. NON-DISCRIMINATING: both arms pass."
+        },
+        {
+          "text": "every generated script exits 0 on --help and nonzero on bad args, and the smoke test exits 0 against the final on-disk state",
+          "passed": true,
+          "evidence": "Ran the one generated script against its final on-disk state. `python3 scripts/scan_changelogs.py --help` -> exit 0 (argparse usage printed; matches facts.json help.exit 0). Bad args nonzero on three forms: no args -> exit 2, unrecognized flag `--nope` -> exit 2, missing directory -> exit 2 ('error: not a directory'). Documented exit 1 branch reproduced: a directory holding only README.txt -> exit 1 ('error: no .md files'). Normal run `python3 scripts/scan_changelogs.py changelogs/ --json` -> exit 0. Smoke test: the run's manifest under scratch/.delegation-review was deleted at its residue-cleanup step, so scriptify's smoke_test.py cannot be re-invoked; I re-executed each of the six checks the report lists (exists, help, three fixture runs, bad-args) directly against the final on-disk script and every one reproduced green, including the numeric version ordering check ('v1.9.0.md' before 'v1.10.0.md', exit 0). DISCRIMINATING: the without_skill arm fails this."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 139.6,
+        "tokens": 48534,
+        "tool_calls": 14,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every anchor; the flow does not stop at '0 steps extracted'",
+          "passed": true,
+          "evidence": "Target SKILL.md has 4 body-bearing headings (Collect the link inventory L10, Resolve each target L15, Decide what to fix now L20, Gotchas L25) and no numbered steps. outputs/report.md renders a 4-row table s1-s4, one row per heading, and states explicitly 'The skill has no numbered steps, so the inventory anchored on section headings instead: 4 anchors' and 'Heading-fallback is not \"nothing to delegate\"'. No '0 steps extracted' stop. NON-DISCRIMINATING: the without_skill arm also covers every heading."
+        },
+        {
+          "text": "no new files are written into evals/fixtures/prose-only-reviewer/",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false, new_script_count = 0. Independently confirmed: `ls -la /Users/admin/claude-learning/skills/scriptify/evals/fixtures/prose-only-reviewer/` (exit 0) shows only SKILL.md, 796 bytes; `git status --porcelain skills/scriptify/evals/fixtures/` (exit 0) returns nothing; `diff fixture/SKILL.md with_skill/workspace/prose-only-reviewer/SKILL.md` exit 0 (identical). NON-DISCRIMINATING: without_skill is also clean."
+        },
+        {
+          "text": "'Collect the link inventory' and 'Resolve each target' are classified SCRIPT with concrete argv/exit-code interfaces",
+          "passed": true,
+          "evidence": "report.md row s1 'Collect the link inventory' -> Class SCRIPT, interface `python3 scripts/collect_links.py docs/ --out .link-check/links.json`, stdout counts only, exit 0 links found / 1 no markdown files under the root / 2 usage or unreadable root. Row s2 'Resolve each target' -> Class SCRIPT, interface `python3 scripts/resolve_links.py .link-check/links.json --out .link-check/broken.json`, exit 0 all links resolve / 1 broken links found / 2 usage or unreadable input. Both argv and all three exit codes are named per script. NON-DISCRIMINATING: without_skill also classifies both as script with an argv/exit-code contract, though it merges them into one script."
+        },
+        {
+          "text": "'Decide what to fix now' is classified CLAUDE, since the deadline trade-off varies by run",
+          "passed": true,
+          "evidence": "report.md row s3 'Decide what to fix now' -> Class CLAUDE, reason 'the release deadline arrives from the conversation, not from disk, so reasonable runs should rank the same broken links differently'; reinforced in the prose section: 'What remains is the deadline trade-off, which only the conversation supplies.' facts.json shows no script was written for it (new_script_count 0). NON-DISCRIMINATING: without_skill also keeps this section out of the script on the same deadline rationale, though it labels it 'Stays prose' rather than the scriptify token CLAUDE."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 216.6,
+        "tokens": 55648,
+        "tool_calls": 18,
+        "errors": 2
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every one of the 7 workflow steps, each with a class",
+          "passed": true,
+          "evidence": "outputs/report.md lines 8-16 hold a markdown table with a Class column and exactly 7 data rows s1-s7, one per SKILL.md workflow step, each quoting the step line and carrying a class: s1 SCRIPT, s2 HYBRID, s3 HYBRID, s4 SCRIPT, s5 HYBRID, s6 CLAUDE, s7 SCRIPT. `grep -c '^| s' report.md` = 7. NON-DISCRIMINATING: the without_skill arm also tables all 7 steps with a Verdict per row."
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, skill_md_changed false, workspace_extra []. Independently confirmed: `find with_skill/workspace -type f` returns only SKILL.md and topics.txt, and `diff -r` against the without_skill copy exits 0, so both targets are byte-identical to the fixture. The run's scratch artifacts (.delegation-review/) live under with_skill/scratch/, outside the target. NON-DISCRIMINATING: without_skill target_tree_diff is also empty."
+        },
+        {
+          "text": "step 2 (WebFetch the top source) is NOT classified pure SCRIPT, and no proposed script reimplements the fetch with curl, requests, or urllib",
+          "passed": true,
+          "evidence": "report.md line 11 classes s2 HYBRID, not SCRIPT, with the reason 'WebFetch is a permission-gated agent runtime tool, so the fetch itself cannot move into a script'. The only script proposed for s2 is `plan_fetch.py`, which emits a JSON list of slug plus destination path still missing - no network work. `grep -niE 'curl|requests|urllib|http\\.client' report.md` returns one hit, line 64, and it is the prohibition ('A script that reimplements them with curl loses auth, the permission model, and rate limiting'), not a proposal. NON-DISCRIMINATING: without_skill also keeps s2 agent-side and explicitly warns against curl."
+        },
+        {
+          "text": "step 5 (notion MCP page lookup and append) is NOT classified pure SCRIPT",
+          "passed": true,
+          "evidence": "report.md line 14 classes s5 HYBRID: 'the notion MCP page lookup and append carry auth and the permission model, so they stay agent-side; rendering the summary block that gets appended is a fixed template over the run data'. The proposed `render_index.py --format notion-block` writes the block to a file; the append stays an MCP call. Line 66 restates 'the script owns the plan and the render around the call, never the call'. NON-DISCRIMINATING: without_skill classes s5 'Split' with the same call-vs-payload division."
+        },
+        {
+          "text": "step 3 (AskUserQuestion which sources to keep) is NOT classified pure SCRIPT",
+          "passed": true,
+          "evidence": "report.md line 12 classes s3 HYBRID: 'the user picks which sources to keep, and AskUserQuestion cannot be reimplemented in a script; building the option list from what actually landed in sources/ is mechanical'. The script side is `source_stats.py`, which only builds the option list and flags over_option_cap. NON-DISCRIMINATING: without_skill classes s3 'Keep (agent)'."
+        },
+        {
+          "text": "steps 1 (dedupe and slugify topics), 4 (word counts and thin-source flags) and 7 (render sorted index table) are classified SCRIPT with concrete argv/exit-code interfaces",
+          "passed": true,
+          "evidence": "All three are classed SCRIPT (report.md lines 10, 13, 16) and each carries a named command line plus a full exit-code contract. s1: `python3 scripts/normalize_topics.py topics.txt --out .brief/topics.json` -> 'exit 0 topics kept / 1 no usable topics / 2 usage'. s4: `python3 scripts/source_stats.py sources/ --thin-under 200 --out .brief/stats.json` -> 'exit 0 sources found / 1 sources/ missing or empty / 2 usage'. s7: `python3 scripts/render_index.py .brief/stats.json --format table --sort words-desc` -> 'exit 0 rendered / 1 no kept sources to render / 2 usage'. Each names the argv, the flags, and a distinct meaning for 0/1/2. DISCRIMINATING: the without_skill arm names argv but no exit codes."
+        },
+        {
+          "text": "step 6 (write the 200-word brief in the house voice) keeps its prose-writing core with Claude",
+          "passed": true,
+          "evidence": "report.md line 15 classes s6 CLAUDE with an empty proposed-script cell: 'a 200-word brief in the house voice is prose the user reads, and reasonable runs should differ here'. Lines 56-61 add that the only scriptable part is the 200-word bound check over finished briefs, leaving the writing itself with Claude. NON-DISCRIMINATING: without_skill classes s6 'Keep (model)' and says 'Do not script step 6'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 375.2,
+        "tokens": 75464,
+        "tool_calls": 37,
+        "errors": 3
+      },
+      "expectations": [
+        {
+          "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: collision.byte_identical_to_baseline=true, collision.sha256=d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54. Reproduced: `shasum -a 256 scripts/check_headings.py` (exit 0) -> d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54. facts.json target_tree_diff lists only scripts/lint_docs.py added and SKILL.md modified. NON-DISCRIMINATING: the without_skill arm also left the file byte-identical."
+        },
+        {
+          "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+          "passed": true,
+          "evidence": "Both halves are satisfied. outputs/gate.md carries a third question, 'Name collision', offering `Use a new name - scripts/lint_docs.py (Recommended)` vs `Overwrite scripts/check_headings.py` vs rename-first, and outputs/report.md has a dedicated section explaining that check_headings.py actually checks image alt text and is called by the release pipeline. The generated script is named scripts/lint_docs.py (facts.json target_tree_diff.added), not check_headings.py, and the existing file is byte-identical (sha256 verified above), so nothing was overwritten. NON-DISCRIMINATING: the without_skill arm also renamed and left the file intact."
+        },
+        {
+          "text": "every newly generated Python script exits 0 on --help and prints usage on stdout",
+          "passed": true,
+          "evidence": "One newly generated script (facts.json new_script_count=1, scripts[].preexisting=false for scripts/lint_docs.py). Ran `python3 scripts/lint_docs.py --help` from workspace/docs-linter: exit 0, argparse usage block printed on stdout beginning 'usage: lint_docs.py [-h] [--json] [--out OUT] docs_dir'; stderr empty. Matches facts.json help {exit:0, stdout_len:336, stderr_len:0, ok:true}. DISCRIMINATING: the without_skill arm's new script exits 2 with 0 bytes on stdout."
+        },
+        {
+          "text": "steps 1, 2 and 3 are each invoked by an exact command line in the rewritten SKILL.md",
+          "passed": true,
+          "evidence": "workspace/docs-linter/SKILL.md line 13 reads 'Run exactly: `python3 scripts/lint_docs.py docs/ --json`' - a literal, runnable command line. The following bullets bind each original step to a field of that one invocation: `files`/`file_count` (step 1 inventory), `findings` for files not starting with an H1 followed by a blank line (step 2), `fenced_blocks`/`fenced_blocks_total` (step 3). Ran the command: exit 1, JSON containing all three field groups. No step 1-3 prose survives as an un-delegated instruction. NON-DISCRIMINATING: the without_skill SKILL.md also gives one exact command line covering all three."
+        },
+        {
+          "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+          "passed": true,
+          "evidence": "Ran `python3 scripts/lint_docs.py docs/ --json` in workspace/docs-linter: exit 1, findings = [{path: reference/api.md, code: no_h1}, {path: tutorial.md, code: h1_not_first}]. Both required files are flagged, with codes matching the planted defects (api.md opens '## API Reference'; tutorial.md has prose on line 1 and '# Tutorial' later). getting-started.md is not flagged. NON-DISCRIMINATING: the without_skill script flags the same two files."
+        },
+        {
+          "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+          "passed": true,
+          "evidence": "SKILL.md ends with step 2 (renumbered from 4): 'Decide which of the flagged files matter most to fix this sprint, given that the tutorial pages get the most traffic.' - verbatim prose, no command, no script reference. facts.json target_tree_diff.added lists only scripts/lint_docs.py, which covers steps 1-3 only (its --help shows a docs-dir scan, no prioritisation mode). NON-DISCRIMINATING: the without_skill arm also kept step 4 as prose."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 447.0,
+        "tokens": 87633,
+        "tool_calls": 38,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "test fixtures and a manifest persist inside the target skill folder, at a path the rewritten SKILL.md names",
+          "passed": true,
+          "evidence": "`find with_skill/workspace/changelog-checker -type f` shows scripts/tests/manifest.json plus 12 fixture files under scripts/tests/fixtures/{scan_changelogs,check_changelogs,render_summary}/{good,bad}/. SKILL.md line 25 names that path verbatim: `python3 scripts/tests/smoke_test.py scripts/tests/manifest.json`. facts.json residue.manifest = scripts/tests/manifest.json. NON-DISCRIMINATING: without_skill also persists fixtures+manifest, at tests/ instead."
+        },
+        {
+          "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+          "passed": true,
+          "evidence": "Guardrail decided by collect_facts.py: residue.unresolved_paths = [], residue.stale_delegation_review_paths = [], manifest_target_skill_exists = true. Reproduced independently: expanded all 6 distinct {skill}-prefixed fixture paths in scripts/tests/manifest.json against target_skill; 0 unresolved; the string 'delegation-review' does not appear in the manifest. NON-DISCRIMINATING: without_skill guardrail is also clean."
+        },
+        {
+          "text": "the residue's own documented re-run command, executed from the target skill folder, exits 0",
+          "passed": true,
+          "evidence": "Ran the arm's own documented command from with_skill/workspace/changelog-checker: `python3 scripts/tests/smoke_test.py scripts/tests/manifest.json` -> python3 exit code 0, output tail '21/21 checks passed'. NON-DISCRIMINATING: without_skill's own command also exits 0."
+        },
+        {
+          "text": "the rewritten SKILL.md body contains the command that re-runs the kept checks",
+          "passed": true,
+          "evidence": "SKILL.md section '## Verifying the scripts' (lines 23-26) contains `python3 scripts/tests/smoke_test.py scripts/tests/manifest.json` with its exit-code contract. That is the same command I executed for assertion 3 (exit 0). NON-DISCRIMINATING: without_skill's SKILL.md carries `python3 tests/run_tests.py`."
+        },
+        {
+          "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+          "passed": true,
+          "evidence": "SKILL.md step 4 is unchanged from baseline ('Write a one-paragraph release narrative ... for a non-technical reader') and invokes no script; skill_md_diff shows step 4 as a context line, not a change. Step 7 reads 'Read `entries` in scan.json and flag any entry a reader would find confusing' - it consumes scan.json but the judgment stays prose, and grep -niE 'narrat|confus|clarity' over scripts/*.py finds no script performing either step (only a docstring in scan_changelogs.py noting the clarity review reads its entries). NON-DISCRIMINATING: without_skill keeps both as prose too."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 192.5,
+        "tokens": 54671,
+        "tool_calls": 20,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every one of the 5 workflow steps",
+          "passed": true,
+          "evidence": "Read with_skill/outputs/report.md. The classification table carries exactly five data rows, s1 through s5, each quoting the matching SKILL.md line (L13-14, L15-16, L17-19, L20-21, L22-24) against the 5-step Workflow in workspace/api-docs-checker/SKILL.md. Verified row count with `grep -c '^| s' with_skill/outputs/report.md` -> 5, exit 0. NON-DISCRIMINATING: the without_skill report also rows all 5 steps."
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from with_skill/facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false, new_script_count = 0. Confirmed by `find with_skill/workspace -type f` (exit 0), which lists only the four pristine fixture files (SKILL.md plus the three endpoints/*.md). The run's own scratch dir lives at with_skill/scratch/.delegation-review/, outside the target skill folder. NON-DISCRIMINATING: without_skill has an identical empty diff."
+        },
+        {
+          "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+          "passed": true,
+          "evidence": "Report row s4 reads Class = DEAD with the reason 'writes to legacy/index.txt for a portal the target's own Notes section says was retired in v2; legacy/ does not exist in the skill folder'. The 'The two DEAD steps' section repeats the citation: 'The skill's own note says the legacy portal was retired in v2 and the legacy/ output directory went with it.' Cross-checked against SKILL.md Notes (L26-28), which states exactly that. NON-DISCRIMINATING: without_skill also classifies step 4 dead and cites the same Notes paragraph."
+        },
+        {
+          "text": "no script is proposed for the DEAD step",
+          "passed": true,
+          "evidence": "Row s4's 'Proposed script interface' cell is '-' (no interface). The report explicitly says 'Steps 2 and 4 should not become scripts at all' and 'Scripting this step would harden a write into a directory nothing reads'. The gate (with_skill/outputs/gate.md) offers only s1, s3, s5 and states 'The DEAD rows s2 and s4 are not offered'. No proposal to script step 4 appears anywhere in outputs/ (`grep -rn -i legacy with_skill/outputs/*.md`, exit 0, hits are only the dead-step reasoning and an `ls ../legacy` probe that printed 'No such file or directory'). Graded only on whether a script was proposed for step 4, per the narrowed assertion. NON-DISCRIMINATING: without_skill also proposes no script for step 4."
+        },
+        {
+          "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+          "passed": true,
+          "evidence": "Row s2 is classified DEAD with 'strictly subsumed by s3, which checks summary AND description over the same files; running both rescans endpoints/ and double-reports list-widgets.md', and its script-interface cell is '-'. The evidence section grounds it in the fixture: delete-widget.md has summary: but no description:, so step 2 misses it while step 3 catches it. Step 2 gets no separate script; only s1/s3/s5 are backed by check_endpoints.py. NON-DISCRIMINATING: without_skill calls step 2 'redundant' and a strict subset of step 3."
+        },
+        {
+          "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+          "passed": true,
+          "evidence": "Row s5 is classified HYBRID, not SCRIPT: 'clarity for an unfamiliar external developer is a judgment call reasonable runs disagree on, but the script already extracts every description string, so Claude judges text it no longer has to go gather'. The report adds 'No script can rule on it, which is why step 5 keeps a judgment core instead of becoming pure SCRIPT', and names the concrete target (list-widgets.md's 'Does the listing thing with the standard params.'). The script only supplies the descriptions map; the ruling stays with Claude. NON-DISCRIMINATING: without_skill keeps step 5 as prose for the same reason."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 9,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 376.1,
+        "tokens": 76840,
+        "tool_calls": 34,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}. Confirmed independently: `diff -r fixture-baseline/plugin-cached-release-notes with_skill/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes` exit 0 (no output). NON-DISCRIMINATING: without_skill also passes."
+        },
+        {
+          "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+          "passed": true,
+          "evidence": "outputs/report.md heading 'Step 0 - eligibility: the target is INELIGIBLE' names the path as a plugin cache and states 'Anything I write there is silently clobbered by the next update of the `release-tools` plugin'. outputs/gate.md repeats it: 'the next plugin update silently clobbers any script written there'. Both the ineligibility and its reason are present. NON-DISCRIMINATING: without_skill also passes."
+        },
+        {
+          "text": "the run still produces the per-step classification report for the target",
+          "passed": true,
+          "evidence": "outputs/report.md 'Step 3 - report' contains a 5-row table, one row per workflow step (s1-s5), each with Current form, Tokens, Class (SCRIPT x4, CLAUDE x1), Why, and a proposed script interface, plus 'No DEAD and no ALREADY_DELEGATED steps.' Covers every step of the target's 5-step workflow. NON-DISCRIMINATING: without_skill also passes."
+        },
+        {
+          "text": "the run offers at least one durable write destination outside the plugin cache and applies the delegations there",
+          "passed": true,
+          "evidence": "Clause 1 (offers): outputs/gate.md Question 1 offers 'Copy into the project and continue (Recommended)' -> `workspace/.claude/skills/release-notes`, a project skills dir, which survives a plugin update. Clause 2 (applies there): verified on disk, not from the report. `find . -name '*.py'` under the run dir returns with_skill/workspace/.claude/skills/release-notes/scripts/{scan_notes.py,render_notes.py}; facts.json workspace_extra lists both scripts plus the copied SKILL.md and notes/. Ran them myself from that directory: `python3 scripts/scan_notes.py --help` exit 0, `python3 scripts/render_notes.py --help` exit 0, `python3 scripts/scan_notes.py notes/ --json` exit 1 (the documented bad_header finding on pr-104.md), `python3 scripts/render_notes.py notes/` exit 1 (same finding). The copy's SKILL.md was rewritten to invoke them (lines 12 and 22 call scan_notes.py and render_notes.py). Both clauses hold. DISCRIMINATING: without_skill fails clause 2."
+        },
+        {
+          "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: new_script_count = 0, scripts = [], skill_md_changed = false, skill_md_diff = \"\". Confirmed by the same `diff -r` against fixture-baseline/plugin-cached-release-notes (exit 0). The two generated .py files landed under workspace/.claude/skills/, outside the cache. NON-DISCRIMINATING: without_skill also passes."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 4,
+        "failed": 2,
+        "total": 6,
+        "time_seconds": 119.1,
+        "tokens": 35846,
+        "tool_calls": 10,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
+          "passed": false,
+          "evidence": "outputs/report.md lines 17-25 do hold a 7-row per-step table, and its Verdict column ('Script' / 'Keep in the skill' / 'Split') is an acceptable rendering of the three classes under the C1 anchor. It fails the second clause: no row carries a proposed script interface. The only interface material is outside the table (lines 27-43) and describes one script, `scripts/check_changelogs.py`, by its JSON output shape only - no invocation line, no flags, no exit codes. So the SCRIPT/Split rows (1,2,3,5,6) have no proposed interface."
+        },
+        {
+          "text": "no new files or directories are created inside evals/fixtures/changelog-checker/",
+          "passed": true,
+          "evidence": "GUARDRAIL, decided mechanically by collect_facts.py: without_skill/facts.json target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false, new_script_count = 0. Copying that result rather than re-deciding by eye. NON-DISCRIMINATING: with_skill/facts.json shows the identical empty diff."
+        },
+        {
+          "text": "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
+          "passed": false,
+          "evidence": "report.md line 20 classifies step 2 'Script' ('A regex match with a yes/no answer'), so the class half holds. The interface half does not: nothing in the output gives step 2 an argv line or an exit code. The nearest text, lines 29-30, says only that `scripts/check_changelogs.py` 'takes the changelogs directory and prints JSON', with a sample JSON body and no exit-code contract. Grading the assertion as written, the concrete argv/exit-code interface is absent."
+        },
+        {
+          "text": "step 6 (category tags + Misc re-homing) is classified HYBRID",
+          "passed": true,
+          "evidence": "report.md line 24 classifies step 6 '**Split**' and states the same two-part division the class names: 'Membership in {Added, Fixed, Changed, Removed, Misc} is a set lookup -> script. Deciding that \"Corrected typo in settings page label\" is really a Fixed is judgment -> skill.' Split is a rendering of HYBRID, accepted under the C1 anchor (the literal token is not required). NON-DISCRIMINATING: with_skill marks the same step HYBRID."
+        },
+        {
+          "text": "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
+          "passed": true,
+          "evidence": "report.md line 25 classifies step 7 ('Flag entries a reader would find confusing') as '**Keep in the skill**' - the CLAUDE class - and gives the reason 'Clarity has no mechanical definition. A script could only proxy it with length or word lists, which would flag the wrong lines.' Line 13 repeats 'Steps 4 and 7 are judgment', and gate.md line 6 keeps step 7 in the skill body. The 'verify' verb did not pull it into the script class."
+        },
+        {
+          "text": "step 4 (release narrative) is classified CLAUDE",
+          "passed": true,
+          "evidence": "report.md line 22 classifies step 4 ('Write a one-paragraph release narrative for a non-technical reader') as '**Keep in the skill**' - the CLAUDE class - reasoned as 'Requires reading intent across releases and choosing a register. No fixed rule produces this.' NON-DISCRIMINATING: with_skill classifies step 4 CLAUDE."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 205.6,
+        "tokens": 45330,
+        "tool_calls": 17,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "steps 1, 2, 3 and 5 are each invoked by an exact command line in the rewritten SKILL.md, and every generated script exits 0 on --help",
+          "passed": true,
+          "evidence": "Read workspace/changelog-checker/SKILL.md. New step 1 carries the exact command `python3 scripts/scan_changelogs.py changelogs` and names the outputs covering original steps 1 (file list sorted by version, file count), 2 (`bad_headings` against `## vX.Y.Z \u2014 YYYY-MM-DD`) and 3 (per-file and total per-category counts). New step 2 carries the exact command `python3 scripts/scan_changelogs.py changelogs --format table`, covering original step 5. Ran `python3 scripts/scan_changelogs.py --help` -> exit 0, matching facts.json (new_scripts_all_help_ok: true). Only one script was generated (facts.json new_script_count: 1) but the assertion tests step coverage by exact command line, not script count."
+        },
+        {
+          "text": "the rewritten SKILL.md invokes each generated script by exact command line",
+          "passed": true,
+          "evidence": "facts.json target_tree_diff.added lists one script, scripts/scan_changelogs.py. The rewritten SKILL.md invokes it in two fenced bash blocks: `python3 scripts/scan_changelogs.py changelogs` and `python3 scripts/scan_changelogs.py changelogs --format table`. NON-DISCRIMINATING: the with_skill arm also invokes each of its scripts by exact command line."
+        },
+        {
+          "text": "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
+          "passed": false,
+          "evidence": "Ran `python3 scripts/scan_changelogs.py changelogs` from workspace/changelog-checker -> exit 0. The JSON does flag the file (`bad_headings: [\"v1.2.0.md\"]`), so the first half holds, but the script returns 0 with a structural finding present, so the 'exits nonzero' half fails. A caller branching on the exit code cannot tell a clean changelog set from a broken one. Also confirmed `--format table` exits 0 on the same data."
+        },
+        {
+          "text": "step 4 (release narrative) remains a prose instruction with no script",
+          "passed": true,
+          "evidence": "Original step 4 survives as new step 3: 'Write a one-paragraph release narrative for a non-technical reader, using the entry text from the JSON. Say where the product moved overall, not what each commit did.' No command line, no script. report.md classifies it 'Keep - audience judgment, no correct output to compute'. NON-DISCRIMINATING: the with_skill arm also kept it as prose."
+        },
+        {
+          "text": "step 6's judgment about re-homing Misc entries remains prose",
+          "passed": true,
+          "evidence": "New step 4 reads: 'For each item in `misc_entries`, judge whether it belongs under `Added`, `Fixed`, `Changed`, or `Removed`, and recommend the move with a one-line reason. Leave it under `Misc` when no category fits.' The script only extracts the Misc entry text (verified: misc_entries carries 'Corrected typo in settings page label' with no suggested category). NON-DISCRIMINATING: the with_skill arm also kept the judgment as prose."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 116.6,
+        "tokens": 37443,
+        "tool_calls": 12,
+        "errors": 2
+      },
+      "expectations": [
+        {
+          "text": "no new files are written into evals/fixtures/well-delegated/",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = []. Independently confirmed: `diff -r fixture-baseline/well-delegated eval-2-nothing-to-delegate/without_skill/workspace/well-delegated` exit 0 (no differences). The run's bad-note probe file lives at without_skill/scratch/notes-bad/bad.md, outside the target. NON-DISCRIMINATING: with_skill also has an empty target_tree_diff."
+        },
+        {
+          "text": "scripts/check.py is acknowledged as already delegated",
+          "passed": true,
+          "evidence": "GUARDRAIL (property: classification). report.md row 1 classifies the check.py step 'SCRIPT - already done' with 'Already extracted; no work left', plus a section 'Why scripts/check.py counts as properly delegated' covering exact-command invocation (SKILL.md L10), argparse/--help, exit codes 0/1/2, and the --json handoff to step 2. facts.json lists scripts/check.py preexisting=true, help.exit 0; reproduced: `python3 scripts/check.py --help` exit 0. NON-DISCRIMINATING: with_skill also acknowledges it."
+        },
+        {
+          "text": "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts",
+          "passed": true,
+          "evidence": "GUARDRAIL (property: classification). report.md classifies step 2 (audience-fit decision) CLAUDE and step 3 (plain-worded explanations) CLAUDE, and the section 'What I deliberately did not recommend' explicitly rejects scripting the audience-fit call and templating the explanations. facts.json new_script_count = 0 and skill_md_changed = false. NON-DISCRIMINATING: with_skill classifies the same two steps CLAUDE."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 151.8,
+        "tokens": 42516,
+        "tool_calls": 16,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "the rewritten SKILL.md invokes a generated script at steps 1 and 3, and no other step gained a script invocation",
+          "passed": true,
+          "evidence": "Read workspace/changelog-checker/SKILL.md. Step 1: 'Run `python3 scripts/list_changelogs.py changelogs`'. Step 3: 'Run `python3 scripts/count_categories.py changelogs`'. Both scripts are newly generated (facts.json scripts[].preexisting false, new_script_count 2). `diff -u fixture-baseline/changelog-checker/SKILL.md workspace/changelog-checker/SKILL.md` (exit 1) shows steps 2 and 4-7 byte-identical, so no other step gained a script invocation. NON-DISCRIMINATING: both arms pass."
+        },
+        {
+          "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+          "passed": true,
+          "evidence": "Guardrail; mechanical result from facts.json skill_md_diff, reproduced with `diff -u fixture-baseline/changelog-checker/SKILL.md workspace/changelog-checker/SKILL.md` (exit 1). The only changed lines are the '1.' and '3.' workflow lines; a byte comparison of the '2.', '4.', '5.', '6.', '7.' lines against the pristine fixture returned True for each, and the frontmatter, title, and intro are unchanged. target_tree_diff.modified is SKILL.md alone plus the two added scripts. NON-DISCRIMINATING: both arms pass."
+        },
+        {
+          "text": "every generated script exits 0 on --help and nonzero on bad args, and the smoke test exits 0 against the final on-disk state",
+          "passed": false,
+          "evidence": "Both generated scripts fail the --help clause. `python3 scripts/list_changelogs.py --help` -> exit 1, stdout empty, stderr 'error: not a directory: --help'; `python3 scripts/count_categories.py --help` -> exit 1, same message. Neither uses argparse, so --help is swallowed as the directory positional. This matches facts.json (help.exit 1 and ok false for both scripts, new_scripts_all_help_ok false) and beats the report's claim of clean smoke tests, per calibration C2. Bad-arg behavior is also weak: with no args at all both scripts fall back to a default directory and exit 0 rather than erroring. The report's smoke test consists only of running each script against the real changelogs/ fixture (exit 0), which does reproduce (exit 0 for both against the final on-disk state), but the --help clause is unmet, so the assertion fails."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 136.5,
+        "tokens": 38359,
+        "tool_calls": 16,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every anchor; the flow does not stop at '0 steps extracted'",
+          "passed": true,
+          "evidence": "outputs/report.md 'Verdict per section' table carries 6 rows covering all 4 body headings (Collect the link inventory, Resolve each target, Decide what to fix now, Gotchas) plus frontmatter and the intro line. The run never invoked step extraction and never reported an empty inventory; transcript-notes.md records it read the 28-line SKILL.md and classified each `##` section by hand. NON-DISCRIMINATING: with_skill also covers every anchor."
+        },
+        {
+          "text": "no new files are written into evals/fixtures/prose-only-reviewer/",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false, new_script_count = 0. Independently confirmed: `ls -la /Users/admin/claude-learning/skills/scriptify/evals/fixtures/prose-only-reviewer/` (exit 0) shows only SKILL.md, 796 bytes; `git status --porcelain skills/scriptify/evals/fixtures/` (exit 0) returns nothing; `diff fixture/SKILL.md without_skill/workspace/prose-only-reviewer/SKILL.md` exit 0 (identical). NON-DISCRIMINATING: with_skill is also clean."
+        },
+        {
+          "text": "'Collect the link inventory' and 'Resolve each target' are classified SCRIPT with concrete argv/exit-code interfaces",
+          "passed": true,
+          "evidence": "report.md marks both `## Collect the link inventory` and `## Resolve each target` **Script** in the verdict table ('Pure mechanics with one right answer'). Interface given in 'The one script to add': argv `python3 scripts/check_links.py <docs_root>` (default `docs/`), JSON on stdout with a documented shape, and an exit-code contract - `0` when it ran regardless of broken count, non-zero reserved for a missing or unreadable docs_root. The run merges the two steps into one script and does not number the failure exit, but the assertion as written requires the two steps be classified SCRIPT with a concrete argv/exit-code interface, and that is present (per calibration C1, the substance in any form counts). NON-DISCRIMINATING: with_skill passes too, with per-script exit codes 0/1/2."
+        },
+        {
+          "text": "'Decide what to fix now' is classified CLAUDE, since the deadline trade-off varies by run",
+          "passed": true,
+          "evidence": "report.md classifies `## Decide what to fix now` as 'Stays prose - Weighs broken links against a release deadline. Judgment against context the script cannot see', and the closing section adds 'A script would have to invent a priority formula that nobody asked for, and it would be wrong the first time the deadline moved.' The literal token CLAUDE is scriptify vocabulary this arm had no reason to emit; the classification it carries (not scripted, decided by the reader at run time) and the deadline-varies rationale are both present, so per calibration C1 the substance satisfies the assertion. NON-DISCRIMINATING: with_skill passes with the explicit CLAUDE label."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8571428571428571,
+        "passed": 6,
+        "failed": 1,
+        "total": 7,
+        "time_seconds": 166.7,
+        "tokens": 40505,
+        "tool_calls": 10,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every one of the 7 workflow steps, each with a class",
+          "passed": true,
+          "evidence": "outputs/report.md lines 11-19 hold a markdown table with a Verdict column and exactly 7 rows numbered 1-7, matching the 7 SKILL.md steps: 1 Script, 2 Keep (agent), 3 Keep (agent), 4 Script, 5 Split, 6 Keep (model), 7 Script. Per calibration C1 a per-row outcome in any vocabulary counts as a class; the literal tokens SCRIPT/HYBRID/CLAUDE are not required. NON-DISCRIMINATING: with_skill also covers all 7."
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, skill_md_changed false, workspace_extra []. Independently confirmed: `find without_skill/workspace -type f` returns only SKILL.md and topics.txt, and `diff -r` against the with_skill copy exits 0. The run's one scratch file, scratch/parse_topics_demo.py, sits outside workspace/. NON-DISCRIMINATING: with_skill target_tree_diff is also empty."
+        },
+        {
+          "text": "step 2 (WebFetch the top source) is NOT classified pure SCRIPT, and no proposed script reimplements the fetch with curl, requests, or urllib",
+          "passed": true,
+          "evidence": "report.md line 14 classes step 2 'Keep (agent)': 'WebFetch is an agent tool; picking the top source is judgment'. Line 104 leaves the step unchanged in the rewritten workflow. `grep -niE 'curl|requests|urllib|http\\.client' report.md` returns one hit, line 123, and it is the prohibition: 'Do not try to script step 2 with curl ... network access from a bundled script is not something the skill should depend on'. Neither proposed script (parse_topics.py, index_report.py) touches the network. NON-DISCRIMINATING: with_skill also keeps the fetch agent-side."
+        },
+        {
+          "text": "step 5 (notion MCP page lookup and append) is NOT classified pure SCRIPT",
+          "passed": true,
+          "evidence": "report.md line 17 classes step 5 'Split': 'The MCP call stays; the summary block it appends is rendered by script'. Lines 60-66 elaborate: 'Script the payload, not the call. The render script emits the summary block to stdout or a file, and the agent passes that text to the MCP append.' Not pure SCRIPT. NON-DISCRIMINATING: with_skill classes s5 HYBRID."
+        },
+        {
+          "text": "step 3 (AskUserQuestion which sources to keep) is NOT classified pure SCRIPT",
+          "passed": true,
+          "evidence": "report.md line 15 classes step 3 'Keep (agent)': 'Interactive; a script cannot ask'. Lines 70-72 keep the AskUserQuestion call and only move the option list into step 1's JSON. NON-DISCRIMINATING: with_skill classes s3 HYBRID."
+        },
+        {
+          "text": "steps 1 (dedupe and slugify topics), 4 (word counts and thin-source flags) and 7 (render sorted index table) are classified SCRIPT with concrete argv/exit-code interfaces",
+          "passed": false,
+          "evidence": "The classification half holds: report.md lines 13, 16, 19 mark steps 1, 4 and 7 **Script**. The interface half does not. The two interface blocks (lines 78-94) give argv and a stdout contract only - `Usage: parse_topics.py topics.txt` with 'Output: JSON array to stdout' and `Usage: index_report.py --sources sources/ --kept kept.json [--thin 200]` with 'Output: JSON to stdout' - and neither states what the script exits with. `grep -niE 'exit|status code|returncode' outputs/report.md outputs/gate.md` returns nothing, exit 1: the word exit appears nowhere in the arm's output. The assertion requires concrete argv AND exit-code interfaces; exit codes are absent, so this fails as written. DISCRIMINATING: with_skill gives 0/1/2 with a distinct meaning for each of the three scripts."
+        },
+        {
+          "text": "step 6 (write the 200-word brief in the house voice) keeps its prose-writing core with Claude",
+          "passed": true,
+          "evidence": "report.md line 18 classes step 6 'Keep (model)': 'Prose judgment; the only step that needs a model'. Line 110 leaves it unchanged in the rewritten workflow, and line 128 states 'Do not script step 6. A 200-word brief in a house voice is the reason this skill uses a model.' NON-DISCRIMINATING: with_skill classes s6 CLAUDE."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8333333333333334,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 158.8,
+        "tokens": 41118,
+        "tool_calls": 21,
+        "errors": 2
+      },
+      "expectations": [
+        {
+          "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: collision.byte_identical_to_baseline=true, collision.sha256=d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54. Reproduced: `shasum -a 256 scripts/check_headings.py` (exit 0) -> d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54. facts.json target_tree_diff lists only scripts/lint_docs_structure.py added and SKILL.md modified. NON-DISCRIMINATING: the with_skill arm also left the file byte-identical."
+        },
+        {
+          "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+          "passed": true,
+          "evidence": "The run did not ask, but it took the other branch of the disjunction: it named the generated script scripts/lint_docs_structure.py (facts.json target_tree_diff.added) instead of check_headings.py. outputs/report.md has a 'The naming conflict' section explaining that check_headings.py scans image alt text and the release pipeline calls it at that path, and the rewritten SKILL.md adds a Gotchas entry saying the same. Nothing was silently overwritten - the existing file is byte-identical (sha256 verified above). NON-DISCRIMINATING: the with_skill arm also avoided the collision."
+        },
+        {
+          "text": "every newly generated Python script exits 0 on --help and prints usage on stdout",
+          "passed": false,
+          "evidence": "One newly generated script (facts.json new_script_count=1, scripts[].preexisting=false for scripts/lint_docs_structure.py). Ran `python3 scripts/lint_docs_structure.py --help` from workspace/docs-linter: exit 2, stdout empty (`python3 scripts/lint_docs_structure.py --help 2>/dev/null | wc -c` -> 0), stderr 'not a directory: --help'. The script has no argparse, so --help is parsed as a directory path. Matches facts.json help {exit:2, stdout_len:0, ok:false} and new_scripts_all_help_ok=false. Both clauses of the assertion fail. outputs/report.md never claims --help works, so this is a real interface gap, not a false claim."
+        },
+        {
+          "text": "steps 1, 2 and 3 are each invoked by an exact command line in the rewritten SKILL.md",
+          "passed": true,
+          "evidence": "workspace/docs-linter/SKILL.md lines 13-16 give a fenced, literal command: `python3 scripts/lint_docs_structure.py docs`. The prose immediately under it binds all three original steps to that one invocation: 'lists every `.md` file under `docs/` sorted by path with the total count, flags each file that does not start with a level-1 heading followed by a blank line, and counts the fenced code blocks per file and in total'. I ran the command: exit 1, output carries the file list with count, the two heading flags, and per-file plus total fence counts. NON-DISCRIMINATING: the with_skill SKILL.md also gives one exact command line covering all three."
+        },
+        {
+          "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+          "passed": true,
+          "evidence": "Ran `python3 scripts/lint_docs_structure.py docs` in workspace/docs-linter: exit 1, output line 'flagged for heading structure: reference/api.md, tutorial.md', with per-file reasons \"first line is not a level-1 heading: '## API Reference'\" and \"first line is not a level-1 heading: 'Some intro prose that arrives before any heading at all.'\". Both required files are flagged; getting-started.md reads 'ok'. NON-DISCRIMINATING: the with_skill script flags the same two files."
+        },
+        {
+          "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+          "passed": true,
+          "evidence": "SKILL.md step 2 (renumbered from 4) reads 'Decide which of the flagged files matter most to fix this sprint, given that the tutorial pages get the most traffic.' - verbatim prose, no command, no script reference. The only added script is scripts/lint_docs_structure.py, which scans docs and reports; it has no prioritisation mode. outputs/report.md's verdict table marks step 4 'Kept as prose'. NON-DISCRIMINATING: the with_skill arm also kept step 4 as prose."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 243.9,
+        "tokens": 49808,
+        "tool_calls": 24,
+        "errors": 2
+      },
+      "expectations": [
+        {
+          "text": "test fixtures and a manifest persist inside the target skill folder, at a path the rewritten SKILL.md names",
+          "passed": true,
+          "evidence": "`find without_skill/workspace/changelog-checker -type f` shows tests/manifest.json, tests/fixtures/{clean,messy}/*.md and tests/expected/*.json, all inside the target skill folder. SKILL.md '## Tests' (lines 51-63) names `tests/manifest.json`, `python3 tests/run_tests.py`, and `tests/fixtures/clean`. Any path inside the target counts. NON-DISCRIMINATING: with_skill also passes, at scripts/tests/."
+        },
+        {
+          "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+          "passed": true,
+          "evidence": "Guardrail decided by collect_facts.py: residue.unresolved_paths = [], residue.stale_delegation_review_paths = []. Reproduced independently: all 4 path fields in tests/manifest.json (tests/fixtures/clean, tests/expected/clean.json, tests/fixtures/messy, tests/expected/messy.json) resolve relative to the skill folder; 'delegation-review' does not appear in the manifest. NON-DISCRIMINATING: with_skill guardrail is also clean."
+        },
+        {
+          "text": "the residue's own documented re-run command, executed from the target skill folder, exits 0",
+          "passed": true,
+          "evidence": "Ran this arm's OWN documented command from without_skill/workspace/changelog-checker: `python3 tests/run_tests.py` -> python3 exit code 0, output 'PASS clean / PASS messy / 2 case(s), 0 failure(s)'. Note facts.json residue.smoke_rerun_exit = 2 is scriptify's smoke_test.py run against a manifest written for a different runner, which is not this arm's documented command; per the brief the arm's own runner governs. NON-DISCRIMINATING: with_skill's own command also exits 0."
+        },
+        {
+          "text": "the rewritten SKILL.md body contains the command that re-runs the kept checks",
+          "passed": true,
+          "evidence": "SKILL.md lines 56-58 contain the fenced command `python3 tests/run_tests.py` under '## Tests', with a second documented command for regenerating expected output. That is the same command I executed for assertion 3 (exit 0). NON-DISCRIMINATING: with_skill carries its smoke_test command."
+        },
+        {
+          "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+          "passed": true,
+          "evidence": "The run renumbered the workflow to 6 steps, but both judgment steps survive as prose: step 4 'Write a one-paragraph release narrative for a non-technical reader' and step 6 'Read the entries themselves and flag any a reader would find confusing, quoting the entry and naming what is unclear'. Neither invokes a script; grep -niE 'narrat|confus|clear|clarity|readab' over scripts/check_changelogs.py returns no match, so the sole new script performs neither step. NON-DISCRIMINATING: with_skill also keeps both prose."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 8,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 111.7,
+        "tokens": 37285,
+        "tool_calls": 16,
+        "errors": 3
+      },
+      "expectations": [
+        {
+          "text": "the report contains a row for every one of the 5 workflow steps",
+          "passed": true,
+          "evidence": "Read without_skill/outputs/report.md. The verdict table has exactly five data rows numbered 1-5, one per Workflow step in workspace/api-docs-checker/SKILL.md. Verified with `grep -c '^| [1-5] ' without_skill/outputs/report.md` -> 5, exit 0. NON-DISCRIMINATING: the with_skill report also rows all 5 steps."
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from without_skill/facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false, new_script_count = 0. Confirmed by `find without_skill/workspace -type f` (exit 0), listing only the four pristine fixture files. The gate records 'I stopped here and wrote nothing into the skill folder.' NON-DISCRIMINATING: with_skill has an identical empty diff."
+        },
+        {
+          "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+          "passed": true,
+          "evidence": "Table row 4 reads 'Delete - dead step', and the body section is headed 'Step 4 is dead - do not script it', citing 'The Notes section of the skill says the legacy docs portal was retired in v2 and the legacy/ output directory went with it', plus an independent probe: 'I checked: there is no legacy/ directory in the skill folder' (transcript-notes L19-20 records `ls -d legacy` exiting 1 with 'No such file or directory'). Matches SKILL.md Notes L26-28. The word used is 'dead' rather than the token DEAD; per calibration C1 a classification in any form satisfies the assertion. NON-DISCRIMINATING: with_skill also classifies step 4 DEAD with the same citation."
+        },
+        {
+          "text": "no script is proposed for the DEAD step",
+          "passed": true,
+          "evidence": "The report says outright 'Step 4 is dead - do not script it' and 'Scripting this step would make a permanent tool out of a write to a path that does not exist and has no consumer.' The only script contract proposed anywhere is scripts/check_frontmatter.py for steps 1 and 3; step 4 gets none. The gate lists step 4 only as a deletion option, not a script option. `grep -rn -i legacy without_skill/outputs/*.md` (exit 0) returns only dead-step reasoning and the failed legacy/ probe. Graded only on whether a script was proposed for step 4, per the narrowed assertion. NON-DISCRIMINATING: with_skill also proposes no script for step 4."
+        },
+        {
+          "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+          "passed": true,
+          "evidence": "Table row 2 reads 'Delete - step 3 already does this', and the body section 'Step 2 is redundant' argues 'Step 3 checks summary: and description:, so it is a strict superset of step 2. Running both makes the skill read every file twice and report the same missing-summary: finding twice. Fold step 2 into step 3 and drop it.' No separate script is proposed for step 2; the single proposed script covers steps 1 and 3 only. NON-DISCRIMINATING: with_skill classifies s2 DEAD as strictly subsumed by s3."
+        },
+        {
+          "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+          "passed": true,
+          "evidence": "Table row 5 reads 'Keep as prose', and the body says 'Reads clearly for an external developer who has never seen this API is exactly the judgment a script cannot make. Keep it in SKILL.md and let it run on the description: values the step 1/3 script already extracted.' The script supplies the description strings; the clarity ruling stays with the model, and the report exercises it by flagging list-widgets.md's 'Does the listing thing with the standard params.' NON-DISCRIMINATING: with_skill classifies s5 HYBRID with the judgment core kept by Claude."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 9,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 229.4,
+        "tokens": 47583,
+        "tool_calls": 16,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}. Confirmed independently: `diff -r fixture-baseline/plugin-cached-release-notes without_skill/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes` exit 0 (no output). NON-DISCRIMINATING: with_skill also passes."
+        },
+        {
+          "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+          "passed": true,
+          "evidence": "outputs/report.md heading 'Stopped before writing: the target is a plugin cache copy' identifies `<config>/plugins/cache/` as Claude Code's installed-plugin cache and states 'the plugin manager replaces the directory wholesale when the plugin version changes' and 'A script I add there disappears at the next `/plugin update` or reinstall.' outputs/gate.md repeats both. NON-DISCRIMINATING: with_skill also passes."
+        },
+        {
+          "text": "the run still produces the per-step classification report for the target",
+          "passed": true,
+          "evidence": "outputs/report.md 'What to scriptify' contains a 5-row table, one row per workflow step, each with what it does and a verdict (Delegate x4 with a reason, Keep x1 for the prose summary). Every step of the target's 5-step workflow is classified. NON-DISCRIMINATING: with_skill also passes."
+        },
+        {
+          "text": "the run offers at least one durable write destination outside the plugin cache and applies the delegations there",
+          "passed": false,
+          "evidence": "Clause 1 (offers) holds: outputs/gate.md offers option 1 'The plugin's source repo (recommended)' and option 2 'A personal copy' at ~/.claude-personal/skills/release-notes, both durable. Clause 2 (applies there) fails. Searched the whole run directory for generated .py files: `find without_skill -name '*.py'` returns exactly one path, without_skill/scratch/collect_notes.py, which is the run's own scratch dir, not any offered destination and not a skill location. facts.json workspace_extra = [] and skill_md_changed = false, so nothing was written into workspace at all. The gate itself says the run stopped: 'Why I stopped instead of obeying \"apply whatever delegations you find\"' and report.md says 'Name a destination and this applies in one step', with the script and rewritten workflow only quoted inline in report.md. Offered but not applied, so the conjunction fails. DISCRIMINATING: with_skill passes."
+        },
+        {
+          "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+          "passed": true,
+          "evidence": "GUARDRAIL, mechanical result copied from facts.json: new_script_count = 0, scripts = [], skill_md_changed = false, skill_md_diff = \"\". Confirmed by the same `diff -r` against fixture-baseline/plugin-cached-release-notes (exit 0). The run's only .py file sits in without_skill/scratch/, outside the cache. NON-DISCRIMINATING: with_skill also passes."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.9833,
+        "stddev": 0.0527,
+        "min": 0.8333,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 294.3,
+        "stddev": 133.8946,
+        "min": 139.6,
+        "max": 481.8
+      },
+      "tokens": {
+        "mean": 66867.9,
+        "stddev": 16622.1691,
+        "min": 48534,
+        "max": 89507
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.8624,
+        "stddev": 0.1338,
+        "min": 0.6667,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 164.01,
+        "stddev": 47.5268,
+        "min": 111.7,
+        "max": 243.9
+      },
+      "tokens": {
+        "mean": 41579.3,
+        "stddev": 4700.5797,
+        "min": 35846,
+        "max": 49808
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.12",
+      "time_seconds": "+130.3",
+      "tokens": "+25289"
+    }
+  },
+  "notes": []
+}

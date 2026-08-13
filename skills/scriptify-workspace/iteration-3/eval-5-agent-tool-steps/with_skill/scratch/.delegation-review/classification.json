@@ -1,0 +1,77 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/workspace/research-brief-writer",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "pure function of topics.txt: same blanks dropped, same dedupe, same slug every run. topics.txt already contains a blank line, an exact duplicate, and a case-variant duplicate, so the answer depends on doing normalize-then-dedupe in that order",
+      "proposed_script": {
+        "name": "normalize_topics.py",
+        "interface": "python3 scripts/normalize_topics.py topics.txt --out .brief/topics.json",
+        "stdout": "count kept plus counts dropped as blank and duplicate",
+        "exit": "0 topics kept / 1 no usable topics / 2 usage"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "HYBRID",
+      "why": "WebFetch is a permission-gated agent runtime tool, so the fetch itself cannot move into a script; the slug-to-path plan and the after-fetch completeness check around it are mechanical",
+      "proposed_script": {
+        "name": "plan_fetch.py",
+        "interface": "python3 scripts/plan_fetch.py .brief/topics.json --sources sources/ --json",
+        "stdout": "JSON list of slug plus destination path still missing, and a done count",
+        "exit": "0 every source present / 1 fetches still outstanding / 2 usage"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "HYBRID",
+      "why": "the user picks which sources to keep, and AskUserQuestion cannot be reimplemented in a script; building the option list from what actually landed in sources/ is mechanical",
+      "proposed_script": {
+        "name": "source_stats.py",
+        "interface": "python3 scripts/source_stats.py sources/ --thin-under 200 --out .brief/stats.json",
+        "stdout": "per-source slug, title, url, word count, thin flag, plus over_option_cap when more than 4 sources exist",
+        "exit": "0 sources found / 1 sources/ missing or empty / 2 usage"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "SCRIPT",
+      "why": "strip HTML tags, count words, compare against a fixed 200-word threshold; two runs must not disagree on a word count, and hand-counting raw HTML markup is exactly where prose re-derivation drifts",
+      "proposed_script": {
+        "name": "source_stats.py",
+        "interface": "python3 scripts/source_stats.py sources/ --thin-under 200 --out .brief/stats.json",
+        "stdout": "per-source slug, title, url, word count, thin flag, plus over_option_cap when more than 4 sources exist",
+        "exit": "0 sources found / 1 sources/ missing or empty / 2 usage"
+      }
+    },
+    {
+      "id": "s5",
+      "class": "HYBRID",
+      "why": "the notion MCP page lookup and append carry auth and the permission model, so they stay agent-side; rendering the summary block that gets appended is a fixed template over the run data",
+      "proposed_script": {
+        "name": "render_index.py",
+        "interface": "python3 scripts/render_index.py .brief/stats.json --format notion-block --out .brief/summary-block.md",
+        "stdout": "path written plus line count",
+        "exit": "0 rendered / 1 no kept sources to render / 2 usage"
+      }
+    },
+    {
+      "id": "s6",
+      "class": "CLAUDE",
+      "why": "a 200-word brief in the house voice is prose the user reads, and reasonable runs should differ here; a script could only re-emit source text Claude must read in full anyway",
+      "proposed_script": null
+    },
+    {
+      "id": "s7",
+      "class": "SCRIPT",
+      "why": "sort by word count descending and render a fixed three-column table from structured data; the sort order is the kind of thing prose silently gets wrong when two sources tie",
+      "proposed_script": {
+        "name": "render_index.py",
+        "interface": "python3 scripts/render_index.py .brief/stats.json --format table --sort words-desc",
+        "stdout": "the markdown index table",
+        "exit": "0 rendered / 1 no kept sources to render / 2 usage"
+      }
+    }
+  ]
+}

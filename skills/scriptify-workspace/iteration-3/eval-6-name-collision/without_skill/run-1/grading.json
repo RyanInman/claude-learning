@@ -1,0 +1,68 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: collision.byte_identical_to_baseline=true, collision.sha256=d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54. Reproduced: `shasum -a 256 scripts/check_headings.py` (exit 0) -> d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54. facts.json target_tree_diff lists only scripts/lint_docs_structure.py added and SKILL.md modified. NON-DISCRIMINATING: the with_skill arm also left the file byte-identical."
+    },
+    {
+      "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+      "passed": true,
+      "evidence": "The run did not ask, but it took the other branch of the disjunction: it named the generated script scripts/lint_docs_structure.py (facts.json target_tree_diff.added) instead of check_headings.py. outputs/report.md has a 'The naming conflict' section explaining that check_headings.py scans image alt text and the release pipeline calls it at that path, and the rewritten SKILL.md adds a Gotchas entry saying the same. Nothing was silently overwritten - the existing file is byte-identical (sha256 verified above). NON-DISCRIMINATING: the with_skill arm also avoided the collision."
+    },
+    {
+      "text": "every newly generated Python script exits 0 on --help and prints usage on stdout",
+      "passed": false,
+      "evidence": "One newly generated script (facts.json new_script_count=1, scripts[].preexisting=false for scripts/lint_docs_structure.py). Ran `python3 scripts/lint_docs_structure.py --help` from workspace/docs-linter: exit 2, stdout empty (`python3 scripts/lint_docs_structure.py --help 2>/dev/null | wc -c` -> 0), stderr 'not a directory: --help'. The script has no argparse, so --help is parsed as a directory path. Matches facts.json help {exit:2, stdout_len:0, ok:false} and new_scripts_all_help_ok=false. Both clauses of the assertion fail. outputs/report.md never claims --help works, so this is a real interface gap, not a false claim."
+    },
+    {
+      "text": "steps 1, 2 and 3 are each invoked by an exact command line in the rewritten SKILL.md",
+      "passed": true,
+      "evidence": "workspace/docs-linter/SKILL.md lines 13-16 give a fenced, literal command: `python3 scripts/lint_docs_structure.py docs`. The prose immediately under it binds all three original steps to that one invocation: 'lists every `.md` file under `docs/` sorted by path with the total count, flags each file that does not start with a level-1 heading followed by a blank line, and counts the fenced code blocks per file and in total'. I ran the command: exit 1, output carries the file list with count, the two heading flags, and per-file plus total fence counts. NON-DISCRIMINATING: the with_skill SKILL.md also gives one exact command line covering all three."
+    },
+    {
+      "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+      "passed": true,
+      "evidence": "Ran `python3 scripts/lint_docs_structure.py docs` in workspace/docs-linter: exit 1, output line 'flagged for heading structure: reference/api.md, tutorial.md', with per-file reasons \"first line is not a level-1 heading: '## API Reference'\" and \"first line is not a level-1 heading: 'Some intro prose that arrives before any heading at all.'\". Both required files are flagged; getting-started.md reads 'ok'. NON-DISCRIMINATING: the with_skill script flags the same two files."
+    },
+    {
+      "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+      "passed": true,
+      "evidence": "SKILL.md step 2 (renumbered from 4) reads 'Decide which of the flagged files matter most to fix this sprint, given that the tutorial pages get the most traffic.' - verbatim prose, no command, no script reference. The only added script is scripts/lint_docs_structure.py, which scans docs and reports; it has no prioritisation mode. outputs/report.md's verdict table marks step 4 'Kept as prose'. NON-DISCRIMINATING: the with_skill arm also kept step 4 as prose."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.8333333333333334,
+    "passed": 5,
+    "failed": 1,
+    "total": 6
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 6,
+      "Bash": 11,
+      "Write": 3,
+      "Edit": 1
+    },
+    "total_tool_calls": 21,
+    "total_steps": 21,
+    "files_created": [
+      "workspace/docs-linter/scripts/lint_docs_structure.py",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "files_rewritten": [
+      "workspace/docs-linter/SKILL.md"
+    ],
+    "errors_encountered": 2,
+    "output_chars": 4322,
+    "transcript_chars": 3074
+  }
+}

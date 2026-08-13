@@ -1,0 +1,19 @@
+{
+  "tool_calls": {
+    "Read": 4,
+    "Bash": 7,
+    "Write": 1
+  },
+  "total_tool_calls": 12,
+  "total_steps": 12,
+  "files_created": [
+    "scratch/notes-bad/bad.md",
+    "outputs/report.md",
+    "outputs/gate.md",
+    "outputs/transcript-notes.md",
+    "outputs/metrics.json"
+  ],
+  "errors_encountered": 2,
+  "output_chars": 3224,
+  "transcript_chars": 2729
+}

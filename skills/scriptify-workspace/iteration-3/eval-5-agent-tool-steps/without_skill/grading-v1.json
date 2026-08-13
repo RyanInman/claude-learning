@@ -1,0 +1,39 @@
+{
+  "expectations": [
+    {
+      "text": "the report contains a row for every one of the 7 workflow steps, each with a class",
+      "passed": true,
+      "evidence": "without_skill/outputs/report.md lines 11-19 hold a table with rows 1-7, one per workflow step, each with a Verdict class: 1 Script, 2 Keep (agent), 3 Keep (agent), 4 Script, 5 Split, 6 Keep (model), 7 Script. NON-DISCRIMINATING: with_skill also covers all 7."
+    },
+    {
+      "text": "no new files or directories are created inside the target skill folder",
+      "passed": true,
+      "evidence": "`find without_skill/workspace/research-brief-writer -mindepth 1` (exit 0) returns only SKILL.md and topics.txt. facts.json target_tree_diff has empty added/removed/modified, skill_md_changed=false, new_script_count=0. The run wrote scratch/parse_topics_demo.py, but that is in without_skill/scratch/, outside the target folder. NON-DISCRIMINATING: with_skill target is likewise untouched."
+    },
+    {
+      "text": "step 2 (WebFetch the top source) is NOT classified pure SCRIPT, and no proposed script reimplements the fetch with curl, requests, or urllib",
+      "passed": true,
+      "evidence": "Step 2 is classed 'Keep (agent)' - 'WebFetch is an agent tool; picking the top source is judgment'. `grep -niE 'curl|requests|urllib' report.md` (exit 0) returns one hit, line 123, which forbids it: 'Do not try to script step 2 with curl.' Neither proposed script (parse_topics.py, index_report.py) fetches. NON-DISCRIMINATING: with_skill also classes step 2 non-SCRIPT and rejects curl."
+    },
+    {
+      "text": "step 5 (notion MCP page lookup and append) is NOT classified pure SCRIPT",
+      "passed": true,
+      "evidence": "Step 5 is classed 'Split': 'The MCP call stays; the summary block it appends is rendered by script', and the section 'The nuance on step 5' states 'Script the payload, not the call.' NON-DISCRIMINATING: with_skill classes step 5 HYBRID."
+    },
+    {
+      "text": "step 3 (AskUserQuestion which sources to keep) is NOT classified pure SCRIPT",
+      "passed": true,
+      "evidence": "Step 3 is classed 'Keep (agent)' - 'Interactive; a script cannot ask'. Line 70 keeps the AskUserQuestion call in the step and only sources its options from step 1's JSON. NON-DISCRIMINATING: with_skill classes step 3 HYBRID."
+    },
+    {
+      "text": "steps 1 (dedupe and slugify topics), 4 (word counts and thin-source flags) and 7 (render sorted index table) are classified SCRIPT with concrete argv/exit-code interfaces",
+      "passed": false,
+      "evidence": "All three steps are classed Script, and argv is concrete: `parse_topics.py topics.txt` for step 1 and `index_report.py --sources sources/ --kept kept.json [--thin 200]` for steps 4 and 7. The exit-code half is absent. `grep -niE 'exit|status code|returns [0-9]' without_skill/outputs/report.md` exits 1 with no matches - the report never states an exit-code contract for either script, only stdout shape ('JSON array to stdout', 'JSON to stdout'). Graded as written: the assertion requires concrete argv/exit-code interfaces, so this fails. DISCRIMINATING: with_skill gives 0/1/2 exit codes on all three (`grep -c 'exit 0'` -> 6)."
+    },
+    {
+      "text": "step 6 (write the 200-word brief in the house voice) keeps its prose-writing core with Claude",
+      "passed": true,
+      "evidence": "Step 6 is classed 'Keep (model)' - 'Prose judgment; the only step that needs a model' - the rewritten workflow marks it '(unchanged)', and line 128 says 'Do not script step 6. A 200-word brief in a house voice is the reason this skill uses a model.' NON-DISCRIMINATING: with_skill classes step 6 CLAUDE."
+    }
+  ]
+}

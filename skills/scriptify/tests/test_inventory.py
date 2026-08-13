@@ -95,9 +95,13 @@ def test_prose_only_falls_back_to_headings(tmp_path):
     inv = json.loads(run(str(d)).stdout)
     snippets = [s["snippet"] for s in inv["steps"]]
     assert {s["origin"] for s in inv["steps"]} == {"heading-fallback"}
-    # dropped: the empty "Workflow" container, "Output format", "Gotchas".
-    # kept: "Output the report", which only a prefix match would have eaten.
-    assert snippets == ["Locate the config", "Validate", "Output the report"]
+    # dropped: only the empty "Workflow" container. Reference-looking headings
+    # are KEPT and hinted, because render_report.py rejects an omitted id.
+    assert snippets == ["Locate the config", "Validate", "Output the report",
+                        "Output format", "Gotchas"]
+    hinted = {s["snippet"] for s in inv["steps"] if s["non_step_heading_hint"]}
+    assert hinted == {"Output format", "Gotchas"}
+    # "Output the report" survives: NON_STEP_HEADING_RE fullmatches, never prefixes.
 
 
 def test_fallback_only_when_nothing_else_matched(tmp_path):

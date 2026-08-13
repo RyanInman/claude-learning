@@ -1,0 +1,67 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
+      "passed": true,
+      "evidence": "outputs/report.md lines 5-13 hold a 7-row table (s1-s7) with a Class column reading literally SCRIPT/CLAUDE/HYBRID and a 'Proposed script interface' column. Every SCRIPT/HYBRID row (s1,s2,s3,s5,s6,s7) carries a concrete invocation with argv and exit codes, e.g. `python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json` -> exit 0 clean / 1 findings / 2 usage, and s5 `python3 scripts/render_summary.py .changelog-scan.json` -> exit 0 rendered / 2 usage. The single CLAUDE row (s4) has '-' in that column, as expected. Checked with grep -c on the table rows (exit 0)."
+    },
+    {
+      "text": "no new files or directories are created inside evals/fixtures/changelog-checker/",
+      "passed": true,
+      "evidence": "GUARDRAIL, decided mechanically by collect_facts.py: with_skill/facts.json target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false. Copying that result rather than re-deciding by eye. NON-DISCRIMINATING: without_skill/facts.json shows the identical empty diff. (The run's only writes outside outputs/ went to scratch/.delegation-review/, which is not inside the fixture.)"
+    },
+    {
+      "text": "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
+      "passed": true,
+      "evidence": "report.md line 8, row s2 ('Check that each file starts with a heading of the form `## vX.Y.Z - YYYY-MM-DD`'): Class = SCRIPT; interface = `python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json` with stated exit codes 0 clean / 1 findings / 2 usage. Argv (positional dir plus --json/--out flags) and exit codes are both concrete."
+    },
+    {
+      "text": "step 6 (category tags + Misc re-homing) is classified HYBRID",
+      "passed": true,
+      "evidence": "report.md line 12, row s6 ('Check every entry's category tag against the allowed list ... for entries tagged Misc, judge whether they actually fit'): Class = HYBRID, with the split spelled out (script owns the allowed-list set check and lists the Misc/unknown-tag entries; Claude re-triages). Line 29 repeats 'Steps 6 and 7 stay half yours'. NON-DISCRIMINATING: without_skill marks the same step 'Split' with the same two-way division."
+    },
+    {
+      "text": "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
+      "passed": false,
+      "evidence": "report.md line 13, row s7 ('Verify the entries are clearly written and flag any that a reader would find confusing'): Class = HYBRID, not CLAUDE. The run assigns the scan script the enumeration of every entry and keeps only the clarity judgment for Claude; line 3 counts s7 among the '6 of 7 steps are mechanical (SCRIPT/HYBRID)', line 29 says 'Steps 6 and 7 stay half yours', and gate.md line 10 lists s7 among the six SCRIPT/HYBRID rows to apply. The assertion as written requires CLAUDE, so this fails."
+    },
+    {
+      "text": "step 4 (release narrative) is classified CLAUDE",
+      "passed": true,
+      "evidence": "report.md line 10, row s4 ('Write a one-paragraph release narrative ... for a non-technical reader'): Class = CLAUDE, interface column '-', reason given as prose whose wording should vary. Line 29: 'Step 4 stays yours'. NON-DISCRIMINATING: without_skill classifies step 4 'Keep in the skill'."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.8333333333333334,
+    "passed": 5,
+    "failed": 1,
+    "total": 6
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 4,
+      "Bash": 9,
+      "Write": 4,
+      "Edit": 1
+    },
+    "total_tool_calls": 18,
+    "total_steps": 5,
+    "files_created": [
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-0-classify-and-report/with_skill/scratch/.delegation-review/SKILL.md.orig",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-0-classify-and-report/with_skill/scratch/.delegation-review/inventory.json",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-0-classify-and-report/with_skill/scratch/.delegation-review/classification.json",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-0-classify-and-report/with_skill/scratch/.delegation-review/report-table.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-0-classify-and-report/with_skill/outputs/report.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-0-classify-and-report/with_skill/outputs/gate.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-0-classify-and-report/with_skill/outputs/transcript-notes.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-0-classify-and-report/with_skill/outputs/metrics.json"
+    ],
+    "errors_encountered": 0,
+    "output_chars": 5552,
+    "transcript_chars": 3767
+  }
+}

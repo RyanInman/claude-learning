@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "no new files are written into evals/fixtures/well-delegated/",
+      "passed": true,
+      "evidence": "Ran `diff -r /Users/admin/claude-learning/skills/scriptify/evals/fixtures/well-delegated with_skill/workspace/well-delegated` -> exit 0, no output. facts.json target_tree_diff is empty (added/removed/modified all []), new_script_count 0, skill_md_changed false. Run's own scratch went to with_skill/scratch/.delegation-review/, outside the fixture. NON-DISCRIMINATING: the without_skill arm also left the fixture byte-identical."
+    },
+    {
+      "text": "scripts/check.py is acknowledged as already delegated",
+      "passed": true,
+      "evidence": "report.md classifies step s1 (`python3 scripts/check.py notes/ --json`) as ALREADY_DELEGATED with the interface audit spelled out: 'mentioned in body, argparse present, --help works, exit codes 0/1/2 documented'. I reproduced the audit: `python3 scripts/check.py --help` -> exit 0, usage block printed; `python3 scripts/check.py notes/ --json` -> `[]`, exit 0. facts.json records scripts[0] preexisting true, help exit 0, ok true. NON-DISCRIMINATING: the without_skill arm also acknowledged it (as 'SCRIPT - already done')."
+    },
+    {
+      "text": "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts",
+      "passed": true,
+      "evidence": "report.md classifies s2 (which flagged items matter for this release's audience) CLAUDE -- 'reasonable runs should differ' -- and s3 (plain-worded explanation in the project's voice) CLAUDE -- a script 'would only re-gather the findings JSON Claude already holds'. Zero SCRIPT and zero HYBRID rows; the 'Why nothing else converts' section argues against encoding the audience call as policy. gate.md is `none` and no script was produced (new_script_count 0). NON-DISCRIMINATING: the without_skill arm classified both steps CLAUDE too."
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-8-dead-step/with_skill/workspace/api-docs-checker",
+  "frontmatter": {
+    "name": "api-docs-checker",
+    "description_chars": 162,
+    "unexpected_keys": []
+  },
+  "body": {
+    "lines": 24,
+    "approx_tokens": 204
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "origin": "numbered-list",
+      "heading_path": [
+        "API Docs Checker",
+        "Workflow"
+      ],
+      "line_start": 13,
+      "line_end": 14,
+      "approx_tokens": 21,
+      "snippet": "List every `.md` file in `endpoints/`, sorted by path, and note the total",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "count",
+        "sort",
+        "list"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s2",
+      "origin": "numbered-list",
+      "heading_path": [
+        "API Docs Checker",
+        "Workflow"
+      ],
+      "line_start": 15,
+      "line_end": 16,
+      "approx_tokens": 28,
+      "snippet": "Check that every endpoint file has a `summary:` field in its frontmatter.",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "check"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s3",
+      "origin": "numbered-list",
+      "heading_path": [
+        "API Docs Checker",
+        "Workflow"
+      ],
+      "line_start": 17,
+      "line_end": 19,
+      "approx_tokens": 40,
+      "snippet": "Check that every endpoint file has both a `summary:` field and a",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "check"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s4",
+      "origin": "numbered-list",
+      "heading_path": [
+        "API Docs Checker",
+        "Workflow"
+      ],
+      "line_start": 20,
+      "line_end": 21,
+      "approx_tokens": 22,
+      "snippet": "Append the endpoint list to `legacy/index.txt` so the old docs portal can",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "list"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s5",
+      "origin": "numbered-list",
+      "heading_path": [
+        "API Docs Checker",
+        "Workflow"
+      ],
+      "line_start": 22,
+      "line_end": 24,
+      "approx_tokens": 35,
+      "snippet": "Judge whether each `description:` reads clearly for an external developer",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    }
+  ],
+  "orphan_code_blocks": [],
+  "scripts": [],
+  "references": [],
+  "assets": [],
+  "stats": {
+    "n_steps": 5,
+    "n_steps_with_hints": 4,
+    "n_existing_scripts": 0
+  }
+}

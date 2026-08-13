@@ -1,0 +1,50 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "the rewritten SKILL.md invokes a generated script at steps 1 and 3, and no other step gained a script invocation",
+      "passed": true,
+      "evidence": "Read workspace/changelog-checker/SKILL.md. Step 1 reads: 'Run exactly: `python3 scripts/scan_changelogs.py changelogs/ --json`'. Step 3 reads: 'Take the per-category counts from the same scan JSON: `versions[].counts` per file, `totals` across files.' One generated script (scripts/scan_changelogs.py, facts.json new_script_count=1) serves both steps: the single invocation named in the file produces step 1's file list and step 3's counts, so step 3's work is delegated to the generated script rather than re-derived in prose. Verified the referenced keys exist by running `python3 scripts/scan_changelogs.py changelogs/ --json` (exit 0): output carries files, file_count, versions[].counts, totals, other_categories. Nuance recorded: step 3 consumes the step-1 invocation instead of carrying its own command line; graded as satisfying the assertion on the same principle as calibration C1 (substance of the delegation over literal surface form), and consistent with one script covering both steps. `diff -u fixture-baseline/changelog-checker/SKILL.md workspace/changelog-checker/SKILL.md` (exit 1) shows steps 2 and 4-7 byte-identical, so no other step gained a script invocation. NON-DISCRIMINATING: both arms pass."
+    },
+    {
+      "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+      "passed": true,
+      "evidence": "Guardrail; mechanical result from facts.json skill_md_diff, reproduced with `diff -u fixture-baseline/changelog-checker/SKILL.md workspace/changelog-checker/SKILL.md` (exit 1). The only changed lines are the '1.' and '3.' workflow lines; a byte comparison of the '2.', '4.', '5.', '6.', '7.' lines against the pristine fixture returned True for each, and the frontmatter, title, and intro are unchanged. target_tree_diff.modified is SKILL.md alone plus the added scripts/scan_changelogs.py. NON-DISCRIMINATING: both arms pass."
+    },
+    {
+      "text": "every generated script exits 0 on --help and nonzero on bad args, and the smoke test exits 0 against the final on-disk state",
+      "passed": true,
+      "evidence": "Ran the one generated script against its final on-disk state. `python3 scripts/scan_changelogs.py --help` -> exit 0 (argparse usage printed; matches facts.json help.exit 0). Bad args nonzero on three forms: no args -> exit 2, unrecognized flag `--nope` -> exit 2, missing directory -> exit 2 ('error: not a directory'). Documented exit 1 branch reproduced: a directory holding only README.txt -> exit 1 ('error: no .md files'). Normal run `python3 scripts/scan_changelogs.py changelogs/ --json` -> exit 0. Smoke test: the run's manifest under scratch/.delegation-review was deleted at its residue-cleanup step, so scriptify's smoke_test.py cannot be re-invoked; I re-executed each of the six checks the report lists (exists, help, three fixture runs, bad-args) directly against the final on-disk script and every one reproduced green, including the numeric version ordering check ('v1.9.0.md' before 'v1.10.0.md', exit 0). DISCRIMINATING: the without_skill arm fails this."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 7,
+      "Bash": 17,
+      "Write": 5,
+      "Edit": 2
+    },
+    "total_tool_calls": 31,
+    "total_steps": 24,
+    "files_created": [
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/workspace/changelog-checker/scripts/scan_changelogs.py",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/report.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/gate.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/transcript-notes.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/metrics.json",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 7429,
+    "transcript_chars": 5246
+  }
+}

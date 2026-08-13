@@ -1,0 +1,66 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "the report contains a row for every one of the 5 workflow steps",
+      "passed": true,
+      "evidence": "Read with_skill/outputs/report.md. The classification table carries exactly five data rows, s1 through s5, each quoting the matching SKILL.md line (L13-14, L15-16, L17-19, L20-21, L22-24) against the 5-step Workflow in workspace/api-docs-checker/SKILL.md. Verified row count with `grep -c '^| s' with_skill/outputs/report.md` -> 5, exit 0. NON-DISCRIMINATING: the without_skill report also rows all 5 steps."
+    },
+    {
+      "text": "no new files or directories are created inside the target skill folder",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from with_skill/facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false, new_script_count = 0. Confirmed by `find with_skill/workspace -type f` (exit 0), which lists only the four pristine fixture files (SKILL.md plus the three endpoints/*.md). The run's own scratch dir lives at with_skill/scratch/.delegation-review/, outside the target skill folder. NON-DISCRIMINATING: without_skill has an identical empty diff."
+    },
+    {
+      "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+      "passed": true,
+      "evidence": "Report row s4 reads Class = DEAD with the reason 'writes to legacy/index.txt for a portal the target's own Notes section says was retired in v2; legacy/ does not exist in the skill folder'. The 'The two DEAD steps' section repeats the citation: 'The skill's own note says the legacy portal was retired in v2 and the legacy/ output directory went with it.' Cross-checked against SKILL.md Notes (L26-28), which states exactly that. NON-DISCRIMINATING: without_skill also classifies step 4 dead and cites the same Notes paragraph."
+    },
+    {
+      "text": "no script is proposed for the DEAD step",
+      "passed": true,
+      "evidence": "Row s4's 'Proposed script interface' cell is '-' (no interface). The report explicitly says 'Steps 2 and 4 should not become scripts at all' and 'Scripting this step would harden a write into a directory nothing reads'. The gate (with_skill/outputs/gate.md) offers only s1, s3, s5 and states 'The DEAD rows s2 and s4 are not offered'. No proposal to script step 4 appears anywhere in outputs/ (`grep -rn -i legacy with_skill/outputs/*.md`, exit 0, hits are only the dead-step reasoning and an `ls ../legacy` probe that printed 'No such file or directory'). Graded only on whether a script was proposed for step 4, per the narrowed assertion. NON-DISCRIMINATING: without_skill also proposes no script for step 4."
+    },
+    {
+      "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+      "passed": true,
+      "evidence": "Row s2 is classified DEAD with 'strictly subsumed by s3, which checks summary AND description over the same files; running both rescans endpoints/ and double-reports list-widgets.md', and its script-interface cell is '-'. The evidence section grounds it in the fixture: delete-widget.md has summary: but no description:, so step 2 misses it while step 3 catches it. Step 2 gets no separate script; only s1/s3/s5 are backed by check_endpoints.py. NON-DISCRIMINATING: without_skill calls step 2 'redundant' and a strict subset of step 3."
+    },
+    {
+      "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+      "passed": true,
+      "evidence": "Row s5 is classified HYBRID, not SCRIPT: 'clarity for an unfamiliar external developer is a judgment call reasonable runs disagree on, but the script already extracts every description string, so Claude judges text it no longer has to go gather'. The report adds 'No script can rule on it, which is why step 5 keeps a judgment core instead of becoming pure SCRIPT', and names the concrete target (list-widgets.md's 'Does the listing thing with the standard params.'). The script only supplies the descriptions map; the ruling stays with Claude. NON-DISCRIMINATING: without_skill keeps step 5 as prose for the same reason."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 6,
+      "Write": 2,
+      "Bash": 12
+    },
+    "total_tool_calls": 20,
+    "total_steps": 18,
+    "files_created": [
+      "scratch/.delegation-review/SKILL.md.orig",
+      "scratch/.delegation-review/inventory.json",
+      "scratch/.delegation-review/classification.json",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 4903,
+    "transcript_chars": 3434
+  }
+}

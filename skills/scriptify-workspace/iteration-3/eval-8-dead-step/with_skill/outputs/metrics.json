@@ -1,0 +1,22 @@
+{
+  "tool_calls": {
+    "Read": 6,
+    "Write": 2,
+    "Bash": 12
+  },
+  "total_tool_calls": 20,
+  "total_steps": 18,
+  "files_created": [
+    "scratch/.delegation-review/SKILL.md.orig",
+    "scratch/.delegation-review/inventory.json",
+    "scratch/.delegation-review/classification.json",
+    "outputs/report.md",
+    "outputs/gate.md",
+    "outputs/transcript-notes.md",
+    "outputs/metrics.json",
+    "outputs/user_notes.md"
+  ],
+  "errors_encountered": 1,
+  "output_chars": 4903,
+  "transcript_chars": 3434
+}

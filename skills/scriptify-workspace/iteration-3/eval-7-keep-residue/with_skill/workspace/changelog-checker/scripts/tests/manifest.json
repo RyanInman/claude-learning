@@ -1,0 +1,141 @@
+{
+  "target_skill": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+  "scripts": [
+    {
+      "path": "scripts/scan_changelogs.py",
+      "kind": "transform",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/scan_changelogs.py",
+            "{skill}/scripts/tests/fixtures/scan_changelogs/good",
+            "--json"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "\"entry_total\": 5"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/scan_changelogs.py",
+            "{skill}/scripts/tests/fixtures/scan_changelogs/bad"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "no_changelog_files"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/scan_changelogs.py"
+        ],
+        "expect_exit_nonzero": true
+      }
+    },
+    {
+      "path": "scripts/check_changelogs.py",
+      "kind": "check",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/check_changelogs.py",
+            "{skill}/scripts/tests/fixtures/check_changelogs/good",
+            "--json"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "\"violations\": []"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/check_changelogs.py",
+            "{skill}/scripts/tests/fixtures/check_changelogs/bad",
+            "--json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "malformed_version_heading"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/check_changelogs.py",
+            "{skill}/scripts/tests/fixtures/check_changelogs/bad",
+            "--json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "version_heading_not_first"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/check_changelogs.py",
+            "{skill}/scripts/tests/fixtures/check_changelogs/bad",
+            "--json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "invalid_tag"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/check_changelogs.py",
+            "{skill}/scripts/tests/fixtures/check_changelogs/bad",
+            "--json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "Corrected typo in settings page label"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/check_changelogs.py"
+        ],
+        "expect_exit_nonzero": true
+      },
+      "bad_data_invocation": {
+        "argv": [
+          "python3",
+          "scripts/check_changelogs.py",
+          "{skill}/scripts/tests/fixtures/check_changelogs/bad",
+          "--json"
+        ],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "no_version_heading"
+      }
+    },
+    {
+      "path": "scripts/render_summary.py",
+      "kind": "check",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/render_summary.py",
+            "{skill}/scripts/tests/fixtures/render_summary/good/scan.json"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "| 2.1.0 | 2026-06-10 | 0 | 1 | 1 | 0 | 0 | 2 |"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/render_summary.py"
+        ],
+        "expect_exit_nonzero": true
+      },
+      "bad_data_invocation": {
+        "argv": [
+          "python3",
+          "scripts/render_summary.py",
+          "{skill}/scripts/tests/fixtures/render_summary/bad/scan.json"
+        ],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "invalid_scan"
+      }
+    }
+  ]
+}

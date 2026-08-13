@@ -1,0 +1,53 @@
+{
+  "eval_id": 0,
+  "eval_name": "classify-and-report",
+  "prompt": "Review the skill in /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-0-classify-and-report/with_skill/workspace/changelog-checker/ and tell me which of its workflow steps should be delegated to scripts. Don't change anything yet.",
+  "expected_output": "Rendered classification table: steps 1/2/3/5 SCRIPT with concrete proposed interfaces, step 6 HYBRID, steps 4 and 7 CLAUDE (7 despite containing the word 'verify'). Nothing written into the fixture; flow stops at the gate or explicitly notes changes await user selection.",
+  "expectations": [
+    "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
+    "no new files or directories are created inside evals/fixtures/changelog-checker/",
+    "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
+    "step 6 (category tags + Misc re-homing) is classified HYBRID",
+    "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
+    "step 4 (release narrative) is classified CLAUDE"
+  ],
+  "assertions": [
+    {
+      "text": "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
+      "type": "structure",
+      "tier": "signal",
+      "property": "interface-hygiene"
+    },
+    {
+      "text": "no new files or directories are created inside evals/fixtures/changelog-checker/",
+      "type": "structure",
+      "tier": "guardrail",
+      "property": "no-write",
+      "check": "target_tree_diff_empty"
+    },
+    {
+      "text": "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
+      "type": "content",
+      "tier": "signal",
+      "property": "interface-hygiene"
+    },
+    {
+      "text": "step 6 (category tags + Misc re-homing) is classified HYBRID",
+      "type": "content",
+      "tier": "signal",
+      "property": "classification"
+    },
+    {
+      "text": "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
+      "type": "content",
+      "tier": "signal",
+      "property": "classification"
+    },
+    {
+      "text": "step 4 (release narrative) is classified CLAUDE",
+      "type": "content",
+      "tier": "signal",
+      "property": "classification"
+    }
+  ]
+}

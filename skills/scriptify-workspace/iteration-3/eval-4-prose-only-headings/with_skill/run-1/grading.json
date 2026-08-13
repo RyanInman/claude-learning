@@ -1,0 +1,58 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "the report contains a row for every anchor; the flow does not stop at '0 steps extracted'",
+      "passed": true,
+      "evidence": "Target SKILL.md has 4 body-bearing headings (Collect the link inventory L10, Resolve each target L15, Decide what to fix now L20, Gotchas L25) and no numbered steps. outputs/report.md renders a 4-row table s1-s4, one row per heading, and states explicitly 'The skill has no numbered steps, so the inventory anchored on section headings instead: 4 anchors' and 'Heading-fallback is not \"nothing to delegate\"'. No '0 steps extracted' stop. NON-DISCRIMINATING: the without_skill arm also covers every heading."
+    },
+    {
+      "text": "no new files are written into evals/fixtures/prose-only-reviewer/",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false, new_script_count = 0. Independently confirmed: `ls -la /Users/admin/claude-learning/skills/scriptify/evals/fixtures/prose-only-reviewer/` (exit 0) shows only SKILL.md, 796 bytes; `git status --porcelain skills/scriptify/evals/fixtures/` (exit 0) returns nothing; `diff fixture/SKILL.md with_skill/workspace/prose-only-reviewer/SKILL.md` exit 0 (identical). NON-DISCRIMINATING: without_skill is also clean."
+    },
+    {
+      "text": "'Collect the link inventory' and 'Resolve each target' are classified SCRIPT with concrete argv/exit-code interfaces",
+      "passed": true,
+      "evidence": "report.md row s1 'Collect the link inventory' -> Class SCRIPT, interface `python3 scripts/collect_links.py docs/ --out .link-check/links.json`, stdout counts only, exit 0 links found / 1 no markdown files under the root / 2 usage or unreadable root. Row s2 'Resolve each target' -> Class SCRIPT, interface `python3 scripts/resolve_links.py .link-check/links.json --out .link-check/broken.json`, exit 0 all links resolve / 1 broken links found / 2 usage or unreadable input. Both argv and all three exit codes are named per script. NON-DISCRIMINATING: without_skill also classifies both as script with an argv/exit-code contract, though it merges them into one script."
+    },
+    {
+      "text": "'Decide what to fix now' is classified CLAUDE, since the deadline trade-off varies by run",
+      "passed": true,
+      "evidence": "report.md row s3 'Decide what to fix now' -> Class CLAUDE, reason 'the release deadline arrives from the conversation, not from disk, so reasonable runs should rank the same broken links differently'; reinforced in the prose section: 'What remains is the deadline trade-off, which only the conversation supplies.' facts.json shows no script was written for it (new_script_count 0). NON-DISCRIMINATING: without_skill also keeps this section out of the script on the same deadline rationale, though it labels it 'Stays prose' rather than the scriptify token CLAUDE."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 6,
+      "Bash": 6,
+      "Write": 1,
+      "Edit": 1
+    },
+    "total_tool_calls": 14,
+    "total_steps": 12,
+    "files_created": [
+      "scratch/.delegation-review/SKILL.md.orig",
+      "scratch/.delegation-review/inventory.json",
+      "scratch/.delegation-review/classification.json",
+      "scratch/.delegation-review/report-table.md",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 4327,
+    "transcript_chars": 8904
+  }
+}

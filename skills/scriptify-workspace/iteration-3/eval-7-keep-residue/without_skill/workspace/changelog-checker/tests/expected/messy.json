@@ -1,0 +1,60 @@
+{
+  "file_count": 2,
+  "files": [
+    {
+      "file": "v1.2.0.md",
+      "version": "v1.2.0",
+      "date": null,
+      "heading_ok": false,
+      "heading_problem": "first line is '### Added', expected a heading of the form '## vX.Y.Z — YYYY-MM-DD'",
+      "counts": {
+        "Added": 1,
+        "Deprecated": 1
+      },
+      "unknown_categories": [
+        "Deprecated"
+      ],
+      "misc_entries": []
+    },
+    {
+      "file": "v1.1.0.md",
+      "version": "v1.1.0",
+      "date": "2026-03-02",
+      "heading_ok": true,
+      "heading_problem": null,
+      "counts": {
+        "Added": 1,
+        "Misc": 1
+      },
+      "unknown_categories": [],
+      "misc_entries": [
+        "Corrected typo in settings page label"
+      ]
+    }
+  ],
+  "totals": {
+    "Added": 2,
+    "Deprecated": 1,
+    "Misc": 1
+  },
+  "total_entries": 4,
+  "heading_problems": [
+    {
+      "file": "v1.2.0.md",
+      "problem": "first line is '### Added', expected a heading of the form '## vX.Y.Z — YYYY-MM-DD'"
+    }
+  ],
+  "unknown_category_uses": [
+    {
+      "file": "v1.2.0.md",
+      "category": "Deprecated"
+    }
+  ],
+  "misc_entries": [
+    {
+      "file": "v1.1.0.md",
+      "entry": "Corrected typo in settings page label"
+    }
+  ],
+  "table": "| Version | Date | Added | Fixed | Changed | Removed | Misc | Other | Total |\n|---|---|---|---|---|---|---|---|---|\n| v1.2.0 | (missing) | 1 | 0 | 0 | 0 | 0 | 1 | 2 |\n| v1.1.0 | 2026-03-02 | 1 | 0 | 0 | 0 | 1 | 0 | 2 |"
+}

@@ -1,0 +1,115 @@
+{
+  "target_skill": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+  "scripts": [
+    {
+      "path": "scripts/scan_changelogs.py",
+      "kind": "transform",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/scan_changelogs.py",
+            "{skill}/scripts/tests/fixtures/scan_changelogs/good"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "\"file_count\": 3"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/scan_changelogs.py"
+        ],
+        "expect_exit_nonzero": true
+      }
+    },
+    {
+      "path": "scripts/check_headings.py",
+      "kind": "check",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/check_headings.py",
+            "{skill}/scripts/tests/fixtures/check_headings/good",
+            "--json"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "\"findings\": []"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/check_headings.py"
+        ],
+        "expect_exit_nonzero": true
+      },
+      "bad_data_invocation": {
+        "argv": [
+          "python3",
+          "scripts/check_headings.py",
+          "{skill}/scripts/tests/fixtures/check_headings/bad",
+          "--json"
+        ],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "no_h2_first_line"
+      }
+    },
+    {
+      "path": "scripts/render_summary.py",
+      "kind": "transform",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/render_summary.py",
+            "{skill}/scripts/tests/fixtures/render_summary/good"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "| v1.2.0 | 2026-05-04 | 1 | 0 | 0 | 1 | 2 |\n| v1.1.0 |"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/render_summary.py"
+        ],
+        "expect_exit_nonzero": true
+      }
+    },
+    {
+      "path": "scripts/check_tags.py",
+      "kind": "check",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/check_tags.py",
+            "{skill}/scripts/tests/fixtures/check_tags/good",
+            "--json"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "\"invalid\": []"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/check_tags.py"
+        ],
+        "expect_exit_nonzero": true
+      },
+      "bad_data_invocation": {
+        "argv": [
+          "python3",
+          "scripts/check_tags.py",
+          "{skill}/scripts/tests/fixtures/check_tags/bad",
+          "--json"
+        ],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "misc_needs_triage"
+      }
+    }
+  ]
+}

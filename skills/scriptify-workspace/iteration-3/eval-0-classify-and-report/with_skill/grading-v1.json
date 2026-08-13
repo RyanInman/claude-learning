@@ -1,0 +1,34 @@
+{
+  "expectations": [
+    {
+      "text": "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
+      "passed": true,
+      "evidence": "outputs/report.md L5-13 renders a 7-row markdown table with columns '#, Step (line), Current form, Tokens, Class, Why, Proposed script interface'. Class column values are literally SCRIPT (s1,s2,s3,s5), CLAUDE (s4), HYBRID (s6,s7). Every SCRIPT/HYBRID row carries a filled interface cell (`python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json` or `python3 scripts/render_summary.py .changelog-scan.json`) with exit codes; the CLAUDE row s4 has '-'. Checked with `grep -c '| s' outputs/report.md` -> 7, exit 0."
+    },
+    {
+      "text": "no new files or directories are created inside evals/fixtures/changelog-checker/",
+      "passed": true,
+      "evidence": "`diff -ru /Users/admin/claude-learning/skills/scriptify/evals/fixtures/changelog-checker with_skill/workspace/changelog-checker` -> no output, exit 0. `find with_skill/workspace -mindepth 1` lists exactly the 4 pristine paths (SKILL.md + 3 changelogs). facts.json target_tree_diff added/removed/modified are all empty and new_script_count is 0. The run kept its scratch under with_skill/scratch/.delegation-review/, outside the target. Also confirmed the shared pristine fixture at skills/scriptify/evals/fixtures/changelog-checker/ still holds only its 4 original files. NON-DISCRIMINATING: the without_skill arm also wrote nothing into the target."
+    },
+    {
+      "text": "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
+      "passed": true,
+      "evidence": "report.md row s2 Class = SCRIPT. Interface cell gives a runnable argv line, `python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json`, plus an explicit exit contract: 'exit 0 clean / 1 findings / 2 usage'. The row also grounds the check in the target's own data (v1.2.0.md opens with `### Added`, so it fails the `## vX.Y.Z - YYYY-MM-DD` heading)."
+    },
+    {
+      "text": "step 6 (category tags + Misc re-homing) is classified HYBRID",
+      "passed": true,
+      "evidence": "report.md row s6 Class = HYBRID verbatim, with the split stated: the allowed-tag set check goes to scan_changelogs.py, and judging that v1.1.0.md's Misc entry 'Corrected typo in settings page label' belongs under Fixed stays with Claude. Confirmed by `grep -n '| s6' outputs/report.md`, exit 0."
+    },
+    {
+      "text": "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
+      "passed": false,
+      "evidence": "report.md row s7 Class = HYBRID, not CLAUDE. `grep -o 'HYBRID' <<< row s7` confirms; the row reads 'HYBRID | judging that an entry reads confusingly ... stays Claude's, but enumerating every entry with its file, category, and text is mechanical'. The run assigned s7 a proposed script interface (`python3 scripts/scan_changelogs.py ...`), which is exactly what a CLAUDE classification excludes. Graded as written: the assertion names CLAUDE, the arm produced HYBRID -> fail."
+    },
+    {
+      "text": "step 4 (release narrative) is classified CLAUDE",
+      "passed": true,
+      "evidence": "report.md row s4 Class = CLAUDE, interface cell '-', reason 'the whole output is a narrative the user reads, pitched at a non-technical reader; reasonable runs should word it differently.' It is the only CLAUDE row in the table. Confirmed by `grep -n 'CLAUDE' outputs/report.md`, exit 0, single row hit."
+    }
+  ]
+}

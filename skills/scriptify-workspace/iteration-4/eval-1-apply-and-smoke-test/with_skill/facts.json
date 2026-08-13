@@ -1,0 +1,50 @@
+{
+  "eval": "eval-1-apply-and-smoke-test",
+  "config": "with_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-1-apply-and-smoke-test/with_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/check_categories.py",
+      "scripts/scan_changelogs.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -9,10 +9,21 @@\n \n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n-2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n-4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n-5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n-6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n-7. Verify the entries are clearly written and flag any that a reader would find confusing.\n+1. Run exactly: `python3 scripts/scan_changelogs.py changelogs/`\n+   It lists every `.md` file sorted by version with the total count, checks each\n+   file's `## vX.Y.Z \u2014 YYYY-MM-DD` heading, counts entries per category, and\n+   prints the summary table of versions, dates, and per-category counts sorted\n+   by version descending. Add `--json` for the same data structured, and\n+   `--out FILE` when the table runs long.\n+   Exit 0 clean, 1 findings, 2 usage error or missing folder.\n+   Exit 1 \u2192 report every finding under its code: `no_changelog_files`,\n+   `first_line_not_version_heading`, `version_heading_missing`,\n+   `malformed_version_heading`.\n+2. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n+3. Run exactly: `python3 scripts/check_categories.py changelogs/ --json`\n+   Entries tagged outside the allowed list (`Added`, `Fixed`, `Changed`,\n+   `Removed`, `Misc`) come back under `invalid` with code `unknown_category`.\n+   For each entry under `misc`, judge whether it actually fits one of the other\n+   categories and suggest the move.\n+   Exit 0 clean, 1 findings, 2 usage error or missing folder.\n+4. Verify the entries are clearly written and flag any that a reader would find confusing.\n",
+  "scripts": [
+    {
+      "path": "scripts/check_categories.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 416,
+        "stderr_len": 0,
+        "ok": true
+      }
+    },
+    {
+      "path": "scripts/scan_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 387,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 2,
+  "new_scripts_all_help_ok": true
+}

@@ -1,0 +1,31 @@
+{
+  "eval": "eval-9-ineligible-target",
+  "config": "with_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-9-ineligible-target/with_skill/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [],
+    "removed": [],
+    "modified": []
+  },
+  "workspace_extra": [
+    ".claude/skills/release-notes/SKILL.md",
+    ".claude/skills/release-notes/notes/pr-101.md",
+    ".claude/skills/release-notes/notes/pr-104.md",
+    ".claude/skills/release-notes/notes/pr-109.md",
+    ".claude/skills/release-notes/scripts/render_notes.py",
+    ".claude/skills/release-notes/scripts/scan_notes.py"
+  ],
+  "skill_md_changed": false,
+  "skill_md_diff": "",
+  "scripts": [],
+  "new_script_count": 0,
+  "new_scripts_all_help_ok": null
+}

@@ -1,0 +1,33 @@
+{
+  "eval_id": 2,
+  "eval_name": "nothing-to-delegate",
+  "prompt": "Which parts of the skill in /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-2-nothing-to-delegate/with_skill/workspace/well-delegated/ should be scripts?",
+  "expected_output": "Report acknowledging scripts/check.py as already delegated (mentioned in body, argparse, working --help), classifying the remaining judgment steps CLAUDE, and recommending no new scripts.",
+  "expectations": [
+    "no new files are written into evals/fixtures/well-delegated/",
+    "scripts/check.py is acknowledged as already delegated",
+    "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts"
+  ],
+  "assertions": [
+    {
+      "text": "no new files are written into evals/fixtures/well-delegated/",
+      "type": "structure",
+      "tier": "guardrail",
+      "property": "no-write",
+      "check": "target_tree_diff_empty"
+    },
+    {
+      "text": "scripts/check.py is acknowledged as already delegated",
+      "type": "content",
+      "tier": "guardrail",
+      "property": "classification"
+    },
+    {
+      "text": "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts",
+      "type": "content",
+      "tier": "guardrail",
+      "property": "classification"
+    }
+  ],
+  "role": "regression-gate"
+}

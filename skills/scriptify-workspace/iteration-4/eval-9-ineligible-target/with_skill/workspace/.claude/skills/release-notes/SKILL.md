@@ -1,0 +1,40 @@
+---
+name: release-notes
+description: Assembles release notes from the merged pull request titles in notes/ and writes a summary paragraph. Use when the user asks to build or draft release notes.
+---
+
+# Release Notes
+
+Assemble the release notes for the current milestone.
+
+## Workflow
+
+1. Run exactly: `python3 scripts/scan_notes.py notes/ --out .release-notes/scan.json`
+   It lists every `.md` file in `notes/` sorted by filename, checks each first
+   line against `PR #<number>:`, reads each `type:` field, and tallies the
+   entries per type. Exit 0 every file is well formed, 1 findings, 2 usage
+   error or an unreadable file.
+
+   Exit 1 → report the findings to the user and stop. Each one names its file
+   and one of `first_line_not_pr_header`, `missing_type_field`, or
+   `unknown_type`. Step 3 cannot sort an entry with no PR number, so the notes
+   get fixed before the render, not after.
+
+2. Read `types` and `entries` from `.release-notes/scan.json`. Write a
+   two-sentence summary of the release for the customer-facing changelog.
+   Say what shipped, not how many files were scanned.
+
+3. Run exactly: `python3 scripts/render_notes.py .release-notes/scan.json --out RELEASE_NOTES.md`
+   It groups the entries by type in the order feat, fix, chore and sorts each
+   group by PR number ascending. Exit 0 rendered, 1 the scan still carries
+   findings, 2 the scan JSON is missing or malformed.
+
+4. Put the Step 2 summary at the top of `RELEASE_NOTES.md`, above the rendered
+   list.
+
+## Scripts
+
+| Script | Does |
+|---|---|
+| `scripts/scan_notes.py <notes-dir> --out F` | inventories and validates the notes, tallies types. Exit 0, 1, or 2 |
+| `scripts/render_notes.py <scan.json> --out F` | renders the grouped, sorted markdown list. Exit 0, 1, or 2 |

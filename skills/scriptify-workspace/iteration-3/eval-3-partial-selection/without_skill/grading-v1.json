@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "exactly two generated scripts exist in changelog-checker/scripts/",
+      "passed": true,
+      "evidence": "`ls -1 without_skill/workspace/changelog-checker/scripts/*.py | wc -l` -> 2 (exit 0): count_categories.py and list_changelogs.py, one per selected step. facts.json agrees: new_script_count=2, both preexisting=false, target_tree_diff.added lists exactly those two."
+    },
+    {
+      "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+      "passed": true,
+      "evidence": "`diff -u fixture-baseline/changelog-checker/SKILL.md without_skill/workspace/changelog-checker/SKILL.md` -> exit 1 (differences present) with exactly two replaced lines, step 1 and step 3; everything else is context. `grep -n '^2\\.'` shows step 2 at line 13 in both baseline and run with byte-identical text. NON-DISCRIMINATING: with_skill passes this too."
+    },
+    {
+      "text": "both generated scripts pass the smoke test before the rewrite",
+      "passed": false,
+      "evidence": "Neither script is agent-callable. `python3 scripts/list_changelogs.py --help` -> exit 1, empty stdout, stderr 'error: not a directory: --help'; same for count_categories.py (exit 1). facts.json records both: help exit 1, ok=false, new_scripts_all_help_ok=false. The smoke test in play (scriptify/scripts/smoke_test.py) checks 'help: `python3 <script> --help` exits 0 with non-empty usage' and 'bad-args: the bad invocation exits nonzero AND writes to stderr'; both scripts also fail bad-args, because a no-arg run silently defaults to the `changelogs` directory and exits 0 instead of erroring. The run's own check was only `python3 scripts/<name>.py changelogs` (both exit 0, output hand-verified) and it did run before the two Edits (transcript-notes step 9 precedes steps 10-11), so the ordering half holds, but the scripts do not pass the smoke test. FAIL."
+    }
+  ]
+}

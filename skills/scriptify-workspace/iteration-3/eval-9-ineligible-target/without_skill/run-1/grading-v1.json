@@ -1,0 +1,55 @@
+{
+  "expectations": [
+    {
+      "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+      "passed": true,
+      "evidence": "Ran `diff -r fixture-baseline/plugin-cached-release-notes without_skill/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes` -> no output, exit 0. sha256 over the sorted file list matches the baseline on all four files (SKILL.md 68c88fb7..., notes/pr-101.md d559b209..., notes/pr-104.md e59365b4..., notes/pr-109.md a58ac75c...). facts.json target_tree_diff is empty and workspace_extra is empty. NON-DISCRIMINATING: with_skill's cache tree is byte-identical too."
+    },
+    {
+      "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+      "passed": true,
+      "evidence": "outputs/report.md heading 'Stopped before writing: the target is a plugin cache copy' identifies `<config>/plugins/cache/` as Claude Code's installed-plugin cache and gives the reason: 'the plugin manager replaces the directory wholesale when the plugin version changes... A script I add there disappears at the next `/plugin update` or reinstall.' outputs/gate.md repeats it. It does not use the literal word 'ineligible', but it states the target cannot be written to and gives the overwrite reason the assertion names. NON-DISCRIMINATING: with_skill states the same."
+    },
+    {
+      "text": "the run still produces the per-step classification report for the target",
+      "passed": true,
+      "evidence": "outputs/report.md section 'What to scriptify' contains a per-step table covering all 5 numbered steps, each with what it does and a Delegate/Keep verdict with a reason (step 4 kept as prose judgment). Produced against the cache target itself, read-only. NON-DISCRIMINATING: with_skill also produces a per-step classification table, though a richer one (tokens, class labels, proposed interfaces)."
+    },
+    {
+      "text": "the run offers to copy the skill into the project and continue from the apply stage on the copy",
+      "passed": false,
+      "evidence": "Checked outputs/gate.md and outputs/report.md for a copy-into-the-project offer. gate.md offers exactly three destinations: (1) 'The plugin's source repo (recommended)' - apply in the user's clone of release-tools; (2) 'A personal copy' - copy to `~/.claude-personal/skills/release-notes`, i.e. the user-level config dir, not the project; (3) 'The cache anyway' - a throwaway write that gets wiped. None of the three is a copy into the project, so the run never offers to continue the apply stage on a project copy. Option 2 is the closest, but it names the personal skills directory, and the assertion as written requires the project. DISCRIMINATING: with_skill offers `workspace/.claude/skills/release-notes` and continues from Step 4 on it."
+    },
+    {
+      "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+      "passed": true,
+      "evidence": "Verified directly: `find <cache target> -name '*.py'` returns nothing, and the cache SKILL.md sha256 equals the baseline's. facts.json scripts=[], new_script_count=0, skill_md_changed=false, workspace_extra=[]. The proposed collect_notes.py exists only as a code block in report.md and as scratch/collect_notes.py outside the target. NON-DISCRIMINATING: with_skill also wrote nothing into the cache."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.8,
+    "passed": 4,
+    "failed": 1,
+    "total": 5
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 2,
+      "Bash": 8,
+      "Write": 6
+    },
+    "total_tool_calls": 16,
+    "total_steps": 16,
+    "files_created": [
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/user_notes.md",
+      "outputs/metrics.json",
+      "scratch/collect_notes.py"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 7177,
+    "transcript_chars": 3318
+  }
+}

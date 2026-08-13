@@ -1,0 +1,54 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "the report contains a row for every anchor; the flow does not stop at '0 steps extracted'",
+      "passed": true,
+      "evidence": "outputs/report.md 'Verdict per section' table carries 6 rows covering all 4 body headings (Collect the link inventory, Resolve each target, Decide what to fix now, Gotchas) plus frontmatter and the intro line. The run never invoked step extraction and never reported an empty inventory; transcript-notes.md records it read the 28-line SKILL.md and classified each `##` section by hand. NON-DISCRIMINATING: with_skill also covers every anchor."
+    },
+    {
+      "text": "no new files are written into evals/fixtures/prose-only-reviewer/",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false, new_script_count = 0. Independently confirmed: `ls -la /Users/admin/claude-learning/skills/scriptify/evals/fixtures/prose-only-reviewer/` (exit 0) shows only SKILL.md, 796 bytes; `git status --porcelain skills/scriptify/evals/fixtures/` (exit 0) returns nothing; `diff fixture/SKILL.md without_skill/workspace/prose-only-reviewer/SKILL.md` exit 0 (identical). NON-DISCRIMINATING: with_skill is also clean."
+    },
+    {
+      "text": "'Collect the link inventory' and 'Resolve each target' are classified SCRIPT with concrete argv/exit-code interfaces",
+      "passed": true,
+      "evidence": "report.md marks both `## Collect the link inventory` and `## Resolve each target` **Script** in the verdict table ('Pure mechanics with one right answer'). Interface given in 'The one script to add': argv `python3 scripts/check_links.py <docs_root>` (default `docs/`), JSON on stdout with a documented shape, and an exit-code contract - `0` when it ran regardless of broken count, non-zero reserved for a missing or unreadable docs_root. The run merges the two steps into one script and does not number the failure exit, but the assertion as written requires the two steps be classified SCRIPT with a concrete argv/exit-code interface, and that is present (per calibration C1, the substance in any form counts). NON-DISCRIMINATING: with_skill passes too, with per-script exit codes 0/1/2."
+    },
+    {
+      "text": "'Decide what to fix now' is classified CLAUDE, since the deadline trade-off varies by run",
+      "passed": true,
+      "evidence": "report.md classifies `## Decide what to fix now` as 'Stays prose - Weighs broken links against a release deadline. Judgment against context the script cannot see', and the closing section adds 'A script would have to invent a priority formula that nobody asked for, and it would be wrong the first time the deadline moved.' The literal token CLAUDE is scriptify vocabulary this arm had no reason to emit; the classification it carries (not scripted, decided by the reader at run time) and the deadline-varies rationale are both present, so per calibration C1 the substance satisfies the assertion. NON-DISCRIMINATING: with_skill passes with the explicit CLAUDE label."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 3,
+      "Bash": 6,
+      "Write": 5,
+      "Edit": 2
+    },
+    "total_tool_calls": 16,
+    "total_steps": 16,
+    "files_created": [
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 3919,
+    "transcript_chars": 2748
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "dir": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/scratch/delegation-review-archive/fixtures/scan_changelogs/bad",
+  "file_count": 1,
+  "total_entries": 2,
+  "totals": {
+    "Added": 1,
+    "Fixed": 1,
+    "Changed": 0,
+    "Removed": 0,
+    "Misc": 0
+  },
+  "files": [
+    {
+      "file": "v1.2.0.md",
+      "version": "1.2.0",
+      "date": null,
+      "entries": 2,
+      "counts": {
+        "Added": 1,
+        "Fixed": 1,
+        "Changed": 0,
+        "Removed": 0,
+        "Misc": 0
+      }
+    }
+  ],
+  "misc_entries": [],
+  "findings": [
+    {
+      "code": "header_not_first",
+      "file": "v1.2.0.md",
+      "detail": "first non-empty line is \"### Added\", not a \"## v\" heading"
+    }
+  ]
+}

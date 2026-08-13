@@ -12,27 +12,40 @@
       "assertions": [
         {
           "text": "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
-          "type": "structure"
+          "type": "structure",
+          "tier": "signal",
+          "property": "interface-hygiene"
         },
         {
           "text": "no new files or directories are created inside evals/fixtures/changelog-checker/",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "no-write",
+          "check": "target_tree_diff_empty"
         },
         {
           "text": "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "interface-hygiene"
         },
         {
           "text": "step 6 (category tags + Misc re-homing) is classified HYBRID",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         },
         {
           "text": "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         },
         {
           "text": "step 4 (release narrative) is classified CLAUDE",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         }
       ]
     },
@@ -46,28 +59,34 @@
       ],
       "assertions": [
         {
-          "text": "changelog-checker/scripts/ contains at least 3 Python scripts and each supports --help",
-          "type": "structure"
+          "text": "steps 1, 2, 3 and 5 are each invoked by an exact command line in the rewritten SKILL.md, and every generated script exits 0 on --help",
+          "type": "structure",
+          "tier": "signal",
+          "property": "delegation-coverage"
         },
         {
           "text": "the rewritten SKILL.md invokes each generated script by exact command line",
-          "type": "structure"
-        },
-        {
-          "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
-          "type": "structure"
+          "type": "structure",
+          "tier": "signal",
+          "property": "delegation-coverage"
         },
         {
           "text": "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "interface-hygiene"
         },
         {
           "text": "step 4 (release narrative) remains a prose instruction with no script",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         },
         {
           "text": "step 6's judgment about re-homing Misc entries remains prose",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         }
       ]
     },
@@ -82,17 +101,25 @@
       "assertions": [
         {
           "text": "no new files are written into evals/fixtures/well-delegated/",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "no-write",
+          "check": "target_tree_diff_empty"
         },
         {
           "text": "scripts/check.py is acknowledged as already delegated",
-          "type": "content"
+          "type": "content",
+          "tier": "guardrail",
+          "property": "classification"
         },
         {
           "text": "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts",
-          "type": "content"
+          "type": "content",
+          "tier": "guardrail",
+          "property": "classification"
         }
-      ]
+      ],
+      "role": "regression-gate"
     },
     {
       "id": 3,
@@ -104,16 +131,23 @@
       ],
       "assertions": [
         {
-          "text": "exactly two generated scripts exist in changelog-checker/scripts/",
-          "type": "structure"
+          "text": "the rewritten SKILL.md invokes a generated script at steps 1 and 3, and no other step gained a script invocation",
+          "type": "structure",
+          "tier": "signal",
+          "property": "delegation-coverage"
         },
         {
           "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "scoped-edit",
+          "check": "skill_md_diff_touches_only_steps_1_3"
         },
         {
-          "text": "both generated scripts pass the smoke test before the rewrite",
-          "type": "content"
+          "text": "every generated script exits 0 on --help and nonzero on bad args, and the smoke test exits 0 against the final on-disk state",
+          "type": "content",
+          "tier": "signal",
+          "property": "interface-hygiene"
         }
       ]
     },
@@ -128,21 +162,31 @@
       "assertions": [
         {
           "text": "the report contains a row for every anchor; the flow does not stop at '0 steps extracted'",
-          "type": "structure"
+          "type": "structure",
+          "tier": "signal",
+          "property": "heading-fallback"
         },
         {
           "text": "no new files are written into evals/fixtures/prose-only-reviewer/",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "no-write",
+          "check": "target_tree_diff_empty"
         },
         {
           "text": "'Collect the link inventory' and 'Resolve each target' are classified SCRIPT with concrete argv/exit-code interfaces",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "interface-hygiene"
         },
         {
           "text": "'Decide what to fix now' is classified CLAUDE, since the deadline trade-off varies by run",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         }
-      ]
+      ],
+      "role": "regression-gate"
     },
     {
       "id": 5,
@@ -155,31 +199,46 @@
       "assertions": [
         {
           "text": "the report contains a row for every one of the 7 workflow steps, each with a class",
-          "type": "structure"
+          "type": "structure",
+          "tier": "signal",
+          "property": "classification"
         },
         {
           "text": "no new files or directories are created inside the target skill folder",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "no-write",
+          "check": "target_tree_diff_empty"
         },
         {
           "text": "step 2 (WebFetch the top source) is NOT classified pure SCRIPT, and no proposed script reimplements the fetch with curl, requests, or urllib",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "agent-tool-discipline"
         },
         {
           "text": "step 5 (notion MCP page lookup and append) is NOT classified pure SCRIPT",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "agent-tool-discipline"
         },
         {
           "text": "step 3 (AskUserQuestion which sources to keep) is NOT classified pure SCRIPT",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "agent-tool-discipline"
         },
         {
           "text": "steps 1 (dedupe and slugify topics), 4 (word counts and thin-source flags) and 7 (render sorted index table) are classified SCRIPT with concrete argv/exit-code interfaces",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "interface-hygiene"
         },
         {
           "text": "step 6 (write the 200-word brief in the house voice) keeps its prose-writing core with Claude",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         }
       ]
     },
@@ -194,27 +253,40 @@
       "assertions": [
         {
           "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "no-clobber",
+          "check": "check_headings_sha256"
         },
         {
           "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
-          "type": "structure"
+          "type": "structure",
+          "tier": "signal",
+          "property": "collision-handling"
         },
         {
-          "text": "at least 2 newly generated Python scripts exist in docs-linter/scripts/ and each supports --help",
-          "type": "structure"
+          "text": "every newly generated Python script exits 0 on --help and prints usage on stdout",
+          "type": "structure",
+          "tier": "signal",
+          "property": "interface-hygiene"
         },
         {
-          "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
-          "type": "structure"
+          "text": "steps 1, 2 and 3 are each invoked by an exact command line in the rewritten SKILL.md",
+          "type": "structure",
+          "tier": "signal",
+          "property": "delegation-coverage"
         },
         {
           "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "interface-hygiene"
         },
         {
           "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         }
       ]
     },
@@ -228,24 +300,35 @@
       ],
       "assertions": [
         {
-          "text": "changelog-checker/scripts/tests/ exists and contains manifest.json plus the fixture files",
-          "type": "structure"
+          "text": "test fixtures and a manifest persist inside the target skill folder, at a path the rewritten SKILL.md names",
+          "type": "structure",
+          "tier": "signal",
+          "property": "residue"
         },
         {
           "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "residue",
+          "check": "manifest_paths_resolve"
         },
         {
-          "text": "re-running scriptify's smoke_test.py against the moved manifest exits 0",
-          "type": "content"
+          "text": "the residue's own documented re-run command, executed from the target skill folder, exits 0",
+          "type": "content",
+          "tier": "signal",
+          "property": "residue"
         },
         {
-          "text": "the rewritten changelog-checker SKILL.md body contains the smoke-test command",
-          "type": "structure"
+          "text": "the rewritten SKILL.md body contains the command that re-runs the kept checks",
+          "type": "structure",
+          "tier": "signal",
+          "property": "residue"
         },
         {
           "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         }
       ]
     },
@@ -260,27 +343,40 @@
       "assertions": [
         {
           "text": "the report contains a row for every one of the 5 workflow steps",
-          "type": "structure"
+          "type": "structure",
+          "tier": "signal",
+          "property": "classification"
         },
         {
           "text": "no new files or directories are created inside the target skill folder",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "no-write",
+          "check": "target_tree_diff_empty"
         },
         {
           "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "dead-step"
         },
         {
-          "text": "no script is proposed for the DEAD step and the step is not deleted from the target SKILL.md",
-          "type": "content"
+          "text": "no script is proposed for the DEAD step",
+          "type": "content",
+          "tier": "signal",
+          "property": "dead-step"
         },
         {
           "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "dead-step"
         },
         {
           "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
         }
       ]
     },
@@ -295,27 +391,54 @@
       "assertions": [
         {
           "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "no-write",
+          "check": "cache_tree_identical"
         },
         {
           "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
-          "type": "content"
+          "type": "content",
+          "tier": "signal",
+          "property": "eligibility"
         },
         {
           "text": "the run still produces the per-step classification report for the target",
-          "type": "structure"
+          "type": "structure",
+          "tier": "signal",
+          "property": "classification"
         },
         {
-          "text": "the run offers to copy the skill into the project and continue from the apply stage on the copy",
-          "type": "content"
+          "text": "the run offers at least one durable write destination outside the plugin cache and applies the delegations there",
+          "type": "content",
+          "tier": "signal",
+          "property": "eligibility"
         },
         {
           "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
-          "type": "structure"
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "no-write",
+          "check": "cache_tree_identical"
         }
       ],
       "setup": "Copy evals/fixtures/plugin-cached-release-notes/ to <run>/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes before running. The ineligibility guard keys off the plugin-cache path, so running against the fixture's repo location tests nothing."
     }
   ],
-  "notes": "scriptify is slash-only (disable-model-invocation: true): the model never auto-triggers it. These eval prompts assume the skill is loaded explicitly by the harness; naturalistic triggering evals will (correctly) never fire. Evals 1, 3, 6, 7 and 9 mutate their target, so every run must operate on its own copy of the fixture, never on the checked-in one. Eval 9 requires the setup step recorded in its `setup` field: the fixture must be re-homed under a plugins/cache/ path at run time. Iteration-1 was executed against the WORKING TREE of scriptify (uncommitted SKILL.md and delegation-rubric.md), not HEAD."
+  "notes": "scriptify is slash-only (disable-model-invocation: true): the model never auto-triggers it. These eval prompts assume the skill is loaded explicitly by the harness; naturalistic triggering evals will (correctly) never fire. Evals 1, 3, 6, 7 and 9 mutate their target, so every run must operate on its own copy of the fixture, never on the checked-in one. Eval 9 requires the setup step recorded in its `setup` field: the fixture must be re-homed under a plugins/cache/ path at run time. Iteration-1 was executed against the WORKING TREE of scriptify (uncommitted SKILL.md and delegation-rubric.md), not HEAD. ITERATION-3 ADVERSARIAL REVIEW: four conformity assertions (7A1/7A3/7A4/9A4) were rewritten as properties, three script-count assertions were replaced with coverage, and three ordering assertions became end-state checks. Iteration-3 eval-7 numbers are unusable: RUN_INSTRUCTIONS section 4 granted the with_skill arm a target-write exception the baseline lacked.",
+  "metadata": {
+    "tiers": {
+      "guardrail": "Objective, decided by evals/collect_facts.py (bundled). Reported as a binary block, never averaged into a pass rate. A guardrail failure invalidates its own eval, not the whole pass.",
+      "signal": "Graded. Reported per `property` group, so the benchmark says which capability moved rather than emitting one percentage."
+    },
+    "decision_threshold": {
+      "capability_delta_to_ship": 0.1,
+      "rationale": "Measured cost of the skill in iteration-3: +61% tokens (66,868 vs 41,579), +80% wall clock (294.3s vs 164.0s), +71% tool calls (270 vs 158). A delta below this bar does not pay for that overhead. Pre-registered before iteration-4 runs, because a bar chosen after seeing the number is not a bar.",
+      "conformity_reported_separately": true
+    },
+    "grading": {
+      "ordering_assertions": "Removed. Ordering is only observable from transcript-notes.md, which the agent under test authors and GRADER_INSTRUCTIONS.md tells graders to distrust; no per-run tool-call log is retained. In eval 7, whose prompt asks for residue, the property is expressed as an end-state manifest check. In evals 1 and 6 it was deleted outright: requiring a manifest there is conformity, because neither prompt asks for residue and a manifest is scriptify's own convention. Interface quality in those evals is covered by the --help and exit-code assertions instead.",
+      "denominator": "Coverage assertions name the eval's own expected step set. An arm-supplied denominator would reward under-classification."
+    }
+  }
 }

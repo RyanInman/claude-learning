@@ -1,0 +1,24 @@
+{
+  "eval": "eval-4-prose-only-headings",
+  "config": "with_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-4-prose-only-headings/with_skill/workspace/prose-only-reviewer",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [],
+    "removed": [],
+    "modified": []
+  },
+  "workspace_extra": [],
+  "skill_md_changed": false,
+  "skill_md_diff": "",
+  "scripts": [],
+  "new_script_count": 0,
+  "new_scripts_all_help_ok": null
+}

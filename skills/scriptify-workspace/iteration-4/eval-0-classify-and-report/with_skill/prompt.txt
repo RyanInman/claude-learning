@@ -1,0 +1,1 @@
+Review the skill in /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-0-classify-and-report/with_skill/workspace/changelog-checker/ and tell me which of its workflow steps should be delegated to scripts. Don't change anything yet.

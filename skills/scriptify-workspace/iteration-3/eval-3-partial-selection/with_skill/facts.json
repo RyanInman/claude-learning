@@ -1,0 +1,39 @@
+{
+  "eval": "eval-3-partial-selection",
+  "config": "with_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-3-partial-selection/with_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/scan_changelogs.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -9,9 +9,10 @@\n \n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n+1. Run exactly: `python3 scripts/scan_changelogs.py changelogs/ --json`\n+   `files` holds every `.md` file sorted by version and `file_count` is the total. Exit 1 means the folder holds no changelog files \u2014 report that and stop. Exit 2 is a usage or read error.\n 2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n+3. Take the per-category counts from the same scan JSON: `versions[].counts` per file, `totals` across files. Entries under any other category heading are tallied under `other_categories`, so they are counted rather than dropped.\n 4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n 5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n 6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n",
+  "scripts": [
+    {
+      "path": "scripts/scan_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 376,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 1,
+  "new_scripts_all_help_ok": true
+}

@@ -1,0 +1,63 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
+      "passed": false,
+      "evidence": "outputs/report.md lines 17-25 do hold a 7-row per-step table, and its Verdict column ('Script' / 'Keep in the skill' / 'Split') is an acceptable rendering of the three classes under the C1 anchor. It fails the second clause: no row carries a proposed script interface. The only interface material is outside the table (lines 27-43) and describes one script, `scripts/check_changelogs.py`, by its JSON output shape only - no invocation line, no flags, no exit codes. So the SCRIPT/Split rows (1,2,3,5,6) have no proposed interface."
+    },
+    {
+      "text": "no new files or directories are created inside evals/fixtures/changelog-checker/",
+      "passed": true,
+      "evidence": "GUARDRAIL, decided mechanically by collect_facts.py: without_skill/facts.json target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = [], skill_md_changed = false, new_script_count = 0. Copying that result rather than re-deciding by eye. NON-DISCRIMINATING: with_skill/facts.json shows the identical empty diff."
+    },
+    {
+      "text": "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
+      "passed": false,
+      "evidence": "report.md line 20 classifies step 2 'Script' ('A regex match with a yes/no answer'), so the class half holds. The interface half does not: nothing in the output gives step 2 an argv line or an exit code. The nearest text, lines 29-30, says only that `scripts/check_changelogs.py` 'takes the changelogs directory and prints JSON', with a sample JSON body and no exit-code contract. Grading the assertion as written, the concrete argv/exit-code interface is absent."
+    },
+    {
+      "text": "step 6 (category tags + Misc re-homing) is classified HYBRID",
+      "passed": true,
+      "evidence": "report.md line 24 classifies step 6 '**Split**' and states the same two-part division the class names: 'Membership in {Added, Fixed, Changed, Removed, Misc} is a set lookup -> script. Deciding that \"Corrected typo in settings page label\" is really a Fixed is judgment -> skill.' Split is a rendering of HYBRID, accepted under the C1 anchor (the literal token is not required). NON-DISCRIMINATING: with_skill marks the same step HYBRID."
+    },
+    {
+      "text": "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
+      "passed": true,
+      "evidence": "report.md line 25 classifies step 7 ('Flag entries a reader would find confusing') as '**Keep in the skill**' - the CLAUDE class - and gives the reason 'Clarity has no mechanical definition. A script could only proxy it with length or word lists, which would flag the wrong lines.' Line 13 repeats 'Steps 4 and 7 are judgment', and gate.md line 6 keeps step 7 in the skill body. The 'verify' verb did not pull it into the script class."
+    },
+    {
+      "text": "step 4 (release narrative) is classified CLAUDE",
+      "passed": true,
+      "evidence": "report.md line 22 classifies step 4 ('Write a one-paragraph release narrative for a non-technical reader') as '**Keep in the skill**' - the CLAUDE class - reasoned as 'Requires reading intent across releases and choosing a register. No fixed rule produces this.' NON-DISCRIMINATING: with_skill classifies step 4 CLAUDE."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.6666666666666666,
+    "passed": 4,
+    "failed": 2,
+    "total": 6
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 2,
+      "Bash": 7,
+      "Write": 1
+    },
+    "total_tool_calls": 10,
+    "total_steps": 10,
+    "files_created": [
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 4401,
+    "transcript_chars": 2238
+  }
+}

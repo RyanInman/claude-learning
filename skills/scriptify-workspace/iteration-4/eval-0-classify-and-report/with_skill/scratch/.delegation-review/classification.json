@@ -1,0 +1,72 @@
+{
+ "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-0-classify-and-report/with_skill/workspace/changelog-checker",
+ "steps": [
+  {
+   "id": "s1",
+   "class": "SCRIPT",
+   "why": "glob plus version sort plus a count; identical output every run",
+   "proposed_script": {
+    "name": "scan_changelogs.py",
+    "interface": "python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json",
+    "stdout": "counts plus one line per finding; full structured scan to --out",
+    "exit": "0 clean / 1 findings / 2 usage"
+   }
+  },
+  {
+   "id": "s2",
+   "class": "SCRIPT",
+   "why": "one fixed regex over each first line; unit-testable now (v1.2.0.md fails it)",
+   "proposed_script": {
+    "name": "scan_changelogs.py",
+    "interface": "python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json",
+    "stdout": "counts plus one line per finding; full structured scan to --out",
+    "exit": "0 clean / 1 findings / 2 usage"
+   }
+  },
+  {
+   "id": "s3",
+   "class": "SCRIPT",
+   "why": "per-category tally and totals; pure aggregation over parsed headings",
+   "proposed_script": {
+    "name": "scan_changelogs.py",
+    "interface": "python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json",
+    "stdout": "counts plus one line per finding; full structured scan to --out",
+    "exit": "0 clean / 1 findings / 2 usage"
+   }
+  },
+  {
+   "id": "s4",
+   "class": "CLAUDE",
+   "why": "the whole output is the paragraph the user reads; a script would only re-hand Claude text it must read in full, and reasonable runs should word the narrative differently",
+   "proposed_script": null
+  },
+  {
+   "id": "s5",
+   "class": "SCRIPT",
+   "why": "fixed markdown table sorted descending from the scan data; no input varies the layout",
+   "proposed_script": {
+    "name": "render_summary.py",
+    "interface": "python3 scripts/render_summary.py .changelog-scan.json",
+    "stdout": "markdown summary table, versions descending",
+    "exit": "0 rendered / 2 usage"
+   }
+  },
+  {
+   "id": "s6",
+   "class": "HYBRID",
+   "why": "the allowed-list check is mechanical and the script hands Claude one fact it cannot compute itself - the short residue list of Misc entries (1 of 8 entries here) - so Claude judges only that residue instead of every entry",
+   "proposed_script": {
+    "name": "scan_changelogs.py",
+    "interface": "python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json",
+    "stdout": "counts plus one line per finding; full structured scan to --out",
+    "exit": "0 clean / 1 findings / 2 usage"
+   }
+  },
+  {
+   "id": "s7",
+   "class": "CLAUDE",
+   "why": "clarity is the canonical no-script trap: a script can list entries but Claude must read all 8 anyway, so listing them changes no decision",
+   "proposed_script": null
+  }
+ ]
+}

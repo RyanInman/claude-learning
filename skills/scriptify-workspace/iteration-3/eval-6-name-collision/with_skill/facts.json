@@ -1,0 +1,54 @@
+{
+  "eval": "eval-6-name-collision",
+  "config": "with_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/with_skill/workspace/docs-linter",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/lint_docs.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -10,10 +10,19 @@\n \n ## Workflow\n \n-1. List every `.md` file under `docs/`, sorted by path, and note the total\n-   count.\n-2. Check that each file starts with a level-1 heading followed by a blank line.\n-   Record every file that does not.\n-3. Count the fenced code blocks in each file and total them across files.\n-4. Decide which of the flagged files matter most to fix this sprint, given that\n+1. Run exactly: `python3 scripts/lint_docs.py docs/ --json`\n+\n+   One pass over the tree carries the file inventory, the heading rule, and the\n+   fence tally. Exit 0 every file passes, 1 findings, 2 usage error.\n+\n+   - `files` (sorted by path) and `file_count` \u2014 the docs inventory.\n+   - `findings` \u2014 one entry per file that does not start with a level-1\n+     heading followed by a blank line, coded `empty_file`, `no_h1`,\n+     `h1_not_first`, or `missing_blank_after_h1`.\n+   - `fenced_blocks` per file and `fenced_blocks_total`.\n+\n+   Exit 0 \u2192 report the counts and stop, because nothing needs fixing.\n+   Large tree \u2192 add `--out findings.json` and read the file instead.\n+\n+2. Decide which of the flagged files matter most to fix this sprint, given that\n    the tutorial pages get the most traffic.\n",
+  "scripts": [
+    {
+      "path": "scripts/check_headings.py",
+      "preexisting": true,
+      "help": {
+        "exit": 2,
+        "stdout_len": 0,
+        "stderr_len": 24,
+        "ok": false
+      }
+    },
+    {
+      "path": "scripts/lint_docs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 336,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 1,
+  "new_scripts_all_help_ok": true,
+  "collision": {
+    "check_headings_exists": true,
+    "sha256": "d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54",
+    "byte_identical_to_baseline": true
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "expectations": [
+    {
+      "text": "the report contains a row for every anchor; the flow does not stop at '0 steps extracted'",
+      "passed": true,
+      "evidence": "`grep -n` over without_skill/outputs/report.md (exit 0) -> the 'Verdict per section' table has 6 rows covering all four `##` anchors ('Collect the link inventory', 'Resolve each target', 'Decide what to fix now', 'Gotchas') plus frontmatter and the intro line. transcript-notes step 4 records 'no numbered steps, no bundled scripts' and the run classified by heading anyway; nothing stopped at 0 steps. NON-DISCRIMINATING: the with_skill arm also rows every anchor."
+    },
+    {
+      "text": "no new files are written into evals/fixtures/prose-only-reviewer/",
+      "passed": true,
+      "evidence": "`ls -laR /Users/admin/claude-learning/skills/scriptify/evals/fixtures/prose-only-reviewer/` (exit 0) -> only SKILL.md, 796 bytes. `git status --porcelain` on that path (exit 0) -> empty. facts.json target_tree_diff {added: [], removed: [], modified: []}, workspace_extra [], new_script_count 0; transcript-notes state the fixtures path 'was never touched'. NON-DISCRIMINATING: both arms wrote nothing there."
+    },
+    {
+      "text": "'Collect the link inventory' and 'Resolve each target' are classified SCRIPT with concrete argv/exit-code interfaces",
+      "passed": true,
+      "evidence": "Verdict table marks both sections '**Script**'. The interface is given under 'The one script to add': argv `python3 scripts/check_links.py <docs_root>` (default docs/), JSON on stdout with a shown schema, and an explicit exit-code contract: 'exit 0 when it ran, regardless of how many links are broken. Reserve a non-zero exit for a missing or unreadable docs_root'. The two sections are merged into one script rather than two, which the assertion does not forbid; argv and exit codes are concrete."
+    },
+    {
+      "text": "'Decide what to fix now' is classified CLAUDE, since the deadline trade-off varies by run",
+      "passed": true,
+      "evidence": "Verdict table: 'Decide what to fix now' -> 'Stays prose', reason 'Weighs broken links against a release deadline. Judgment against context the script cannot see.' Section 'What I would not script' repeats it: a script 'would be wrong the first time the deadline moved. Leave it in prose.' DEFINITIONAL on the label only: 'CLAUDE' is the scriptify rubric's class name, which the baseline had no reason to use; its equivalent label 'Stays prose' carries the same classification and the same deadline reason, so the substance passes. NON-DISCRIMINATING on substance."
+    }
+  ]
+}

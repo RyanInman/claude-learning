@@ -1,0 +1,74 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "steps 1, 2, 3 and 5 are each invoked by an exact command line in the rewritten SKILL.md, and every generated script exits 0 on --help",
+      "passed": true,
+      "evidence": "Read workspace/changelog-checker/SKILL.md. Original steps 1 (list files sorted by version), 2 (header check) and 3 (per-category counts) are all invoked by the exact line `python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json` (new step 1, which names all three jobs); original step 5 (summary table) is invoked by the exact line `python3 scripts/render_summary.py .changelog-scan.json` (new step 3). Ran `python3 scripts/scan_changelogs.py --help` -> exit 0 and `python3 scripts/render_summary.py --help` -> exit 0, matching facts.json (new_scripts_all_help_ok: true, both help.exit 0)."
+    },
+    {
+      "text": "the rewritten SKILL.md invokes each generated script by exact command line",
+      "passed": true,
+      "evidence": "facts.json target_tree_diff.added lists exactly two scripts: scripts/scan_changelogs.py and scripts/render_summary.py. Both appear as runnable command lines in the rewritten SKILL.md (lines 12 and 23, each prefixed 'Run exactly:'), plus a Scripts table repeating the argv shapes. NON-DISCRIMINATING: the without_skill arm also invokes its single generated script by exact command line."
+    },
+    {
+      "text": "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
+      "passed": true,
+      "evidence": "Ran `python3 scripts/scan_changelogs.py changelogs/ --out /tmp/none.json` from workspace/changelog-checker -> exit 1 (nonzero), stdout 'scan: 3 files, 8 entries, 1 findings, 1 misc (changelogs)' and the finding line 'header_not_first v1.2.0.md: first non-empty line is \"### Added\", not a \"## v\" heading'."
+    },
+    {
+      "text": "step 4 (release narrative) remains a prose instruction with no script",
+      "passed": true,
+      "evidence": "Original step 4 survives as new step 2 of the rewritten SKILL.md: 'Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader. Source it from `.changelog-scan.json`.' No command line and no script named. The Scripts table lists only scan_changelogs.py and render_summary.py, neither of which produces a narrative. NON-DISCRIMINATING: the baseline also kept it as prose."
+    },
+    {
+      "text": "step 6's judgment about re-homing Misc entries remains prose",
+      "passed": true,
+      "evidence": "New step 4 reads: 'For each entry under `misc_entries` in `.changelog-scan.json`, judge whether it actually fits `Added`, `Fixed`, `Changed`, or `Removed`, and suggest the move.' The mechanical half (tag validation) moved into scan_changelogs.py as the `unknown_tag` finding, and the trailer states a `Misc` entry is deliberately not a finding 'because re-filing one is a judgment call left to step 4'. No script decides the move. NON-DISCRIMINATING: the baseline also kept the judgment as prose."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Bash": 17,
+      "Read": 9,
+      "Write": 8,
+      "Edit": 3
+    },
+    "total_tool_calls": 37,
+    "total_steps": 10,
+    "files_created": [
+      "workspace/changelog-checker/scripts/scan_changelogs.py",
+      "workspace/changelog-checker/scripts/render_summary.py",
+      "workspace/changelog-checker/SKILL.md",
+      "scratch/delegation-review-archive/SKILL.md.orig",
+      "scratch/delegation-review-archive/inventory.json",
+      "scratch/delegation-review-archive/classification.json",
+      "scratch/delegation-review-archive/report-table.md",
+      "scratch/delegation-review-archive/manifest.json",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/good/v1.0.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/good/v1.1.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/bad/v1.2.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/bad-header-malformed/v2.0.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/bad-unknown-tag/v2.1.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/bad-orphan-entry/v2.2.0.md",
+      "scratch/delegation-review-archive/fixtures/render_summary/good/scan.json",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/user_notes.md",
+      "outputs/metrics.json"
+    ],
+    "errors_encountered": 2,
+    "output_chars": 9615,
+    "transcript_chars": 5974
+  }
+}

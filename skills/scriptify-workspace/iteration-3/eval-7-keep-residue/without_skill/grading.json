@@ -1,0 +1,71 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "test fixtures and a manifest persist inside the target skill folder, at a path the rewritten SKILL.md names",
+      "passed": true,
+      "evidence": "`find without_skill/workspace/changelog-checker -type f` shows tests/manifest.json, tests/fixtures/{clean,messy}/*.md and tests/expected/*.json, all inside the target skill folder. SKILL.md '## Tests' (lines 51-63) names `tests/manifest.json`, `python3 tests/run_tests.py`, and `tests/fixtures/clean`. Any path inside the target counts. NON-DISCRIMINATING: with_skill also passes, at scripts/tests/."
+    },
+    {
+      "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+      "passed": true,
+      "evidence": "Guardrail decided by collect_facts.py: residue.unresolved_paths = [], residue.stale_delegation_review_paths = []. Reproduced independently: all 4 path fields in tests/manifest.json (tests/fixtures/clean, tests/expected/clean.json, tests/fixtures/messy, tests/expected/messy.json) resolve relative to the skill folder; 'delegation-review' does not appear in the manifest. NON-DISCRIMINATING: with_skill guardrail is also clean."
+    },
+    {
+      "text": "the residue's own documented re-run command, executed from the target skill folder, exits 0",
+      "passed": true,
+      "evidence": "Ran this arm's OWN documented command from without_skill/workspace/changelog-checker: `python3 tests/run_tests.py` -> python3 exit code 0, output 'PASS clean / PASS messy / 2 case(s), 0 failure(s)'. Note facts.json residue.smoke_rerun_exit = 2 is scriptify's smoke_test.py run against a manifest written for a different runner, which is not this arm's documented command; per the brief the arm's own runner governs. NON-DISCRIMINATING: with_skill's own command also exits 0."
+    },
+    {
+      "text": "the rewritten SKILL.md body contains the command that re-runs the kept checks",
+      "passed": true,
+      "evidence": "SKILL.md lines 56-58 contain the fenced command `python3 tests/run_tests.py` under '## Tests', with a second documented command for regenerating expected output. That is the same command I executed for assertion 3 (exit 0). NON-DISCRIMINATING: with_skill carries its smoke_test command."
+    },
+    {
+      "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+      "passed": true,
+      "evidence": "The run renumbered the workflow to 6 steps, but both judgment steps survive as prose: step 4 'Write a one-paragraph release narrative for a non-technical reader' and step 6 'Read the entries themselves and flag any a reader would find confusing, quoting the entry and naming what is unclear'. Neither invokes a script; grep -niE 'narrat|confus|clear|clarity|readab' over scripts/check_changelogs.py returns no match, so the sole new script performs neither step. NON-DISCRIMINATING: with_skill also keeps both prose."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 1,
+      "Bash": 10,
+      "Write": 12,
+      "Edit": 1
+    },
+    "total_tool_calls": 24,
+    "total_steps": 24,
+    "files_created": [
+      "workspace/changelog-checker/scripts/check_changelogs.py",
+      "workspace/changelog-checker/tests/manifest.json",
+      "workspace/changelog-checker/tests/run_tests.py",
+      "workspace/changelog-checker/tests/fixtures/clean/v1.0.0.md",
+      "workspace/changelog-checker/tests/fixtures/clean/v2.0.0.md",
+      "workspace/changelog-checker/tests/fixtures/messy/v1.1.0.md",
+      "workspace/changelog-checker/tests/fixtures/messy/v1.2.0.md",
+      "workspace/changelog-checker/tests/expected/clean.json",
+      "workspace/changelog-checker/tests/expected/messy.json",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "files_rewritten": [
+      "workspace/changelog-checker/SKILL.md"
+    ],
+    "errors_encountered": 2,
+    "output_chars": 4811,
+    "transcript_chars": 3290
+  }
+}

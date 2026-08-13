@@ -1,0 +1,39 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-4-prose-only-headings/with_skill/workspace/prose-only-reviewer",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "walking docs/ and recording each relative link with file and line is a function of the tree on disk; two runs must not differ",
+      "proposed_script": {
+        "name": "check_links.py",
+        "interface": "python3 scripts/check_links.py docs/ --json --out .link-check/links.json",
+        "stdout": "counts summary: total links, broken count, files scanned",
+        "exit": "0 no broken links / 1 broken links found / 2 usage or missing docs dir"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "SCRIPT",
+      "why": "existence check per target path plus two tallies; the unit test writes itself, and it shares one pass over the tree with s1",
+      "proposed_script": {
+        "name": "check_links.py",
+        "interface": "python3 scripts/check_links.py docs/ --json --out .link-check/links.json",
+        "stdout": "counts summary: total links, broken count, files scanned",
+        "exit": "0 no broken links / 1 broken links found / 2 usage or missing docs dir"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "CLAUDE",
+      "why": "ranks broken links against a release deadline stated in conversation, which no script can see; reasonable runs should differ here. s1/s2's JSON is already the candidate list, so a second script would only re-hand Claude what it must read anyway",
+      "proposed_script": null
+    },
+    {
+      "id": "s4",
+      "class": "CLAUDE",
+      "why": "reference prose, not a workflow step",
+      "proposed_script": null
+    }
+  ]
+}

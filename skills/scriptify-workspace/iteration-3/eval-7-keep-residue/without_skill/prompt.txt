@@ -1,0 +1,1 @@
+Review /Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-7-keep-residue/without_skill/workspace/changelog-checker/ for steps to delegate to scripts and apply all of them. Keep the test fixtures and the manifest inside the skill afterward so I can re-run the checks myself later.

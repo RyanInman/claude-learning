@@ -1,6 +1,6 @@
 # Conventions for Generated Scripts
 
-Every script written into a target skill follows these rules. smoke_test.py
+Every script you write into a target skill follows these rules. smoke_test.py
 checks them mechanically. Copy the shape of this skill's own
 `scripts/inventory.py`, because it ships in the same folder and stays readable.
 
@@ -10,10 +10,19 @@ checks them mechanically. Copy the shape of this skill's own
    prompt hangs forever. Take all input through arguments and flags. Never
    call `input()`. Never read stdin unless a documented `-` argument asks for
    it.
-2. **Meaningful exit codes.** House style: `0` for success, `1` for findings
-   or failure, `2` for a usage error or unreadable input. Document them in the
-   docstring. Give a further failure kind its own code only when a caller
-   needs to branch on it.
+2. **Meaningful exit codes.** House style: `0` clean, `1` findings, `2` usage
+   error or unreadable input, `3` unexpected failure. Never spend one code on
+   both findings and failure. Step 8 tells the rewritten step to branch on
+   exit codes. A caller that cannot separate "the data has a problem" from
+   "the script has a problem" branches wrong. Document every code in the
+   docstring.
+
+   Two steps that share a script name share one exit-code contract. If step A
+   needs `1` to mean "no sources found" and step B needs `1` to mean "thin
+   sources present", they are two contracts. Split the scripts. Otherwise move
+   the per-step condition into a stdout field. Leave `1` for findings of any
+   kind. render_report.py rejects a classification whose shared script names
+   disagree.
 3. **JSON to stdout, diagnostics to stderr.** stdout is the data contract.
    Support `--out FILE` whenever output can exceed about 50 lines. Print a
    compact summary to stdout in that mode.

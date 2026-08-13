@@ -1,0 +1,79 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "test fixtures and a manifest persist inside the target skill folder, at a path the rewritten SKILL.md names",
+      "passed": true,
+      "evidence": "`find with_skill/workspace/changelog-checker -type f` shows scripts/tests/manifest.json plus 12 fixture files under scripts/tests/fixtures/{scan_changelogs,check_changelogs,render_summary}/{good,bad}/. SKILL.md line 25 names that path verbatim: `python3 scripts/tests/smoke_test.py scripts/tests/manifest.json`. facts.json residue.manifest = scripts/tests/manifest.json. NON-DISCRIMINATING: without_skill also persists fixtures+manifest, at tests/ instead."
+    },
+    {
+      "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+      "passed": true,
+      "evidence": "Guardrail decided by collect_facts.py: residue.unresolved_paths = [], residue.stale_delegation_review_paths = [], manifest_target_skill_exists = true. Reproduced independently: expanded all 6 distinct {skill}-prefixed fixture paths in scripts/tests/manifest.json against target_skill; 0 unresolved; the string 'delegation-review' does not appear in the manifest. NON-DISCRIMINATING: without_skill guardrail is also clean."
+    },
+    {
+      "text": "the residue's own documented re-run command, executed from the target skill folder, exits 0",
+      "passed": true,
+      "evidence": "Ran the arm's own documented command from with_skill/workspace/changelog-checker: `python3 scripts/tests/smoke_test.py scripts/tests/manifest.json` -> python3 exit code 0, output tail '21/21 checks passed'. NON-DISCRIMINATING: without_skill's own command also exits 0."
+    },
+    {
+      "text": "the rewritten SKILL.md body contains the command that re-runs the kept checks",
+      "passed": true,
+      "evidence": "SKILL.md section '## Verifying the scripts' (lines 23-26) contains `python3 scripts/tests/smoke_test.py scripts/tests/manifest.json` with its exit-code contract. That is the same command I executed for assertion 3 (exit 0). NON-DISCRIMINATING: without_skill's SKILL.md carries `python3 tests/run_tests.py`."
+    },
+    {
+      "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+      "passed": true,
+      "evidence": "SKILL.md step 4 is unchanged from baseline ('Write a one-paragraph release narrative ... for a non-technical reader') and invokes no script; skill_md_diff shows step 4 as a context line, not a change. Step 7 reads 'Read `entries` in scan.json and flag any entry a reader would find confusing' - it consumes scan.json but the judgment stays prose, and grep -niE 'narrat|confus|clarity' over scripts/*.py finds no script performing either step (only a docstring in scan_changelogs.py noting the clarity review reads its entries). NON-DISCRIMINATING: without_skill keeps both as prose too."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 7,
+      "Write": 9,
+      "Bash": 22
+    },
+    "total_tool_calls": 38,
+    "total_steps": 27,
+    "files_created": [
+      "scratch/.delegation-review/SKILL.md.orig",
+      "scratch/.delegation-review/inventory.json",
+      "scratch/.delegation-review/classification.json",
+      "scratch/.delegation-review/manifest.json",
+      "scratch/.delegation-review/fixtures/scan_changelogs/good/v2.0.0.md",
+      "scratch/.delegation-review/fixtures/scan_changelogs/good/v2.1.0.md",
+      "scratch/.delegation-review/fixtures/scan_changelogs/bad/README.txt",
+      "scratch/.delegation-review/fixtures/check_changelogs/good/v1.0.0.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/good/v1.1.0.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/bad/no-heading.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/bad/malformed.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/bad/not-first.md",
+      "scratch/.delegation-review/fixtures/check_changelogs/bad/badtag.md",
+      "scratch/.delegation-review/fixtures/render_summary/good/scan.json",
+      "scratch/.delegation-review/fixtures/render_summary/bad/scan.json",
+      "workspace/changelog-checker/scripts/scan_changelogs.py",
+      "workspace/changelog-checker/scripts/check_changelogs.py",
+      "workspace/changelog-checker/scripts/render_summary.py",
+      "workspace/changelog-checker/scripts/tests/manifest.json",
+      "workspace/changelog-checker/scripts/tests/smoke_test.py",
+      "workspace/changelog-checker/scripts/tests/fixtures/ (11 fixture files)",
+      "workspace/changelog-checker/SKILL.md (rewritten)",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json"
+    ],
+    "errors_encountered": 0,
+    "output_chars": 8442,
+    "transcript_chars": 5299
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "eval": "eval-1-apply-and-smoke-test",
+  "config": "without_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-1-apply-and-smoke-test/without_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/check_changelogs.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -9,10 +9,38 @@\n \n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n-2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n-4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n-5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n-6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n-7. Verify the entries are clearly written and flag any that a reader would find confusing.\n+1. Run the scan script from the project root:\n+\n+   ```bash\n+   python3 scripts/check_changelogs.py changelogs\n+   ```\n+\n+   It prints the file inventory, the heading-format violations, the per-category\n+   entry counts, the version-sorted summary table, the category-tag violations,\n+   and every entry grouped by version. Pass a different folder path as the\n+   argument when the changelogs live elsewhere. The script exits non-zero when\n+   the folder is missing or holds no `.md` files.\n+\n+2. Write a one-paragraph release narrative for a non-technical reader, using the\n+   counts and entries the script printed to describe the overall direction of the\n+   changes.\n+\n+3. For each entry the script lists under \"Misc entries needing a judgment call\",\n+   decide whether it fits `Added`, `Fixed`, `Changed`, or `Removed`, and suggest\n+   the move. The script cannot make this call because it depends on what the\n+   entry means, not on how it is tagged.\n+\n+4. Read the entry text in the script's \"All entries\" section and flag any entry a\n+   reader would find confusing.\n+\n+5. Report the script's output followed by your narrative, your `Misc` reclassifications,\n+   and your clarity flags.\n+\n+## Gotchas\n+\n+- Run the script rather than counting by hand, because a hand count drifts between\n+  runs and misses files that lack a version heading.\n+- The script sorts versions numerically, so `v10.0.1` ranks above `v2.0.0`. Do not\n+  re-sort the table as text.\n+- A file with no valid heading still appears in the table; the script recovers its\n+  version from the filename and prints `missing` for the date.\n",
+  "scripts": [
+    {
+      "path": "scripts/check_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 577,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 1,
+  "new_scripts_all_help_ok": true
+}

@@ -1,0 +1,71 @@
+{
+  "eval": "eval-7-keep-residue",
+  "config": "without_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-7-keep-residue/without_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/check_changelogs.py",
+      "tests/expected/clean.json",
+      "tests/expected/messy.json",
+      "tests/fixtures/clean/v1.0.0.md",
+      "tests/fixtures/clean/v2.0.0.md",
+      "tests/fixtures/messy/v1.1.0.md",
+      "tests/fixtures/messy/v1.2.0.md",
+      "tests/manifest.json",
+      "tests/run_tests.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -9,10 +9,67 @@\n \n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n-2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n-4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n-5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n-6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n-7. Verify the entries are clearly written and flag any that a reader would find confusing.\n+1. Run the checker and read its JSON:\n+\n+   ```bash\n+   python3 scripts/check_changelogs.py changelogs\n+   ```\n+\n+   It lists the files sorted by version descending, validates each heading against\n+   `## vX.Y.Z \u2014 YYYY-MM-DD`, counts entries per category, totals them, flags categories\n+   outside the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`), and renders\n+   the summary table. Do not recount by hand \u2014 the script is the single source of the numbers.\n+\n+2. Print the `table` field verbatim as the summary table.\n+\n+3. Report `heading_problems` and `unknown_category_uses` as the structural findings. Say\n+   \"no structural problems found\" when both are empty.\n+\n+4. Write a one-paragraph release narrative for a non-technical reader, using `totals` and the\n+   entry text to describe the overall direction of the changes.\n+\n+5. For each item in `misc_entries`, judge whether it belongs in `Added`, `Fixed`, `Changed`, or\n+   `Removed`, and suggest the move with a one-line reason. Leave it in `Misc` when none fits.\n+\n+6. Read the entries themselves and flag any a reader would find confusing, quoting the entry and\n+   naming what is unclear.\n+\n+## Script output\n+\n+`scripts/check_changelogs.py <changelogs-dir>` prints one JSON object:\n+\n+| Field | Meaning |\n+|---|---|\n+| `file_count`, `total_entries` | Totals across the folder |\n+| `files[]` | Per file: `version`, `date`, `heading_ok`, `heading_problem`, `counts`, `unknown_categories`, `misc_entries` \u2014 sorted by version descending |\n+| `totals` | Entry count per category across all files |\n+| `heading_problems[]` | Files whose first line is not a valid version heading |\n+| `unknown_category_uses[]` | Uses of a category outside the allowed list |\n+| `misc_entries[]` | Every `Misc` entry, with its file \u2014 the input to step 5 |\n+| `table` | The rendered summary table, ready to print |\n+\n+## Tests\n+\n+`tests/manifest.json` lists the fixture cases and the expected JSON for each. Re-run them after\n+any change to the script:\n+\n+```bash\n+python3 tests/run_tests.py\n+```\n+\n+Regenerate an expected file only when the change to the script output is intended:\n+\n+```bash\n+python3 scripts/check_changelogs.py tests/fixtures/clean > tests/expected/clean.json\n+```\n+\n+## Gotchas\n+\n+- The script exits 2 for a missing or empty folder and 0 for a successful scan even when it finds\n+  problems, because a findings-based exit code cannot be told apart from a crash.\n+- The heading check requires an em dash (`\u2014`), not a hyphen, so a hyphenated heading is reported\n+  as a problem. That is the documented format.\n+- A file whose heading is missing still gets a version when the filename looks like `v1.2.0.md`,\n+  so it sorts into place; its `date` stays `null` and shows as `(missing)` in the table.\n+- The `Other` column appears in the table only when some file uses a category outside the allowed\n+  list, so the row cells always add up to the `Total` column.\n",
+  "scripts": [
+    {
+      "path": "scripts/check_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 2,
+        "stdout_len": 0,
+        "stderr_len": 24,
+        "ok": false
+      }
+    },
+    {
+      "path": "tests/run_tests.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 46,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 2,
+  "new_scripts_all_help_ok": false,
+  "residue": {
+    "tests_dir_exists": false,
+    "manifests_found": [
+      "tests/manifest.json"
+    ],
+    "manifest": "tests/manifest.json",
+    "manifest_target_skill": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-7-keep-residue/without_skill/workspace/changelog-checker",
+    "manifest_target_skill_exists": true,
+    "unresolved_paths": [],
+    "stale_delegation_review_paths": [],
+    "runner": "python3 tests/run_tests.py",
+    "smoke_rerun_exit": 0,
+    "smoke_rerun_tail": "PASS clean\nPASS messy\n2 case(s), 0 failure(s)\n"
+  }
+}

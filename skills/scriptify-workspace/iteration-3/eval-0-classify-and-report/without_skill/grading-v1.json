@@ -1,0 +1,34 @@
+{
+  "expectations": [
+    {
+      "text": "output contains a per-step table with SCRIPT/CLAUDE/HYBRID classes and proposed script interfaces for SCRIPT/HYBRID rows",
+      "passed": false,
+      "evidence": "outputs/report.md L17-25 is a 7-row table with columns '#, Step, Verdict, Why'. It has no proposed-script-interface column at all: the single proposed script (scripts/check_changelogs.py) is described in a later prose section (L27-47), not per row, and no row states an invocation. The class labels are also different vocabulary: **Script** / **Keep in the skill** / **Split** rather than SCRIPT/CLAUDE/HYBRID. Fails on the interface half regardless of labels. `grep -niE 'exit|argv|python3' without_skill/outputs/report.md` returned only the table separator line, exit 0."
+    },
+    {
+      "text": "no new files or directories are created inside evals/fixtures/changelog-checker/",
+      "passed": true,
+      "evidence": "`diff -ru /Users/admin/claude-learning/skills/scriptify/evals/fixtures/changelog-checker without_skill/workspace/changelog-checker` -> no output, exit 0. `find without_skill/workspace -mindepth 1` lists exactly the 4 pristine paths. facts.json target_tree_diff added/removed/modified all empty, new_script_count 0. Transcript-notes and gate.md both record option 4, report only. NON-DISCRIMINATING: the with_skill arm also wrote nothing into the target."
+    },
+    {
+      "text": "step 2 (version-header check) is classified SCRIPT with a concrete argv/exit-code interface",
+      "passed": false,
+      "evidence": "Half credit is not available. The verdict for step 2 is **Script** (report.md L20), which matches the SCRIPT class in substance. But no concrete argv/exit-code interface exists anywhere in the output: the script section (L29-43) says only 'One file, scripts/check_changelogs.py ... It takes the changelogs directory and prints JSON' followed by a sample JSON payload. `grep -niE 'exit|argv|python3|--' without_skill/outputs/report.md` matched only the markdown table separator, exit 0 -> zero exit-code statements and zero invocation lines. Fails the 'concrete argv/exit-code interface' clause."
+    },
+    {
+      "text": "step 6 (category tags + Misc re-homing) is classified HYBRID",
+      "passed": true,
+      "evidence": "report.md L24 gives step 6 the verdict **Split** and states both halves explicitly: 'Membership in {Added, Fixed, Changed, Removed, Misc} is a set lookup -> script. Deciding that \"Corrected typo in settings page label\" is really a Fixed is judgment -> skill. The script should emit the list of Misc entries for the model to rule on.' That is the HYBRID classification under a different label; the assertion is about which class the step lands in, and the split-mechanical-plus-judgment call matches. Label divergence noted: the baseline never uses the token HYBRID, which is scriptify's vocabulary."
+    },
+    {
+      "text": "step 7 (verify entries clearly written) is classified CLAUDE despite the 'verify' verb",
+      "passed": true,
+      "evidence": "report.md L25 gives step 7 the verdict **Keep in the skill** with the reason 'Clarity has no mechanical definition. A script could only proxy it with length or word lists, which would flag the wrong lines.' The step is assigned wholly to model judgment with no script component, which is the CLAUDE class, and the run did not let the word 'verify' pull it toward a script. Label divergence noted: the baseline writes 'Keep in the skill' rather than scriptify's token CLAUDE. This is the assertion where the arms differ - with_skill classified step 7 HYBRID."
+    },
+    {
+      "text": "step 4 (release narrative) is classified CLAUDE",
+      "passed": true,
+      "evidence": "report.md L22 gives step 4 the verdict **Keep in the skill**: 'Requires reading intent across releases and choosing a register. No fixed rule produces this.' Assigned wholly to model judgment with no proposed script, i.e. the CLAUDE class. L13 restates it: 'Steps 4 and 7 are judgment.' Label divergence noted as above."
+    }
+  ]
+}

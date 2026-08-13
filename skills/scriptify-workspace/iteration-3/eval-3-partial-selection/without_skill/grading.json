@@ -1,0 +1,55 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "the rewritten SKILL.md invokes a generated script at steps 1 and 3, and no other step gained a script invocation",
+      "passed": true,
+      "evidence": "Read workspace/changelog-checker/SKILL.md. Step 1: 'Run `python3 scripts/list_changelogs.py changelogs`'. Step 3: 'Run `python3 scripts/count_categories.py changelogs`'. Both scripts are newly generated (facts.json scripts[].preexisting false, new_script_count 2). `diff -u fixture-baseline/changelog-checker/SKILL.md workspace/changelog-checker/SKILL.md` (exit 1) shows steps 2 and 4-7 byte-identical, so no other step gained a script invocation. NON-DISCRIMINATING: both arms pass."
+    },
+    {
+      "text": "the SKILL.md rewrite touches only steps 1 and 3; step 2's text is unchanged",
+      "passed": true,
+      "evidence": "Guardrail; mechanical result from facts.json skill_md_diff, reproduced with `diff -u fixture-baseline/changelog-checker/SKILL.md workspace/changelog-checker/SKILL.md` (exit 1). The only changed lines are the '1.' and '3.' workflow lines; a byte comparison of the '2.', '4.', '5.', '6.', '7.' lines against the pristine fixture returned True for each, and the frontmatter, title, and intro are unchanged. target_tree_diff.modified is SKILL.md alone plus the two added scripts. NON-DISCRIMINATING: both arms pass."
+    },
+    {
+      "text": "every generated script exits 0 on --help and nonzero on bad args, and the smoke test exits 0 against the final on-disk state",
+      "passed": false,
+      "evidence": "Both generated scripts fail the --help clause. `python3 scripts/list_changelogs.py --help` -> exit 1, stdout empty, stderr 'error: not a directory: --help'; `python3 scripts/count_categories.py --help` -> exit 1, same message. Neither uses argparse, so --help is swallowed as the directory positional. This matches facts.json (help.exit 1 and ok false for both scripts, new_scripts_all_help_ok false) and beats the report's claim of clean smoke tests, per calibration C2. Bad-arg behavior is also weak: with no args at all both scripts fall back to a default directory and exit 0 rather than erroring. The report's smoke test consists only of running each script against the real changelogs/ fixture (exit 0), which does reproduce (exit 0 for both against the final on-disk state), but the --help clause is unmet, so the assertion fails."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.6666666666666666,
+    "passed": 2,
+    "failed": 1,
+    "total": 3
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 2,
+      "Bash": 9,
+      "Write": 3,
+      "Edit": 2
+    },
+    "total_tool_calls": 16,
+    "total_steps": 15,
+    "files_created": [
+      "workspace/changelog-checker/scripts/list_changelogs.py",
+      "workspace/changelog-checker/scripts/count_categories.py",
+      "scratch/SKILL.md.orig",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/user_notes.md",
+      "outputs/metrics.json"
+    ],
+    "files_modified": [
+      "workspace/changelog-checker/SKILL.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 4618,
+    "transcript_chars": 2509
+  }
+}

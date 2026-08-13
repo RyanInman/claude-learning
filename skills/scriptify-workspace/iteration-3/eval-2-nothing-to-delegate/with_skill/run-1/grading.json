@@ -1,0 +1,50 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "no new files are written into evals/fixtures/well-delegated/",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, workspace_extra = []. Independently confirmed: `diff -r fixture-baseline/well-delegated eval-2-nothing-to-delegate/with_skill/workspace/well-delegated` exit 0 (no differences). Run's own scratch files live in with_skill/scratch/.delegation-review/, outside the target. NON-DISCRIMINATING: without_skill also has an empty target_tree_diff."
+    },
+    {
+      "text": "scripts/check.py is acknowledged as already delegated",
+      "passed": true,
+      "evidence": "GUARDRAIL (property: classification). report.md row s1 classifies the check.py step ALREADY_DELEGATED and states the interface audit result: 'mentioned in body, argparse present, --help works, exit codes 0/1/2 documented in the step itself'. Verdict line: '0 of 3 steps are mechanical'. facts.json lists scripts/check.py preexisting=true, help.exit 0; reproduced: `python3 scripts/check.py --help` exit 0. new_script_count = 0, so nothing was re-scripted over it. NON-DISCRIMINATING: without_skill also acknowledges it."
+    },
+    {
+      "text": "the judgment steps (audience-fit decision, explanations) are classified CLAUDE, not forced into scripts",
+      "passed": true,
+      "evidence": "GUARDRAIL (property: classification). report.md classifies s2 ('decide which flagged items actually matter') CLAUDE and s3 ('write a short, plainly-worded explanation') CLAUDE, with 'Proposed script interface' empty (-) for both. The 'Why nothing else converts' section argues against scripting either. facts.json new_script_count = 0 and skill_md_changed = false, so neither step was forced into a script. NON-DISCRIMINATING: without_skill classifies the same two steps CLAUDE."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 3,
+    "failed": 0,
+    "total": 3
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 8,
+      "Bash": 10,
+      "Write": 5
+    },
+    "total_tool_calls": 23,
+    "total_steps": 16,
+    "files_created": [
+      "scratch/.delegation-review/SKILL.md.orig",
+      "scratch/.delegation-review/inventory.json",
+      "scratch/.delegation-review/classification.json",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 3670,
+    "transcript_chars": 3904
+  }
+}

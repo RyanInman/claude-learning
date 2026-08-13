@@ -1,0 +1,22 @@
+{
+  "a9ce9a52125ed4626": "eval-0-classify-and-report/with_skill",
+  "a179e349f87e5b80c": "eval-0-classify-and-report/without_skill",
+  "a16dda482972fe3fa": "eval-1-apply-and-smoke-test/with_skill",
+  "a741d5e19d52953c1": "eval-1-apply-and-smoke-test/without_skill",
+  "ac3bcd28c88dee153": "eval-2-nothing-to-delegate/with_skill",
+  "ab8d70a5a8f2f4e71": "eval-2-nothing-to-delegate/without_skill",
+  "abef533544032d8f2": "eval-3-partial-selection/with_skill",
+  "af5f3d57f6bd0dc49": "eval-3-partial-selection/without_skill",
+  "abf4a547434a4f74f": "eval-4-prose-only-headings/with_skill",
+  "a0ac8175632c5bfb4": "eval-4-prose-only-headings/without_skill",
+  "a0f7e038bd2728cf3": "eval-5-agent-tool-steps/with_skill",
+  "aa562f91bcf9c727d": "eval-5-agent-tool-steps/without_skill",
+  "a1dcae3547c69aa9e": "eval-6-name-collision/with_skill",
+  "a1661006cf55a7666": "eval-6-name-collision/without_skill",
+  "a91a3e0ad7a883315": "eval-7-keep-residue/with_skill",
+  "a6d99ff9a17806beb": "eval-7-keep-residue/without_skill",
+  "a337911799e7d6cec": "eval-8-dead-step/with_skill",
+  "ad4a75a954a3d3ec3": "eval-8-dead-step/without_skill",
+  "ae8fb698684469ea7": "eval-9-ineligible-target/with_skill",
+  "acd770754376f68d6": "eval-9-ineligible-target/without_skill"
+}

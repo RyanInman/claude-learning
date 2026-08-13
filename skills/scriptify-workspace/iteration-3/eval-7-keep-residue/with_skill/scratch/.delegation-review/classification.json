@@ -1,0 +1,77 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "listing and version-sorting the files and counting them is a pure function of the directory",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --out scan.json",
+        "stdout": "compact summary line per file; full scan JSON to --out (files sorted by version, per-category counts, totals, entry texts)",
+        "exit": "0 scan written / 1 no changelog files found / 2 usage"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "SCRIPT",
+      "why": "fixed regex check of the first heading against `## vX.Y.Z — YYYY-MM-DD`; two runs must not differ",
+      "proposed_script": {
+        "name": "check_changelogs.py",
+        "interface": "python3 scripts/check_changelogs.py changelogs/ --json",
+        "stdout": "findings JSON: bad_heading, missing_heading, invalid_tag, misc",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "per-category tallies and totals are arithmetic over parsed entries",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --out scan.json",
+        "stdout": "compact summary; counts per category and totals inside the scan JSON",
+        "exit": "0 scan written / 1 no changelog files found / 2 usage"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "CLAUDE",
+      "why": "the release narrative is prose written for a non-technical reader; two reasonable runs should word the same releases differently, and a script would encode one arbitrary wording",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "SCRIPT",
+      "why": "fixed markdown table rendered from the scan JSON, sorted by version descending",
+      "proposed_script": {
+        "name": "render_summary.py",
+        "interface": "python3 scripts/render_summary.py scan.json",
+        "stdout": "markdown summary table",
+        "exit": "0 rendered / 1 scan JSON malformed / 2 usage"
+      }
+    },
+    {
+      "id": "s6",
+      "class": "HYBRID",
+      "why": "checking tags against the allowed list is mechanical; deciding which category a Misc entry belongs to reads the entry's intent",
+      "proposed_script": {
+        "name": "check_changelogs.py",
+        "interface": "python3 scripts/check_changelogs.py changelogs/ --json",
+        "stdout": "invalid tags under `invalid_tag`, Misc entries under `misc` for Claude to re-triage",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s7",
+      "class": "HYBRID",
+      "why": "extracting every entry is mechanical; judging whether a reader finds it confusing is the judgment no script can fake",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --json",
+        "stdout": "every entry with file, category, and text, so the clarity judgment reads the scan instead of the files",
+        "exit": "0 scan written / 1 no changelog files found / 2 usage"
+      }
+    }
+  ]
+}

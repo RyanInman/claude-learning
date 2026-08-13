@@ -1,0 +1,54 @@
+{
+  "eval": "eval-6-name-collision",
+  "config": "with_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-6-name-collision/with_skill/workspace/docs-linter",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/lint_docs.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -10,10 +10,12 @@\n \n ## Workflow\n \n-1. List every `.md` file under `docs/`, sorted by path, and note the total\n-   count.\n-2. Check that each file starts with a level-1 heading followed by a blank line.\n-   Record every file that does not.\n-3. Count the fenced code blocks in each file and total them across files.\n-4. Decide which of the flagged files matter most to fix this sprint, given that\n+1. Run exactly: `python3 scripts/lint_docs.py docs/ --json`\n+   One pass covers the file inventory, the level-1 heading rule, and the\n+   fenced-block counts. Exit 0 no heading findings, 1 findings, 2 usage error.\n+   Read `files` and `file_count` for the sorted inventory, `h1_findings` for\n+   the flagged files, and `fence_counts` with `fence_total` for the block\n+   counts. Finding codes: `first_line_not_h1`, `no_h1_anywhere`,\n+   `h1_missing_blank_line`.\n+2. Decide which of the flagged files matter most to fix this sprint, given that\n    the tutorial pages get the most traffic.\n",
+  "scripts": [
+    {
+      "path": "scripts/check_headings.py",
+      "preexisting": true,
+      "help": {
+        "exit": 2,
+        "stdout_len": 0,
+        "stderr_len": 24,
+        "ok": false
+      }
+    },
+    {
+      "path": "scripts/lint_docs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 374,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 1,
+  "new_scripts_all_help_ok": true,
+  "collision": {
+    "check_headings_exists": true,
+    "sha256": "d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54",
+    "byte_identical_to_baseline": true
+  }
+}

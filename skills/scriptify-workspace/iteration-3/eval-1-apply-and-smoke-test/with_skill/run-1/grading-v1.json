@@ -1,0 +1,75 @@
+{
+  "expectations": [
+    {
+      "text": "changelog-checker/scripts/ contains at least 3 Python scripts and each supports --help",
+      "passed": false,
+      "evidence": "FAIL on count. `ls with_skill/workspace/changelog-checker/scripts/` shows 2 .py files (scan_changelogs.py, render_summary.py); facts.json new_script_count=2. Both do support --help: `python3 scripts/scan_changelogs.py --help` exit 0 and `python3 scripts/render_summary.py --help` exit 0. 2 < 3, so the assertion as written fails. NON-DISCRIMINATING: the without_skill arm shipped 1 script and also fails."
+    },
+    {
+      "text": "the rewritten SKILL.md invokes each generated script by exact command line",
+      "passed": true,
+      "evidence": "PASS. SKILL.md step 1 gives `python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json` and step 3 gives `python3 scripts/render_summary.py .changelog-scan.json`; a Scripts table repeats both. Ran both verbatim from with_skill/workspace/changelog-checker/: scan exit 1 (findings, its documented code), render exit 0 with the descending table. Every generated script (2 of 2) is invoked by an exact, working command line. NON-DISCRIMINATING: without_skill also passes."
+    },
+    {
+      "text": "a smoke-test PASS result is reported before the SKILL.md rewrite is shown",
+      "passed": true,
+      "evidence": "PASS. outputs/transcript-notes.md item 24 records `python3 SKILL/scripts/smoke_test.py .delegation-review/manifest.json` exit 0, 13/13 checks passed, at Step 7; the SKILL.md rewrite is item 27 at Step 8. outputs/report.md carries the full 13/13 PASS block. Graded on the eval's own expected_output framing (`SKILL.md rewritten only after smoke test passes`) rather than section order inside report.md, where the diff block happens to precede the PASS block. NON-DISCRIMINATING: without_skill verified before rewriting too."
+    },
+    {
+      "text": "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
+      "passed": true,
+      "evidence": "PASS. Ran `python3 scripts/scan_changelogs.py changelogs/ --out <tmp>.json` from with_skill/workspace/changelog-checker/: stdout `header_not_first v1.2.0.md: first non-empty line is \"### Added\", not a \"## v\" heading`, exit=1. Flagged and nonzero. DISCRIMINATING: without_skill flags v1.2.0.md in `bad_headings` but exits 0."
+    },
+    {
+      "text": "step 4 (release narrative) remains a prose instruction with no script",
+      "passed": true,
+      "evidence": "PASS. In the rewritten SKILL.md the narrative is step 2: `Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader. Source it from .changelog-scan.json.` No command, no script. classification.json and report.md both class s4 CLAUDE. `grep -c narrative` over scripts/ finds no generator. NON-DISCRIMINATING: without_skill keeps it as prose step 3."
+    },
+    {
+      "text": "step 6's judgment about re-homing Misc entries remains prose",
+      "passed": true,
+      "evidence": "PASS. Rewritten SKILL.md step 4: `For each entry under misc_entries in .changelog-scan.json, judge whether it actually fits Added, Fixed, Changed, or Removed, and suggest the move.` The script only collects Misc entries (report and SKILL.md both state a Misc entry is not a finding, because re-filing is a judgment call); confirmed by the live run, which listed `misc v1.1.0.md: Corrected typo in settings page label` without deciding it. NON-DISCRIMINATING: without_skill keeps it as prose step 4."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.8333333333333334,
+    "passed": 5,
+    "failed": 1,
+    "total": 6
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Bash": 17,
+      "Read": 9,
+      "Write": 8,
+      "Edit": 3
+    },
+    "total_tool_calls": 37,
+    "total_steps": 10,
+    "files_created": [
+      "workspace/changelog-checker/scripts/scan_changelogs.py",
+      "workspace/changelog-checker/scripts/render_summary.py",
+      "workspace/changelog-checker/SKILL.md",
+      "scratch/delegation-review-archive/SKILL.md.orig",
+      "scratch/delegation-review-archive/inventory.json",
+      "scratch/delegation-review-archive/classification.json",
+      "scratch/delegation-review-archive/report-table.md",
+      "scratch/delegation-review-archive/manifest.json",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/good/v1.0.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/good/v1.1.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/bad/v1.2.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/bad-header-malformed/v2.0.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/bad-unknown-tag/v2.1.0.md",
+      "scratch/delegation-review-archive/fixtures/scan_changelogs/bad-orphan-entry/v2.2.0.md",
+      "scratch/delegation-review-archive/fixtures/render_summary/good/scan.json",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/user_notes.md",
+      "outputs/metrics.json"
+    ],
+    "errors_encountered": 2,
+    "output_chars": 9615,
+    "transcript_chars": 5974
+  }
+}

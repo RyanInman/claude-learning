@@ -1,0 +1,21 @@
+{
+  "script": "scripts/check_changelogs.py",
+  "runner": "python3 tests/run_tests.py",
+  "description": "Each case runs the checker over a fixture folder and compares the JSON on stdout, byte structure and all, against the expected file.",
+  "cases": [
+    {
+      "name": "clean",
+      "fixture": "tests/fixtures/clean",
+      "expected": "tests/expected/clean.json",
+      "exit_code": 0,
+      "covers": "valid headings, no Misc entries, no unknown categories, version-descending sort"
+    },
+    {
+      "name": "messy",
+      "fixture": "tests/fixtures/messy",
+      "expected": "tests/expected/messy.json",
+      "exit_code": 0,
+      "covers": "missing heading with version recovered from the filename, a Misc entry surfaced for judgment, an unknown category (Deprecated) counted in the Other column"
+    }
+  ]
+}

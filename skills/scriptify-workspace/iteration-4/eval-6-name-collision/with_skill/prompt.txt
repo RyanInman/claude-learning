@@ -1,0 +1,1 @@
+Scriptify the docs-linter skill at /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-6-name-collision/with_skill/workspace/docs-linter/ — find the steps worth delegating and apply all of them.

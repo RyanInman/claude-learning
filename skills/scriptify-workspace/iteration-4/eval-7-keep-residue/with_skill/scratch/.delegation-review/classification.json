@@ -1,0 +1,72 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/with_skill/workspace/changelog-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "globbing plus a version sort plus a count is a pure function of the folder",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --out scan.json",
+        "stdout": "compact per-file summary; full scan JSON to --out",
+        "exit": "0 scanned / 2 usage or unreadable input"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "SCRIPT",
+      "why": "one fixed regex on the first line every run; v1.2.0.md already fails it",
+      "proposed_script": {
+        "name": "check_headings.py",
+        "interface": "python3 scripts/check_headings.py changelogs/ --json",
+        "stdout": "findings JSON keyed by code",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "per-category tallies and totals are arithmetic; runs must not differ",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --out scan.json",
+        "stdout": "compact per-file summary; full scan JSON to --out",
+        "exit": "0 scanned / 2 usage or unreadable input"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "CLAUDE",
+      "why": "the narrative's audience framing and emphasis should differ between reasonable runs; a script would encode one arbitrary paragraph",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "SCRIPT",
+      "why": "fixed markdown table from the scan JSON, sorted descending; unit-testable exactly",
+      "proposed_script": {
+        "name": "render_summary.py",
+        "interface": "python3 scripts/render_summary.py changelogs/",
+        "stdout": "markdown summary table",
+        "exit": "0 rendered / 2 usage or unreadable input"
+      }
+    },
+    {
+      "id": "s6",
+      "class": "HYBRID",
+      "why": "the allowed-list check is mechanical; only the Misc re-triage needs judgment, and the script hands Claude just the Misc entries plus their surrounding context instead of the whole tree",
+      "proposed_script": {
+        "name": "check_tags.py",
+        "interface": "python3 scripts/check_tags.py changelogs/ --json",
+        "stdout": "JSON with invalid[] and misc[]",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s7",
+      "class": "CLAUDE",
+      "why": "clarity is a reader judgment with no fixed rule, and a script listing the entries changes no decision because Claude must read every entry anyway",
+      "proposed_script": null
+    }
+  ]
+}

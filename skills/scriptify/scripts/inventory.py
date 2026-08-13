@@ -63,13 +63,14 @@ MECH_VERBS = ("parse", "validate", "count", "check", "extract", "sort", "format"
               "render", "diff", "aggregate", "collect", "list", "scan", "verify",
               "lint", "convert")
 AGENT_TOOL_RE = re.compile(
-    r"mcp__[\w-]+|\bWebFetch\b|\bWebSearch\b|\bAskUserQuestion\b|"
+    r"mcp__[\w-]+|\bMCP\s+tool\b|\bWebFetch\b|\bWebSearch\b|\bAskUserQuestion\b|"
     r"\bsubagents?\b|\bAgent tool\b|\bTask tool\b", re.IGNORECASE)
 
 # Sections that are reference material rather than workflow steps. Matched in
 # full, never as a prefix, so "Output the report" survives while "Output
-# format" does not: a wrongly kept heading costs one extra row to classify, but
-# a wrongly dropped one loses a delegable step with no trace. Fallback only.
+# format" does not. This is a hint, never a filter: a wrongly kept heading
+# costs one extra row to classify, but a wrongly dropped one loses a delegable
+# step with no trace. Fallback only.
 NON_STEP_HEADING_RE = re.compile(
     r"(contents|table of contents|gotchas?|scope|caveats?|limitations?|"
     r"output format|references?|files|bundled files|examples?|notes?|"
@@ -187,8 +188,7 @@ def _extract_steps(lines, fences, line_offset):
             return any(lines[j].strip() for j in range(i + 1, nxt))
 
         anchors = [(i, "heading-fallback", text) for i, level, text in headings
-                   if level >= 2 and not NON_STEP_HEADING_RE.fullmatch(text.strip())
-                   and _has_body(i)]
+                   if level >= 2 and _has_body(i)]
 
     steps, chunks = [], []
     anchor_lines = [a for a, _, _ in anchors]
@@ -214,7 +214,11 @@ def _extract_steps(lines, fences, line_offset):
             "code_blocks": blocks,
             "mechanical_verb_hints": [v for v in MECH_VERBS
                                       if re.search(rf"\b{v}\w*\b", low)],
-            "agent_tool_mentions": sorted(set(AGENT_TOOL_RE.findall(chunk))),
+            "agent_tool_mentions": sorted({m.lower(): m for m in
+                                           AGENT_TOOL_RE.findall(chunk)}.values()),
+            "non_step_heading_hint": bool(
+                origin == "heading-fallback"
+                and NON_STEP_HEADING_RE.fullmatch(str(label).strip())),
         })
         chunks.append(chunk)
 

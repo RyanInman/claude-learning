@@ -1,0 +1,62 @@
+{
+  "expectations": [
+    {
+      "text": "the report contains a row for every one of the 5 workflow steps",
+      "passed": true,
+      "evidence": "Read with_skill/outputs/report.md. Its verdict table has one row per step: s1 (L13-14), s2 (L15-16), s3 (L17-19), s4 (L20-21), s5 (L22-24) - all 5 workflow steps of the target SKILL.md, each with a class and a rationale. Cross-checked against the target: `grep -c '^[0-9]\\.' workspace/api-docs-checker/SKILL.md` -> 5, exit 0. PASS. NON-DISCRIMINATING: without_skill also tables all 5 steps."
+    },
+    {
+      "text": "no new files or directories are created inside the target skill folder",
+      "passed": true,
+      "evidence": "facts.json target_tree_diff is {added: [], removed: [], modified: []} and skill_md_changed is false. Reproduced with `find with_skill/workspace -type f -o -type d | sort` (exit 0): only api-docs-checker/SKILL.md and the three pristine endpoints/*.md. `find . -name '*.py'` (exit 0) returned nothing, so new_script_count 0 holds. The run's scratch/.delegation-review/ artifacts sit under RUN_DIR/scratch, outside the target folder. PASS. NON-DISCRIMINATING: without_skill also left the target untouched."
+    },
+    {
+      "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+      "passed": true,
+      "evidence": "with_skill report row s4 carries Class = DEAD with the reason 'writes to legacy/index.txt for a portal the target's own Notes section says was retired in v2; legacy/ does not exist in the skill folder'. The 'two DEAD steps' section repeats the citation. The target's Notes section (SKILL.md L26-28) does say the legacy portal was retired in v2, so the citation is accurate. PASS. NON-DISCRIMINATING: without_skill also classifies step 4 dead with the same citation."
+    },
+    {
+      "text": "no script is proposed for the DEAD step and the step is not deleted from the target SKILL.md",
+      "passed": false,
+      "evidence": "READING APPLIED: neither arm wrote to the target (facts.json skill_md_changed false, skill_md_diff empty, target_tree_diff empty), so per the grading directive the second clause is judged against what the arm's REPORT RECOMMENDS, not against the on-disk file. Clause 1 PASSES: with_skill's s4 row has '-' in the 'Proposed script interface' column, and gate.md states the DEAD rows s2/s4 are not offered as apply options. Clause 2 FAILS under the directed reading: report.md L51-54 says 'Step 4 - delete it, and delete the Notes section that explains it', and L15-17 says steps 2 and 4 'should be deleted from the skill'. Conjunction of the two clauses -> false. Under the alternative mechanical reading (was the step actually removed from the target file?) this would PASS, since `git diff`-equivalent facts show SKILL.md byte-identical to the fixture. NON-DISCRIMINATING: without_skill recommends the same deletion, so both arms land the same way under either reading."
+    },
+    {
+      "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+      "passed": true,
+      "evidence": "with_skill report row s2 is classified DEAD with 'strictly subsumed by s3, which checks summary AND description over the same files; running both rescans endpoints/ and double-reports list-widgets.md', and its proposed-script cell is '-'. The evidence section grounds it in delete-widget.md (caught only by step 3) and list-widgets.md (double-reported). No separate script proposed. PASS. NON-DISCRIMINATING: without_skill reaches the same conclusion."
+    },
+    {
+      "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+      "passed": true,
+      "evidence": "with_skill report row s5 is HYBRID: 'clarity for an unfamiliar external developer is a judgment call reasonable runs disagree on, but the script already extracts every description string, so Claude judges text it no longer has to go gather'. Report L38-40 states 'No script can rule on it, which is why step 5 keeps a judgment core instead of becoming pure SCRIPT'; gate.md lists s5 as HYBRID with 'I judge clarity from its output'. Judgment stays with Claude; the script only feeds it data. PASS. NON-DISCRIMINATING: without_skill keeps it with the model too."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.8333333333333334,
+    "passed": 5,
+    "failed": 1,
+    "total": 6
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 6,
+      "Write": 2,
+      "Bash": 12
+    },
+    "total_tool_calls": 20,
+    "total_steps": 18,
+    "files_created": [
+      "scratch/.delegation-review/SKILL.md.orig",
+      "scratch/.delegation-review/inventory.json",
+      "scratch/.delegation-review/classification.json",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 4903,
+    "transcript_chars": 3434
+  }
+}

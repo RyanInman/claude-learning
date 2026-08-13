@@ -1,0 +1,48 @@
+{
+ "tool_calls": {
+  "Read": 6,
+  "Bash": 22
+ },
+ "total_tool_calls": 28,
+ "total_steps": 28,
+ "files_created": [
+  "workspace/changelog-checker/scripts/scan_changelogs.py",
+  "workspace/changelog-checker/scripts/check_headings.py",
+  "workspace/changelog-checker/scripts/check_tags.py",
+  "workspace/changelog-checker/scripts/render_summary.py",
+  "workspace/changelog-checker/scripts/tests/manifest.json",
+  "workspace/changelog-checker/scripts/tests/smoke_test.py",
+  "workspace/changelog-checker/scripts/tests/fixtures/scan_changelogs/good/v1.0.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/scan_changelogs/good/v1.1.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/scan_changelogs/good/v1.2.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_headings/good/v1.0.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_headings/good/v1.1.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_headings/good/v1.2.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_headings/bad/v1.0.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_headings/bad/v1.1.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_headings/bad/v1.2.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_tags/good/v1.0.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_tags/good/v1.1.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_tags/good/v1.2.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_tags/bad/v1.0.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/check_tags/bad/v1.1.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/render_summary/good/v1.0.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/render_summary/good/v1.1.0.md",
+  "workspace/changelog-checker/scripts/tests/fixtures/render_summary/good/v1.2.0.md",
+  "scratch/.delegation-review/SKILL.md.orig",
+  "scratch/.delegation-review/inventory.json",
+  "scratch/.delegation-review/classification.json",
+  "scratch/.delegation-review/report-table.md",
+  "scratch/.delegation-review/manifest.json",
+  "outputs/report.md",
+  "outputs/gate.md",
+  "outputs/transcript-notes.md",
+  "outputs/metrics.json"
+ ],
+ "files_rewritten": [
+  "workspace/changelog-checker/SKILL.md"
+ ],
+ "errors_encountered": 1,
+ "output_chars": 8791,
+ "transcript_chars": 6500
+}

@@ -1,0 +1,77 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-0-classify-and-report/with_skill/workspace/changelog-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "glob, version sort, and count are a function of the folder contents; two runs must not differ",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json",
+        "stdout": "compact summary: file count, heading failures, per-category totals, non-standard tags",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "SCRIPT",
+      "why": "fixed regex check of the first line against `## vX.Y.Z — YYYY-MM-DD`; the correct output is a function of the file. On the shipped data it must flag v1.2.0.md, which opens with `### Added` and carries no version heading or date",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json",
+        "stdout": "compact summary: file count, heading failures, per-category totals, non-standard tags",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "per-category tallies and totals are pure aggregation over the same parse the heading check already performs",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json",
+        "stdout": "compact summary: file count, heading failures, per-category totals, non-standard tags",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "CLAUDE",
+      "why": "the whole output is a narrative the user reads, pitched at a non-technical reader; reasonable runs should word it differently. A script could only re-gather the entries Claude must read anyway. Lint the one-paragraph bound afterwards, but keep the step CLAUDE",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "SCRIPT",
+      "why": "rendering a sorted markdown table from the scan JSON is a fixed template over structured data; hand-typing it invites arithmetic drift from step 3's counts",
+      "proposed_script": {
+        "name": "render_summary.py",
+        "interface": "python3 scripts/render_summary.py .changelog-scan.json",
+        "stdout": "markdown table of version, date, per-category counts, sorted by version descending",
+        "exit": "0 rendered / 2 usage or unreadable scan JSON"
+      }
+    },
+    {
+      "id": "s6",
+      "class": "HYBRID",
+      "why": "membership in the allowed tag list is a mechanical set check the script owns; deciding that v1.1.0.md's Misc entry `Corrected typo in settings page label` belongs under Fixed is contextual classification only Claude makes. Script lists every Misc and unknown-tag entry with its text, Claude re-triages that residue",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json",
+        "stdout": "compact summary: file count, heading failures, per-category totals, non-standard tags",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s7",
+      "class": "HYBRID",
+      "why": "judging that an entry reads confusingly varies with context and stays Claude's, but enumerating every entry with its file, category, and text is mechanical and the scan already does it; Claude reads the entry list instead of the changelog tree",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --json --out .changelog-scan.json",
+        "stdout": "compact summary: file count, heading failures, per-category totals, non-standard tags",
+        "exit": "0 clean / 1 findings / 2 usage"
+      }
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-4-prose-only-headings/with_skill/workspace/prose-only-reviewer",
+  "frontmatter": {
+    "name": "link-checker",
+    "description_chars": 142,
+    "unexpected_keys": []
+  },
+  "body": {
+    "lines": 23,
+    "approx_tokens": 153
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "origin": "heading-fallback",
+      "heading_path": [
+        "Link Checker"
+      ],
+      "line_start": 10,
+      "line_end": 14,
+      "approx_tokens": 35,
+      "snippet": "Collect the link inventory",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "collect"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s2",
+      "origin": "heading-fallback",
+      "heading_path": [
+        "Link Checker"
+      ],
+      "line_start": 15,
+      "line_end": 19,
+      "approx_tokens": 39,
+      "snippet": "Resolve each target",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "count"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s3",
+      "origin": "heading-fallback",
+      "heading_path": [
+        "Link Checker"
+      ],
+      "line_start": 20,
+      "line_end": 24,
+      "approx_tokens": 34,
+      "snippet": "Decide what to fix now",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s4",
+      "origin": "heading-fallback",
+      "heading_path": [
+        "Link Checker"
+      ],
+      "line_start": 25,
+      "line_end": 27,
+      "approx_tokens": 22,
+      "snippet": "Gotchas",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": true,
+      "mentions_existing_script": []
+    }
+  ],
+  "orphan_code_blocks": [],
+  "scripts": [],
+  "references": [],
+  "assets": [],
+  "stats": {
+    "n_steps": 4,
+    "n_steps_with_hints": 2,
+    "n_existing_scripts": 0
+  }
+}

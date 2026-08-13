@@ -1,0 +1,77 @@
+{
+ "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-5-agent-tool-steps/with_skill/workspace/research-brief-writer",
+ "steps": [
+  {
+   "id": "s1",
+   "class": "SCRIPT",
+   "why": "pure function of topics.txt: strip blanks, lowercase-dedupe, slugify. Runs must not differ. The shipped topics.txt already needs all three rules (7 lines, 1 blank, 1 case-variant dup, 1 exact dup, 4 unique slugs).",
+   "proposed_script": {
+    "name": "normalize_topics.py",
+    "interface": "python3 scripts/normalize_topics.py topics.txt --out .brief/topics.json",
+    "stdout": "counts: lines read, blanks dropped, duplicates dropped, unique slugs",
+    "exit": "0 at least one topic / 1 no usable topic / 2 usage"
+   }
+  },
+  {
+   "id": "s2",
+   "class": "HYBRID",
+   "why": "WebFetch is a permission-gated agent tool, so the fetch itself cannot move into a script. The mechanical shell around it can: build the slug-to-path worklist, skip slugs already saved, and verify each saved file after the fetch.",
+   "proposed_script": {
+    "name": "fetch_plan.py",
+    "interface": "python3 scripts/fetch_plan.py .brief/topics.json --sources sources/ [--verify] --out .brief/fetch_plan.json",
+    "stdout": "one 'slug<TAB>sources/<slug>.html<TAB>PENDING|CACHED' row per topic; with --verify, empty or non-HTML saves listed as FAILED",
+    "exit": "0 plan complete / 1 verify found empty or missing saves / 2 usage"
+   }
+  },
+  {
+   "id": "s3",
+   "class": "HYBRID",
+   "why": "the user's keep/drop pick is the judgment and AskUserQuestion is an agent tool, but the option rows Claude presents are mechanical: one row per fetched source with word count, thin flag, and fetch status.",
+   "proposed_script": {
+    "name": "source_stats.py",
+    "interface": "python3 scripts/source_stats.py sources/ --topics .brief/topics.json --out .brief/stats.json",
+    "stdout": "per-source table: slug, words, THIN flag, and the AskUserQuestion option label for each",
+    "exit": "0 stats produced / 1 no sources found / 2 usage"
+   }
+  },
+  {
+   "id": "s4",
+   "class": "SCRIPT",
+   "why": "word count plus a fixed 200-word threshold. A unit test can be written against it today, and two runs counting the same file must agree.",
+   "proposed_script": {
+    "name": "source_stats.py",
+    "interface": "python3 scripts/source_stats.py sources/ --topics .brief/topics.json --out .brief/stats.json",
+    "stdout": "per-source table: slug, words, THIN flag",
+    "exit": "0 stats produced / 1 no sources found / 2 usage"
+   }
+  },
+  {
+   "id": "s5",
+   "class": "HYBRID",
+   "why": "the notion MCP calls (page-id lookup, append) must stay Claude, because a script reimplementation loses auth and the permission model. The summary block appended to the page is a fixed template over stats.json, so the script renders the exact text Claude posts.",
+   "proposed_script": {
+    "name": "render_index.py",
+    "interface": "python3 scripts/render_index.py .brief/stats.json --block --out .brief/summary-block.md",
+    "stdout": "the rendered summary block (also written to --out)",
+    "exit": "0 rendered / 1 stats.json empty or malformed / 2 usage"
+   }
+  },
+  {
+   "id": "s6",
+   "class": "CLAUDE",
+   "why": "the 200-word brief in the house voice is the one output that should differ run to run; a script would encode one arbitrary summary. Its checkable bound (word count) is already covered by source_stats.py, so lint the drafts with that rather than scripting the writing.",
+   "proposed_script": null
+  },
+  {
+   "id": "s7",
+   "class": "SCRIPT",
+   "why": "sort stats.json by word count descending and emit a fixed three-column markdown table. No input varies the result.",
+   "proposed_script": {
+    "name": "render_index.py",
+    "interface": "python3 scripts/render_index.py .brief/stats.json --table --out .brief/index.md",
+    "stdout": "the rendered index table (also written to --out)",
+    "exit": "0 rendered / 1 stats.json empty or malformed / 2 usage"
+   }
+  }
+ ]
+}

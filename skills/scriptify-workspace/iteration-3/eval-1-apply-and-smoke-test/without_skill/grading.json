@@ -1,0 +1,62 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "steps 1, 2, 3 and 5 are each invoked by an exact command line in the rewritten SKILL.md, and every generated script exits 0 on --help",
+      "passed": true,
+      "evidence": "Read workspace/changelog-checker/SKILL.md. New step 1 carries the exact command `python3 scripts/scan_changelogs.py changelogs` and names the outputs covering original steps 1 (file list sorted by version, file count), 2 (`bad_headings` against `## vX.Y.Z \u2014 YYYY-MM-DD`) and 3 (per-file and total per-category counts). New step 2 carries the exact command `python3 scripts/scan_changelogs.py changelogs --format table`, covering original step 5. Ran `python3 scripts/scan_changelogs.py --help` -> exit 0, matching facts.json (new_scripts_all_help_ok: true). Only one script was generated (facts.json new_script_count: 1) but the assertion tests step coverage by exact command line, not script count."
+    },
+    {
+      "text": "the rewritten SKILL.md invokes each generated script by exact command line",
+      "passed": true,
+      "evidence": "facts.json target_tree_diff.added lists one script, scripts/scan_changelogs.py. The rewritten SKILL.md invokes it in two fenced bash blocks: `python3 scripts/scan_changelogs.py changelogs` and `python3 scripts/scan_changelogs.py changelogs --format table`. NON-DISCRIMINATING: the with_skill arm also invokes each of its scripts by exact command line."
+    },
+    {
+      "text": "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
+      "passed": false,
+      "evidence": "Ran `python3 scripts/scan_changelogs.py changelogs` from workspace/changelog-checker -> exit 0. The JSON does flag the file (`bad_headings: [\"v1.2.0.md\"]`), so the first half holds, but the script returns 0 with a structural finding present, so the 'exits nonzero' half fails. A caller branching on the exit code cannot tell a clean changelog set from a broken one. Also confirmed `--format table` exits 0 on the same data."
+    },
+    {
+      "text": "step 4 (release narrative) remains a prose instruction with no script",
+      "passed": true,
+      "evidence": "Original step 4 survives as new step 3: 'Write a one-paragraph release narrative for a non-technical reader, using the entry text from the JSON. Say where the product moved overall, not what each commit did.' No command line, no script. report.md classifies it 'Keep - audience judgment, no correct output to compute'. NON-DISCRIMINATING: the with_skill arm also kept it as prose."
+    },
+    {
+      "text": "step 6's judgment about re-homing Misc entries remains prose",
+      "passed": true,
+      "evidence": "New step 4 reads: 'For each item in `misc_entries`, judge whether it belongs under `Added`, `Fixed`, `Changed`, or `Removed`, and recommend the move with a one-line reason. Leave it under `Misc` when no category fits.' The script only extracts the Misc entry text (verified: misc_entries carries 'Corrected typo in settings page label' with no suggested category). NON-DISCRIMINATING: the with_skill arm also kept the judgment as prose."
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.8,
+    "passed": 4,
+    "failed": 1,
+    "total": 5
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 2,
+      "Write": 3,
+      "Bash": 12
+    },
+    "total_tool_calls": 17,
+    "total_steps": 17,
+    "files_created": [
+      "workspace/changelog-checker/scripts/scan_changelogs.py",
+      "workspace/changelog-checker/SKILL.md",
+      "scratch/edge/weird/v2.0.0.md",
+      "scratch/edge/weird/empty-file.md",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 4730,
+    "transcript_chars": 3397
+  }
+}

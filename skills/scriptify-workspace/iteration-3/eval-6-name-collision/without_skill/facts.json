@@ -1,0 +1,54 @@
+{
+  "eval": "eval-6-name-collision",
+  "config": "without_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-6-name-collision/without_skill/workspace/docs-linter",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/lint_docs_structure.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -10,10 +10,24 @@\n \n ## Workflow\n \n-1. List every `.md` file under `docs/`, sorted by path, and note the total\n-   count.\n-2. Check that each file starts with a level-1 heading followed by a blank line.\n-   Record every file that does not.\n-3. Count the fenced code blocks in each file and total them across files.\n-4. Decide which of the flagged files matter most to fix this sprint, given that\n+1. Run the structural scan:\n+\n+   ```bash\n+   python3 scripts/lint_docs_structure.py docs\n+   ```\n+\n+   It lists every `.md` file under `docs/` sorted by path with the total count,\n+   flags each file that does not start with a level-1 heading followed by a\n+   blank line, and counts the fenced code blocks per file and in total. Add\n+   `--json` when you want to post-process the result. It exits 1 when any file\n+   is flagged, so read the report rather than the exit code alone.\n+\n+2. Decide which of the flagged files matter most to fix this sprint, given that\n    the tutorial pages get the most traffic.\n+\n+## Gotchas\n+\n+- `scripts/check_headings.py` does not check headings. It checks image alt text\n+  and the release pipeline calls it at that exact path, so leave its name and\n+  behaviour alone. The heading and code-block checks live in\n+  `scripts/lint_docs_structure.py`.\n",
+  "scripts": [
+    {
+      "path": "scripts/check_headings.py",
+      "preexisting": true,
+      "help": {
+        "exit": 2,
+        "stdout_len": 0,
+        "stderr_len": 24,
+        "ok": false
+      }
+    },
+    {
+      "path": "scripts/lint_docs_structure.py",
+      "preexisting": false,
+      "help": {
+        "exit": 2,
+        "stdout_len": 0,
+        "stderr_len": 24,
+        "ok": false
+      }
+    }
+  ],
+  "new_script_count": 1,
+  "new_scripts_all_help_ok": false,
+  "collision": {
+    "check_headings_exists": true,
+    "sha256": "d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54",
+    "byte_identical_to_baseline": true
+  }
+}

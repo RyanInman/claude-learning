@@ -1,0 +1,215 @@
+{
+  "note": "Deterministic pre-grading from facts.json. Guardrail tier decided here; signal tier still needs graders.",
+  "guardrails_all_pass": true,
+  "runs": {
+    "eval-0-classify-and-report/with_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-0-classify-and-report/without_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-1-apply-and-smoke-test/with_skill": {
+      "status": "COLLECTED",
+      "tree_clean": false,
+      "new_scripts": 2,
+      "new_scripts_all_help_ok": true,
+      "help_detail": [
+        {
+          "path": "scripts/check_categories.py",
+          "exit": 0,
+          "ok": true
+        },
+        {
+          "path": "scripts/scan_changelogs.py",
+          "exit": 0,
+          "ok": true
+        }
+      ]
+    },
+    "eval-1-apply-and-smoke-test/without_skill": {
+      "status": "COLLECTED",
+      "tree_clean": false,
+      "new_scripts": 1,
+      "new_scripts_all_help_ok": true,
+      "help_detail": [
+        {
+          "path": "scripts/check_changelogs.py",
+          "exit": 0,
+          "ok": true
+        }
+      ]
+    },
+    "eval-2-nothing-to-delegate/with_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-2-nothing-to-delegate/without_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-3-partial-selection/with_skill": {
+      "status": "COLLECTED",
+      "tree_clean": false,
+      "new_scripts": 2,
+      "new_scripts_all_help_ok": true,
+      "help_detail": [
+        {
+          "path": "scripts/count_entries.py",
+          "exit": 0,
+          "ok": true
+        },
+        {
+          "path": "scripts/list_changelogs.py",
+          "exit": 0,
+          "ok": true
+        }
+      ]
+    },
+    "eval-3-partial-selection/without_skill": {
+      "status": "PENDING"
+    },
+    "eval-4-prose-only-headings/with_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-4-prose-only-headings/without_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-5-agent-tool-steps/with_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-5-agent-tool-steps/without_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-6-name-collision/with_skill": {
+      "status": "COLLECTED",
+      "tree_clean": false,
+      "new_scripts": 1,
+      "new_scripts_all_help_ok": true,
+      "help_detail": [
+        {
+          "path": "scripts/lint_docs.py",
+          "exit": 0,
+          "ok": true
+        }
+      ]
+    },
+    "eval-6-name-collision/without_skill": {
+      "status": "COLLECTED",
+      "tree_clean": false,
+      "new_scripts": 1,
+      "new_scripts_all_help_ok": false,
+      "help_detail": [
+        {
+          "path": "scripts/lint_docs.py",
+          "exit": 2,
+          "ok": false
+        }
+      ]
+    },
+    "eval-7-keep-residue/with_skill": {
+      "status": "COLLECTED",
+      "tree_clean": false,
+      "new_scripts": 5,
+      "new_scripts_all_help_ok": true,
+      "help_detail": [
+        {
+          "path": "scripts/check_headings.py",
+          "exit": 0,
+          "ok": true
+        },
+        {
+          "path": "scripts/check_tags.py",
+          "exit": 0,
+          "ok": true
+        },
+        {
+          "path": "scripts/render_summary.py",
+          "exit": 0,
+          "ok": true
+        },
+        {
+          "path": "scripts/scan_changelogs.py",
+          "exit": 0,
+          "ok": true
+        },
+        {
+          "path": "scripts/tests/smoke_test.py",
+          "exit": 0,
+          "ok": true
+        }
+      ]
+    },
+    "eval-7-keep-residue/without_skill": {
+      "status": "COLLECTED",
+      "tree_clean": false,
+      "new_scripts": 2,
+      "new_scripts_all_help_ok": false,
+      "help_detail": [
+        {
+          "path": "scripts/check_changelogs.py",
+          "exit": 2,
+          "ok": false
+        },
+        {
+          "path": "scripts/tests/run_tests.py",
+          "exit": 0,
+          "ok": true
+        }
+      ]
+    },
+    "eval-8-dead-step/with_skill": {
+      "status": "PENDING"
+    },
+    "eval-8-dead-step/without_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-9-ineligible-target/with_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    },
+    "eval-9-ineligible-target/without_skill": {
+      "status": "COLLECTED",
+      "tree_clean": true,
+      "new_scripts": 0,
+      "new_scripts_all_help_ok": null,
+      "help_detail": []
+    }
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/workspace/research-brief-writer",
+  "frontmatter": {
+    "name": "research-brief-writer",
+    "description_chars": 199,
+    "unexpected_keys": []
+  },
+  "body": {
+    "lines": 22,
+    "approx_tokens": 243
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Research Brief Writer",
+        "Workflow"
+      ],
+      "line_start": 13,
+      "line_end": 14,
+      "approx_tokens": 38,
+      "snippet": "Read the topic list from `topics.txt`, one topic per line. Drop blank lines,",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "list"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s2",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Research Brief Writer",
+        "Workflow"
+      ],
+      "line_start": 15,
+      "line_end": 16,
+      "approx_tokens": 27,
+      "snippet": "For each topic, fetch the top source for it with WebFetch and save the raw",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [
+        "WebFetch"
+      ],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s3",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Research Brief Writer",
+        "Workflow"
+      ],
+      "line_start": 17,
+      "line_end": 18,
+      "approx_tokens": 32,
+      "snippet": "Ask the user with AskUserQuestion which of the fetched sources to keep for",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [
+        "AskUserQuestion"
+      ],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s4",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Research Brief Writer",
+        "Workflow"
+      ],
+      "line_start": 19,
+      "line_end": 20,
+      "approx_tokens": 21,
+      "snippet": "Count the words in each kept source. Record any source under 200 words as",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "count"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s5",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Research Brief Writer",
+        "Workflow"
+      ],
+      "line_start": 21,
+      "line_end": 22,
+      "approx_tokens": 33,
+      "snippet": "Query the `notion` MCP tool for the id of the page titled \"Research Index\",",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [
+        "MCP tool"
+      ],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s6",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Research Brief Writer",
+        "Workflow"
+      ],
+      "line_start": 23,
+      "line_end": 24,
+      "approx_tokens": 27,
+      "snippet": "Write a 200-word brief for each kept topic in the house voice: plain,",
+      "code_blocks": [],
+      "mechanical_verb_hints": [],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    },
+    {
+      "id": "s7",
+      "origin": "numbered-list",
+      "heading_path": [
+        "Research Brief Writer",
+        "Workflow"
+      ],
+      "line_start": 25,
+      "line_end": 26,
+      "approx_tokens": 24,
+      "snippet": "Render the index table of topic, source URL, and word count, sorted by word",
+      "code_blocks": [],
+      "mechanical_verb_hints": [
+        "count",
+        "sort",
+        "render"
+      ],
+      "agent_tool_mentions": [],
+      "non_step_heading_hint": false,
+      "mentions_existing_script": []
+    }
+  ],
+  "orphan_code_blocks": [],
+  "scripts": [],
+  "references": [],
+  "assets": [],
+  "stats": {
+    "n_steps": 7,
+    "n_steps_with_hints": 3,
+    "n_existing_scripts": 0
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "eval": "eval-1-apply-and-smoke-test",
+  "config": "without_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/without_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md",
+    "user_notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/scan_changelogs.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -9,10 +9,54 @@\n \n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n-2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n-4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n-5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n-6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n-7. Verify the entries are clearly written and flag any that a reader would find confusing.\n+1. Collect the structure facts. Run the scanner from the skill folder:\n+\n+   ```bash\n+   python3 scripts/scan_changelogs.py changelogs\n+   ```\n+\n+   It prints JSON holding the file list sorted by version, the file count,\n+   per-file and total per-category entry counts, `bad_headings` (files whose\n+   first non-empty line is not `## vX.Y.Z \u2014 YYYY-MM-DD`), `unknown_tags`\n+   (category headings outside `Added`, `Fixed`, `Changed`, `Removed`, `Misc`),\n+   and `misc_entries` (the text of every `Misc` entry). Read the counts from\n+   this JSON rather than recounting, because a second count by hand can\n+   disagree with the table.\n+\n+2. Render the summary table, sorted by version descending:\n+\n+   ```bash\n+   python3 scripts/scan_changelogs.py changelogs --format table\n+   ```\n+\n+   Paste its output into the report unchanged.\n+\n+3. Write a one-paragraph release narrative for a non-technical reader, using\n+   the entry text from the JSON. Say where the product moved overall, not what\n+   each commit did.\n+\n+4. Recategorize the `Misc` entries. For each item in `misc_entries`, judge\n+   whether it belongs under `Added`, `Fixed`, `Changed`, or `Removed`, and\n+   recommend the move with a one-line reason. Leave it under `Misc` when no\n+   category fits.\n+\n+5. Flag unclear entries. Read the entry text in the JSON and call out any entry\n+   a reader outside the team could not act on \u2014 missing subject, unexplained\n+   jargon, or an effect that is not stated.\n+\n+## Report\n+\n+Return, in this order: the table from step 2, the narrative from step 3, the\n+structural problems (`bad_headings` and `unknown_tags`), the `Misc`\n+recommendations from step 4, and the clarity flags from step 5.\n+\n+## Gotchas\n+\n+- The heading check demands an em dash (`\u2014`), matching the documented format. A\n+  hyphen heading is reported in `bad_headings`, so read the `heading_problem`\n+  field before telling the user the heading is missing entirely.\n+- Entries under an unknown tag are excluded from the category counts, because\n+  the counts cover only the allowed categories. A file's row total can be lower\n+  than its visible bullet count when `unknown_tags` is non-empty for that file.\n+- The scanner exits 2 when the folder argument is not a directory. Check the\n+  path before reporting an empty changelog set.\n",
+  "scripts": [
+    {
+      "path": "scripts/scan_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 413,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 1,
+  "new_scripts_all_help_ok": true
+}

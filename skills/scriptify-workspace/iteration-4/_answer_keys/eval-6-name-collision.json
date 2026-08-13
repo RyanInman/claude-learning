@@ -1,0 +1,53 @@
+{
+  "eval_id": 6,
+  "eval_name": "name-collision",
+  "prompt": "Scriptify the docs-linter skill at /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-6-name-collision/with_skill/workspace/docs-linter/ \u2014 find the steps worth delegating and apply all of them.",
+  "expected_output": "The natural script name for step 2 is check_headings.py, which already exists in the target and does something unrelated (image alt text). The run must surface the collision to the user or pick a different name. The existing file stays byte-identical. Steps 1, 2, 3 get scripts; step 4 (which files matter this sprint) stays prose.",
+  "expectations": [
+    "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+    "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+    "every newly generated Python script exits 0 on --help and prints usage on stdout",
+    "steps 1, 2 and 3 are each invoked by an exact command line in the rewritten SKILL.md",
+    "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+    "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script"
+  ],
+  "assertions": [
+    {
+      "text": "the pre-existing scripts/check_headings.py is byte-identical to its baseline copy (sha256 d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54)",
+      "type": "structure",
+      "tier": "guardrail",
+      "property": "no-clobber",
+      "check": "check_headings_sha256"
+    },
+    {
+      "text": "the run either asks the user about the check_headings.py name collision or names its generated heading-check script something else; it does not silently overwrite",
+      "type": "structure",
+      "tier": "signal",
+      "property": "collision-handling"
+    },
+    {
+      "text": "every newly generated Python script exits 0 on --help and prints usage on stdout",
+      "type": "structure",
+      "tier": "signal",
+      "property": "interface-hygiene"
+    },
+    {
+      "text": "steps 1, 2 and 3 are each invoked by an exact command line in the rewritten SKILL.md",
+      "type": "structure",
+      "tier": "signal",
+      "property": "delegation-coverage"
+    },
+    {
+      "text": "the heading-check script, run against docs/, flags tutorial.md (prose before the H1) and reference/api.md (starts at H2)",
+      "type": "content",
+      "tier": "signal",
+      "property": "interface-hygiene"
+    },
+    {
+      "text": "step 4 (which flagged files matter most this sprint) remains a prose instruction with no script",
+      "type": "content",
+      "tier": "signal",
+      "property": "classification"
+    }
+  ]
+}

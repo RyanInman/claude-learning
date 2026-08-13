@@ -1,0 +1,53 @@
+{
+  "eval": "eval-6-name-collision",
+  "config": "without_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-6-name-collision/without_skill/workspace/docs-linter",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/lint_docs.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -10,10 +10,28 @@\n \n ## Workflow\n \n-1. List every `.md` file under `docs/`, sorted by path, and note the total\n-   count.\n-2. Check that each file starts with a level-1 heading followed by a blank line.\n-   Record every file that does not.\n-3. Count the fenced code blocks in each file and total them across files.\n-4. Decide which of the flagged files matter most to fix this sprint, given that\n-   the tutorial pages get the most traffic.\n+1. Run the scan. It returns the file list, the files missing a level-1 heading,\n+   and the fenced code block counts in one pass:\n+\n+   ```bash\n+   python3 scripts/lint_docs.py docs\n+   ```\n+\n+   The JSON on stdout carries `file_count`, `files`, `missing_h1` (each entry\n+   with a `reason`), `code_blocks` per file, and `total_code_blocks`. Exit code\n+   2 means the directory is missing; findings never change the exit code.\n+\n+2. Decide which of the `missing_h1` files matter most to fix this sprint, given\n+   that the tutorial pages get the most traffic. This is the judgment call the\n+   script does not make.\n+\n+3. Report the file count, the flagged files with their reasons, the total code\n+   block count, and your fix order.\n+\n+## Gotchas\n+\n+- Do not rename or reuse `scripts/check_headings.py`. Despite its name it checks\n+  image alt text, not headings, and the release pipeline calls it by that exact\n+  path. The heading check lives in `scripts/lint_docs.py`.\n+- Read the counts from the script rather than re-deriving them by reading files,\n+  because a manual count drifts on every run and the script does not.\n",
+  "scripts": [
+    {
+      "path": "scripts/check_headings.py",
+      "preexisting": true,
+      "help": {
+        "exit": 2,
+        "stdout_len": 0,
+        "stderr_len": 24,
+        "ok": false
+      }
+    },
+    {
+      "path": "scripts/lint_docs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 2,
+        "stdout_len": 0,
+        "stderr_len": 24,
+        "ok": false
+      }
+    }
+  ],
+  "new_script_count": 1,
+  "new_scripts_all_help_ok": false,
+  "collision": {
+    "check_headings_exists": true,
+    "sha256": "d60bc3d4442fad85b028a4928f8bc763e5f4d173342393505170e462d52ada54",
+    "byte_identical_to_baseline": true
+  }
+}

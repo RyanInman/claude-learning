@@ -1,0 +1,30 @@
+{
+  "tool_calls": {"Bash": 17, "Read": 9, "Write": 8, "Edit": 3},
+  "total_tool_calls": 37,
+  "total_steps": 10,
+  "files_created": [
+    "workspace/changelog-checker/scripts/scan_changelogs.py",
+    "workspace/changelog-checker/scripts/render_summary.py",
+    "workspace/changelog-checker/SKILL.md",
+    "scratch/delegation-review-archive/SKILL.md.orig",
+    "scratch/delegation-review-archive/inventory.json",
+    "scratch/delegation-review-archive/classification.json",
+    "scratch/delegation-review-archive/report-table.md",
+    "scratch/delegation-review-archive/manifest.json",
+    "scratch/delegation-review-archive/fixtures/scan_changelogs/good/v1.0.0.md",
+    "scratch/delegation-review-archive/fixtures/scan_changelogs/good/v1.1.0.md",
+    "scratch/delegation-review-archive/fixtures/scan_changelogs/bad/v1.2.0.md",
+    "scratch/delegation-review-archive/fixtures/scan_changelogs/bad-header-malformed/v2.0.0.md",
+    "scratch/delegation-review-archive/fixtures/scan_changelogs/bad-unknown-tag/v2.1.0.md",
+    "scratch/delegation-review-archive/fixtures/scan_changelogs/bad-orphan-entry/v2.2.0.md",
+    "scratch/delegation-review-archive/fixtures/render_summary/good/scan.json",
+    "outputs/report.md",
+    "outputs/gate.md",
+    "outputs/transcript-notes.md",
+    "outputs/user_notes.md",
+    "outputs/metrics.json"
+  ],
+  "errors_encountered": 2,
+  "output_chars": 9615,
+  "transcript_chars": 5974
+}

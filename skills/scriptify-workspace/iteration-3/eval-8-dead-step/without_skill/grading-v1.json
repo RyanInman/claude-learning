@@ -1,0 +1,34 @@
+{
+  "expectations": [
+    {
+      "text": "the report contains a row for every one of the 5 workflow steps",
+      "passed": true,
+      "evidence": "Read without_skill/outputs/report.md. Its table rows 1-5 name each of the 5 workflow steps with a verdict (Script / Delete / Script / Delete / Keep as prose), and the prose sections cover each. Target step count verified: `grep -c '^[0-9]\\.' workspace/api-docs-checker/SKILL.md` -> 5, exit 0. PASS. NON-DISCRIMINATING: with_skill also covers all 5."
+    },
+    {
+      "text": "no new files or directories are created inside the target skill folder",
+      "passed": true,
+      "evidence": "facts.json target_tree_diff is empty and skill_md_changed is false. Reproduced with `find without_skill/workspace -type f -o -type d | sort` (exit 0): only SKILL.md plus the three pristine endpoints/*.md. `find . -name '*.py'` (exit 0) returned nothing. transcript-notes.md confirms scratch/ was never used. PASS. NON-DISCRIMINATING: with_skill also left the target untouched."
+    },
+    {
+      "text": "step 4 (append the endpoint list to legacy/index.txt) is classified DEAD, citing the retired legacy portal",
+      "passed": true,
+      "evidence": "without_skill report table row 4 reads 'Delete - dead step', and the prose heading is 'Step 4 is dead - do not script it', citing 'The Notes section of the skill says the legacy docs portal was retired in v2 and the legacy/ output directory went with it' plus a verified absence of legacy/. Matches target SKILL.md L26-28. The word used is 'dead' rather than the token 'DEAD', but the classification and the required citation are both present. PASS. NON-DISCRIMINATING: with_skill classifies it DEAD too."
+    },
+    {
+      "text": "no script is proposed for the DEAD step and the step is not deleted from the target SKILL.md",
+      "passed": false,
+      "evidence": "READING APPLIED: same as with_skill - the target was untouched (facts.json skill_md_changed false, target_tree_diff empty), so clause 2 is judged against the report's recommendation per the grading directive. Clause 1 PASSES: report.md L30 says 'Step 4 is dead - do not script it', and no script contract is proposed for it. Clause 2 FAILS under the directed reading: report.md L33-35 says 'It should be deleted, along with the Notes paragraph that explains its absence'; gate.md option 3 is 'Delete step 4 and the Notes paragraph'; report.md L58 says 'SKILL.md loses steps 2 and 4 and the Notes paragraph'. Conjunction -> false. Under the mechanical reading this would PASS, since nothing was written. NON-DISCRIMINATING: with_skill recommends the same deletion."
+    },
+    {
+      "text": "step 2 is identified as superseded by or duplicative of step 3, rather than getting its own separate script",
+      "passed": true,
+      "evidence": "without_skill report table row 2 reads 'Delete - step 3 already does this', and the prose section 'Step 2 is redundant' says 'Step 3 checks summary: and description:, so it is a strict superset of step 2 ... Fold step 2 into step 3 and drop it.' Only one script (check_frontmatter.py, for steps 1+3) is proposed anywhere. PASS. NON-DISCRIMINATING: with_skill reaches the same conclusion."
+    },
+    {
+      "text": "step 5 (does the description read clearly for an external developer) keeps its judgment core with Claude",
+      "passed": true,
+      "evidence": "without_skill report table row 5 reads 'Keep as prose', and the prose section says 'Reads clearly for an external developer who has never seen this API is exactly the judgment a script cannot make. Keep it in SKILL.md and let it run on the description: values the step 1/3 script already extracted.' The run also performs the judgment itself on list-widgets.md. PASS. NON-DISCRIMINATING: with_skill keeps it with the model too."
+    }
+  ]
+}

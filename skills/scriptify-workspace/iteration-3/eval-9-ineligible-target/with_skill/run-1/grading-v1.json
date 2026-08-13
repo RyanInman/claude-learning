@@ -1,0 +1,61 @@
+{
+  "expectations": [
+    {
+      "text": "no file anywhere under the plugins/cache/ path is created or modified; the tree is identical to its baseline",
+      "passed": true,
+      "evidence": "Ran `diff -r fixture-baseline/plugin-cached-release-notes with_skill/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes` -> no output, exit 0. Confirmed byte-identity independently with sha256 over the sorted file list: SKILL.md 68c88fb7..., notes/pr-101.md d559b209..., notes/pr-104.md e59365b4..., notes/pr-109.md a58ac75c... all match the baseline. No added/removed files. facts.json target_tree_diff is empty, and the real diff agrees. NON-DISCRIMINATING: the without_skill arm's cache tree is byte-identical to the same baseline."
+    },
+    {
+      "text": "the run states the target is ineligible because it lives in a plugin cache, and gives the reason (the next plugin update overwrites anything written there)",
+      "passed": true,
+      "evidence": "outputs/report.md heading is 'Step 0 - eligibility: the target is INELIGIBLE' and the body says 'That path is a plugin cache. Anything I write there is silently clobbered by the next update of the `release-tools` plugin, so I did not write into it'. outputs/gate.md repeats it: 'so it is ineligible: the next plugin update silently clobbers any script written there'. Both the ineligibility claim and the plugin-update-overwrite reason are present. NON-DISCRIMINATING: without_skill states the same substance."
+    },
+    {
+      "text": "the run still produces the per-step classification report for the target",
+      "passed": true,
+      "evidence": "outputs/report.md 'Step 3 - report' contains a per-step table with one row per numbered step (s1-s5), each with line numbers, current form, token count, class (SCRIPT/CLAUDE), a why, and a proposed script interface, plus 'No DEAD and no ALREADY_DELEGATED steps.' Report was produced against the plugin-cache original (transcript-notes.md commands 5-8 run inventory.py/sample_target_data.py/render_report.py read-only on the target). NON-DISCRIMINATING: without_skill also produces a per-step classification table."
+    },
+    {
+      "text": "the run offers to copy the skill into the project and continue from the apply stage on the copy",
+      "passed": true,
+      "evidence": "outputs/gate.md 'Question 1 - ineligible target: copy it?' asks 'Copy it into the project and continue from Step 4 on the copy?' with the recommended option 'Copy the skill to `workspace/.claude/skills/release-notes`, then apply the delegations to that copy. The plugin-cache original stays untouched.' Step 4 is the apply gate, so the offer resumes at the apply stage on the copy. The run then took that option (transcript-notes.md cmd 9 `cp -R <target> workspace/.claude/skills/release-notes`), and facts.json workspace_extra lists the copy plus its two generated scripts. DISCRIMINATING: without_skill offers the plugin source repo or `~/.claude-personal/skills/`, never a copy into the project."
+    },
+    {
+      "text": "no scripts are generated into the cache target and its SKILL.md is not rewritten",
+      "passed": true,
+      "evidence": "Verified directly: `find <cache target> -name '*.py'` returns nothing, and SKILL.md sha256 68c88fb728df3414ee745e7361c2902814297930fe9a15e50234e3750dc9ca04 equals the baseline's. facts.json scripts=[], new_script_count=0, skill_md_changed=false. The two generated scripts (scan_notes.py, render_notes.py) and the rewritten SKILL.md live only under workspace/.claude/skills/release-notes. NON-DISCRIMINATING: without_skill also generated nothing into the cache."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 7,
+      "Bash": 18,
+      "Write": 7,
+      "Edit": 2
+    },
+    "total_tool_calls": 34,
+    "total_steps": 10,
+    "files_created": [
+      "workspace/.claude/skills/release-notes/SKILL.md",
+      "workspace/.claude/skills/release-notes/notes/pr-101.md",
+      "workspace/.claude/skills/release-notes/notes/pr-104.md",
+      "workspace/.claude/skills/release-notes/notes/pr-109.md",
+      "workspace/.claude/skills/release-notes/scripts/scan_notes.py",
+      "workspace/.claude/skills/release-notes/scripts/render_notes.py",
+      "outputs/report.md",
+      "outputs/gate.md",
+      "outputs/transcript-notes.md",
+      "outputs/metrics.json",
+      "outputs/user_notes.md"
+    ],
+    "errors_encountered": 1,
+    "output_chars": 8394,
+    "transcript_chars": 3825
+  }
+}

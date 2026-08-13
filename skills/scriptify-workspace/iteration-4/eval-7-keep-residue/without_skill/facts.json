@@ -1,0 +1,68 @@
+{
+  "eval": "eval-7-keep-residue",
+  "config": "without_skill",
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker",
+  "target_exists": true,
+  "outputs_present": [
+    "gate.md",
+    "metrics.json",
+    "report.md",
+    "transcript-notes.md"
+  ],
+  "target_tree_diff": {
+    "added": [
+      "scripts/check_changelogs.py",
+      "scripts/tests/fixtures/edge/v2.0.0.md",
+      "scripts/tests/fixtures/sample/v1.0.0.md",
+      "scripts/tests/fixtures/sample/v1.1.0.md",
+      "scripts/tests/fixtures/sample/v1.2.0.md",
+      "scripts/tests/manifest.json",
+      "scripts/tests/run_tests.py"
+    ],
+    "removed": [],
+    "modified": [
+      "SKILL.md"
+    ]
+  },
+  "workspace_extra": [],
+  "skill_md_changed": true,
+  "skill_md_diff": "--- baseline/SKILL.md\n+++ run/SKILL.md\n@@ -9,10 +9,76 @@\n \n ## Workflow\n \n-1. List every `.md` file in `changelogs/`, sorted by version, and note the total count.\n-2. Check that each file starts with a heading of the form `## vX.Y.Z \u2014 YYYY-MM-DD`. Record every file that does not.\n-3. Count the entries in each file per category (`Added`, `Fixed`, `Changed`, `Removed`) and total them across files.\n-4. Write a one-paragraph release narrative summarizing the overall direction of the changes for a non-technical reader.\n-5. Render a summary table of versions, dates, and per-category entry counts, sorted by version descending.\n-6. Check every entry's category tag against the allowed list (`Added`, `Fixed`, `Changed`, `Removed`, `Misc`); for entries tagged `Misc`, judge whether they actually fit one of the other categories and suggest the move.\n-7. Verify the entries are clearly written and flag any that a reader would find confusing.\n+### 1. Scan the folder\n+\n+Run the checker once. It does the whole deterministic pass \u2014 file inventory and\n+version sort, heading-format check, per-category entry counts, the summary\n+table, and category-tag validation:\n+\n+```bash\n+python3 scripts/check_changelogs.py changelogs\n+```\n+\n+It prints one JSON report and exits 0. Read these fields:\n+\n+| Field | Use it for |\n+|---|---|\n+| `file_count`, `files_sorted` | the file inventory, sorted by version ascending |\n+| `heading_violations` | files whose first line is not `## vX.Y.Z \u2014 YYYY-MM-DD` |\n+| `files[].counts`, `totals`, `grand_total` | per-file and cross-file entry counts |\n+| `table_markdown` | the summary table, sorted by version descending |\n+| `unknown_tags` | category headings outside the allowed list |\n+| `misc_entries` | every `Misc` entry, with its file |\n+\n+Paste `table_markdown` into the report unchanged. Do not recount entries or\n+re-sort the table by hand, because the script already did it and a second pass\n+only invites drift.\n+\n+### 2. Write the release narrative\n+\n+Write one paragraph for a non-technical reader summarizing the overall\n+direction of the changes. Use the counts and the entry text from step 1 as\n+input; the judgment about what the release *means* is yours.\n+\n+### 3. Re-categorize the Misc entries\n+\n+For each item in `misc_entries`, judge whether it actually belongs under\n+`Added`, `Fixed`, `Changed`, or `Removed`, and suggest the move. Report any\n+`unknown_tags` as tag errors to correct.\n+\n+### 4. Flag confusing entries\n+\n+Read the entry text and flag any entry a reader would find unclear or\n+ambiguous. Quote the entry and say what is missing.\n+\n+## Re-running the checks\n+\n+The fixtures and the manifest live inside this skill. From this folder, run:\n+\n+```bash\n+python3 scripts/tests/run_tests.py\n+```\n+\n+It confirms every fixture path in `scripts/tests/manifest.json` resolves, runs\n+`check_changelogs.py` against each fixture directory, compares the JSON against\n+the expected values, and exits 0 when all cases pass.\n+\n+## Layout\n+\n+```\n+scripts/check_changelogs.py      deterministic scan, prints JSON\n+scripts/tests/run_tests.py       smoke-test runner\n+scripts/tests/manifest.json      fixture paths + expected values\n+scripts/tests/fixtures/sample/   three changelogs, one missing its heading\n+scripts/tests/fixtures/edge/     unknown tag, Removed and Misc entries\n+```\n+\n+## Gotchas\n+\n+- The heading check requires an em dash (`\u2014`), not a hyphen, because that is\n+  the separator the existing changelogs use.\n+- Entries under an unrecognized heading (for example `### Security`) are\n+  reported in `unknown_tags` but excluded from the counts, so `grand_total`\n+  can be lower than the raw bullet count.\n+- `manifest.json` stores absolute paths. Moving or renaming this skill folder\n+  breaks the smoke test until you regenerate the manifest.\n",
+  "scripts": [
+    {
+      "path": "scripts/check_changelogs.py",
+      "preexisting": false,
+      "help": {
+        "exit": 2,
+        "stdout_len": 0,
+        "stderr_len": 24,
+        "ok": false
+      }
+    },
+    {
+      "path": "scripts/tests/run_tests.py",
+      "preexisting": false,
+      "help": {
+        "exit": 0,
+        "stdout_len": 367,
+        "stderr_len": 0,
+        "ok": true
+      }
+    }
+  ],
+  "new_script_count": 2,
+  "new_scripts_all_help_ok": false,
+  "residue": {
+    "tests_dir_exists": true,
+    "manifests_found": [
+      "scripts/tests/manifest.json"
+    ],
+    "manifest": "scripts/tests/manifest.json",
+    "manifest_target_skill": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker",
+    "manifest_target_skill_exists": true,
+    "unresolved_paths": [],
+    "stale_delegation_review_paths": [],
+    "runner": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/run_tests.py",
+    "smoke_rerun_exit": 0,
+    "smoke_rerun_tail": "ran case sample on /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/fixtures/sample\nran case edge on /Users/admin/claude-learning/skills/scriptify-workspace/iteration-4/eval-7-keep-residue/without_skill/workspace/changelog-checker/scripts/tests/fixtures/edge\nPASS 2 cases\n"
+  }
+}

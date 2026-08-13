@@ -1,0 +1,50 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-8-dead-step/with_skill/workspace/api-docs-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "glob endpoints/*.md, sort, count - a pure function of the directory; two runs must not differ",
+      "proposed_script": {
+        "name": "check_endpoints.py",
+        "interface": "python3 scripts/check_endpoints.py endpoints/ --json",
+        "stdout": "JSON {files: sorted paths, count, missing: {file: [fields]}, descriptions: {file: text}}",
+        "exit": "0 every file complete / 1 missing fields found / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "DEAD",
+      "why": "strictly subsumed by s3, which checks summary AND description over the same files; running both rescans endpoints/ and double-reports list-widgets.md",
+      "proposed_script": null
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "fixed-rule frontmatter validation - required keys present or not, same verdict every run; unit-testable against the three shipped fixtures",
+      "proposed_script": {
+        "name": "check_endpoints.py",
+        "interface": "python3 scripts/check_endpoints.py endpoints/ --json",
+        "stdout": "JSON {files: sorted paths, count, missing: {file: [fields]}, descriptions: {file: text}}",
+        "exit": "0 every file complete / 1 missing fields found / 2 usage or unreadable dir"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "DEAD",
+      "why": "writes to legacy/index.txt for a portal the target's own Notes section says was retired in v2; legacy/ does not exist in the skill folder, so the step would create output nothing reads",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "HYBRID",
+      "why": "clarity for an unfamiliar external developer is a judgment call reasonable runs disagree on, but the script already extracts every description string, so Claude judges text it no longer has to go gather",
+      "proposed_script": {
+        "name": "check_endpoints.py",
+        "interface": "python3 scripts/check_endpoints.py endpoints/ --json",
+        "stdout": "JSON {files: sorted paths, count, missing: {file: [fields]}, descriptions: {file: text}}",
+        "exit": "0 every file complete / 1 missing fields found / 2 usage or unreadable dir"
+      }
+    }
+  ]
+}

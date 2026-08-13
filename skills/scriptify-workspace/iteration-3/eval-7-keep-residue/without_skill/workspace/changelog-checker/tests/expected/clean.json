@@ -1,0 +1,42 @@
+{
+  "file_count": 2,
+  "files": [
+    {
+      "file": "v2.0.0.md",
+      "version": "v2.0.0",
+      "date": "2026-04-01",
+      "heading_ok": true,
+      "heading_problem": null,
+      "counts": {
+        "Changed": 1,
+        "Removed": 1
+      },
+      "unknown_categories": [],
+      "misc_entries": []
+    },
+    {
+      "file": "v1.0.0.md",
+      "version": "v1.0.0",
+      "date": "2026-01-15",
+      "heading_ok": true,
+      "heading_problem": null,
+      "counts": {
+        "Added": 1,
+        "Fixed": 1
+      },
+      "unknown_categories": [],
+      "misc_entries": []
+    }
+  ],
+  "totals": {
+    "Changed": 1,
+    "Removed": 1,
+    "Added": 1,
+    "Fixed": 1
+  },
+  "total_entries": 4,
+  "heading_problems": [],
+  "unknown_category_uses": [],
+  "misc_entries": [],
+  "table": "| Version | Date | Added | Fixed | Changed | Removed | Misc | Total |\n|---|---|---|---|---|---|---|---|\n| v2.0.0 | 2026-04-01 | 0 | 0 | 1 | 1 | 0 | 2 |\n| v1.0.0 | 2026-01-15 | 1 | 1 | 0 | 0 | 0 | 2 |"
+}

@@ -1,0 +1,20 @@
+{
+  "dir": "changelogs",
+  "file_count": 2,
+  "categories": ["Added", "Fixed", "Changed", "Removed", "Misc"],
+  "files": [
+    {"file": "v2.0.0.md", "version": "2.0.0", "date": "2026-05-01",
+     "counts": {"Added": 2, "Fixed": 0, "Changed": 0, "Removed": 1, "Misc": 0},
+     "entries": [
+       {"category": "Added", "text": "Team workspaces"},
+       {"category": "Added", "text": "Audit log"},
+       {"category": "Removed", "text": "Legacy API v1"}]},
+    {"file": "v2.1.0.md", "version": "2.1.0", "date": "2026-06-10",
+     "counts": {"Added": 0, "Fixed": 1, "Changed": 1, "Removed": 0, "Misc": 0},
+     "entries": [
+       {"category": "Fixed", "text": "Timezone drift in reports"},
+       {"category": "Changed", "text": "Default page size is now 50"}]}
+  ],
+  "totals": {"Added": 2, "Fixed": 1, "Changed": 1, "Removed": 1, "Misc": 0},
+  "entry_total": 5
+}

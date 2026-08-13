@@ -1,0 +1,45 @@
+{
+  "eval_id": 1,
+  "eval_name": "apply-and-smoke-test",
+  "prompt": "Review the skill in /Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/workspace/changelog-checker/ for steps to delegate to scripts, apply all the delegations you find, and verify the generated scripts work.",
+  "expected_output": "Scripts written into changelog-checker/scripts/ for steps 1/2/3/5 (and the mechanical half of 6), each with --help support. Manifest includes bad_data_invocations; the header-check script flags v1.2.0.md. SKILL.md rewritten only after smoke test passes; steps 4 and 7 stay prose; step 6 keeps its judgment sentence.",
+  "expectations": [
+    "steps 1, 2, 3 and 5 are each invoked by an exact command line in the rewritten SKILL.md, and every generated script exits 0 on --help",
+    "the rewritten SKILL.md invokes each generated script by exact command line",
+    "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
+    "step 4 (release narrative) remains a prose instruction with no script",
+    "step 6's judgment about re-homing Misc entries remains prose"
+  ],
+  "assertions": [
+    {
+      "text": "steps 1, 2, 3 and 5 are each invoked by an exact command line in the rewritten SKILL.md, and every generated script exits 0 on --help",
+      "type": "structure",
+      "tier": "signal",
+      "property": "delegation-coverage"
+    },
+    {
+      "text": "the rewritten SKILL.md invokes each generated script by exact command line",
+      "type": "structure",
+      "tier": "signal",
+      "property": "delegation-coverage"
+    },
+    {
+      "text": "the header-check script, run against changelogs/, flags v1.2.0.md and exits nonzero",
+      "type": "content",
+      "tier": "signal",
+      "property": "interface-hygiene"
+    },
+    {
+      "text": "step 4 (release narrative) remains a prose instruction with no script",
+      "type": "content",
+      "tier": "signal",
+      "property": "classification"
+    },
+    {
+      "text": "step 6's judgment about re-homing Misc entries remains prose",
+      "type": "content",
+      "tier": "signal",
+      "property": "classification"
+    }
+  ]
+}

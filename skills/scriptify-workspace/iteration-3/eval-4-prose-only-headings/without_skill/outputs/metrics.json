@@ -1,0 +1,15 @@
+{
+  "tool_calls": {"Read": 3, "Bash": 6, "Write": 5, "Edit": 2},
+  "total_tool_calls": 16,
+  "total_steps": 16,
+  "files_created": [
+    "outputs/report.md",
+    "outputs/gate.md",
+    "outputs/transcript-notes.md",
+    "outputs/metrics.json",
+    "outputs/user_notes.md"
+  ],
+  "errors_encountered": 1,
+  "output_chars": 3919,
+  "transcript_chars": 2748
+}

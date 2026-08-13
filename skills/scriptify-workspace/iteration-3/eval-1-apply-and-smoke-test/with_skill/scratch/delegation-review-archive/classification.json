@@ -1,0 +1,72 @@
+{
+  "target": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/workspace/changelog-checker",
+  "steps": [
+    {
+      "id": "s1",
+      "class": "SCRIPT",
+      "why": "glob plus semver sort plus a count; identical output every run",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json",
+        "stdout": "compact summary: file count, header failures, category totals, unknown/Misc tag count",
+        "exit": "0 no structural findings / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s2",
+      "class": "SCRIPT",
+      "why": "one fixed regex on line 1 of each file; v1.2.0.md already fails it",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json",
+        "stdout": "compact summary: file count, header failures, category totals, unknown/Misc tag count",
+        "exit": "0 no structural findings / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s3",
+      "class": "SCRIPT",
+      "why": "counting bullets under each category heading and summing them is arithmetic",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json",
+        "stdout": "compact summary: file count, header failures, category totals, unknown/Misc tag count",
+        "exit": "0 no structural findings / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s4",
+      "class": "CLAUDE",
+      "why": "the narrative's whole output is prose a non-technical reader judges; two runs should word it differently",
+      "proposed_script": null
+    },
+    {
+      "id": "s5",
+      "class": "SCRIPT",
+      "why": "fixed markdown table from the scan data, sorted by version descending",
+      "proposed_script": {
+        "name": "render_summary.py",
+        "interface": "python3 scripts/render_summary.py .changelog-scan.json",
+        "stdout": "markdown summary table, versions descending",
+        "exit": "0 rendered / 2 usage or unreadable scan file"
+      }
+    },
+    {
+      "id": "s6",
+      "class": "HYBRID",
+      "why": "matching tags against the allowed list is mechanical; deciding whether a Misc entry belongs under Fixed is judgment",
+      "proposed_script": {
+        "name": "scan_changelogs.py",
+        "interface": "python3 scripts/scan_changelogs.py changelogs/ --out .changelog-scan.json",
+        "stdout": "compact summary: file count, header failures, category totals, unknown/Misc tag count",
+        "exit": "0 no structural findings / 1 findings / 2 usage"
+      }
+    },
+    {
+      "id": "s7",
+      "class": "CLAUDE",
+      "why": "\"a reader would find this confusing\" varies with the reader and the entry; reasonable runs should disagree",
+      "proposed_script": null
+    }
+  ]
+}

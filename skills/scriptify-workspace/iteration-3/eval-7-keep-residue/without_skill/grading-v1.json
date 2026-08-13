@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "changelog-checker/scripts/tests/ exists and contains manifest.json plus the fixture files",
+      "passed": false,
+      "evidence": "`ls without_skill/workspace/changelog-checker/scripts/tests` -> 'No such file or directory' (exit 1). The run put its residue at tests/ under the skill root (tests/manifest.json, tests/run_tests.py, tests/fixtures/, tests/expected/), per facts.json target_tree_diff.added; facts.json residue.tests_dir_exists=false for the scripts/tests/ path. DEFINITIONAL: scripts/tests/ is the scriptify keep-residue path convention, which the baseline had no reason to produce - it did keep fixtures and a manifest, just at tests/."
+    },
+    {
+      "text": "every fixture path recorded in the moved manifest.json resolves on disk; no path still points into .delegation-review/",
+      "passed": true,
+      "evidence": "Walked every string in tests/manifest.json with python3 (exit 0): tests/fixtures/clean, tests/expected/clean.json, tests/fixtures/messy, tests/expected/messy.json all resolve relative to the skill root. No '.delegation-review' string anywhere in the workspace (`grep -rn` returned no hit in this arm). The manifest was authored in place rather than moved out of .delegation-review, but the assertion's literal check passes. NON-DISCRIMINATING: both arms pass."
+    },
+    {
+      "text": "re-running scriptify's smoke_test.py against the moved manifest exits 0",
+      "passed": false,
+      "evidence": "This arm ships no smoke_test.py (`find` over the workspace finds none; the only copies are skills/scriptify/scripts/smoke_test.py and the with_skill arm's vendored one). Ran the canonical `python3 /Users/admin/claude-learning/skills/scriptify/scripts/smoke_test.py without_skill/workspace/changelog-checker/tests/manifest.json`, exit code read from the python3 process itself -> EXIT 2, stderr 'manifest invalid: missing field: target_skill' and 'manifest invalid: missing or empty field: scripts'. The manifest is a bespoke schema (script/runner/cases), not the scriptify manifest schema. The arm's own runner does pass: `python3 tests/run_tests.py` -> exit 0, '2 case(s), 0 failure(s)'. DEFINITIONAL: the assertion names scriptify's smoke_test.py and its manifest schema."
+    },
+    {
+      "text": "the rewritten changelog-checker SKILL.md body contains the smoke-test command",
+      "passed": false,
+      "evidence": "SKILL.md has a '## Tests' section with `python3 tests/run_tests.py`, its own bespoke runner, and no smoke_test.py invocation (`grep -n smoke` in the SKILL.md returns nothing). Read against the preceding assertion, the smoke-test command is the scriptify smoke_test.py run against the manifest, which this SKILL.md does not carry. DEFINITIONAL: the command names a scriptify artifact absent from this arm; the arm does document an equivalent re-run command of its own."
+    },
+    {
+      "text": "steps 4 (release narrative) and 7 (entries clearly written) remain prose with no script",
+      "passed": true,
+      "evidence": "In the rewritten SKILL.md the narrative step survives as step 4 ('Write a one-paragraph release narrative for a non-technical reader, using `totals` and the entry text') and the original step 7 survives as step 6 ('Read the entries themselves and flag any a reader would find confusing, quoting the entry and naming what is unclear'). Both are prose and invoke no script. `grep -niE 'narrative|confusing|clearly written|readab' scripts/check_changelogs.py` returns no match, so neither judgment was encoded in the script. NON-DISCRIMINATING: both arms pass."
+    }
+  ]
+}

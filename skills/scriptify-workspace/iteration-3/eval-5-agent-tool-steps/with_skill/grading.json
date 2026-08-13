@@ -1,0 +1,72 @@
+{
+  "calibration": {
+    "C1": true,
+    "C2": false
+  },
+  "expectations": [
+    {
+      "text": "the report contains a row for every one of the 7 workflow steps, each with a class",
+      "passed": true,
+      "evidence": "outputs/report.md lines 8-16 hold a markdown table with a Class column and exactly 7 data rows s1-s7, one per SKILL.md workflow step, each quoting the step line and carrying a class: s1 SCRIPT, s2 HYBRID, s3 HYBRID, s4 SCRIPT, s5 HYBRID, s6 CLAUDE, s7 SCRIPT. `grep -c '^| s' report.md` = 7. NON-DISCRIMINATING: the without_skill arm also tables all 7 steps with a Verdict per row."
+    },
+    {
+      "text": "no new files or directories are created inside the target skill folder",
+      "passed": true,
+      "evidence": "GUARDRAIL, mechanical result copied from facts.json: target_tree_diff = {added: [], removed: [], modified: []}, skill_md_changed false, workspace_extra []. Independently confirmed: `find with_skill/workspace -type f` returns only SKILL.md and topics.txt, and `diff -r` against the without_skill copy exits 0, so both targets are byte-identical to the fixture. The run's scratch artifacts (.delegation-review/) live under with_skill/scratch/, outside the target. NON-DISCRIMINATING: without_skill target_tree_diff is also empty."
+    },
+    {
+      "text": "step 2 (WebFetch the top source) is NOT classified pure SCRIPT, and no proposed script reimplements the fetch with curl, requests, or urllib",
+      "passed": true,
+      "evidence": "report.md line 11 classes s2 HYBRID, not SCRIPT, with the reason 'WebFetch is a permission-gated agent runtime tool, so the fetch itself cannot move into a script'. The only script proposed for s2 is `plan_fetch.py`, which emits a JSON list of slug plus destination path still missing - no network work. `grep -niE 'curl|requests|urllib|http\\.client' report.md` returns one hit, line 64, and it is the prohibition ('A script that reimplements them with curl loses auth, the permission model, and rate limiting'), not a proposal. NON-DISCRIMINATING: without_skill also keeps s2 agent-side and explicitly warns against curl."
+    },
+    {
+      "text": "step 5 (notion MCP page lookup and append) is NOT classified pure SCRIPT",
+      "passed": true,
+      "evidence": "report.md line 14 classes s5 HYBRID: 'the notion MCP page lookup and append carry auth and the permission model, so they stay agent-side; rendering the summary block that gets appended is a fixed template over the run data'. The proposed `render_index.py --format notion-block` writes the block to a file; the append stays an MCP call. Line 66 restates 'the script owns the plan and the render around the call, never the call'. NON-DISCRIMINATING: without_skill classes s5 'Split' with the same call-vs-payload division."
+    },
+    {
+      "text": "step 3 (AskUserQuestion which sources to keep) is NOT classified pure SCRIPT",
+      "passed": true,
+      "evidence": "report.md line 12 classes s3 HYBRID: 'the user picks which sources to keep, and AskUserQuestion cannot be reimplemented in a script; building the option list from what actually landed in sources/ is mechanical'. The script side is `source_stats.py`, which only builds the option list and flags over_option_cap. NON-DISCRIMINATING: without_skill classes s3 'Keep (agent)'."
+    },
+    {
+      "text": "steps 1 (dedupe and slugify topics), 4 (word counts and thin-source flags) and 7 (render sorted index table) are classified SCRIPT with concrete argv/exit-code interfaces",
+      "passed": true,
+      "evidence": "All three are classed SCRIPT (report.md lines 10, 13, 16) and each carries a named command line plus a full exit-code contract. s1: `python3 scripts/normalize_topics.py topics.txt --out .brief/topics.json` -> 'exit 0 topics kept / 1 no usable topics / 2 usage'. s4: `python3 scripts/source_stats.py sources/ --thin-under 200 --out .brief/stats.json` -> 'exit 0 sources found / 1 sources/ missing or empty / 2 usage'. s7: `python3 scripts/render_index.py .brief/stats.json --format table --sort words-desc` -> 'exit 0 rendered / 1 no kept sources to render / 2 usage'. Each names the argv, the flags, and a distinct meaning for 0/1/2. DISCRIMINATING: the without_skill arm names argv but no exit codes."
+    },
+    {
+      "text": "step 6 (write the 200-word brief in the house voice) keeps its prose-writing core with Claude",
+      "passed": true,
+      "evidence": "report.md line 15 classes s6 CLAUDE with an empty proposed-script cell: 'a 200-word brief in the house voice is prose the user reads, and reasonable runs should differ here'. Lines 56-61 add that the only scriptable part is the 200-word bound check over finished briefs, leaving the writing itself with Claude. NON-DISCRIMINATING: without_skill classes s6 'Keep (model)' and says 'Do not script step 6'."
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 4,
+      "Bash": 12,
+      "Write": 2
+    },
+    "total_tool_calls": 18,
+    "total_steps": 19,
+    "files_created": [
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/scratch/.delegation-review/SKILL.md.orig",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/scratch/.delegation-review/inventory.json",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/scratch/.delegation-review/classification.json",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/scratch/.delegation-review/report-table.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/outputs/report.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/outputs/gate.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/outputs/transcript-notes.md",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/outputs/metrics.json",
+      "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-5-agent-tool-steps/with_skill/outputs/user_notes.md"
+    ],
+    "errors_encountered": 2,
+    "output_chars": 6941,
+    "transcript_chars": 4228
+  }
+}

@@ -82,19 +82,51 @@ def validate(cls, inv):
     unclassified = sorted(inv_ids - seen)
     if unclassified:
         errors.append(f"unclassified inventory steps: {unclassified}")
+    errors.extend(_shared_name_errors(cls))
+    return errors
+
+
+def _shared_name_errors(cls):
+    """One script name, one exit-code contract.
+
+    Two steps that share a proposed_script name are one script, so disagreeing
+    'exit' strings ship an ambiguous branch into the rewritten SKILL.md: Step 8
+    keys branching off exit codes, and a caller cannot tell 'no sources found'
+    from 'thin sources present' when both are exit 1.
+    """
+    by_name = {}
+    for st in cls.get("steps", []):
+        ps = st.get("proposed_script") or {}
+        name, exit_spec = ps.get("name"), ps.get("exit")
+        if name and exit_spec:
+            by_name.setdefault(name, {}).setdefault(exit_spec, []).append(st.get("id"))
+    errors = []
+    for name, contracts in sorted(by_name.items()):
+        if len(contracts) > 1:
+            detail = "; ".join(f"{sorted(ids)} say {spec!r}"
+                               for spec, ids in sorted(contracts.items()))
+            errors.append(f"script {name!r}: steps disagree on the exit "
+                          f"contract: {detail}")
     return errors
 
 
 def render(cls, inv):
     by_id = {s["id"]: s for s in cls["steps"]}
     mech = [s for s in inv["steps"] if by_id[s["id"]]["class"] in NEEDS_SCRIPT]
-    tok = sum(s["approx_tokens"] for s in mech)
+    # Count only SCRIPT. Step 8 replaces a SCRIPT step with one command line, but a HYBRID step
+    # keeps its judgment prose and only gains an invocation, so counting HYBRID here advertises
+    # a saving the rewrite never delivers.
+    full = [s for s in inv["steps"] if by_id[s["id"]]["class"] == "SCRIPT"]
+    hyb = len(mech) - len(full)
+    tok = sum(s["approx_tokens"] for s in full)
     name = inv.get("frontmatter", {}).get("name") or inv.get("target", "?")
+    hyb_note = f", plus {hyb} HYBRID step(s) that keep their judgment prose" if hyb else ""
     out = [
         f"## Delegation review: {name}",
         "",
-        f"**Verdict:** {len(mech)} of {len(inv['steps'])} steps are mechanical "
-        f"(SCRIPT/HYBRID); delegating them removes ~{tok} tokens of per-run reasoning.",
+        f"**Verdict:** {len(full)} of {len(inv['steps'])} steps become pure script "
+        f"invocations{hyb_note}. Replacing the {len(full)} SCRIPT step(s) removes ~{tok} tokens "
+        f"of per-run reasoning.",
         "",
         "| # | Step (line) | Current form | Tokens | Class | Why | Proposed script interface |",
         "|---|-------------|--------------|--------|-------|-----|---------------------------|",

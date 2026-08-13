@@ -1,0 +1,95 @@
+{
+  "target_skill": "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/workspace/changelog-checker",
+  "scripts": [
+    {
+      "path": "scripts/scan_changelogs.py",
+      "kind": "check",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/scan_changelogs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/scratch/.delegation-review/fixtures/scan_changelogs/good",
+            "--out",
+            ".changelog-scan.json"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "2 files, 5 entries, 0 findings"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/scan_changelogs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/scratch/.delegation-review/fixtures/scan_changelogs/bad-header-malformed",
+            "--out",
+            ".changelog-scan.json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "header_malformed v2.0.0.md"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/scan_changelogs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/scratch/.delegation-review/fixtures/scan_changelogs/bad-unknown-tag",
+            "--out",
+            ".changelog-scan.json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "unknown_tag v2.1.0.md"
+        },
+        {
+          "argv": [
+            "python3",
+            "scripts/scan_changelogs.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/scratch/.delegation-review/fixtures/scan_changelogs/bad-orphan-entry",
+            "--out",
+            ".changelog-scan.json"
+          ],
+          "expect_exit": 1,
+          "expect_stdout_contains": "entry_outside_category v2.2.0.md"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/scan_changelogs.py"
+        ],
+        "expect_exit_nonzero": true
+      },
+      "bad_data_invocation": {
+        "argv": [
+          "python3",
+          "scripts/scan_changelogs.py",
+          "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/scratch/.delegation-review/fixtures/scan_changelogs/bad",
+          "--out",
+          ".changelog-scan.json"
+        ],
+        "expect_exit_nonzero": true,
+        "expect_stdout_contains": "header_not_first v1.2.0.md"
+      }
+    },
+    {
+      "path": "scripts/render_summary.py",
+      "kind": "transform",
+      "invocations": [
+        {
+          "argv": [
+            "python3",
+            "scripts/render_summary.py",
+            "/Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/with_skill/scratch/.delegation-review/fixtures/render_summary/good/scan.json"
+          ],
+          "expect_exit": 0,
+          "expect_stdout_contains": "| v1.1.0 | 2026-03-02 | 0 | 0 | 1 | 1 | 0 | 2 |\n| v1.0.0 | 2026-01-15 | 2 | 1 | 0 | 0 | 0 | 3 |"
+        }
+      ],
+      "bad_invocation": {
+        "argv": [
+          "python3",
+          "scripts/render_summary.py"
+        ],
+        "expect_exit_nonzero": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+Review the skill in /Users/admin/claude-learning/skills/scriptify-workspace/iteration-3/eval-1-apply-and-smoke-test/without_skill/workspace/changelog-checker/ for steps to delegate to scripts, apply all the delegations you find, and verify the generated scripts work.

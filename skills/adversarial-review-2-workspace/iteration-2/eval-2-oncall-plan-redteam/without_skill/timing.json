@@ -1,0 +1,6 @@
+{
+  "total_tokens": 38052,
+  "duration_ms": 28653,
+  "total_duration_seconds": 28.7,
+  "note": "run was killed by a session limit and resumed; duration covers only the resumed segment, tokens are cumulative"
+}

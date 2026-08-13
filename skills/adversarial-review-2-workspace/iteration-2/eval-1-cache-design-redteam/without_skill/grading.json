@@ -1,0 +1,124 @@
+{
+  "expectations": [
+    {
+      "text": "Every finding carries a severity grade and all findings appear in one strict total rank order (no flat band of same-grade ties without sub-ranking)",
+      "passed": false,
+      "evidence": "All 13 findings carry a severity (3 Critical, 6 High, 3 Medium, 1 Low), and IDs F-01..F-13 run in severity-descending sequence. But the report never states that ID order is a priority rank, and within bands the ordering reads thematic, not ranked: the six High findings (F-04..F-09) and three Mediums (F-10..F-12) have no stated sub-ranking or tie-break reasoning. Per the reasoned-compliance bar, sequential numbering without a stated ranking claim leaves the same-grade bands as flat ties."
+    },
+    {
+      "text": "Every finding includes a concrete failure scenario naming specific inputs, state, or sequence leading to a specific outcome",
+      "passed": true,
+      "evidence": "Each of F-01..F-13 names a trigger, state, and outcome. Examples: F-01 'one promo_changed event stalls every keyspace consumer... rate-limit checks and flag reads time out'; F-05 'A promo valid at first quote is cached for 30 minutes. If it expires at minute 10... quotes at minute 11-30 still apply it'; F-06 'Change your shipping state after the first quote and you get the old state's tax rate for up to 30 minutes'; F-13 'empty promo set during a promo-engine incident gets frozen for 30 minutes'."
+    },
+    {
+      "text": "Report flags the KEYS-based invalidation blocking the shared Redis cluster AND ranks this guaranteed recurring failure at or above any conditional finding that depends on an unverified fact (such as the eviction-policy-dependent sizing collision)",
+      "passed": true,
+      "evidence": "F-01 (Critical, first finding) flags 'KEYS is O(N) over the entire keyspace and blocks the Redis event loop... This cluster also serves rate limiting and feature flags'. The eviction-policy-dependent sizing collision is F-07 (High) and is explicitly conditional ('behavior depends on eviction policy'). The guaranteed KEYS failure sits at Critical, above every conditional finding, so the ranking is reasoned, not superficial."
+    },
+    {
+      "text": "Report flags the sizing math: 200k sessions x 40KB = 8GB, equal to all free memory on the shared cluster",
+      "passed": true,
+      "evidence": "F-07: '40KB x 200k sessions = 8GB - exactly the stated free capacity. That leaves no room for: Redis per-key overhead... replication buffers, fragmentation'. Matches the design doc's '~40KB per session hash, ~200k active sessions peak. Existing cluster has 8GB free.'"
+    },
+    {
+      "text": "Report flags a wrong/stale price window (TTL or invalidation gap can quote users outdated prices or tax)",
+      "passed": true,
+      "evidence": "F-02: 'A catalog price change or tax-rate change leaves stale data live for up to 30 minutes... quoting - and presumably charging - the wrong amount.' Reinforced by F-05 (expired promos still applied from cache) and F-06 (stale tax after shipping-address change)."
+    },
+    {
+      "text": "Retest mechanism is one falsifiable per-finding check (yes/no verifiable against a revised design), not a verbatim copy of the full failure scenarios",
+      "passed": true,
+      "evidence": "The 'Re-check protocol' table gives one pass criterion per ID, each yes/no checkable against the revised doc, e.g. F-01 'Invalidation mechanism contains no KEYS; mass-delete replaced by versioned keys or documented per-node SCAN+UNLINK', F-12 'Schema version in key or hash field, mismatch treated as miss'. Criteria are restated as verification conditions, not copies of the scenario prose, and the protocol requires stated mechanisms, not intentions."
+    },
+    {
+      "text": "Review states an explicit charter/threat model with ranked harm categories before the findings",
+      "passed": false,
+      "evidence": "The report opens with a review lens ('the two stated nightmares - serving a wrong price, and taking down the shared Redis cluster') and a severity scale, but the two harm categories are restated from the prompt and never ranked against each other; the Critical definition treats them as equal ('wrong price, or can take down Redis'). No explicit charter or ranked harm-category list exists."
+    },
+    {
+      "text": "Report opens or closes with a bottom-line verdict plus a minimum-changes path that collapses the findings into fewer fixes than findings",
+      "passed": false,
+      "evidence": "The summary's closing paragraph gives a partial collapse ('The Criticals share one root cause... Versioned/epoch keys (F-01) plus charge-time revalidation (F-03) plus explicit invalidation (F-02) resolve the wrong-price nightmare; F-07/F-08/F-09 together are the Redis-meltdown nightmare'), but there is no bottom-line verdict statement (e.g. ship/don't-ship, ready/not-ready). 'Block arch review sign-off until fixed' appears only inside the severity-scale definition, and the collapse covers 9 of 13 findings, leaving F-04/F-05/F-06/F-10..F-13 outside any consolidated fix path."
+    },
+    {
+      "text": "Coverage extends beyond the three planted flaws: report raises at least one of staleness/invalidation observability, cache keyspace namespacing, or rollout gating between 5% and 100%",
+      "passed": true,
+      "evidence": "Rollout gating: F-11 flags '5%-for-a-day rollout can't surface memory, herd, or staleness issues; no exit criteria' and prescribes 'add 25%/50% stages... define exit criteria per stage'. Invalidation observability: F-10 flags missing delivery guarantees, consumer-lag alerting, and reconciliation."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 3,
+    "total": 9,
+    "pass_rate": 0.67
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 1, "Bash": 2, "Write": 2},
+    "total_tool_calls": 5,
+    "total_steps": 5,
+    "errors_encountered": 0,
+    "output_chars": 13903,
+    "transcript_chars": 32000
+  },
+  "timing": {
+    "executor_duration_seconds": 17.1,
+    "note": "Executor run was killed by a session limit and resumed; duration covers only the resumed segment (per timing.json)."
+  },
+  "claims": [
+    {
+      "claim": "The design doc's invalidation section covers promos only",
+      "type": "factual",
+      "verified": true,
+      "evidence": "session-cache-design.md Invalidation section mentions only the promo_changed event; no catalog or tax invalidation."
+    },
+    {
+      "claim": "Cache key includes session ID only, so mid-session mutable inputs are ignored",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Doc: 'Cache key includes session ID only.'"
+    },
+    {
+      "claim": "Feature flags are served from the same Redis cluster as the cache",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Doc: 'Redis: existing shared cluster (also serves rate limiting and feature flags).' Supports F-08 kill-switch finding."
+    },
+    {
+      "claim": "Rollout is one day at 5% then straight to 100% with no intermediate stages",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Doc: 'enable via feature flag cache_pricing_v1 at 100% after a day at 5%.'"
+    },
+    {
+      "claim": "KEYS is O(N) and blocks the Redis event loop; on Redis Cluster it only sees one node per call",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Accurate Redis behavior: KEYS is a blocking full-keyspace scan, and client-issued KEYS runs against a single node in cluster mode."
+    },
+    {
+      "claim": "Numeric values in fix directions (timeouts, headroom fractions) are conventional starting points, not measured",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Disclosed in user_notes.md; the pass criteria correspondingly require the revised doc's own measured numbers (F-07, F-09)."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Assumed the charge/confirm path is not described elsewhere; F-03 flags its absence rather than assuming it exists",
+      "Numbers in fix directions are conventional starting points, not measured values"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Executor noted the debate-review skill matched the request but skipped it because this is the without_skill baseline"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "Every finding carries a severity grade and all findings appear in one strict total rank order (no flat band of same-grade ties without sub-ranking)",
+        "reason": "Sequential finding IDs (F-01..F-13) are ambiguous evidence: a grader could read them as a total order or as arbitrary labels. Consider tightening the expectation to require the report to state that findings are listed in priority order (or to give explicit rank numbers), so pass/fail doesn't hinge on interpreting ID sequence."
+      }
+    ],
+    "overall": "Expectations are discriminating overall; the baseline report passes the substantive technical checks (all three planted flaws, concrete scenarios, falsifiable retest) and fails on the structural elements the skill presumably enforces (charter with ranked harms, explicit verdict plus collapsed fix path, stated total rank order)."
+  }
+}

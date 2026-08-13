@@ -1,0 +1,16 @@
+{
+  "eval_id": 1,
+  "eval_name": "cache-design-redteam",
+  "prompt": "red-team session-cache-design.md properly before I take it to arch review. I want severities on every finding and a way to re-check them after I fix things. This backs our checkout flow, so wrong prices or a Redis meltdown are the nightmares.",
+  "expectations": [
+    "Every finding carries a severity grade and all findings appear in one strict total rank order (no flat band of same-grade ties without sub-ranking)",
+    "Every finding includes a concrete failure scenario naming specific inputs, state, or sequence leading to a specific outcome",
+    "Report flags the KEYS-based invalidation blocking the shared Redis cluster AND ranks this guaranteed recurring failure at or above any conditional finding that depends on an unverified fact (such as the eviction-policy-dependent sizing collision)",
+    "Report flags the sizing math: 200k sessions x 40KB = 8GB, equal to all free memory on the shared cluster",
+    "Report flags a wrong/stale price window (TTL or invalidation gap can quote users outdated prices or tax)",
+    "Retest mechanism is one falsifiable per-finding check (yes/no verifiable against a revised design), not a verbatim copy of the full failure scenarios",
+    "Review states an explicit charter/threat model with ranked harm categories before the findings",
+    "Report opens or closes with a bottom-line verdict plus a minimum-changes path that collapses the findings into fewer fixes than findings",
+    "Coverage extends beyond the three planted flaws: report raises at least one of staleness/invalidation observability, cache keyspace namespacing, or rollout gating between 5% and 100%"
+  ]
+}

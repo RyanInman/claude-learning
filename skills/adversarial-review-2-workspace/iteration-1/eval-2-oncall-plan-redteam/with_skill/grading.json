@@ -1,0 +1,122 @@
+{
+  "expectations": [
+    {
+      "text": "Every finding carries a severity grade",
+      "passed": true,
+      "evidence": "All eight findings (F1-F8) carry an explicit severity in both the summary table and each finding body: F1-F5 'High', F6-F8 'Medium', each also tagged Confirmed or Plausible. The report additionally explains why no finding was graded Critical."
+    },
+    {
+      "text": "Every finding includes a concrete failure scenario tied to downstream harm, not a vague concern",
+      "passed": true,
+      "evidence": "Each of F1-F8 has a 'Failure scenario' section with specific times, actors, and downstream harm. E.g. F1: 'A Sev1 fires at 22:30 ET on a Tuesday... the page rings, nobody acks, the outage runs until 02:00 ET at the earliest'; F4: 'picking the wrong one (promoting a stale replica) converts a degraded-read incident into data loss'; F8: 'The restart drops events; downstream teams discover silent data gaps hours later.'"
+    },
+    {
+      "text": "Report identifies the timezone coverage gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET, so 20:00-02:00 ET is covered by neither window, defeating the zero-overnight-pages goal",
+      "passed": true,
+      "evidence": "F1 states it exactly: 'The two windows (02:00-14:00 ET and 08:00-20:00 ET) leave 20:00-02:00 ET uncovered every day - this is not a follow-the-sun schedule, it is a schedule with a nightly 6-hour hole during US evening peak traffic.' The arithmetic is correct against the plan (Krakow 08:00-20:00 CET, US-East 08:00-20:00 ET, CET = ET+6). F1's corroboration also notes the hole is 'invisible in the success metric' if routed to Krakow."
+    },
+    {
+      "text": "Report identifies Krakow readiness risk: 6-week-old team, no production experience, access provisioning still incomplete before go-live",
+      "passed": true,
+      "evidence": "F3 covers incomplete access ('Her prod SSH request is still queued in the in-progress provisioning backlog; the dashboard link 403s'; root cause: 'access provisioning is in progress, yet the Goal puts Krakow on primary starting next month with no provisioning-complete gate'). F4 covers inexperience ('a Krakow engineer with 7 total weeks at the company and zero production deploys'). Both facts match the artifact's Notes section."
+    },
+    {
+      "text": "Report identifies that the US-only incident-commander pool still wakes US engineers for Sev1s, undermining the success metric",
+      "passed": true,
+      "evidence": "F2 identifies the mechanism: 'the entire IC pool is US-based and asleep with no on-call IC schedule. The Krakow engineer... must either run the Sev1 alone or cold-call US engineers off-rotation.' The metric undermining is made explicit in F7 ('step 4's escalation pages US overnight, and step 6 counts any overnight US page as failure') and in F1's corroboration (overnight load 'invisible in the success metric')."
+    },
+    {
+      "text": "Report contains a retest list or equivalent re-check mechanism for the findings",
+      "passed": true,
+      "evidence": "Report has a dedicated '## Retest list' section with per-finding scenarios (F1, F2, F3, F5, F6, F7) each ending in an explicit 'Check:' condition, plus a '## Verification items' section (V1-V3) for the two Plausible findings and F3's provisioning ETA."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 2, "Write": 4, "Agent": 3, "Bash": 1},
+    "total_tool_calls": 10,
+    "total_steps": 7,
+    "errors_encountered": 1,
+    "output_chars": 20024,
+    "transcript_chars": 75000
+  },
+  "timing": {
+    "executor_duration_seconds": 1203.5
+  },
+  "claims": [
+    {
+      "claim": "Krakow 08:00-20:00 CET equals 02:00-14:00 ET, leaving a 20:00-02:00 ET daily gap",
+      "type": "factual",
+      "verified": true,
+      "evidence": "CET is 6 hours ahead of ET; the conversion and the resulting 6-hour uncovered window are arithmetically correct given the plan's windows."
+    },
+    {
+      "claim": "The plan's escalation path (step 4) directly conflicts with its success metric (step 6)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Plan step 4 pages 'the other region's primary' on no-ack; step 6 defines success as 'zero overnight pages for US-East'. F7's perverse-incentive reading follows from the text."
+    },
+    {
+      "claim": "The plan defines exactly one escalation hop with no terminal fallback",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Plan step 4 specifies only 'page the other region's primary'; no secondary or further step appears anywhere in the artifact. F6 is accurate."
+    },
+    {
+      "claim": "Each Krakow engineer carries 84 hours of pager duty per on-call week in a 1-in-3 rotation",
+      "type": "factual",
+      "verified": true,
+      "evidence": "12 hours/day x 7 days = 84; 3 engineers covering daily 08:00-20:00 CET yields 1-in-3 weekly primary. Consistent with the artifact (3 Krakow engineers, no secondary mentioned)."
+    },
+    {
+      "claim": "Twelve raw findings were merged to eight; none were killed",
+      "type": "process",
+      "verified": false,
+      "evidence": "No transcript is available; only the report asserts this. The 'Corroboration' notes on F1, F2, F3, F5 are consistent with four merges, but the raw adversary outputs cannot be inspected."
+    },
+    {
+      "claim": "Three fresh-eyes adversaries attacked in parallel",
+      "type": "process",
+      "verified": false,
+      "evidence": "metrics.json shows 3 Agent calls, consistent with the claim, but without a transcript the parallelism and fresh-eyes property cannot be confirmed."
+    },
+    {
+      "claim": "The runbook for database failover contains a destructive branch (F4) and runbooks contain unstated tribal knowledge (F8)",
+      "type": "factual",
+      "verified": false,
+      "evidence": "The artifact says only that runbooks 'live in the internal wiki' and will be tidied up. The report correctly self-flags this: both findings are graded Plausible with verification items V1 and V2 rather than asserted as fact."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Stage 0 overkill check and charter questions were skipped (no live user); charter filled from the artifact alone"
+    ],
+    "needs_review": [
+      "Stage 5 (retest) is pending by design; the retest list is written to be runnable cold in a later session"
+    ],
+    "workarounds": [
+      "A harness guard rejected the Write tool for report.md; the executor wrote it via a shell heredoc instead (the one error in metrics.json)",
+      "Outputs written to with_skill/outputs/ per task instruction rather than the skill's default adversarial-review-2/ directory"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "Report contains a retest list or equivalent re-check mechanism for the findings",
+        "reason": "A report that copies each finding title into a bullet list would pass. Consider requiring that each retest entry be independently executable (concrete scenario plus a checkable pass condition), which is what distinguishes this run's retest list from a token gesture."
+      },
+      {
+        "reason": "No expectation checks severity calibration - a report grading everything Critical or everything Low would pass expectation 1. This run justified why nothing was Critical and downgraded F6 with explicit reasoning; an expectation like 'severity grades are differentiated and each grade is justified' would catch flat or inflated grading."
+      },
+      {
+        "reason": "No expectation covers false positives - a report could pad in fabricated findings (e.g., inventing runbook contents) and still pass all six. This run handled it well by grading unverifiable findings Plausible with verification items; an expectation like 'no finding asserts facts absent from the artifact without flagging them as assumptions' would be discriminating."
+      }
+    ],
+    "overall": "All six expectations passed on genuine substance; the three fact-heavy expectations (timezone math, readiness, IC pool) are well-designed because they require correct analysis, not just topic mention. Gaps: severity calibration and fabrication resistance are unchecked, and process claims are ungradeable without a transcript."
+  }
+}

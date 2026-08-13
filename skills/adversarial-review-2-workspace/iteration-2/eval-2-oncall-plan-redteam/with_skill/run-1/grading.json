@@ -1,0 +1,121 @@
+{
+  "expectations": [
+    {
+      "text": "Every finding carries a severity grade and all findings appear in one strict total rank order",
+      "passed": true,
+      "evidence": "Summary table ranks all 10 findings 1-10 with no ties, each row carrying a severity (Critical/High/Medium/Low). Each finding body repeats its severity. A ranking note even justifies adjacent orderings ('F1 outranks F2 because F1 fires on any incident in the hole... F2 fires only on Sev1s')."
+    },
+    {
+      "text": "Every finding includes a concrete failure scenario tied to downstream harm",
+      "passed": true,
+      "evidence": "All 10 findings have a 'Failure scenario' section with specific times, actors, and downstream harm, e.g. F4: 'Two missed pages, then silence; the incident is unowned indefinitely'; F3: 'Minimum added Sev1 duration: 15+ minutes on every incident in the Krakow window until provisioning lands.'"
+    },
+    {
+      "text": "Report identifies the timezone coverage gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET, leaving 20:00-02:00 ET covered by neither window",
+      "passed": true,
+      "evidence": "F1 (rank 1, Critical): 'From 01:00 to 07:00 UTC (20:00-02:00 ET, 02:00-08:00 CET) neither shift is on duty — 6 hours every day'. F2 states 'Krakow's window is 02:00-14:00 ET'. I re-derived the arithmetic against the artifact (CET = ET+6 in winter) and it is correct, including the noted 13:00-19:00 UTC overlap."
+    },
+    {
+      "text": "Report identifies Krakow readiness risk: 6-week-old team, no production experience, access provisioning incomplete before go-live",
+      "passed": true,
+      "evidence": "F3 covers provisioning: 'Provisioning is still \"in progress\": no prod SSH, no dashboards, possibly not a valid PagerDuty target', with a go-live gate fix. F2 and F5 cover experience: 'the Krakow primary — 6 weeks in, never shipped to production' and 'one week of shadowing as their total production exposure'. S2 covers the training gap."
+    },
+    {
+      "text": "Report identifies that the US-only incident-commander pool still wakes US engineers, undermining the zero-overnight-pages metric",
+      "passed": true,
+      "evidence": "F2 (rank 2, Critical): 'Either a US engineer is woken at 04:00 (the exact page the plan exists to eliminate)...', root cause: 'Step 5 keeps the IC pool US-only with no paging path while step 6 declares success as zero US-East overnight pages; the plan never reconciles the contradiction.'"
+    },
+    {
+      "text": "Report states plainly (in a verdict or top-ranked finding) that the plan fails its own stated goal as written, not merely a list of individual risks",
+      "passed": true,
+      "evidence": "Verdict opens: 'As written, the plan fails its stated goal from day one' and names the mechanism ('Two Critical findings are structural contradictions, not operational risks'). F2 repeats it: 'the goal fails structurally, on the plan's own text, before any operational slippage.'"
+    },
+    {
+      "text": "Coverage includes at least two of: cross-shift handover of in-flight incidents, weekend or US/Polish holiday misalignment, DST drift between US and EU changeover weeks, rollback/abort criteria",
+      "passed": true,
+      "evidence": "Three of four covered as full findings: S1 (in-flight incident handover at shift boundaries), F7 (DST drift, with correct US-second-Sunday vs EU-last-Sunday March dates and the 6h→5h offset shrink), S3 (no rollback/abort criteria). Weekend/holiday misalignment is the one item not covered."
+    },
+    {
+      "text": "Retest mechanism is one falsifiable per-finding check, not verbatim scenario copies",
+      "passed": true,
+      "evidence": "Retest list gives one explicit yes/no check per finding, phrased as verifiable post-fix conditions distinct from the scenarios, e.g. F1: 'Revised schedule assigns a named, on-duty owner to every minute of a 24h UTC day, with no \"closest\" rule remaining — yes/no.' F3 gets a conditional retest pending its verification item."
+    },
+    {
+      "text": "Report includes a bottom-line verdict plus a prioritized minimum-changes list",
+      "passed": true,
+      "evidence": "The 'Verdict' section is first, followed by 'Minimum-changes path (clears the top findings with 4 fixes)' — four numbered changes each mapped to the findings they close ('closes F1 and F7', 'closes F4 and F5', etc.)."
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 2,
+      "Write": 2,
+      "Agent": 3,
+      "Bash": 1
+    },
+    "total_tool_calls": 8,
+    "total_steps": 5,
+    "errors_encountered": 1,
+    "output_chars": 21340,
+    "transcript_chars": 95000
+  },
+  "timing": {
+    "executor_duration_seconds": 94.8,
+    "note": "timing.json states the run was killed by a session limit and resumed; duration covers only the resumed segment"
+  },
+  "claims": [
+    {
+      "claim": "Winter gap is 01:00-07:00 UTC (20:00-02:00 ET), 6 hours, with a 13:00-19:00 UTC overlap between the two windows",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Re-derived from the artifact's step 1 windows: Krakow 07:00-19:00 UTC, US-East 13:00-01:00 UTC in winter. Gap and overlap both check out."
+    },
+    {
+      "claim": "DST mismatch weeks (US second Sunday of March vs EU last Sunday; late Oct to early Nov) shrink the offset to 5h and grow the hole to 7 hours",
+      "type": "factual",
+      "verified": true,
+      "evidence": "US DST starts second Sunday of March, EU last Sunday of March; US ends first Sunday of November, EU last Sunday of October. During mismatch EDT(UTC-4) vs CET(UTC+1) = 5h; US window shifts to 12:00-00:00 UTC, gap 00:00-07:00 UTC = 7h."
+    },
+    {
+      "claim": "F1 and F2 were 'found independently by all three adversaries'; F4 by two; twelve adversary findings merged into seven with none killed",
+      "type": "process",
+      "verified": false,
+      "evidence": "No transcript available (executor ran in background); corroboration counts and the merge/kill accounting cannot be checked from outputs alone."
+    },
+    {
+      "claim": "Polish statutory leave minimum exceeds 20 days (F5)",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Slightly imprecise: Polish statutory annual leave is 20 days (26 with 10+ years' service), so the minimum is 20, not 'exceeds 20'. Not load-bearing for the finding."
+    },
+    {
+      "claim": "Timezone and DST arithmetic was independently re-derived during Stage 3 verification and held (user_notes.md)",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Consistent with my own re-derivation; all timezone claims in the report are numerically correct."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [
+      "Write tool rejected report.md; report written via shell heredoc with identical content",
+      "No live user, so Stage 0 intake facts were mined from the artifact's Goal and Notes sections; overkill check skipped as inapplicable",
+      "Stage 5 retest deliberately not run (triggers only after fixes land); retest list written to be runnable cold"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "The report's corroboration and merge claims ('found independently by all three adversaries', 'twelve findings merged into seven, none killed') are the skill's distinctive multi-adversary machinery, but with no transcript available nothing verifies they happened rather than being narrated. Consider requiring the executor to save per-adversary raw outputs (or the transcript) so process claims are checkable."
+      }
+    ],
+    "overall": "Expectations are discriminating: 3, 5, 6, and 8 require specific, verifiable content that a shallow review would miss, and the timezone expectation is checkable arithmetic. The one gap is process verifiability when the executor runs in the background."
+  }
+}

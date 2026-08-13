@@ -1,0 +1,112 @@
+{
+  "expectations": [
+    {
+      "text": "Every finding in the report carries a severity grade (Critical/High/Medium/Low or equivalent scale)",
+      "passed": true,
+      "evidence": "All 10 findings (F1-F10) carry severities in both the summary table and each finding body: F1 Critical, F2-F8 High, F9-F10 Medium. The report also includes a severity-inflation check ranking the six Highs by expected downstream harm."
+    },
+    {
+      "text": "Every finding includes a concrete failure scenario naming specific inputs, state, or sequence leading to a specific outcome (reproducible, not a vague concern)",
+      "passed": true,
+      "evidence": "Every finding has a 'Failure scenario' section with specific inputs, state, and sequence. Examples: F9 gives a timestamped race (T0 quote starts, T0+100ms promo deactivated and KEYS/DEL runs, T0+480ms stale write lands with fresh 30-min TTL); F6 names a NY-to-Oregon shipping address change mid-session applying NY tax; F2 names a merchandiser promo edit at peak triggering the blocking KEYS scan. Most include an explicit 'Repro:' step."
+    },
+    {
+      "text": "Report flags the KEYS-based invalidation as dangerous on the shared Redis cluster (KEYS is a blocking O(N) scan; cluster also serves rate limiting and feature flags)",
+      "passed": true,
+      "evidence": "F2 (High, Confirmed): '`KEYS` is a blocking O(N) scan of the entire keyspace — including every rate-limit counter and feature-flag key, not just cache keys — and Redis is single-threaded, so all other commands queue behind it... rate-limit checks and feature-flag reads time out cluster-wide.' Matches artifact lines 19-20 which specify KEYS then DEL."
+    },
+    {
+      "text": "Report flags the sizing math: 200k sessions x 40KB = 8GB, equal to ALL free memory on the shared cluster",
+      "passed": true,
+      "evidence": "F1 (Critical): '40KB × 200k sessions = 8GB — precisely the stated free capacity... Sizing section (line 23) budgets 100% of free memory with zero headroom.' Matches artifact line 23 ('~40KB per session hash, ~200k active sessions peak. Existing cluster has 8GB free'). F1 also traces both eviction-policy outcomes (allkeys-* evicts flag/rate-limit keys; noeviction errors all writes)."
+    },
+    {
+      "text": "Report flags a wrong/stale price window (30-min TTL or invalidation gap can quote users outdated prices in checkout)",
+      "passed": true,
+      "evidence": "F5 (High, Confirmed): catalog price and tax rate changes have no invalidation path, so 'every quote in that session until 10:30 uses the old price and old tax rate' — the TTL is the silent staleness bound. F9 additionally covers the invalidation-race gap that gives stale promo data 'a fresh 30-minute lease'."
+    },
+    {
+      "text": "Report contains an explicit retest mechanism: a list of failing scenarios to re-run after fixes land",
+      "passed": true,
+      "evidence": "Report has a 'Retest list' section: 'Re-run each scenario verbatim against the revised design after fixes land. A fix counts only when its original scenario no longer fails.' It lists all six Confirmed scenarios (F2, F3, F4, F5, F9, F10) verbatim and states that Plausible findings (F1, F6, F7, F8) join the list once their verification item confirms them."
+    },
+    {
+      "text": "Review states an explicit scope/threat model (charter or equivalent) with ranked harm categories before the findings",
+      "passed": true,
+      "evidence": "charter.md contains 'Harm categories, ranked' (1 wrong prices, 2 shared Redis meltdown, 3 checkout latency/availability, 4 unsafe rollout), an out-of-scope list, and a success criterion. The report's opening line references it ('Charter: `charter.md`') and every finding is tagged with a charter category. Charter file timestamp (11:10) precedes report (11:28)."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 2, "Write": 4, "Agent": 3, "Bash": 1},
+    "total_tool_calls": 10,
+    "total_steps": 6,
+    "errors_encountered": 1,
+    "output_chars": 26350,
+    "transcript_chars": 95000
+  },
+  "timing": {
+    "executor_duration_seconds": 1178.8,
+    "total_tokens": 62950
+  },
+  "claims": [
+    {
+      "claim": "Three fresh-eyes adversaries attacked in parallel",
+      "type": "process",
+      "verified": true,
+      "evidence": "metrics.json shows 3 Agent tool calls, consistent with three adversary subagents. No transcript available to confirm prompts or parallelism."
+    },
+    {
+      "claim": "12 raw findings; 2 merged pairs; 0 killed; 10 survive",
+      "type": "process",
+      "verified": false,
+      "evidence": "Arithmetic is consistent (12 - 2 merges = 10 listed findings, and the Killed section names the two merged pairs), but the raw count of 12 cannot be verified without a transcript."
+    },
+    {
+      "claim": "All cited artifact line numbers are accurate (lines 12, 13, 16, 19-20, 23, 26-27)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Checked each against session-cache-design.md: line 12 'compute the total locally', line 13 'Cache key includes session ID only', line 16 rollout flag at 5% then 100%, lines 19-20 KEYS/DEL invalidation, line 23 sizing, lines 26-27 'No circuit breaker needed'. All match."
+    },
+    {
+      "claim": "KEYS is a blocking O(N) scan and Redis is single-threaded",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Accurate Redis behavior; KEYS documentation warns against production use for exactly this reason."
+    },
+    {
+      "claim": "The version-key fix (F2) also closes F9's race and removes F3's flush",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Logically sound: readers rejecting hashes with a stale promo_version makes both the KEYS sweep and the delete-then-write race irrelevant, and no mass delete means no synchronized flush."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Charter harm categories were derived from the task statement plus two implied harms; no user confirmation was possible.",
+      "Stage 5 (retest) is pending by design — the retest list is written to be runnable cold in a later session."
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Harness blocked the Write tool for report.md; executor wrote it via a Bash heredoc instead (the one error in metrics.json).",
+      "Skill's default adversarial-review-2/ output directory was overridden by the task's explicit outputs path."
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "Report contains an explicit retest mechanism: a list of failing scenarios to re-run after fixes land",
+        "reason": "A bare list of finding IDs ('re-check F1-F10') would also pass. This run exceeded the bar with verbatim, self-contained scenarios; consider tightening the expectation to require scenarios reproducible without the original report context, so a lazy output can't pass."
+      },
+      {
+        "reason": "No expectation checks factual accuracy of the report's citations against the artifact (line numbers, quoted numbers). A report with hallucinated line references would pass all seven expectations. This run's citations were all accurate, but the eval doesn't discriminate on it."
+      }
+    ],
+    "overall": "Grading ran without a transcript, so process claims (adversary count, raw finding count, kill step) rest on metrics.json and internal consistency only. The seven expectations are otherwise well-chosen and discriminating: the three planted flaws (KEYS, sizing, stale price) each have a dedicated expectation, and all were caught."
+  }
+}

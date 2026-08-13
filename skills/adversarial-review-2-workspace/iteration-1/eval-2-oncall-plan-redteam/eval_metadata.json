@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "oncall-plan-redteam",
+  "prompt": "attack this on-call rotation plan and grade the findings by severity - what would actually break and how bad? oncall-rotation-plan.md",
+  "expectations": [
+    "Every finding carries a severity grade",
+    "Every finding includes a concrete failure scenario tied to downstream harm, not a vague concern",
+    "Report identifies the timezone coverage gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET, so 20:00-02:00 ET is covered by neither window, defeating the zero-overnight-pages goal",
+    "Report identifies Krakow readiness risk: 6-week-old team, no production experience, access provisioning still incomplete before go-live",
+    "Report identifies that the US-only incident-commander pool still wakes US engineers for Sev1s, undermining the success metric",
+    "Report contains a retest list or equivalent re-check mechanism for the findings"
+  ]
+}

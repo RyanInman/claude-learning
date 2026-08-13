@@ -1,0 +1,139 @@
+{
+  "expectations": [
+    {
+      "text": "Every finding carries a severity grade and all findings appear in one strict total rank order (no flat band of same-grade ties without sub-ranking)",
+      "passed": true,
+      "evidence": "Summary table ranks all 12 findings 1-12 with a Severity column on every row (Critical x2, High x5, Medium x5). Same-grade bands are sub-ranked and the ordering is reasoned, e.g. F-3's note: 'It fires deterministically on every promo change, which is why it outranks the conditional High findings below.'"
+    },
+    {
+      "text": "Every finding includes a concrete failure scenario naming specific inputs, state, or sequence leading to a specific outcome",
+      "passed": true,
+      "evidence": "All 12 findings have a 'Failure scenario' with specific inputs/state/sequence and outcome. Examples: F-2 ('Merchandising raises SKU X from $49 to $79 at 14:00... thousands of checkouts complete at the wrong price'), F-10 (T0/T1/T2 race sequence ending with 'The dead promo is now cached for a fresh 30 minutes'), F-1 ('200k sessions x 40KB = 8GB... At the first peak after the 100% rollout, the cluster hits maxmemory'). Most also carry a repro step."
+    },
+    {
+      "text": "Report flags the KEYS-based invalidation blocking the shared Redis cluster AND ranks this guaranteed recurring failure at or above any conditional finding that depends on an unverified fact (such as the eviction-policy-dependent sizing collision)",
+      "passed": true,
+      "evidence": "F-3 (rank 3, High-Confirmed) flags 'KEYS session:*:pricing... blocks the Redis event loop for the full scan' stalling rate limiting and feature flags. F-3 sits above every Plausible/conditional finding (F-6 rank 6, F-7 rank 7, F-8, F-11). The two findings above it are both shown unconditional: F-2 is a Confirmed fact of the artifact (no catalog/tax invalidation path exists), and F-1's note supplies the required reasoning: 'Grade is Critical despite the eviction policy being unverified because both policy branches produce a co-tenant production outage; the policy only selects which one.' This is reasoned, not superficial, compliance: the sizing collision is argued bad under every eviction policy, satisfying the grading note's condition for outranking the KEYS failure."
+    },
+    {
+      "text": "Report flags the sizing math: 200k sessions x 40KB = 8GB, equal to all free memory on the shared cluster",
+      "passed": true,
+      "evidence": "F-1 (rank 1, Critical): '200k sessions x 40KB = 8GB of payload - exactly the stated free memory, before Redis per-key overhead'. Matches the artifact's Sizing section ('~40KB per session hash, ~200k active sessions peak. Existing cluster has 8GB free')."
+    },
+    {
+      "text": "Report flags a wrong/stale price window (TTL or invalidation gap can quote users outdated prices or tax)",
+      "passed": true,
+      "evidence": "F-2: 'Catalog price and tax-rate changes never invalidate the cache - customers pay stale prices for up to 30 minutes, silently... their only bound is the 30-minute TTL.' Also covered from other angles by F-6 (stale tax jurisdiction), F-10 (stale promo after race), F-11 (expired promo applied until TTL)."
+    },
+    {
+      "text": "Retest mechanism is one falsifiable per-finding check (yes/no verifiable against a revised design), not a verbatim copy of the full failure scenarios",
+      "passed": true,
+      "evidence": "Retest list gives one explicit yes/no check per Confirmed finding (F-1 through F-5, F-9, F-10, F-12), each phrased as a condition checkable against a revised design, e.g. F-3: 'invalidation issues no KEYS, mass-DEL, or other O(keyspace) blocking operation on the shared cluster - yes/no.' Checks are condensed conditions, not copies of the failure scenarios. The four Plausible findings are handled explicitly: they 'join this list once their verification item confirms the enabling fact; their checks are the Suggested fix conditions in each finding' - each of those fix conditions is itself yes/no verifiable."
+    },
+    {
+      "text": "Review states an explicit charter/threat model with ranked harm categories before the findings",
+      "passed": true,
+      "evidence": "charter.md contains 'Harm categories, ranked' (1. wrong prices, 2. shared Redis cluster meltdown, 3. checkout latency/availability collapse, 4. silent failure) plus scope exclusions and a success criterion. report.md line 3 references it before any finding ('Charter: charter.md') and every finding's Category maps to a charter harm category."
+    },
+    {
+      "text": "Report opens or closes with a bottom-line verdict plus a minimum-changes path that collapses the findings into fewer fixes than findings",
+      "passed": true,
+      "evidence": "Report opens with a 'Verdict' section ('As written, the design does not safely achieve its goal...') followed by 'Minimum-changes path (five fixes clear the top findings; the first closes four root causes)' - 5 fixes covering all 12 findings, with each fix mapped to the finding IDs it closes."
+    },
+    {
+      "text": "Coverage extends beyond the three planted flaws: report raises at least one of staleness/invalidation observability, cache keyspace namespacing, or rollout gating between 5% and 100%",
+      "passed": true,
+      "evidence": "Two of the three listed areas are raised: F-9 covers observability ('The design defines zero metrics, so a dead or degraded cache is invisible') and F-12 covers rollout gating ('a single 5%->100% jump gated only on elapsed time'; fix proposes 5% -> 25% -> 50% -> 100% with metric-gated promotion). Coverage extends further still (F-5 kill-switch circularity, F-6 tax keying, F-10 race)."
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 2,
+      "Write": 3,
+      "Agent": 3,
+      "Bash": 3
+    },
+    "total_tool_calls": 11,
+    "total_steps": 8,
+    "errors_encountered": 1,
+    "output_chars": 27600,
+    "transcript_chars": 62000
+  },
+  "timing": {
+    "executor_duration_seconds": 118.0,
+    "note": "run was killed by a session limit and resumed; duration covers only the resumed segment, tokens are cumulative (66749 total tokens)"
+  },
+  "claims": [
+    {
+      "claim": "12 raw findings, 1 merge, 1 seam-sweep addition, 0 killed -> 12 final findings",
+      "type": "process",
+      "verified": true,
+      "evidence": "Arithmetic is internally consistent (12 raw - 1 merged into F-4 + 1 seam-sweep F-8 = 12) and matches the Killed findings section and F-4's 'Corroboration' / F-8's 'Origin' notes. Cannot be independently confirmed without a transcript, but no contradiction found."
+    },
+    {
+      "claim": "The design's Invalidation section handles only the promo_changed event; catalog and tax changes have no invalidation path",
+      "type": "factual",
+      "verified": true,
+      "evidence": "session-cache-design.md Invalidation section mentions only 'promo_changed'; no other invalidation trigger appears anywhere in the artifact."
+    },
+    {
+      "claim": "The design specifies KEYS session:*:pricing then DEL on a cluster shared with rate limiting and feature flags",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Artifact: 'a consumer deletes all session:*:pricing keys via KEYS session:*:pricing then DEL' and 'existing shared cluster (also serves rate limiting and feature flags)'."
+    },
+    {
+      "claim": "The design says 'No circuit breaker needed since fallthrough is the current behavior' (quoted in F-7)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Exact sentence appears in the artifact's Failure handling section."
+    },
+    {
+      "claim": "Cache key includes session ID only (basis for F-6 and F-8)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Artifact Design section: 'Cache key includes session ID only.'"
+    },
+    {
+      "claim": "Rollout is a single 5%-for-a-day jump to 100% gated by feature flag cache_pricing_v1 (basis for F-5 and F-12)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Artifact: 'enable via feature flag cache_pricing_v1 at 100% after a day at 5%.'"
+    },
+    {
+      "claim": "Two adversaries independently hit the stampede root cause (F-4 corroboration)",
+      "type": "process",
+      "verified": false,
+      "evidence": "No transcript available; plausible given the 3 Agent tool calls in metrics.json but unverifiable from outputs alone."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Stage 0 intake ran on the task statement alone (no live user); harm categories were derived from the prompt and artifact",
+      "Stage 5 (retest) has not run - it triggers after fixes land; the retest list is written to be self-contained for a cold session"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Write tool was blocked for report.md; executor wrote it via shell heredoc",
+      "Skill's default output directory overridden by the task's outputs_dir directive"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "Retest mechanism is one falsifiable per-finding check (yes/no verifiable against a revised design), not a verbatim copy of the full failure scenarios",
+        "reason": "The expectation is ambiguous about Plausible/conditional findings. This report parked their retest checks behind verification items, which is defensible, but a stricter or looser grader could rule either way. Specify whether every finding needs an explicit entry in the retest list or whether deferred/conditional checks count."
+      },
+      {
+        "reason": "No expectation checks that findings cite the artifact accurately. A report could pass all nine expectations while misquoting the design (wrong TTL, invented sections). This run quoted accurately, but an anti-hallucination expectation (e.g. 'every finding's root cause quotes or paraphrases text actually present in the artifact') would catch a failure mode the current set misses."
+      }
+    ],
+    "overall": "The expectation set is strong and discriminating, especially the reasoned-ranking expectation (3), which forced the report to justify placing the conditional sizing finding above the guaranteed KEYS failure rather than just ordering by severity label."
+  }
+}

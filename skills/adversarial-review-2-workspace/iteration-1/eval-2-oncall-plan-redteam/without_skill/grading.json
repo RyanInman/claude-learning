@@ -1,0 +1,95 @@
+{
+  "expectations": [
+    {
+      "text": "Every finding carries a severity grade",
+      "passed": true,
+      "evidence": "Report defines a four-level severity scale (Critical/High/Medium/Low) and files every finding under a severity heading: C1-C3 under Critical, H1-H4 under High, M1-M4 under Medium, L1-L2 under Low. No ungraded findings."
+    },
+    {
+      "text": "Every finding includes a concrete failure scenario tied to downstream harm, not a vague concern",
+      "passed": true,
+      "evidence": "C1-H4 each carry an explicit 'What breaks:' block (e.g. C1: 'a Sev1 at 04:00 CET pages nobody... First unhandled overnight Sev1 turns into a multi-hour outage'). Medium/Low findings embed the scenario inline: M3 'An incident that straddles the boundary loses all context mid-stream', M4 'A US holiday Monday plus the standing nightly gap could leave 18+ unclear hours', L2 'the windows drift an hour twice a year'. None are vague concerns without a stated consequence."
+    },
+    {
+      "text": "Report identifies the timezone coverage gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET, so 20:00-02:00 ET is covered by neither window, defeating the zero-overnight-pages goal",
+      "passed": true,
+      "evidence": "Finding C1 states '08:00–20:00 CET is roughly 02:00–14:00 ET... the uncovered gap runs... about 02:00–08:00 CET / 20:00–02:00 ET, six hours every single night' and ties it to the goal ('a Sev1 at 04:00 CET pages nobody, or pages a sleeping engineer'). The ET/CET conversion and the 20:00-02:00 ET gap match the artifact's windows. Minor wording slip ('gap runs 20:00 CET to 08:00 ET' misstates the start; 20:00 CET is inside US coverage) but the correct bounds are given in the same sentence."
+    },
+    {
+      "text": "Report identifies Krakow readiness risk: 6-week-old team, no production experience, access provisioning still incomplete before go-live",
+      "passed": true,
+      "evidence": "C2 covers access: 'Access provisioning (prod SSH, dashboards, PagerDuty) is \"in progress\" with go-live \"next month\"... without it they cannot even receive pages'. H1 covers experience: 'The Krakow team joined six weeks ago and has zero production experience with this system. One week of shadowing... is the entire training plan.' Both match the artifact's Notes section."
+    },
+    {
+      "text": "Report identifies that the US-only incident-commander pool still wakes US engineers for Sev1s, undermining the success metric",
+      "passed": true,
+      "evidence": "C3: 'A Sev1 during Krakow's solo window (08:00–14:00 CET, before US comes online) requires waking a US IC at ~02:00–08:00 ET. That is exactly the overnight paging the plan claims to eliminate... which by the plan's own success metric counts as failure.'"
+    },
+    {
+      "text": "Report contains a retest list or equivalent re-check mechanism for the findings",
+      "passed": false,
+      "evidence": "The 'Bottom line' section lists five 'Minimum changes before go-live' — remediations, not a retest list. Two items embed verification (test page acked, runbook executed cold, 2-week checkpoint with rollback trigger), but there is no mechanism to re-check the findings themselves after fixes, and most findings (C3, H1-H4, M1, M3, M4) have no re-verification step at all."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.83
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 1, "Write": 2, "Bash": 1},
+    "total_tool_calls": 4,
+    "total_steps": 4,
+    "errors_encountered": 0,
+    "output_chars": 8730,
+    "transcript_chars": 20000
+  },
+  "timing": {
+    "executor_duration_seconds": 81.5
+  },
+  "claims": [
+    {
+      "claim": "Overlap runs 08:00-14:00 ET; the nightly uncovered gap is six hours (20:00-02:00 ET / 02:00-08:00 CET)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Krakow 08:00-20:00 CET = 02:00-14:00 ET; US 08:00-20:00 ET. Overlap 08:00-14:00 ET, gap 20:00-02:00 ET = 6 hours. Matches the artifact's stated windows."
+    },
+    {
+      "claim": "US and EU DST changes fall on different weeks, so the gap size shifts twice a year",
+      "type": "factual",
+      "verified": true,
+      "evidence": "US changes second Sunday of March / first Sunday of November; EU changes last Sunday of March / last Sunday of October."
+    },
+    {
+      "claim": "Escalation path pages the other region's off-shift primary as the first escalation step, with no in-region secondary",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Artifact item 4: 'if the primary does not ack in 15 minutes, page the other region's primary' — no secondary is defined in the plan."
+    },
+    {
+      "claim": "Polish public holidays include May 1-3 and Aug 15",
+      "type": "factual",
+      "verified": false,
+      "evidence": "May 1 and May 3 are Polish public holidays and Aug 15 is; May 2 is not a statutory holiday (commonly a bridge day). Minor overstatement, does not affect the finding."
+    },
+    {
+      "claim": "Industry floor for a sustainable on-call rotation is 4-6 engineers",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with common SRE guidance (e.g. Google SRE book recommends at least 8 per site for 24/7, 4+ minimum per rotation); 3 is below any published floor."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "Report contains a retest list or equivalent re-check mechanism for the findings",
+        "reason": "The 'or equivalent re-check mechanism' clause is fuzzy: this report's go-live gate checklist (test page acked, runbook executed cold) arguably re-verifies two Critical findings, making the pass/fail line judgment-dependent. Specify what counts, e.g. 'a per-finding list of checks to run after remediation'."
+      },
+      {
+        "reason": "No expectation checks the factual accuracy of the timezone math or DST reasoning. A report could name the gap but state wrong bounds and still pass expectation 3 on keyword match; require the specific correct bounds (already partly done) plus internal consistency."
+      }
+    ],
+    "overall": "Expectations discriminate well overall; five of six require substantive analysis that a shallow review would miss. The retest-list expectation is the only one with an ambiguous bar."
+  }
+}

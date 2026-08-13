@@ -1,0 +1,9 @@
+{
+  "tool_calls": {"Read": 1, "Write": 2, "Bash": 1},
+  "total_tool_calls": 4,
+  "total_steps": 4,
+  "files_created": ["redteam-report.md", "metrics.json"],
+  "errors_encountered": 0,
+  "output_chars": 8730,
+  "transcript_chars": 20000
+}

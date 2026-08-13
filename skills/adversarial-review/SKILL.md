@@ -7,9 +7,10 @@ description: >-
   fixes from contested points for the user to decide. Use whenever the user wants something
   attacked fast — "adversarial review this", "poke holes in this plan", "red-team this quickly",
   "attack my design", "devil's advocate pass", "what could go wrong with this?" — or when a full
-  four-role debate is more ceremony than the decision warrants. Do NOT use when the user asks for
+  four-role debate is overkill. Do NOT use when the user asks for
   a neutral judge, an explicit steelman, or to "argue both sides" — use debate-review, which adds
-  a fresh Advocate and Judge. Do NOT use for routine line-by-line review of a diff (use a
+  a fresh Advocate and Judge. Do NOT use for severity-graded findings or a retest
+  loop — use adversarial-review-2. Do NOT use for routine line-by-line review of a diff (use a
   code-review skill) or when there is no artifact yet to defend — creating the plan comes first,
   attacking it comes after.
 ---

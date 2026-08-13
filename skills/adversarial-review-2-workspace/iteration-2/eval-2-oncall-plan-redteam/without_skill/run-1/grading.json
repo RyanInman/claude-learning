@@ -1,0 +1,126 @@
+{
+  "expectations": [
+    {
+      "text": "Every finding carries a severity grade and all findings appear in one strict total rank order",
+      "passed": false,
+      "evidence": "Every finding carries a severity grade (Critical C1-C3, High H1-H4, Medium M1-M4, Low L1-L2) and all 13 appear in one summary table ordered by tier. But the order is a tiered partial order, not a strict total rank: nothing states C1 outranks C2 or M1 outranks M4 -- within-tier numbering is enumeration, and no text claims a ranking. Findings within a tier are effectively tied."
+    },
+    {
+      "text": "Every finding includes a concrete failure scenario tied to downstream harm",
+      "passed": true,
+      "evidence": "C1-H4 each have an explicit 'What actually breaks' paragraph (e.g., C2: 'Krakow primary acks a 10:00 CET Sev1, hits a login wall on the prod bastion, and burns the 15-minute escalation window'). M/L findings state harm inline and in the summary table's 'What breaks' column (M3: 'an incident straddling 20:00 CET gets a fresh responder with zero state'; L1: 'every boundary is off by an hour all summer')."
+    },
+    {
+      "text": "Report identifies the timezone coverage gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET, leaving 20:00-02:00 ET covered by neither window",
+      "passed": true,
+      "evidence": "C1: 'Krakow's 08:00-20:00 CET is 02:00-14:00 ET. US covers 08:00-20:00 ET. Combined coverage is 02:00-20:00 ET. Nothing covers 20:00-02:00 ET.' Arithmetic verified correct (ET/CET offset is 6 hours in both standard and daylight periods)."
+    },
+    {
+      "text": "Report identifies Krakow readiness risk: 6-week-old team, no production experience, access provisioning incomplete before go-live",
+      "passed": true,
+      "evidence": "C2 stacks all three: 'Joined 6 weeks ago, never shipped to production', 'Prod SSH, dashboards, and PagerDuty access are \"in progress\" with no completion date or gate', 'One week of shadowing, then live in under a month.' Matches the plan's Notes section."
+    },
+    {
+      "text": "Report identifies that the US-only incident-commander pool still wakes US engineers, undermining the zero-overnight-pages metric",
+      "passed": true,
+      "evidence": "C3: 'the IC pool is entirely US-based... A Sev1 at 10:00 CET is 04:00 ET. So every serious incident in the Krakow shift pages a sleeping US engineer anyway. This contradicts the goal (\"eliminate overnight pages for US-East\")... it makes the success metric (\"zero overnight pages\") either false or... a perverse incentive.'"
+    },
+    {
+      "text": "Report states plainly (in a verdict or top-ranked finding) that the plan fails its own stated goal as written, not merely a list of individual risks",
+      "passed": true,
+      "evidence": "Top finding C1: 'Follow-the-sun with two regions only 6 hours apart is arithmetically impossible with 12-hour shifts... The plan cannot deliver its title with the teams it has' and 'fails the plan's only success metric on day one'. Closing verdict: 'The plan's core arithmetic is broken: two regions 6 hours apart cannot follow the sun with 12-hour shifts.'"
+    },
+    {
+      "text": "Coverage includes at least two of: cross-shift handover of in-flight incidents, weekend or US/Polish holiday misalignment, DST drift between US and EU changeover weeks, rollback/abort criteria",
+      "passed": true,
+      "evidence": "Three of four: M3 (handover: 'no rule for who owns an incident that is open at the boundary'), M4 (DST: 'The US and EU change clocks on different dates... the offset drops to 5 hours, growing the nightly hole to 7 hours'), M2 (rollback: 'no threshold (\"if Krakow misses N pages... US resumes 24/7\")'). Holiday misalignment is absent."
+    },
+    {
+      "text": "Retest mechanism is one falsifiable per-finding check, not verbatim scenario copies",
+      "passed": false,
+      "evidence": "No per-finding retest checks exist. A few findings embed fix gates (C2: live-fire drill; H3: 3-5 game-day scenarios), but there is no retest section and most findings (C1, C3, H1, H2, M1-M4, L1-L2) have no falsifiable check at all."
+    },
+    {
+      "text": "Report includes a bottom-line verdict plus a prioritized minimum-changes list",
+      "passed": false,
+      "evidence": "A bottom-line verdict exists ('The shape of the fix': core arithmetic broken, three honest options a/b/c). The closing 'gate go-live on:' list (verified prod access, game-day-tested runbooks, 4+ weeks shadow, in-region secondary, EU-timezone IC, outcome metrics, rollback criteria) is a minimum-changes list but carries no priority order -- items are comma-listed with no ranking or sequencing claim."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 3,
+    "total": 9,
+    "pass_rate": 0.67
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 1,
+      "Write": 3,
+      "Bash": 2
+    },
+    "total_tool_calls": 6,
+    "total_steps": 5,
+    "errors_encountered": 1,
+    "output_chars": 12264,
+    "transcript_chars": 45000
+  },
+  "timing": {
+    "executor_duration_seconds": 28.7,
+    "note": "Executor run was killed by a session limit and resumed; duration covers only the resumed segment (timing.json note)."
+  },
+  "claims": [
+    {
+      "claim": "CET is 6 hours ahead of ET; Krakow 08:00-20:00 CET = 02:00-14:00 ET",
+      "type": "factual",
+      "verified": true,
+      "evidence": "EST=UTC-5/CET=UTC+1 and EDT=UTC-4/CEST=UTC+2 both give a 6-hour offset; the conversion is correct."
+    },
+    {
+      "claim": "US and EU change clocks on different dates, dropping the offset to 5 hours for roughly three weeks a year",
+      "type": "factual",
+      "verified": true,
+      "evidence": "US changes mid-March/early November; EU late March/late October. During the mismatch the offset is 5 hours, as the report and user_notes state."
+    },
+    {
+      "claim": "The IC pool is entirely US-based and stays as-is",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Plan item 5: 'the current IC pool is all US-based, which stays as-is for now.'"
+    },
+    {
+      "claim": "Krakow has 3 engineers, joined 6 weeks ago, has not shipped to production, access 'in progress', no headcount budget",
+      "type": "factual",
+      "verified": true,
+      "evidence": "All match oncall-rotation-plan.md Goal and Notes sections verbatim."
+    },
+    {
+      "claim": "Industry floor for a sustainable rotation is 4-6 people",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Common SRE guidance cites minimums in this range, but the report gives no source; treat as plausible but uncited."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Timezone arithmetic assumption (6-hour offset, 5 during DST mismatch) underpins C1 and M4 -- verified correct by grader"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Write tool refused to create report.md (harness guard); executor wrote it via Bash heredoc instead -- counted as the 1 error in metrics.json",
+      "Session hit a limit mid-run; executor resumed, verified report.md ends cleanly, then added metrics.json and user_notes.md"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "Every finding carries a severity grade and all findings appear in one strict total rank order",
+        "reason": "This bundles two checks with different discrimination power. Severity grading is nearly free (any competent review does it); strict total ordering is the real skill discriminator. Splitting them would show partial credit honestly instead of failing the whole expectation on the ordering half."
+      },
+      {
+        "expectation": "Report states plainly (in a verdict or top-ranked finding) that the plan fails its own stated goal as written",
+        "reason": "Passed here on genuine substance, but a review that merely echoes 'the plan has risks' in a summary paragraph could arguably scrape by. Consider requiring the verdict name the specific goal ('eliminate overnight pages') it fails."
+      }
+    ],
+    "overall": "The expectation set discriminates well for this baseline: the three failures (strict total rank order, per-finding retest checks, prioritized changes list) are exactly the structural artifacts a review skill would enforce, while the six passes reflect analysis quality any strong reviewer produces. No transcript was available, so process claims rest solely on user_notes.md and metrics.json."
+  }
+}

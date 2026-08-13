@@ -1,0 +1,280 @@
+{
+  "metadata": {
+    "skill_name": "adversarial-review-2",
+    "skill_path": "/Users/admin/claude-learning/skills/adversarial-review-2",
+    "executor_model": "claude-fable-5",
+    "analyzer_model": "unrecorded",
+    "timestamp": "2026-08-12T16:32:06Z",
+    "evals_run": [
+      1,
+      2
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 1178.8,
+        "tokens": 62950,
+        "tool_calls": 10,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "Every finding in the report carries a severity grade (Critical/High/Medium/Low or equivalent scale)",
+          "passed": true,
+          "evidence": "All 10 findings (F1-F10) carry severities in both the summary table and each finding body: F1 Critical, F2-F8 High, F9-F10 Medium. The report also includes a severity-inflation check ranking the six Highs by expected downstream harm."
+        },
+        {
+          "text": "Every finding includes a concrete failure scenario naming specific inputs, state, or sequence leading to a specific outcome (reproducible, not a vague concern)",
+          "passed": true,
+          "evidence": "Every finding has a 'Failure scenario' section with specific inputs, state, and sequence. Examples: F9 gives a timestamped race (T0 quote starts, T0+100ms promo deactivated and KEYS/DEL runs, T0+480ms stale write lands with fresh 30-min TTL); F6 names a NY-to-Oregon shipping address change mid-session applying NY tax; F2 names a merchandiser promo edit at peak triggering the blocking KEYS scan. Most include an explicit 'Repro:' step."
+        },
+        {
+          "text": "Report flags the KEYS-based invalidation as dangerous on the shared Redis cluster (KEYS is a blocking O(N) scan; cluster also serves rate limiting and feature flags)",
+          "passed": true,
+          "evidence": "F2 (High, Confirmed): '`KEYS` is a blocking O(N) scan of the entire keyspace \u2014 including every rate-limit counter and feature-flag key, not just cache keys \u2014 and Redis is single-threaded, so all other commands queue behind it... rate-limit checks and feature-flag reads time out cluster-wide.' Matches artifact lines 19-20 which specify KEYS then DEL."
+        },
+        {
+          "text": "Report flags the sizing math: 200k sessions x 40KB = 8GB, equal to ALL free memory on the shared cluster",
+          "passed": true,
+          "evidence": "F1 (Critical): '40KB \u00d7 200k sessions = 8GB \u2014 precisely the stated free capacity... Sizing section (line 23) budgets 100% of free memory with zero headroom.' Matches artifact line 23 ('~40KB per session hash, ~200k active sessions peak. Existing cluster has 8GB free'). F1 also traces both eviction-policy outcomes (allkeys-* evicts flag/rate-limit keys; noeviction errors all writes)."
+        },
+        {
+          "text": "Report flags a wrong/stale price window (30-min TTL or invalidation gap can quote users outdated prices in checkout)",
+          "passed": true,
+          "evidence": "F5 (High, Confirmed): catalog price and tax rate changes have no invalidation path, so 'every quote in that session until 10:30 uses the old price and old tax rate' \u2014 the TTL is the silent staleness bound. F9 additionally covers the invalidation-race gap that gives stale promo data 'a fresh 30-minute lease'."
+        },
+        {
+          "text": "Report contains an explicit retest mechanism: a list of failing scenarios to re-run after fixes land",
+          "passed": true,
+          "evidence": "Report has a 'Retest list' section: 'Re-run each scenario verbatim against the revised design after fixes land. A fix counts only when its original scenario no longer fails.' It lists all six Confirmed scenarios (F2, F3, F4, F5, F9, F10) verbatim and states that Plausible findings (F1, F6, F7, F8) join the list once their verification item confirms them."
+        },
+        {
+          "text": "Review states an explicit scope/threat model (charter or equivalent) with ranked harm categories before the findings",
+          "passed": true,
+          "evidence": "charter.md contains 'Harm categories, ranked' (1 wrong prices, 2 shared Redis meltdown, 3 checkout latency/availability, 4 unsafe rollout), an out-of-scope list, and a success criterion. The report's opening line references it ('Charter: `charter.md`') and every finding is tagged with a charter category. Charter file timestamp (11:10) precedes report (11:28)."
+        }
+      ],
+      "notes": [
+        "Charter harm categories were derived from the task statement plus two implied harms; no user confirmation was possible.",
+        "Stage 5 (retest) is pending by design \u2014 the retest list is written to be runnable cold in a later session.",
+        "Harness blocked the Write tool for report.md; executor wrote it via a Bash heredoc instead (the one error in metrics.json).",
+        "Skill's default adversarial-review-2/ output directory was overridden by the task's explicit outputs path."
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 1203.5,
+        "tokens": 62457,
+        "tool_calls": 10,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "Every finding carries a severity grade",
+          "passed": true,
+          "evidence": "All eight findings (F1-F8) carry an explicit severity in both the summary table and each finding body: F1-F5 'High', F6-F8 'Medium', each also tagged Confirmed or Plausible. The report additionally explains why no finding was graded Critical."
+        },
+        {
+          "text": "Every finding includes a concrete failure scenario tied to downstream harm, not a vague concern",
+          "passed": true,
+          "evidence": "Each of F1-F8 has a 'Failure scenario' section with specific times, actors, and downstream harm. E.g. F1: 'A Sev1 fires at 22:30 ET on a Tuesday... the page rings, nobody acks, the outage runs until 02:00 ET at the earliest'; F4: 'picking the wrong one (promoting a stale replica) converts a degraded-read incident into data loss'; F8: 'The restart drops events; downstream teams discover silent data gaps hours later.'"
+        },
+        {
+          "text": "Report identifies the timezone coverage gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET, so 20:00-02:00 ET is covered by neither window, defeating the zero-overnight-pages goal",
+          "passed": true,
+          "evidence": "F1 states it exactly: 'The two windows (02:00-14:00 ET and 08:00-20:00 ET) leave 20:00-02:00 ET uncovered every day - this is not a follow-the-sun schedule, it is a schedule with a nightly 6-hour hole during US evening peak traffic.' The arithmetic is correct against the plan (Krakow 08:00-20:00 CET, US-East 08:00-20:00 ET, CET = ET+6). F1's corroboration also notes the hole is 'invisible in the success metric' if routed to Krakow."
+        },
+        {
+          "text": "Report identifies Krakow readiness risk: 6-week-old team, no production experience, access provisioning still incomplete before go-live",
+          "passed": true,
+          "evidence": "F3 covers incomplete access ('Her prod SSH request is still queued in the in-progress provisioning backlog; the dashboard link 403s'; root cause: 'access provisioning is in progress, yet the Goal puts Krakow on primary starting next month with no provisioning-complete gate'). F4 covers inexperience ('a Krakow engineer with 7 total weeks at the company and zero production deploys'). Both facts match the artifact's Notes section."
+        },
+        {
+          "text": "Report identifies that the US-only incident-commander pool still wakes US engineers for Sev1s, undermining the success metric",
+          "passed": true,
+          "evidence": "F2 identifies the mechanism: 'the entire IC pool is US-based and asleep with no on-call IC schedule. The Krakow engineer... must either run the Sev1 alone or cold-call US engineers off-rotation.' The metric undermining is made explicit in F7 ('step 4's escalation pages US overnight, and step 6 counts any overnight US page as failure') and in F1's corroboration (overnight load 'invisible in the success metric')."
+        },
+        {
+          "text": "Report contains a retest list or equivalent re-check mechanism for the findings",
+          "passed": true,
+          "evidence": "Report has a dedicated '## Retest list' section with per-finding scenarios (F1, F2, F3, F5, F6, F7) each ending in an explicit 'Check:' condition, plus a '## Verification items' section (V1-V3) for the two Plausible findings and F3's provisioning ETA."
+        }
+      ],
+      "notes": [
+        "Stage 0 overkill check and charter questions were skipped (no live user); charter filled from the artifact alone",
+        "Stage 5 (retest) is pending by design; the retest list is written to be runnable cold in a later session",
+        "A harness guard rejected the Write tool for report.md; the executor wrote it via a shell heredoc instead (the one error in metrics.json)",
+        "Outputs written to with_skill/outputs/ per task instruction rather than the skill's default adversarial-review-2/ directory"
+      ]
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 120.6,
+        "tokens": 33200,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Every finding in the report carries a severity grade (Critical/High/Medium/Low or equivalent scale)",
+          "passed": true,
+          "evidence": "All 12 findings (F1-F12) carry an explicit 'Severity:' line and sit under Critical/High/Medium/Low section headers; the scale itself is defined at the top of redteam-report.md ('Severity scale: Critical ... Low'). The re-check checklist table repeats each severity."
+        },
+        {
+          "text": "Every finding includes a concrete failure scenario naming specific inputs, state, or sequence leading to a specific outcome (reproducible, not a vague concern)",
+          "passed": true,
+          "evidence": "Each finding names a trigger, state, and outcome. Examples: F1 'one promo_changed event stalls rate-limit checks and flag reads for every service on the cluster'; F3 'shopper gets a quote, changes shipping state, requotes; tax rate is the old state's for up to 30 minutes'; F7 gives the exact write-after-delete interleaving ('reads pricing ... just before the change, the consumer deletes keys, then the in-flight request writes its stale snapshot back'); F6 names the ~200k-session stampede on a promo_changed wipe. Weakest are F9/F10 (missing-safeguard findings), but even F10 states the concrete outcome ('first detection of wrong prices is a customer complaint') and F9 names the untested 20x memory step from 5% to 100%."
+        },
+        {
+          "text": "Report flags the KEYS-based invalidation as dangerous on the shared Redis cluster (KEYS is a blocking O(N) scan; cluster also serves rate limiting and feature flags)",
+          "passed": true,
+          "evidence": "F1 (Critical): '`KEYS` is O(N) over the whole keyspace and blocks the Redis event loop while it scans. The cluster also serves rate limiting and feature flags, so one `promo_changed` event stalls rate-limit checks and flag reads for every service on the cluster.' Also flags the follow-up bulk DEL blocking again."
+        },
+        {
+          "text": "Report flags the sizing math: 200k sessions x 40KB = 8GB, equal to ALL free memory on the shared cluster",
+          "passed": true,
+          "evidence": "F4 (High): '40KB x 200k sessions = ~8GB -- exactly the stated free capacity. Redis per-key overhead, fragmentation, and any traffic above \"peak\" push it past free memory.' Numbers match session-cache-design.md (Sizing: ~40KB per session, ~200k active sessions, 8GB free)."
+        },
+        {
+          "text": "Report flags a wrong/stale price window (30-min TTL or invalidation gap can quote users outdated prices in checkout)",
+          "passed": true,
+          "evidence": "Flagged multiple ways: F2 (Critical) 'A catalog price change or a tax-rate change serves the old price for up to 30 minutes to every active session'; F3 (Critical) covers in-session mutations hitting the 30-minute-old hash; F7 (High) covers lost events and the write-after-delete race letting stale promos survive invalidation."
+        },
+        {
+          "text": "Report contains an explicit retest mechanism: a list of failing scenarios to re-run after fixes land",
+          "passed": true,
+          "evidence": "Every finding ends with a 'Re-check:' step, and the report closes with a 'Re-check checklist' table (F1-F12, one-line re-check per finding, unchecked status boxes) with the instruction 'Re-run after each revision of the doc. A finding closes only when its re-check line passes against the current text.'"
+        },
+        {
+          "text": "Review states an explicit scope/threat model (charter or equivalent) with ranked harm categories before the findings",
+          "passed": true,
+          "evidence": "The report header, before any finding, states the target and scope ('Target: session-cache-design.md ... Focus per request: wrong prices and Redis meltdown') and defines a harm-ranked severity ladder (Critical = wrong price charged or shared-cluster takedown; High = likely production incident; Medium = degraded correctness/operability; Low = minor). user_notes.md confirms the scale was 'anchored to the user's two stated nightmares.' This is a lightweight charter rather than a formal threat model, but it satisfies 'or equivalent'."
+        }
+      ],
+      "notes": [
+        "F8 (quote vs. charge price source) rated Medium only because the doc is silent; escalates to Critical if the charge path reprices independently",
+        "Numbers (8GB, 200k sessions, 40KB) taken at face value with no cluster access",
+        "Retest mechanism delivered as per-finding re-check steps plus a checklist table rather than a script, because the checks are judgments about a design doc"
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.83,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 81.5,
+        "tokens": 29650,
+        "tool_calls": 4,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Every finding carries a severity grade",
+          "passed": true,
+          "evidence": "Report defines a four-level severity scale (Critical/High/Medium/Low) and files every finding under a severity heading: C1-C3 under Critical, H1-H4 under High, M1-M4 under Medium, L1-L2 under Low. No ungraded findings."
+        },
+        {
+          "text": "Every finding includes a concrete failure scenario tied to downstream harm, not a vague concern",
+          "passed": true,
+          "evidence": "C1-H4 each carry an explicit 'What breaks:' block (e.g. C1: 'a Sev1 at 04:00 CET pages nobody... First unhandled overnight Sev1 turns into a multi-hour outage'). Medium/Low findings embed the scenario inline: M3 'An incident that straddles the boundary loses all context mid-stream', M4 'A US holiday Monday plus the standing nightly gap could leave 18+ unclear hours', L2 'the windows drift an hour twice a year'. None are vague concerns without a stated consequence."
+        },
+        {
+          "text": "Report identifies the timezone coverage gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET, so 20:00-02:00 ET is covered by neither window, defeating the zero-overnight-pages goal",
+          "passed": true,
+          "evidence": "Finding C1 states '08:00\u201320:00 CET is roughly 02:00\u201314:00 ET... the uncovered gap runs... about 02:00\u201308:00 CET / 20:00\u201302:00 ET, six hours every single night' and ties it to the goal ('a Sev1 at 04:00 CET pages nobody, or pages a sleeping engineer'). The ET/CET conversion and the 20:00-02:00 ET gap match the artifact's windows. Minor wording slip ('gap runs 20:00 CET to 08:00 ET' misstates the start; 20:00 CET is inside US coverage) but the correct bounds are given in the same sentence."
+        },
+        {
+          "text": "Report identifies Krakow readiness risk: 6-week-old team, no production experience, access provisioning still incomplete before go-live",
+          "passed": true,
+          "evidence": "C2 covers access: 'Access provisioning (prod SSH, dashboards, PagerDuty) is \"in progress\" with go-live \"next month\"... without it they cannot even receive pages'. H1 covers experience: 'The Krakow team joined six weeks ago and has zero production experience with this system. One week of shadowing... is the entire training plan.' Both match the artifact's Notes section."
+        },
+        {
+          "text": "Report identifies that the US-only incident-commander pool still wakes US engineers for Sev1s, undermining the success metric",
+          "passed": true,
+          "evidence": "C3: 'A Sev1 during Krakow's solo window (08:00\u201314:00 CET, before US comes online) requires waking a US IC at ~02:00\u201308:00 ET. That is exactly the overnight paging the plan claims to eliminate... which by the plan's own success metric counts as failure.'"
+        },
+        {
+          "text": "Report contains a retest list or equivalent re-check mechanism for the findings",
+          "passed": false,
+          "evidence": "The 'Bottom line' section lists five 'Minimum changes before go-live' \u2014 remediations, not a retest list. Two items embed verification (test page acked, runbook executed cold, 2-week checkpoint with rollback trigger), but there is no mechanism to re-check the findings themselves after fixes, and most findings (C3, H1-H4, M1, M3, M4) have no re-verification step at all."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 1191.15,
+        "stddev": 17.4655,
+        "min": 1178.8,
+        "max": 1203.5
+      },
+      "tokens": {
+        "mean": 62703.5,
+        "stddev": 348.6036,
+        "min": 62457,
+        "max": 62950
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.915,
+        "stddev": 0.1202,
+        "min": 0.83,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 101.05,
+        "stddev": 27.6479,
+        "min": 81.5,
+        "max": 120.6
+      },
+      "tokens": {
+        "mean": 31425.0,
+        "stddev": 2510.2291,
+        "min": 29650,
+        "max": 33200
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.08",
+      "time_seconds": "+1090.1",
+      "tokens": "+31278"
+    }
+  },
+  "notes": []
+}

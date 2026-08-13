@@ -1,0 +1,25 @@
+{
+  "reviews": [
+    {
+      "run_id": "eval-1-cache-design-redteam-with_skill",
+      "feedback": "The with-skill report's real edge over the baseline is verification discipline: Confirmed/Plausible tagging, named verification items, and duplicate-merge accounting, none of which the baseline has. Coverage is not an edge -- the baseline found every substantive issue here plus two the skill run missed (staleness/invalidation observability, key namespacing on the shared cluster), at half the tokens and a tenth the wall time (121s vs 1179s). Severity calibration is inverted: the sole Critical (F1, the 8GB sizing collision) is also the report's top Plausible finding, hinging on an unknown eviction policy, while F2 (KEYS blocking a shared single-threaded cluster on every promo edit -- a guaranteed, recurring, operator-triggered outage) and F5 (stale tax rates, which the skill's own rubric text 'users harmed or misled at scale' should catch) sit at High; the baseline's Critical for KEYS is the better call, and six of ten findings at High flattens the ranking the skill itself calls 'the report's main signal.' The retest list copies each Confirmed scenario verbatim, roughly doubling report length; the baseline's one-line re-check checklist serves the same retest purpose and is strictly more usable. Change the skill to: force a strict severity ordering (cap Highs or require a total rank), make the retest list one falsifiable check per finding instead of a verbatim copy, and require a synthesis paragraph like the baseline's 'fastest path' close, which collapsed 12 findings into 3 fixes -- the most decision-useful lines in either report.",
+      "timestamp": "2026-08-12T16:35:22.000Z"
+    },
+    {
+      "run_id": "eval-1-cache-design-redteam-without_skill",
+      "feedback": "",
+      "timestamp": "2026-08-12T16:35:22.000Z"
+    },
+    {
+      "run_id": "eval-2-oncall-plan-redteam-with_skill",
+      "feedback": "Coverage went to the baseline, not the skill run: the with-skill report entirely missed cross-shift handover (open incidents straddling 20:00 CET), weekend and misaligned US/Polish holiday coverage, DST drift between US and EU changeover weeks, and explicit rollback/abort criteria -- all present in the baseline -- which says the three charter-derived lenses partitioned the space too narrowly and nothing swept the seams between lenses. Severity is internally consistent with the irreversibility rubric but miscalibrated for the reader: a plan the baseline correctly bottom-lines as 'does not achieve its own goal' yields a with-skill headline of 'no finding graded Critical,' burying that F1 (nightly 6-hour coverage hole) and F3 (no prod access at go-live) mean the plan fails on day one; the rubric needs a plan-defeating tier distinct from irreversible harm. What the skill genuinely added: F7's perverse-incentive interaction (the escalation path is the success metric's failure condition, so the design pressures Krakow to suppress escalation) is sharper than the baseline's M1, and the corroboration notes plus verification items V1-V3 are real value. The report also lacks any bottom-line verdict or prioritized minimum-changes list, which is exactly what the baseline's close provides and what a decision-maker acts on. At 2x tokens and 15x wall time (1204s vs 82s) for narrower coverage, the structure is not earning its cost; add a mandatory main-agent coverage sweep against a short generic checklist (time boundaries, staffing degradation, handover, rollback, measurement) after the lens merge, and a required verdict section.",
+      "timestamp": "2026-08-12T16:35:22.000Z"
+    },
+    {
+      "run_id": "eval-2-oncall-plan-redteam-without_skill",
+      "feedback": "",
+      "timestamp": "2026-08-12T16:35:22.000Z"
+    }
+  ],
+  "status": "complete"
+}

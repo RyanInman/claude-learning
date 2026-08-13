@@ -1,0 +1,116 @@
+{
+  "expectations": [
+    {
+      "text": "Every finding in the report carries a severity grade (Critical/High/Medium/Low or equivalent scale)",
+      "passed": true,
+      "evidence": "All 12 findings (F1-F12) carry an explicit 'Severity:' line and sit under Critical/High/Medium/Low section headers; the scale itself is defined at the top of redteam-report.md ('Severity scale: Critical ... Low'). The re-check checklist table repeats each severity."
+    },
+    {
+      "text": "Every finding includes a concrete failure scenario naming specific inputs, state, or sequence leading to a specific outcome (reproducible, not a vague concern)",
+      "passed": true,
+      "evidence": "Each finding names a trigger, state, and outcome. Examples: F1 'one promo_changed event stalls rate-limit checks and flag reads for every service on the cluster'; F3 'shopper gets a quote, changes shipping state, requotes; tax rate is the old state's for up to 30 minutes'; F7 gives the exact write-after-delete interleaving ('reads pricing ... just before the change, the consumer deletes keys, then the in-flight request writes its stale snapshot back'); F6 names the ~200k-session stampede on a promo_changed wipe. Weakest are F9/F10 (missing-safeguard findings), but even F10 states the concrete outcome ('first detection of wrong prices is a customer complaint') and F9 names the untested 20x memory step from 5% to 100%."
+    },
+    {
+      "text": "Report flags the KEYS-based invalidation as dangerous on the shared Redis cluster (KEYS is a blocking O(N) scan; cluster also serves rate limiting and feature flags)",
+      "passed": true,
+      "evidence": "F1 (Critical): '`KEYS` is O(N) over the whole keyspace and blocks the Redis event loop while it scans. The cluster also serves rate limiting and feature flags, so one `promo_changed` event stalls rate-limit checks and flag reads for every service on the cluster.' Also flags the follow-up bulk DEL blocking again."
+    },
+    {
+      "text": "Report flags the sizing math: 200k sessions x 40KB = 8GB, equal to ALL free memory on the shared cluster",
+      "passed": true,
+      "evidence": "F4 (High): '40KB x 200k sessions = ~8GB -- exactly the stated free capacity. Redis per-key overhead, fragmentation, and any traffic above \"peak\" push it past free memory.' Numbers match session-cache-design.md (Sizing: ~40KB per session, ~200k active sessions, 8GB free)."
+    },
+    {
+      "text": "Report flags a wrong/stale price window (30-min TTL or invalidation gap can quote users outdated prices in checkout)",
+      "passed": true,
+      "evidence": "Flagged multiple ways: F2 (Critical) 'A catalog price change or a tax-rate change serves the old price for up to 30 minutes to every active session'; F3 (Critical) covers in-session mutations hitting the 30-minute-old hash; F7 (High) covers lost events and the write-after-delete race letting stale promos survive invalidation."
+    },
+    {
+      "text": "Report contains an explicit retest mechanism: a list of failing scenarios to re-run after fixes land",
+      "passed": true,
+      "evidence": "Every finding ends with a 'Re-check:' step, and the report closes with a 'Re-check checklist' table (F1-F12, one-line re-check per finding, unchecked status boxes) with the instruction 'Re-run after each revision of the doc. A finding closes only when its re-check line passes against the current text.'"
+    },
+    {
+      "text": "Review states an explicit scope/threat model (charter or equivalent) with ranked harm categories before the findings",
+      "passed": true,
+      "evidence": "The report header, before any finding, states the target and scope ('Target: session-cache-design.md ... Focus per request: wrong prices and Redis meltdown') and defines a harm-ranked severity ladder (Critical = wrong price charged or shared-cluster takedown; High = likely production incident; Medium = degraded correctness/operability; Low = minor). user_notes.md confirms the scale was 'anchored to the user's two stated nightmares.' This is a lightweight charter rather than a formal threat model, but it satisfies 'or equivalent'."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {"Read": 1, "Write": 3, "Bash": 1},
+    "total_tool_calls": 5,
+    "total_steps": 3,
+    "errors_encountered": 0,
+    "output_chars": 12242,
+    "transcript_chars": 14500
+  },
+  "timing": {
+    "executor_duration_seconds": 120.6
+  },
+  "claims": [
+    {
+      "claim": "40KB x 200k sessions = ~8GB, exactly the stated free capacity",
+      "type": "factual",
+      "verified": true,
+      "evidence": "session-cache-design.md Sizing section: '~40KB per session hash, ~200k active sessions peak. Existing cluster has 8GB free.' 40KB x 200,000 = 8,000,000KB = ~8GB."
+    },
+    {
+      "claim": "The only invalidation trigger is promo_changed (F2)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Design doc's Invalidation section lists only the promo_changed event; no catalog or tax invalidation path exists."
+    },
+    {
+      "claim": "Cache key is session ID only and the hash is written once on first quote (F3)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Design doc: 'Cache key includes session ID only' and 'On first quote in a session, fetch ... then write a single session:{id}:pricing hash'."
+    },
+    {
+      "claim": "Feature flags and rate limiting are served from the same Redis cluster as the cache (F1, F5)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Design doc: 'Redis: existing shared cluster (also serves rate limiting and feature flags).'"
+    },
+    {
+      "claim": "Rollout is 5% for a day then 100% with no gating metrics (F9)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Design doc: 'enable via feature flag cache_pricing_v1 at 100% after a day at 5%.' No metrics or thresholds appear in the doc."
+    },
+    {
+      "claim": "No codebase or Redis access was used; all findings derive from the doc text",
+      "type": "process",
+      "verified": true,
+      "evidence": "Stated in user_notes.md; metrics.json shows only 1 Read, 3 Writes, 1 Bash, consistent with a doc-only review. Cannot fully confirm without a transcript."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "F8 (quote vs. charge price source) rated Medium only because the doc is silent; escalates to Critical if the charge path reprices independently",
+      "Numbers (8GB, 200k sessions, 40KB) taken at face value with no cluster access"
+    ],
+    "needs_review": [],
+    "workarounds": [
+      "Retest mechanism delivered as per-finding re-check steps plus a checklist table rather than a script, because the checks are judgments about a design doc"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "expectation": "Review states an explicit scope/threat model (charter or equivalent) with ranked harm categories before the findings",
+        "reason": "The 'or equivalent' clause lets a severity-scale definition pass as a threat model, which most competent baseline reviews will produce. If the skill under test is meant to add a distinct charter step (in/out-of-scope statement, harm categories ranked against each other rather than folded into severity labels), tighten the expectation to require those elements explicitly, or this expectation will not discriminate skill from baseline."
+      },
+      {
+        "reason": "No transcript was available, so process claims (e.g., that the review was done fresh from the doc rather than pattern-matched) are unverifiable. Consider requiring the executor to save a transcript or step log for this eval."
+      }
+    ],
+    "overall": "The baseline (without_skill) run passed all 7 expectations with a strong report; the eval may need a more discriminating expectation set (or a harder artifact) to show skill lift."
+  }
+}

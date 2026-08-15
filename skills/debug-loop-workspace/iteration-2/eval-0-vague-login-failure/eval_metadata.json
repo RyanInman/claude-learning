@@ -1,0 +1,22 @@
+{
+  "eval_id": 0,
+  "eval_name": "vague-login-failure",
+  "prompt": "Some of our users get bounced to the login screen after a while and can't get back in. Not everyone, and I can't tell what makes it happen. The session code is in sessions.py with tests in tests/. Please fix it.",
+  "expectations": [
+    {
+      "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
+    },
+    {
+      "text": "Lists at least two ranked hypotheses before the first edit"
+    },
+    {
+      "text": "Adds a test reproducing the failure and shows it failing before the fix"
+    },
+    {
+      "text": "Fixes the root cause by selecting the session row with the highest version, not by patching created_at handling or widening the expiry comparison"
+    },
+    {
+      "text": "Shows real pytest output as evidence in the final message rather than asserting the fix works"
+    }
+  ]
+}

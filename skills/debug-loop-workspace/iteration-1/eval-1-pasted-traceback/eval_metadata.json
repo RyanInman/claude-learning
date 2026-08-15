@@ -1,0 +1,22 @@
+{
+  "eval_id": 1,
+  "eval_name": "pasted-traceback",
+  "prompt": "The report script blows up on this month's export:\n\nTraceback (most recent call last):\n  File \"report.py\", line 20, in <module>\n    for region, amount in sorted(total_by_region(sys.argv[1]).items()):\n  File \"report.py\", line 12, in total_by_region\n    region = row[\"region\"]\nKeyError: 'region'\n\nRan it as `python3 report.py data/sales-2026-08.csv`. The test suite is green so I don't get it. Fix it and verify.",
+  "expectations": [
+    {
+      "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
+    },
+    {
+      "text": "Reproduces the crash by running the exact failing command and shows the output"
+    },
+    {
+      "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys"
+    },
+    {
+      "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact"
+    },
+    {
+      "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing"
+    }
+  ]
+}

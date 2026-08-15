@@ -1,0 +1,40 @@
+{
+  "eval_id": 3,
+  "eval_name": "trivial-typo-fast-path",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "Takes the fast path: a short brief of about three lines, with no ranked hypothesis list",
+      "passed": true,
+      "evidence": "Three-line brief, no ranked hypotheses, and an explicit statement of why the fast path applies"
+    },
+    {
+      "text": "Adds no instrumentation, no new test file, and no revert-to-red check",
+      "passed": true,
+      "evidence": "No instrumentation, no new test file, no revert check"
+    },
+    {
+      "text": "Fixes the typo in slug.py and changes nothing else in the source",
+      "passed": true,
+      "evidence": "One-character fix at slug.py:7; rest of the source byte-identical to the fixture"
+    },
+    {
+      "text": "Leaves tests/test_slug.py unmodified",
+      "passed": true,
+      "evidence": "tests/test_slug.py byte-identical to the fixture"
+    },
+    {
+      "text": "Shows the passing pytest output as evidence",
+      "passed": true,
+      "evidence": "Pasted the red run before and the 3-passed run after"
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

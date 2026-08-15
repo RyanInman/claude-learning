@@ -1,0 +1,22 @@
+{
+  "eval_id": 2,
+  "eval_name": "red-tests-after-merge",
+  "prompt": "Tests are red after I merged main: 2 failures in tests/test_pricing.py. Get them passing.",
+  "expectations": [
+    {
+      "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
+    },
+    {
+      "text": "Leaves every assertion in tests/test_pricing.py unchanged"
+    },
+    {
+      "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance"
+    },
+    {
+      "text": "Explains why binary float rounding produced 1.99 instead of 2.00"
+    },
+    {
+      "text": "Shows the full pytest run passing as evidence in the final message"
+    }
+  ]
+}

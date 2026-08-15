@@ -1,0 +1,97 @@
+{
+  "skill": "debug-loop",
+  "evals": [
+    {
+      "eval_id": 0,
+      "eval_name": "vague-login-failure",
+      "fixture": "evals/fixtures/expired-sessions",
+      "prompt": "Some of our users get bounced to the login screen after a while and can't get back in. Not everyone, and I can't tell what makes it happen. The session code is in sessions.py with tests in tests/. Please fix it.",
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
+        },
+        {
+          "text": "Lists at least two ranked hypotheses before the first edit"
+        },
+        {
+          "text": "Adds a test reproducing the failure and shows it failing before the fix"
+        },
+        {
+          "text": "Fixes the root cause by selecting the session row with the highest version, not by patching created_at handling or widening the expiry comparison"
+        },
+        {
+          "text": "Shows real pytest output as evidence in the final message rather than asserting the fix works"
+        }
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "pasted-traceback",
+      "fixture": "evals/fixtures/csv-report",
+      "prompt": "The report script blows up on this month's export:\n\nTraceback (most recent call last):\n  File \"report.py\", line 20, in <module>\n    for region, amount in sorted(total_by_region(sys.argv[1]).items()):\n  File \"report.py\", line 12, in total_by_region\n    region = row[\"region\"]\nKeyError: 'region'\n\nRan it as `python3 report.py data/sales-2026-08.csv`. The test suite is green so I don't get it. Fix it and verify.",
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
+        },
+        {
+          "text": "Reproduces the crash by running the exact failing command and shows the output"
+        },
+        {
+          "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys"
+        },
+        {
+          "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact"
+        },
+        {
+          "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing"
+        }
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "red-tests-after-merge",
+      "fixture": "evals/fixtures/pricing-regression",
+      "prompt": "Tests are red after I merged main: 2 failures in tests/test_pricing.py. Get them passing.",
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
+        },
+        {
+          "text": "Leaves every assertion in tests/test_pricing.py unchanged"
+        },
+        {
+          "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance"
+        },
+        {
+          "text": "Explains why binary float rounding produced 1.99 instead of 2.00"
+        },
+        {
+          "text": "Shows the full pytest run passing as evidence in the final message"
+        }
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "trivial-typo-fast-path",
+      "fixture": "evals/fixtures/slug-typo",
+      "prompt": "slug.py is throwing:\n\nAttributeError: 'str' object has no attribute 'stip'. Did you mean: 'strip'?\n\nslug.py:7: AttributeError\n\nThe whole test suite is red. Fix it.",
+      "expectations": [
+        {
+          "text": "Takes the fast path: a short brief of about three lines, with no ranked hypothesis list"
+        },
+        {
+          "text": "Adds no instrumentation, no new test file, and no revert-to-red check"
+        },
+        {
+          "text": "Fixes the typo in slug.py and changes nothing else in the source"
+        },
+        {
+          "text": "Leaves tests/test_slug.py unmodified"
+        },
+        {
+          "text": "Shows the passing pytest output as evidence"
+        }
+      ]
+    }
+  ]
+}

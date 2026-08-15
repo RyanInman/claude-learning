@@ -1,0 +1,40 @@
+{
+  "eval_id": 2,
+  "eval_name": "red-tests-after-merge",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+      "passed": true,
+      "evidence": "Debug Brief emitted before any edit"
+    },
+    {
+      "text": "Leaves every assertion in tests/test_pricing.py unchanged",
+      "passed": true,
+      "evidence": "tests/test_pricing.py byte-identical to the fixture"
+    },
+    {
+      "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance",
+      "passed": true,
+      "evidence": "Decimal with ROUND_HALF_UP; no tolerance, no assertion change"
+    },
+    {
+      "text": "Explains why binary float rounding produced 1.99 instead of 2.00",
+      "passed": true,
+      "evidence": "Instrumented and printed 1.9949999999999997, showing the product falls below the half-cent rather than attributing it to banker's rounding"
+    },
+    {
+      "text": "Shows the full pytest run passing as evidence in the final message",
+      "passed": true,
+      "evidence": "Pasted green run, revert to red, and green again"
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

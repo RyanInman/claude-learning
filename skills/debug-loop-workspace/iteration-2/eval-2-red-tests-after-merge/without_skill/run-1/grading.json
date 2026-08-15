@@ -1,0 +1,40 @@
+{
+  "eval_id": 2,
+  "eval_name": "red-tests-after-merge",
+  "config": "without_skill",
+  "expectations": [
+    {
+      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+      "passed": false,
+      "evidence": "No brief"
+    },
+    {
+      "text": "Leaves every assertion in tests/test_pricing.py unchanged",
+      "passed": true,
+      "evidence": "tests/test_pricing.py byte-identical to the fixture"
+    },
+    {
+      "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance",
+      "passed": true,
+      "evidence": "Decimal with ROUND_HALF_UP"
+    },
+    {
+      "text": "Explains why binary float rounding produced 1.99 instead of 2.00",
+      "passed": false,
+      "evidence": "Explanation again asserts round() 'applies banker's rounding' as a second cause. round(1.995, 2) returns 2.0 in CPython, so that mechanism is not what fired here. Same error as the iteration-1 baseline"
+    },
+    {
+      "text": "Shows the full pytest run passing as evidence in the final message",
+      "passed": true,
+      "evidence": "Reports 4 passed"
+    }
+  ],
+  "passed": 3,
+  "total": 5,
+  "summary": {
+    "passed": 3,
+    "failed": 2,
+    "total": 5,
+    "pass_rate": 0.6
+  }
+}

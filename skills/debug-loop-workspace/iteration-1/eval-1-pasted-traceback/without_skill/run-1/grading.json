@@ -1,0 +1,40 @@
+{
+  "eval_id": 1,
+  "eval_name": "pasted-traceback",
+  "config": "without_skill",
+  "expectations": [
+    {
+      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+      "passed": false,
+      "evidence": "No brief. Opens with 'Fixed. Root cause: ...'"
+    },
+    {
+      "text": "Reproduces the crash by running the exact failing command and shows the output",
+      "passed": true,
+      "evidence": "Reproduced and verified with xxd byte dumps of both the failing export and a clean fixture"
+    },
+    {
+      "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys",
+      "passed": true,
+      "evidence": "BOM identified with EF BB BF evidence and the reason the test suite missed it"
+    },
+    {
+      "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact",
+      "passed": true,
+      "evidence": "One-line change to encoding='utf-8-sig'"
+    },
+    {
+      "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing",
+      "passed": true,
+      "evidence": "Added tests/data/bom.csv plus a test, reports 3 passed and a clean CLI run"
+    }
+  ],
+  "passed": 4,
+  "total": 5,
+  "summary": {
+    "passed": 4,
+    "failed": 1,
+    "total": 5,
+    "pass_rate": 0.8
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "metadata": {
+    "skill_name": "running-debug-loops",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-08-15T01:18:40Z",
+    "evals_run": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 121.9,
+        "tokens": 45674,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+          "passed": true,
+          "evidence": "Debug Brief with Symptom/Repro/Check/Scope; git history shows the test commit precedes the fix commit"
+        },
+        {
+          "text": "Lists at least two ranked hypotheses before the first edit",
+          "passed": true,
+          "evidence": "Three ranked hypotheses, each with its confirming observation"
+        },
+        {
+          "text": "Adds a test reproducing the failure and shows it failing before the fix",
+          "passed": true,
+          "evidence": "Regression test added and shown red (401 != 200) before the fix, committed first"
+        },
+        {
+          "text": "Fixes the root cause by selecting the session row with the highest version, not by patching created_at handling or widening the expiry comparison",
+          "passed": true,
+          "evidence": "get_session keys on version; created_at ordering removed"
+        },
+        {
+          "text": "Shows real pytest output as evidence in the final message rather than asserting the fix works",
+          "passed": true,
+          "evidence": "Pasted red run, green run, and a revert that goes red again"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 86.7,
+        "tokens": 37860,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+          "passed": true,
+          "evidence": "Debug Brief emitted before any edit"
+        },
+        {
+          "text": "Reproduces the crash by running the exact failing command and shows the output",
+          "passed": true,
+          "evidence": "Ran the exact failing command and pasted the KeyError"
+        },
+        {
+          "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys",
+          "passed": true,
+          "evidence": "BOM identified with evidence from the parsed header keys"
+        },
+        {
+          "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact",
+          "passed": true,
+          "evidence": "encoding='utf-8-sig'; no defaulted key, no post-hoc rename"
+        },
+        {
+          "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing",
+          "passed": true,
+          "evidence": "BOM fixture and test added, 3 passed, repro exits 0"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 167.6,
+        "tokens": 49776,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+          "passed": true,
+          "evidence": "Debug Brief emitted before any edit"
+        },
+        {
+          "text": "Leaves every assertion in tests/test_pricing.py unchanged",
+          "passed": true,
+          "evidence": "tests/test_pricing.py byte-identical to the fixture"
+        },
+        {
+          "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance",
+          "passed": true,
+          "evidence": "Decimal with ROUND_HALF_UP; no tolerance, no assertion change"
+        },
+        {
+          "text": "Explains why binary float rounding produced 1.99 instead of 2.00",
+          "passed": true,
+          "evidence": "Instrumented and printed 1.9949999999999997, showing the product falls below the half-cent rather than attributing it to banker's rounding"
+        },
+        {
+          "text": "Shows the full pytest run passing as evidence in the final message",
+          "passed": true,
+          "evidence": "Pasted green run, revert to red, and green again"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 46.4,
+        "tokens": 34289,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Takes the fast path: a short brief of about three lines, with no ranked hypothesis list",
+          "passed": true,
+          "evidence": "Three-line brief, no ranked hypotheses, and an explicit statement of why the fast path applies"
+        },
+        {
+          "text": "Adds no instrumentation, no new test file, and no revert-to-red check",
+          "passed": true,
+          "evidence": "No instrumentation, no new test file, no revert check"
+        },
+        {
+          "text": "Fixes the typo in slug.py and changes nothing else in the source",
+          "passed": true,
+          "evidence": "One-character fix at slug.py:7; rest of the source byte-identical to the fixture"
+        },
+        {
+          "text": "Leaves tests/test_slug.py unmodified",
+          "passed": true,
+          "evidence": "tests/test_slug.py byte-identical to the fixture"
+        },
+        {
+          "text": "Shows the passing pytest output as evidence",
+          "passed": true,
+          "evidence": "Pasted the red run before and the 3-passed run after"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.4,
+        "passed": 2,
+        "failed": 3,
+        "total": 5,
+        "time_seconds": 70.2,
+        "tokens": 31746,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+          "passed": false,
+          "evidence": "No brief. Opens with '# Fixed: stale session row wins on same-second refresh' and the cause"
+        },
+        {
+          "text": "Lists at least two ranked hypotheses before the first edit",
+          "passed": false,
+          "evidence": "No ranked hypotheses; went straight to the confirmed cause"
+        },
+        {
+          "text": "Adds a test reproducing the failure and shows it failing before the fix",
+          "passed": false,
+          "evidence": "Regression test added but not committed before the fix, and no red run is shown"
+        },
+        {
+          "text": "Fixes the root cause by selecting the session row with the highest version, not by patching created_at handling or widening the expiry comparison",
+          "passed": true,
+          "evidence": "get_session keys on (version, created_at), so version is authoritative"
+        },
+        {
+          "text": "Shows real pytest output as evidence in the final message rather than asserting the fix works",
+          "passed": true,
+          "evidence": "Reports 6 passed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 62.5,
+        "tokens": 31649,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+          "passed": false,
+          "evidence": "No brief"
+        },
+        {
+          "text": "Reproduces the crash by running the exact failing command and shows the output",
+          "passed": true,
+          "evidence": "Reproduced the crash and showed the output"
+        },
+        {
+          "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys",
+          "passed": true,
+          "evidence": "BOM identified as the cause with byte-level evidence"
+        },
+        {
+          "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact",
+          "passed": true,
+          "evidence": "encoding='utf-8-sig'"
+        },
+        {
+          "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing",
+          "passed": true,
+          "evidence": "BOM test added and confirmed red without the fix; 3 passed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 3,
+        "failed": 2,
+        "total": 5,
+        "time_seconds": 82.3,
+        "tokens": 32511,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+          "passed": false,
+          "evidence": "No brief"
+        },
+        {
+          "text": "Leaves every assertion in tests/test_pricing.py unchanged",
+          "passed": true,
+          "evidence": "tests/test_pricing.py byte-identical to the fixture"
+        },
+        {
+          "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance",
+          "passed": true,
+          "evidence": "Decimal with ROUND_HALF_UP"
+        },
+        {
+          "text": "Explains why binary float rounding produced 1.99 instead of 2.00",
+          "passed": false,
+          "evidence": "Explanation again asserts round() 'applies banker's rounding' as a second cause. round(1.995, 2) returns 2.0 in CPython, so that mechanism is not what fired here. Same error as the iteration-1 baseline"
+        },
+        {
+          "text": "Shows the full pytest run passing as evidence in the final message",
+          "passed": true,
+          "evidence": "Reports 4 passed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 34.1,
+        "tokens": 28304,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Takes the fast path: a short brief of about three lines, with no ranked hypothesis list",
+          "passed": true,
+          "evidence": "No brief, but the 7-line response carries no ceremony either, which is the behavior this expectation is guarding"
+        },
+        {
+          "text": "Adds no instrumentation, no new test file, and no revert-to-red check",
+          "passed": true,
+          "evidence": "No instrumentation, no new test file, no revert check"
+        },
+        {
+          "text": "Fixes the typo in slug.py and changes nothing else in the source",
+          "passed": true,
+          "evidence": "One-character fix at slug.py:7; rest of the source byte-identical to the fixture"
+        },
+        {
+          "text": "Leaves tests/test_slug.py unmodified",
+          "passed": true,
+          "evidence": "tests/test_slug.py byte-identical to the fixture"
+        },
+        {
+          "text": "Shows the passing pytest output as evidence",
+          "passed": true,
+          "evidence": "Reports 3 passed"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 105.65,
+        "stddev": 51.5478,
+        "min": 46.4,
+        "max": 167.6
+      },
+      "tokens": {
+        "mean": 41899.75,
+        "stddev": 7083.3931,
+        "min": 34289,
+        "max": 49776
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.7,
+        "stddev": 0.2582,
+        "min": 0.4,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 62.275,
+        "stddev": 20.4751,
+        "min": 34.1,
+        "max": 82.3
+      },
+      "tokens": {
+        "mean": 31052.5,
+        "stddev": 1872.452,
+        "min": 28304,
+        "max": 32511
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.30",
+      "time_seconds": "+43.4",
+      "tokens": "+10847"
+    }
+  },
+  "notes": []
+}

@@ -1,0 +1,40 @@
+{
+  "eval_id": 0,
+  "eval_name": "vague-login-failure",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+      "passed": true,
+      "evidence": "Debug Brief emitted with Symptom/Repro/Check/Scope before any edit; git history shows test commit 448b3db precedes the fix commit"
+    },
+    {
+      "text": "Lists at least two ranked hypotheses before the first edit",
+      "passed": true,
+      "evidence": "Three hypotheses ranked, each with the observation that would confirm or kill it; hypotheses 2 and 3 explicitly retired after instrumentation"
+    },
+    {
+      "text": "Adds a test reproducing the failure and shows it failing before the fix",
+      "passed": true,
+      "evidence": "Added test_refresh_within_same_second_uses_highest_version, showed it red (assert 401 == 200), committed it before touching sessions.py"
+    },
+    {
+      "text": "Fixes the root cause by selecting the session row with the highest version, not by patching created_at handling or widening the expiry comparison",
+      "passed": true,
+      "evidence": "get_session keys on r['version']; created_at ordering removed; expiry comparison untouched"
+    },
+    {
+      "text": "Shows real pytest output as evidence in the final message rather than asserting the fix works",
+      "passed": true,
+      "evidence": "Pasted pytest output for baseline, red test, green suite, and a stash-revert that goes red again"
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

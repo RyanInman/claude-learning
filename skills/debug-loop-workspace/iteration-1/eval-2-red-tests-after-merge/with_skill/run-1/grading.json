@@ -1,0 +1,40 @@
+{
+  "eval_id": 2,
+  "eval_name": "red-tests-after-merge",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+      "passed": true,
+      "evidence": "Debug Brief emitted before any edit, including an explicit note that the pre-existing failing tests already satisfy the commit-test-first gate"
+    },
+    {
+      "text": "Leaves every assertion in tests/test_pricing.py unchanged",
+      "passed": true,
+      "evidence": "Diff of tests/test_pricing.py against the fixture is empty; all four assertions byte-identical"
+    },
+    {
+      "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance",
+      "passed": true,
+      "evidence": "Decimal with ROUND_HALF_UP and Decimal(str(v)) input conversion; no tolerance, no assertion change"
+    },
+    {
+      "text": "Explains why binary float rounding produced 1.99 instead of 2.00",
+      "passed": true,
+      "evidence": "Instrumented and printed repr(0.70*3*0.95) = 1.9949999999999997, then killed the banker's-rounding hypothesis by showing round(1.995, 2) returns 2.0"
+    },
+    {
+      "text": "Shows the full pytest run passing as evidence in the final message",
+      "passed": true,
+      "evidence": "Pasted the red run, the green run, a stash-revert back to red, an overfit probe over six extra cases, and the full-suite run"
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "eval_id": 1,
+  "eval_name": "pasted-traceback",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
+      "passed": true,
+      "evidence": "Debug Brief emitted before any edit"
+    },
+    {
+      "text": "Reproduces the crash by running the exact failing command and shows the output",
+      "passed": true,
+      "evidence": "Ran the exact failing command and pasted the KeyError"
+    },
+    {
+      "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys",
+      "passed": true,
+      "evidence": "BOM identified with evidence from the parsed header keys"
+    },
+    {
+      "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact",
+      "passed": true,
+      "evidence": "encoding='utf-8-sig'; no defaulted key, no post-hoc rename"
+    },
+    {
+      "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing",
+      "passed": true,
+      "evidence": "BOM fixture and test added, 3 passed, repro exits 0"
+    }
+  ],
+  "passed": 5,
+  "total": 5,
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "query": "the build is failing on main and I have no idea why, fix it",
+    "should_trigger": true
+  },
+  {
+    "query": "tests are red after I merged, 2 failures in tests/test_pricing.py. get them passing",
+    "should_trigger": true
+  },
+  {
+    "query": "why does getUser() return undefined for half our accounts?",
+    "should_trigger": true
+  },
+  {
+    "query": "this worked yesterday and now the export throws. track down the regression",
+    "should_trigger": true
+  },
+  {
+    "query": "Traceback (most recent call last):\n  File \"report.py\", line 12, in total_by_region\n    region = row[\"region\"]\nKeyError: 'region'\n\nfix it and verify",
+    "should_trigger": true
+  },
+  {
+    "query": "CI is failing on the auth job, here's the log output. can you sort it out",
+    "should_trigger": true
+  },
+  {
+    "query": "small one - typo in slug.py is blowing up the suite, just fix the typo",
+    "should_trigger": true
+  },
+  {
+    "query": "you already tried fixing this twice and it's still broken. start over properly",
+    "should_trigger": true
+  },
+  {
+    "query": "some users get bounced to the login screen and can't get back in, not everyone. please fix",
+    "should_trigger": true
+  },
+  {
+    "query": "the checkout page feels really sluggish since last week's deploy, p95 went from 200ms to 1.4s. figure out what regressed",
+    "should_trigger": true
+  },
+  {
+    "query": "diagnose this - the worker queue backs up every night around 2am",
+    "should_trigger": true
+  },
+  {
+    "query": "add email validation to the signup form",
+    "should_trigger": false
+  },
+  {
+    "query": "review my PR for anything sketchy before I merge it",
+    "should_trigger": false
+  },
+  {
+    "query": "refactor UserService.validate, it's too deeply nested",
+    "should_trigger": false
+  },
+  {
+    "query": "write tests first for the new billing module, red-green-refactor",
+    "should_trigger": false
+  },
+  {
+    "query": "our error handling is a mess, half these catch blocks swallow everything. clean it up",
+    "should_trigger": false
+  },
+  {
+    "query": "this function is broken by design imo, walk me through what it actually does before I touch it",
+    "should_trigger": false
+  },
+  {
+    "query": "the linter is complaining about 40 formatting violations in src/api/. make it shut up",
+    "should_trigger": false
+  },
+  {
+    "query": "brainstorm how we should structure the new notifications feature",
+    "should_trigger": false
+  },
+  {
+    "query": "what's the fastest way to paginate this query? just theory, nothing is broken",
+    "should_trigger": false
+  }
+]

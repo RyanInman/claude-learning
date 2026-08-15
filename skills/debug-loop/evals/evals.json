@@ -92,6 +92,29 @@
           "text": "Shows the passing pytest output as evidence"
         }
       ]
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "perf-regression-threshold-check",
+      "fixture": "evals/fixtures/slow-enrichment",
+      "prompt": "The nightly enrichment job used to finish in well under a second. Since the customer import grew it takes almost 7 seconds and it's still climbing. Repro is `python3 run_nightly.py`. The test suite is green. Make it fast again.",
+      "expectations": [
+        {
+          "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
+        },
+        {
+          "text": "Defines the check as a timed threshold with an explicit bound, not as a green test suite, and runs it more than once before trusting the number"
+        },
+        {
+          "text": "Identifies the linear scan over the customer list inside the per-order loop in enrich_orders as the cause, with a timing or complexity observation as evidence"
+        },
+        {
+          "text": "Fixes the root cause by indexing customers by id into a dict, not by shrinking the input, caching results, or adding parallelism"
+        },
+        {
+          "text": "Leaves tests/test_enrich.py assertions unchanged and shows both the passing suite and the improved timing as real command output"
+        }
+      ]
     }
   ]
 }

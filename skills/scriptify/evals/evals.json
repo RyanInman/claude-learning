@@ -245,7 +245,7 @@
     {
       "id": 6,
       "name": "name-collision",
-      "prompt": "Scriptify the docs-linter skill at evals/fixtures/docs-linter/ \u2014 find the steps worth delegating and apply all of them.",
+      "prompt": "Scriptify the docs-linter skill at evals/fixtures/docs-linter/ — find the steps worth delegating and apply all of them.",
       "expected_output": "The natural script name for step 2 is check_headings.py, which already exists in the target and does something unrelated (image alt text). The run must surface the collision to the user or pick a different name. The existing file stays byte-identical. Steps 1, 2, 3 get scripts; step 4 (which files matter this sprint) stays prose.",
       "files": [
         "evals/fixtures/docs-linter"
@@ -335,7 +335,7 @@
     {
       "id": 8,
       "name": "dead-step",
-      "prompt": "Which steps in the api-docs-checker skill at evals/fixtures/api-docs-checker/ should be scripts? Just tell me \u2014 don't write anything yet.",
+      "prompt": "Which steps in the api-docs-checker skill at evals/fixtures/api-docs-checker/ should be scripts? Just tell me — don't write anything yet.",
       "expected_output": "Report covering all 5 steps. Step 4 (append to legacy/index.txt) is DEAD: the Notes section says the legacy portal was retired in v2. Step 2 is superseded by step 3. No script is proposed for a DEAD step and no step is deleted from the target.",
       "files": [
         "evals/fixtures/api-docs-checker"
@@ -423,6 +423,48 @@
         }
       ],
       "setup": "Copy evals/fixtures/plugin-cached-release-notes/ to <run>/workspace/.claude-personal/plugins/cache/release-tools/skills/release-notes before running. The ineligibility guard keys off the plugin-cache path, so running against the fixture's repo location tests nothing."
+    },
+    {
+      "id": 10,
+      "name": "hook-and-validator",
+      "prompt": "Which parts of the skill in evals/fixtures/guarded-publisher/ should be hooks or scripts instead of prose? Report only.",
+      "expected_output": "Report covering all 4 steps. Step 1 is VALIDATOR with a sharpened criterion (title, date, under 800 words). Step 2 is HOOK: a PreToolUse hook on Bash that blocks the publish command on a dirty tree or a failing npm test, with a false-positive cost stated. Step 3 stays CLAUDE. Step 4 is a pinned one-liner. drafts/untitled.md is named as the failing fixture.",
+      "files": [
+        "evals/fixtures/guarded-publisher"
+      ],
+      "assertions": [
+        {
+          "text": "step 2 is classified HOOK with event, matcher, command, scope, and false-positive cost all stated",
+          "type": "content",
+          "tier": "signal",
+          "property": "hook"
+        },
+        {
+          "text": "step 1 is classified VALIDATOR and the why names the machine-checkable criterion",
+          "type": "content",
+          "tier": "signal",
+          "property": "validator"
+        },
+        {
+          "text": "step 3 (tone fit, ask the user) stays CLAUDE",
+          "type": "content",
+          "tier": "signal",
+          "property": "classification"
+        },
+        {
+          "text": "the report names drafts/untitled.md as the fixture that must fail",
+          "type": "content",
+          "tier": "signal",
+          "property": "data-digest"
+        },
+        {
+          "text": "no new files or directories are created inside the target skill folder",
+          "type": "structure",
+          "tier": "guardrail",
+          "property": "no-write",
+          "check": "target_tree_diff_empty"
+        }
+      ]
     }
   ],
   "notes": "scriptify is slash-only (disable-model-invocation: true): the model never auto-triggers it. These eval prompts assume the skill is loaded explicitly by the harness; naturalistic triggering evals will (correctly) never fire. Evals 1, 3, 6, 7 and 9 mutate their target, so every run must operate on its own copy of the fixture, never on the checked-in one. Eval 9 requires the setup step recorded in its `setup` field: the fixture must be re-homed under a plugins/cache/ path at run time. Iteration-1 was executed against the WORKING TREE of scriptify (uncommitted SKILL.md and delegation-rubric.md), not HEAD. ITERATION-3 ADVERSARIAL REVIEW: four conformity assertions (7A1/7A3/7A4/9A4) were rewritten as properties, three script-count assertions were replaced with coverage, and three ordering assertions became end-state checks. Iteration-3 eval-7 numbers are unusable: RUN_INSTRUCTIONS section 4 granted the with_skill arm a target-write exception the baseline lacked.",

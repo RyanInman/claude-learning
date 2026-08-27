@@ -13,13 +13,23 @@ CLASSIFICATION SCHEMA (.delegation-review/classification.json)
   "target": "/abs/path/to/target-skill",
   "steps": [
     {"id": "s2",
-     "class": "SCRIPT",            // SCRIPT | CLAUDE | HYBRID | DEAD | ALREADY_DELEGATED
+     "class": "SCRIPT",            // SCRIPT | VALIDATOR | HYBRID | HOOK | CLAUDE | DEAD | ALREADY_DELEGATED
      "why": "same regex check every run",
-     "proposed_script": {          // REQUIRED for SCRIPT/HYBRID, null otherwise
+     "proposed_script": {          // REQUIRED for SCRIPT/VALIDATOR/HYBRID, optional for HOOK, null otherwise
        "name": "check_headings.py",
        "interface": "python3 scripts/check_headings.py changelogs/ --json",
        "stdout": "findings JSON",
-       "exit": "0 clean / 1 findings / 2 usage"}}
+       "exit": "0 clean / 1 findings / 2 usage",
+       "touches": "reads changelogs/*.md, writes nothing"},   // required, rendered in Security
+     "proposed_hook": null},       // REQUIRED for HOOK, null otherwise
+    {"id": "s9", "class": "HOOK", "why": "must hold on every run, prose cannot enforce itself",
+     "proposed_script": null,
+     "proposed_hook": {
+       "event": "PreToolUse",
+       "matcher": "Bash",
+       "command": "python3 scripts/block_push_main.py",
+       "scope": "project settings",
+       "false_positive_cost": "blocks a deliberate push to main during a hotfix"}}
   ]
 }
 
@@ -37,8 +47,12 @@ import json
 import sys
 from pathlib import Path
 
-CLASSES = {"SCRIPT", "CLAUDE", "HYBRID", "DEAD", "ALREADY_DELEGATED"}
-NEEDS_SCRIPT = {"SCRIPT", "HYBRID"}
+CLASSES = {"SCRIPT", "VALIDATOR", "HYBRID", "HOOK", "CLAUDE", "DEAD", "ALREADY_DELEGATED"}
+NEEDS_SCRIPT = {"SCRIPT", "VALIDATOR", "HYBRID"}
+# A SCRIPT or VALIDATOR step becomes one command line; a HYBRID keeps its judgment prose.
+PURE = {"SCRIPT", "VALIDATOR"}
+NO_TOOL_EVENTS = {"Stop", "SessionStart", "UserPromptSubmit"}
+HOOK_FIELDS = ("event", "matcher", "command", "scope", "false_positive_cost")
 
 
 def _load(path):
@@ -71,14 +85,29 @@ def validate(cls, inv):
         if not str(st.get("why") or "").strip():
             errors.append(f"{where}: missing 'why'")
         ps = st.get("proposed_script")
-        if klass in NEEDS_SCRIPT:
-            missing = [k for k in ("name", "interface", "stdout", "exit")
+        # A HOOK carries a proposed_script only when its command is a new
+        # script; when it does, the script needs the same full interface.
+        if klass in NEEDS_SCRIPT or (klass == "HOOK" and ps):
+            missing = [k for k in ("name", "interface", "stdout", "exit", "touches")
                        if not (ps or {}).get(k)]
             if missing:
                 errors.append(f"{where}: class {klass} requires proposed_script "
                               f"with fields {missing}")
-        elif ps:
+        elif ps and klass != "HOOK":
             errors.append(f"{where}: class {klass} must not carry a proposed_script")
+        ph = st.get("proposed_hook")
+        if klass == "HOOK":
+            # Stop, SessionStart, and UserPromptSubmit match no tool, so an
+            # empty matcher is the honest value there.
+            no_tool = (ph or {}).get("event") in NO_TOOL_EVENTS
+            missing = [k for k in HOOK_FIELDS
+                       if not str((ph or {}).get(k) or "").strip()
+                       and not (k == "matcher" and no_tool)]
+            if missing:
+                errors.append(f"{where}: class HOOK requires proposed_hook "
+                              f"with fields {missing}")
+        elif ph:
+            errors.append(f"{where}: class {klass} must not carry a proposed_hook")
     unclassified = sorted(inv_ids - seen)
     if unclassified:
         errors.append(f"unclassified inventory steps: {unclassified}")
@@ -113,11 +142,12 @@ def _shared_name_errors(cls):
 def render(cls, inv):
     by_id = {s["id"]: s for s in cls["steps"]}
     mech = [s for s in inv["steps"] if by_id[s["id"]]["class"] in NEEDS_SCRIPT]
-    # Count only SCRIPT. Step 8 replaces a SCRIPT step with one command line, but a HYBRID step
-    # keeps its judgment prose and only gains an invocation, so counting HYBRID here advertises
-    # a saving the rewrite never delivers.
-    full = [s for s in inv["steps"] if by_id[s["id"]]["class"] == "SCRIPT"]
+    # Count only SCRIPT and VALIDATOR. Step 8 replaces those with one command line, but a
+    # HYBRID step keeps its judgment prose and only gains an invocation, so counting HYBRID
+    # here advertises a saving the rewrite never delivers.
+    full = [s for s in inv["steps"] if by_id[s["id"]]["class"] in PURE]
     hyb = len(mech) - len(full)
+    hooks = [s for s in inv["steps"] if by_id[s["id"]]["class"] == "HOOK"]
     tok = sum(s["approx_tokens"] for s in full)
     name = inv.get("frontmatter", {}).get("name") or inv.get("target", "?")
     hyb_note = f", plus {hyb} HYBRID step(s) that keep their judgment prose" if hyb else ""
@@ -126,7 +156,8 @@ def render(cls, inv):
         "",
         f"**Verdict:** {len(full)} of {len(inv['steps'])} steps become pure script "
         f"invocations{hyb_note}. Replacing the {len(full)} SCRIPT step(s) removes ~{tok} tokens "
-        f"of per-run reasoning.",
+        f"of per-run reasoning."
+        + (f" {len(hooks)} step(s) become hooks." if hooks else ""),
         "",
         "| # | Step (line) | Current form | Tokens | Class | Why | Proposed script interface |",
         "|---|-------------|--------------|--------|-------|-----|---------------------------|",
@@ -134,11 +165,38 @@ def render(cls, inv):
     for s in inv["steps"]:
         c = by_id[s["id"]]
         ps = c.get("proposed_script")
-        iface = (f"`{ps['interface']}` -> {ps['stdout']}, exit {ps['exit']}"
-                 if ps else "-")
+        ph = c.get("proposed_hook")
+        if ps:
+            iface = f"`{ps['interface']}` -> {ps['stdout']}, exit {ps['exit']}"
+        elif ph:
+            iface = (f"{ph['event']} on `{ph['matcher']}`: `{ph['command']}`"
+                     if ph.get('matcher') else f"{ph['event']}: `{ph['command']}`")
+        else:
+            iface = "-"
         out.append(f"| {s['id']} | \"{s['snippet']}\" (L{s['line_start']}-{s['line_end']}) "
                    f"| {s['origin']} | {s['approx_tokens']} | {c['class']} "
                    f"| {c['why']} | {iface} |")
+    if hooks:
+        out += ["", "### Hooks", "",
+                "| Step | Event | Matcher | Command | Scope | False-positive cost |",
+                "|------|-------|---------|---------|-------|---------------------|"]
+        for s in hooks:
+            h = by_id[s["id"]]["proposed_hook"]
+            out.append(f"| {s['id']} | {h['event']} | `{h['matcher']}` | `{h['command']}` "
+                       f"| {h['scope']} | {h['false_positive_cost']} |")
+    unref = [sc["path"] for sc in inv.get("scripts", []) if not sc.get("mentioned_in_body")]
+    if unref:
+        out += ["", "### Existing scripts neither the body nor a reference invokes (wire or delete)", ""]
+        out += [f"- `{path}`" for path in unref]
+    names = {}
+    for c in cls["steps"]:
+        ps = c.get("proposed_script")
+        if ps and ps.get("name") not in names:
+            names[ps["name"]] = ps.get("touches") or "not stated"
+    if names:
+        out += ["", "### Security", "",
+                "Every new script runs with the user's permissions. Files each one touches:", ""]
+        out += [f"- `{n}`: {t}" for n, t in names.items()]
     return "\n".join(out) + "\n"
 
 

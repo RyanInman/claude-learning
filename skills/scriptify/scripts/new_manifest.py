@@ -14,42 +14,65 @@ that let a hollow contract through would be worse than no scaffold.
 
 USAGE
     python3 scripts/new_manifest.py <classification.json> --target <skill-dir>
-             [--out FILE]        default .delegation-review/manifest.json
-             [--fixtures DIR]    default .delegation-review/fixtures
+             --out FILE          <review>/manifest.json
+             --fixtures DIR      <review>/fixtures
+    All three are required, because inventory.py chooses the review directory at
+    run time and a silent default would point at the wrong one.
 
 EXIT CODES
     0  Manifest written.
-    1  Nothing to scaffold (no SCRIPT or HYBRID rows in the classification).
+    1  Nothing to scaffold (no SCRIPT, VALIDATOR, HYBRID, or scripted HOOK rows).
     2  Usage error, unreadable/invalid classification, or bad target.
 """
 
 import argparse
 import json
+import re
 import shlex
 import sys
 from pathlib import Path
 
-NEEDS_SCRIPT = {"SCRIPT", "HYBRID"}
+NEEDS_SCRIPT = {"SCRIPT", "VALIDATOR", "HYBRID", "HOOK"}  # HOOK only when it carries a proposed_script
+# Flags the conventions and this skill's own scripts use without a value.
+# Flags that always take a value, checked before the path-like heuristic so
+# "--out report.json" is never read as a boolean flag plus a data argument.
+VALUE_FLAGS = {"--out", "--review-dir", "--target", "--fixtures", "--timeout",
+               "--only", "--config", "--format", "--limit"}
+BOOL_FLAGS = {"--json", "--verbose", "--force", "--dry-run", "--review",
+              "--no-probe", "--no-backup", "--help", "-h"}
 FINDING_WORDS = ("finding", "violation", "problem", "flag", "invalid", "missing",
                  "malformed", "broken", "thin", "unknown")
 
 
-def _kind(exit_spec):
+EXIT_ONE_RE = re.compile(r"(?:^|[\s/,;])1\s*[:=-]?\s*([a-z]+)")
+
+
+def _kind(exit_spec, klass=None):
     """A script whose exit 1 means "the data has a problem" is a check.
 
     Only a check needs a bad_data_invocation, because only a check can be
-    verified against a failing fixture.
+    verified against a failing fixture. VALIDATOR is a check by definition.
+    Otherwise the house contract decides: exit 1 documented as anything other
+    than a usage error means findings. Finding words are the last fallback,
+    so a synonym like "1 outliers" is still a check.
     """
+    if klass == "VALIDATOR":
+        return "check"
     low = (exit_spec or "").lower()
+    m = EXIT_ONE_RE.search(low)
+    if m and m.group(1) not in ("usage", "error", "bad"):
+        return "check"
     return "check" if any(w in low for w in FINDING_WORDS) else "transform"
 
 
 def _argv(interface, fixture):
     """Turn a declared interface into argv, pointing it at a fixture.
 
-    The first bare token that is not the interpreter, the script path, or a
-    flag is the data argument, so that is what the fixture replaces. When the
-    interface names no data argument, the fixture is appended.
+    The last bare token that is not the interpreter, the script path, a flag,
+    or a flag's value is the data argument, so that is what the fixture
+    replaces. A token after a value-taking flag such as `--out FILE` is that
+    flag's value, never the data argument. When the interface names no data
+    argument, the fixture is appended.
     """
     try:
         toks = shlex.split(interface)
@@ -57,16 +80,24 @@ def _argv(interface, fixture):
         toks = interface.split()
     if not toks:
         return ["python3", "TODO: script path", fixture]
-    out, replaced = [], False
+    data_idx, prev_flag = None, False
     for i, t in enumerate(toks):
-        if (not replaced and i >= 2 and not t.startswith("-")
-                and not t.endswith(".py")):
-            out.append(fixture)
-            replaced = True
-        else:
-            out.append(t)
-    if not replaced:
+        is_flag = t.startswith("-")
+        if (i >= 2 and not is_flag and not prev_flag and not t.endswith(".py")):
+            data_idx = i
+        # A flag with "=" carries its value inline; a bare flag followed by a
+        # non-flag token is assumed to take that token as its value.
+        # A flag followed by a path-like token ("/" or "." in it) is boolean;
+        # the path is the data argument, not the flag's value.
+        nxt = toks[i + 1] if i + 1 < len(toks) else ""
+        path_like = ("/" in nxt or "." in nxt) and not nxt.startswith("-")
+        prev_flag = (is_flag and "=" not in t and
+                     (t in VALUE_FLAGS or (t not in BOOL_FLAGS and not path_like)))
+    out = list(toks)
+    if data_idx is None:
         out.append(fixture)
+    else:
+        out[data_idx] = fixture
     return out
 
 
@@ -85,7 +116,7 @@ def scaffold(cls, target, fixtures_root):
         stem = Path(name).stem
         good = f"{fixtures_root}/{stem}/good"
         bad = f"{fixtures_root}/{stem}/bad"
-        kind = _kind(ps.get("exit"))
+        kind = _kind(ps.get("exit"), st.get("class"))
         entry = {
             "path": f"scripts/{name}",
             "kind": kind,
@@ -132,9 +163,9 @@ smoke_test.py to write the manifest.
 """)
     p.add_argument("classification", help="Path to classification.json")
     p.add_argument("--target", required=True, help="Target skill folder")
-    p.add_argument("--out", default=".delegation-review/manifest.json",
+    p.add_argument("--out", required=True,
                    help="Where to write the manifest")
-    p.add_argument("--fixtures", default=".delegation-review/fixtures",
+    p.add_argument("--fixtures", required=True,
                    help="Fixture root recorded in the manifest")
     args = p.parse_args(argv)
 
@@ -158,7 +189,7 @@ smoke_test.py to write the manifest.
     fixtures = str(Path(args.fixtures.rstrip("/")).resolve())
     m, steps_by_script = scaffold(cls, target.resolve(), fixtures)
     if not m["scripts"]:
-        print("no SCRIPT or HYBRID rows: nothing to scaffold", file=sys.stderr)
+        print("no SCRIPT, VALIDATOR, HYBRID, or scripted HOOK rows: nothing to scaffold", file=sys.stderr)
         return 1
 
     out = Path(args.out)

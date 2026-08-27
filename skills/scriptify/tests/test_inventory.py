@@ -140,3 +140,71 @@ def test_well_delegated_fixture_signals():
     assert sc["has_argparse"] is True
     assert sc["has_docstring"] is True
     assert sc["help_ok"] is True
+
+
+def test_enforcement_hints(tmp_path):
+    (tmp_path / "SKILL.md").write_text(
+        "---\nname: t\ndescription: d\n---\n# T\n\n"
+        "1. Never push to main. You MUST run tests before every edit.\n"
+        "2. Write the narrative.\n")
+    inv = json.loads(run(str(tmp_path)).stdout)
+    steps = {s["id"]: s for s in inv["steps"]}
+    assert "CAPS:MUST" in steps["s1"]["enforcement_hints"]
+    assert any(h.lower().startswith("never push") for h in steps["s1"]["enforcement_hints"])
+    assert steps["s2"]["enforcement_hints"] == []
+
+
+def test_review_flag_picks_dir_outside_target(tmp_path):
+    target = tmp_path / "t"
+    target.mkdir()
+    (target / "SKILL.md").write_text("---\nname: t\ndescription: d\n---\n# T\n\n1. Count files.\n")
+    r = subprocess.run([sys.executable, str(SCRIPT), str(target), "--review"],
+                       capture_output=True, text=True, timeout=60, cwd=target)
+    assert r.returncode == 0, r.stderr
+    line = [l for l in r.stdout.splitlines() if l.startswith("review_dir:")][0]
+    d = Path(line.split(": ", 1)[1])
+    assert d == (tmp_path / ".delegation-review-t").resolve()
+    assert (d / "inventory.json").is_file()
+    r = subprocess.run([sys.executable, str(SCRIPT), str(target), "--review"],
+                       capture_output=True, text=True, timeout=60, cwd=tmp_path)
+    assert f"review_dir: {(tmp_path / '.delegation-review').resolve()}" in r.stdout
+
+
+def test_review_writes_backup_unless_no_backup(tmp_path):
+    target = tmp_path / "t"
+    target.mkdir()
+    (target / "SKILL.md").write_text("---\nname: t\ndescription: d\n---\n# T\n\n1. Count files.\n")
+    r = subprocess.run([sys.executable, str(SCRIPT), str(target), "--review"],
+                       capture_output=True, text=True, timeout=60, cwd=tmp_path)
+    assert "backup: " in r.stdout
+    assert (tmp_path / ".delegation-review" / "SKILL.md.orig").read_text() == (target / "SKILL.md").read_text()
+    r = subprocess.run([sys.executable, str(SCRIPT), str(target), "--review", "--no-backup"],
+                       capture_output=True, text=True, timeout=60, cwd=tmp_path / "t")
+    assert "backup: " not in r.stdout
+
+
+def test_reference_invoked_script_counts_as_mentioned(tmp_path):
+    (tmp_path / "SKILL.md").write_text("---\nname: t\ndescription: d\n---\n# T\n\n1. Read references/how.md.\n")
+    (tmp_path / "references").mkdir()
+    (tmp_path / "references" / "how.md").write_text("Run `python3 scripts/check.py x/`.\n")
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / "check.py").write_text("import argparse\n")
+    inv = json.loads(run(str(tmp_path), "--no-probe").stdout)
+    assert inv["scripts"][0]["mentioned_in_body"] is True
+
+
+def test_step_heading_owns_its_subheadings(tmp_path):
+    (tmp_path / "SKILL.md").write_text(
+        "---\nname: t\ndescription: d\n---\n# T\n\n## Step 1 — Gather\n\nList files.\n\n"
+        "### Validation rules\n\nCheck every file starts with a version header.\n\n"
+        "## Step 2 — Write\n\nWrite the summary.\n")
+    inv = json.loads(run(str(tmp_path)).stdout)
+    steps = {s["id"]: s for s in inv["steps"]}
+    assert len(steps) == 2
+    covered = set()
+    for s in steps.values():
+        covered.update(range(s["line_start"], s["line_end"] + 1))
+    text = (tmp_path / "SKILL.md").read_text().splitlines()
+    rule_line = next(i for i, l in enumerate(text, 1) if l.startswith("Check every file"))
+    assert rule_line in covered
+    assert "check" in steps["s1"]["mechanical_verb_hints"]

@@ -25,13 +25,22 @@ ANCHOR ORIGINS
                       be workflow steps at all.
 
 USAGE
-    python3 scripts/inventory.py <target-skill-dir> [--out FILE] [--no-probe]
+    python3 scripts/inventory.py <target-skill-dir> [--review [--no-backup] | --out FILE] [--no-probe]
 
     <target-skill-dir>  Folder containing SKILL.md. Passing the SKILL.md file
                         itself also works (its parent is used).
     --out FILE          Write full JSON to FILE and print a compact summary
                         (counts and hints only, no step text) to stdout.
                         Without --out, full JSON goes to stdout.
+    --review            Write inventory.json into the computed review directory
+                        (.delegation-review/ under cwd, or beside the target
+                        when cwd is inside it), print the summary, then print
+                        `review_dir: <path>`. Overrides --out. Also copies
+                        the target SKILL.md to <review>/SKILL.md.orig and
+                        prints `backup: <path>`, the restore point Step 8
+                        falls back to when the rewrite fails.
+    --no-backup         With --review, skip the SKILL.md.orig copy. Use on an
+                        ineligible target, which is never rewritten.
     --no-probe          Skip the live `--help` probe of existing .py scripts
                         (the probe runs each with a 10s timeout, stdin closed).
 
@@ -46,6 +55,7 @@ is the agent's job. All input from argv; the script never prompts.
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -62,6 +72,15 @@ HEADING_ORIGINS = {"step-heading", "numbered-heading", "heading-fallback"}
 MECH_VERBS = ("parse", "validate", "count", "check", "extract", "sort", "format",
               "render", "diff", "aggregate", "collect", "list", "scan", "verify",
               "lint", "convert")
+# Phrases that ask for a guarantee on every run. Prose cannot enforce itself
+# once context fills, so these lines are HOOK candidates before SCRIPT ones.
+ENFORCE_RE = re.compile(
+    r"\b(before (every|each|any)|after (every|each|any)|on every|always run|"
+    r"never (push|commit|delete|ship|run|overwrite)|"
+    r"do not (push|commit|delete|ship) (without|unless|until)|refuse to|abort the|"
+    r"pre-?commit|post-?commit|pre-?push|PreToolUse|PostToolUse|SessionStart|"
+    r"UserPromptSubmit)\b", re.IGNORECASE)
+CAPS_RE = re.compile(r"\b(MUST|NEVER|ALWAYS)\b")
 AGENT_TOOL_RE = re.compile(
     r"mcp__[\w-]+|\bMCP\s+tool\b|\bWebFetch\b|\bWebSearch\b|\bAskUserQuestion\b|"
     r"\bsubagents?\b|\bAgent tool\b|\bTask tool\b", re.IGNORECASE)
@@ -192,9 +211,17 @@ def _extract_steps(lines, fences, line_offset):
 
     steps, chunks = [], []
     anchor_lines = [a for a, _, _ in anchors]
+    level_at = {i: level for i, level, _ in headings}
     for n, (start, origin, label) in enumerate(anchors):
-        nexts = [a for a in anchor_lines if a > start] + \
-                [h for h in heading_lines if h > start] + [len(lines)]
+        # A heading-origin step owns its sub-headings: "### Validation rules"
+        # under "## Step 1" is part of Step 1, not unanchored text no id can
+        # reach. A list-origin step still ends at any heading.
+        if origin in HEADING_ORIGINS:
+            stops = [h for h in heading_lines
+                     if h > start and level_at[h] <= level_at[start]]
+        else:
+            stops = [h for h in heading_lines if h > start]
+        nexts = [a for a in anchor_lines if a > start] + stops + [len(lines)]
         end = min(nexts) - 1
         chunk = "\n".join(lines[start:end + 1])
         low = chunk.lower()
@@ -216,6 +243,10 @@ def _extract_steps(lines, fences, line_offset):
                                       if re.search(rf"\b{v}\w*\b", low)],
             "agent_tool_mentions": sorted({m.lower(): m for m in
                                            AGENT_TOOL_RE.findall(chunk)}.values()),
+            "enforcement_hints": sorted({m if isinstance(m, str) else m[0]
+                                         for m in ENFORCE_RE.findall(chunk)}
+                                        | {f"CAPS:{c}" for c in CAPS_RE.findall(chunk)},
+                                        key=str.lower),
             "non_step_heading_hint": bool(
                 origin == "heading-fallback"
                 and NON_STEP_HEADING_RE.fullmatch(str(label).strip())),
@@ -310,13 +341,29 @@ def _summary(inv):
     for st in inv["steps"]:
         verbs = ",".join(st["mechanical_verb_hints"]) or "-"
         tools = ",".join(st["agent_tool_mentions"]) or "-"
+        enf = ",".join(st["enforcement_hints"]) or "-"
         lines.append(f"  {st['id']} {st['origin']} L{st['line_start']}-{st['line_end']} "
-                     f"~{st['approx_tokens']}tok verbs={verbs} tools={tools}")
+                     f"~{st['approx_tokens']}tok verbs={verbs} tools={tools} enforce={enf}")
     for sc in inv["scripts"]:
         lines.append(f"  script {sc['path']} lines={sc['lines']} "
                      f"mentioned={sc['mentioned_in_body']} argparse={sc['has_argparse']} "
                      f"help_ok={sc['help_ok']}")
     return "\n".join(lines)
+
+
+def review_dir(skill_dir):
+    """Choose where transient review files live.
+
+    `.delegation-review/` under cwd, unless cwd is at or under the target: a
+    report-only stop or a red smoke test leaves the directory behind, and a
+    run started inside the target would then pollute the skill it reviews. In
+    that case the directory goes beside the target, named after it.
+    """
+    cwd = Path.cwd().resolve()
+    target = skill_dir.resolve()
+    if cwd == target or target in cwd.parents:
+        return target.parent / f".delegation-review-{target.name}"
+    return cwd / ".delegation-review"
 
 
 def main(argv=None):
@@ -326,6 +373,12 @@ def main(argv=None):
     parser.add_argument("target_skill_dir", metavar="target-skill-dir",
                         help="Folder containing SKILL.md (or the SKILL.md file itself)")
     parser.add_argument("--out", help="Write full JSON here; print summary to stdout")
+    parser.add_argument("--review", action="store_true",
+                        help="Write inventory.json into a computed review directory "
+                             "and print its path as review_dir:")
+    parser.add_argument("--no-backup", action="store_true",
+                        help="With --review, skip copying SKILL.md to SKILL.md.orig "
+                             "(use on an ineligible target, which is never rewritten)")
     parser.add_argument("--no-probe", action="store_true",
                         help="Skip the live --help probe of existing scripts")
     args = parser.parse_args(argv)
@@ -357,7 +410,12 @@ def main(argv=None):
     fences = _fences(lines)
     steps, chunks, orphans = _extract_steps(lines, fences, line_offset)
 
-    scripts = _audit_scripts(skill_dir, body, probe=not args.no_probe)
+    # A script invoked only from a reference is wired, not dead. Search the
+    # references too, or a well-factored target gets a false "wire or delete".
+    ref_dir = skill_dir / "references"
+    ref_text = "\n".join(f.read_text(encoding="utf-8", errors="replace")
+                         for f in sorted(ref_dir.rglob("*.md"))) if ref_dir.is_dir() else ""
+    scripts = _audit_scripts(skill_dir, body + "\n" + ref_text, probe=not args.no_probe)
     script_names = [(s["path"], Path(s["path"]).name) for s in scripts]
     for step, chunk in zip(steps, chunks):
         step["mentions_existing_script"] = [rel for rel, name in script_names
@@ -390,11 +448,24 @@ def main(argv=None):
         },
     }
 
+    if args.review:
+        rdir = review_dir(skill_dir)
+        args.out = str(rdir / "inventory.json")
+        inv["review_dir"] = str(rdir)
+        if not args.no_backup:
+            # The restore point Step 8 falls back to when the rewrite fails.
+            rdir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(skill_dir / "SKILL.md", rdir / "SKILL.md.orig")
+            inv["backup"] = str(rdir / "SKILL.md.orig")
     payload = json.dumps(inv, indent=2)
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(payload + "\n", encoding="utf-8")
         print(_summary(inv))
+        if args.review:
+            print(f"review_dir: {inv['review_dir']}")
+            if "backup" in inv:
+                print(f"backup: {inv['backup']}")
     else:
         print(payload)
     return 0

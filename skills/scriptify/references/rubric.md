@@ -1,9 +1,10 @@
-# Delegation Rubric: SCRIPT, CLAUDE, HYBRID, or DEAD
+# Delegation rubric
 
 ## Contents
 
 - [The core test](#the-core-test)
-- [The four classifications](#the-four-classifications)
+- [The classifications](#the-classifications)
+- [Over-scripting signals](#over-scripting-signals)
 - [Commonly delegable (SCRIPT) categories](#commonly-delegable-script-categories)
 - [Commonly Claude-needed (CLAUDE) categories](#commonly-claude-needed-claude-categories)
 - [Hybrid shapes](#hybrid-shapes)
@@ -29,11 +30,41 @@ step's output right now?** If yes, the step is deterministic enough to script.
 If you cannot say what the correct output is without seeing the input, the
 step needs judgment somewhere. That still means HYBRID before it means CLAUDE.
 
-Tie-breaks: SCRIPT over HYBRID, HYBRID over CLAUDE. Aim for a SKILL.md that
-reads as an orchestrator: script invocations connected by the minimum prose
-needed for routing, judgment, and user interaction.
+Tie-breaks: HOOK over VALIDATOR when the rule must hold on every run, VALIDATOR
+over SCRIPT when the step is a pass-or-fail gate, SCRIPT over HYBRID, HYBRID
+over CLAUDE. Apply the tests in that order and stop at the first match. Then
+adjust one notch for blast radius: a step that is catastrophic when wrong
+(migration, deletion, publish) tightens one notch toward HOOK. A step whose
+inputs vary widely and resist a schema loosens one notch toward CLAUDE.
 
-## The four classifications
+## The classifications
+
+**HOOK** — the step demands a guarantee on every run regardless of what the
+model remembers: "never push to main", "run tests after every edit". A prose
+rule cannot enforce itself, because attention decays as context fills. A hook
+bound to a Claude Code event (`PreToolUse`, `PostToolUse`, `Stop`,
+`SessionStart`, `UserPromptSubmit`) fires outside the model. Treat an all-caps
+"MUST", "NEVER", or "ALWAYS" line as a HOOK candidate first, because caps mark
+enforcement intent, not computation. The inventory lists these under
+`enforcement_hints`. Every HOOK entry carries a `proposed_hook` with five
+fields: `event`, `matcher` (tool name or pattern such as `Edit|Write`; empty for `Stop`,
+`SessionStart`, and `UserPromptSubmit`, which match no tool),
+`command` (what runs, and what a non-zero exit blocks), `scope` (user
+settings, project settings, or the skill's own `hooks` frontmatter, narrowest
+that covers every guarded path), and `false_positive_cost` (one sentence on
+the legitimate work the hook could block). Never leave the cost empty, because
+a hook that blocks too broadly is worse than the prose it replaces. A HOOK
+whose command is a new script also carries a `proposed_script`, so Steps 5-7
+build and smoke-test it.
+
+**VALIDATOR** — the step states a success criterion a program can check: a
+count under a limit, a schema, a lint, a required section present. The script
+returns pass or fail plus exact locations. The criterion must be
+machine-checkable before you assign this class. "The brief is complete" is not
+one until it reads "the brief has all four labeled fields". Write the
+sharpened criterion in `why`, because a validator built on a vague criterion
+returns a false pass silently. A VALIDATOR rewrites to one exact command line,
+the same as SCRIPT.
 
 **SCRIPT** — the step is a function of its inputs. Fully delegable. The
 rewritten step becomes one exact command line ("Run exactly: ..."). Examples:
@@ -71,8 +102,28 @@ a `skillit:review` follow-up. Never auto-delete another skill's steps, because
 the user owns the target's workflow.
 
 Classify a step already backed by an adequate existing script as
-**ALREADY_DELEGATED**, then skip it. The inventory's interface audit marks
-those steps `mentioned_in_body`, `has_argparse`, and `help_ok`.
+**ALREADY_DELEGATED** with `proposed_script: null`, and propose nothing for
+it. The row stays, because render_report.py rejects an omitted id. The inventory's `scripts` audit
+records `mentioned_in_body`, `has_argparse`, and `help_ok` per script. Each
+step lists the scripts it names under `mentions_existing_script`.
+
+A bundled script with `mentioned_in_body: false` is dead weight. The report
+lists it under "wire or delete". Do not classify it; route the choice to the
+user, because the target's owner decides whether the script still earns its
+place.
+
+## Over-scripting signals
+
+Keep the step CLAUDE when any of these hold, because a script here fails on
+the first input the author did not anticipate:
+
+- The step's inputs are free text with no stable shape.
+- The correct output depends on user intent stated elsewhere in the
+  conversation.
+- Two reasonable authors would write different scripts for it.
+- The step runs once per invocation and costs under ten tokens of prose.
+- The script would need the model's judgment as an input on every call. That
+  is prose with extra steps.
 
 ## Commonly delegable (SCRIPT) categories
 

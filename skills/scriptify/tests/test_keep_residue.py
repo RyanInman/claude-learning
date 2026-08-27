@@ -119,3 +119,12 @@ def test_relocated_residue_tests_the_copy_not_the_original(tmp_path):
     code, tail = keep_residue._run_smoke(
         copy / "scripts" / "tests" / "manifest.json", 20.0)
     assert code == 0, tail
+
+
+def test_install_bad_manifest_exits_2_and_writes_nothing(tmp_path):
+    target = _make_target(tmp_path)
+    review = _make_review(tmp_path, target)
+    (review / "manifest.json").write_text("{not json")
+    code, err = keep_residue.install(target, review, 20.0)
+    assert code == 2 and "not valid JSON" in err
+    assert not (target / "scripts" / "tests").exists()

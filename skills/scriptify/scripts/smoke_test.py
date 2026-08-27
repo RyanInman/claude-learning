@@ -136,11 +136,19 @@ def _todo_errors(m):
     return found
 
 
-def _schema_errors(m):
+def _schema_errors(m, only=None):
+    """Validate the manifest. With `only`, TODOs are checked just in the
+    entries `only` selects, so one finished script can be re-run while the
+    others are still scaffolded."""
     errs = []
     if not isinstance(m, dict):
         return ["manifest root must be a JSON object"]
-    errs.extend(_todo_errors(m))
+    if only and isinstance(m.get("scripts"), list):
+        scoped = dict(m, scripts=[s for s in m["scripts"]
+                                  if only in str(s.get("path", ""))])
+        errs.extend(_todo_errors(scoped))
+    else:
+        errs.extend(_todo_errors(m))
     tgt = m.get("target_skill")
     if not tgt:
         errs.append("missing field: target_skill")
@@ -196,8 +204,13 @@ def _expand(argv, base):
     edit per path, and a missed path then fails loudly rather than silently
     reading the original copy's fixtures.
     """
-    return [t.replace("{skill}", str(base)) if isinstance(t, str) else t
-            for t in argv]
+    out = [t.replace("{skill}", str(base)) if isinstance(t, str) else t
+           for t in argv]
+    # Run every check under the same interpreter as the --help check, so a
+    # venv or pyenv setup cannot make bad-args test a different python.
+    if out and out[0] == "python3":
+        out[0] = sys.executable
+    return out
 
 
 def _resolve_cwd(spec, base):
@@ -280,7 +293,7 @@ def run_checks(m, timeout, only=None):
         # returns the same code for a data finding and a usage error passes
         # them both -- and the caller can then no longer tell "the data has a
         # problem" from "the script has a problem", which is exactly what
-        # script-conventions.md forbids and what Step 8's exit-code branching
+        # applying.md's conventions forbid and what Step 8's exit-code branching
         # depends on. Compare them.
         if data_code is not None and usage_code is not None:
             distinct = data_code != usage_code
@@ -334,7 +347,7 @@ def main(argv=None):
     if note:
         print(f"note: {note}", file=sys.stderr)
 
-    errs = _schema_errors(m)
+    errs = _schema_errors(m, args.only)
     if errs:
         for e in errs:
             print(f"manifest invalid: {e}", file=sys.stderr)

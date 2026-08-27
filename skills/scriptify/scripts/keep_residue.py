@@ -15,11 +15,13 @@ said they want to re-run the checks later, and it is the property a stale
 absolute path breaks silently.
 
 USAGE
-    python3 scripts/keep_residue.py <target-dir> [--review-dir DIR] [--timeout S]
+    python3 scripts/keep_residue.py <target-dir> --review-dir DIR [--timeout S]
              [--force]
-             --review-dir  default .delegation-review
+             --review-dir  the review directory inventory.py printed (required,
+                           because a silent default would point at the wrong one)
              --timeout     per-check timeout passed to smoke_test.py
-             --force       replace an existing scripts/tests/fixtures/
+             --force       replace existing fixtures/, manifest.json, or
+                           smoke_test.py under scripts/tests/
 
 EXIT CODES
     0  Residue installed, green in place and green from a relocated copy.
@@ -102,6 +104,14 @@ def install(target, review_dir, timeout, force=False):
         return 2, f"no manifest at {src_manifest}"
     if not src_fixtures.is_dir():
         return 2, f"no fixtures at {src_fixtures}"
+    # Parse before any write, so a bad manifest leaves the target untouched
+    # instead of a half-installed scripts/tests/ the next run refuses.
+    try:
+        manifest = json.loads(src_manifest.read_text(encoding="utf-8"))
+    except ValueError as e:
+        return 2, f"manifest is not valid JSON: {e}"
+    except OSError as e:
+        return 2, f"cannot read manifest: {e}"
 
     clashes = [p for p in (tests / "fixtures", tests / "manifest.json",
                            tests / "smoke_test.py") if p.exists()]
@@ -115,7 +125,6 @@ def install(target, review_dir, timeout, force=False):
     shutil.copytree(src_fixtures, tests / "fixtures")
     shutil.copy2(SMOKE, tests / "smoke_test.py")
 
-    manifest = json.loads(src_manifest.read_text(encoding="utf-8"))
     rewritten = _rewrite_paths(manifest, {src_fixtures, src_fixtures.resolve()})
     manifest["target_skill"] = str(target.resolve())
     (tests / "manifest.json").write_text(json.dumps(manifest, indent=2),
@@ -145,12 +154,12 @@ def main(argv=None):
     p = argparse.ArgumentParser(
         description="Install and verify the keep-residue test suite.")
     p.add_argument("target", help="Target skill folder")
-    p.add_argument("--review-dir", default=".delegation-review",
+    p.add_argument("--review-dir", required=True,
                    help="Where fixtures/ and manifest.json currently live")
     p.add_argument("--timeout", type=float, default=20.0,
                    help="Per-check timeout for smoke_test.py (default 20)")
     p.add_argument("--force", action="store_true",
-                   help="Replace an existing scripts/tests/fixtures/ directory")
+                   help="Replace existing fixtures/, manifest.json, or smoke_test.py under scripts/tests/")
     args = p.parse_args(argv)
 
     target, review = Path(args.target), Path(args.review_dir)

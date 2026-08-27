@@ -11,6 +11,9 @@ import smoke_test  # noqa: E402
 def test_kind_reads_the_exit_spec():
     assert new_manifest._kind("0 clean / 1 findings / 2 usage") == "check"
     assert new_manifest._kind("0 written / 2 usage") == "transform"
+    assert new_manifest._kind("0 ok / 1 outliers / 2 usage") == "check"
+    assert new_manifest._kind("0 ok / 1 usage") == "transform"
+    assert new_manifest._kind("0 ok / 2 usage", "VALIDATOR") == "check"
 
 
 CLS = {"steps": [
@@ -36,3 +39,16 @@ def test_scaffold_round_trips_with_only_todo_errors(tmp_path):
     assert errs, "scaffold must not pass validation with TODOs still in it"
     assert all("is still 'TODO:" in e for e in errs), errs
     assert set(errs) == set(smoke_test._todo_errors(m))
+
+
+def test_argv_skips_flag_values_and_replaces_last_bare_token():
+    assert new_manifest._argv("python3 scripts/x.py --out report.json data/", "FIX") == \
+        ["python3", "scripts/x.py", "--out", "report.json", "FIX"]
+    assert new_manifest._argv("python3 scripts/x.py data/ --json", "FIX") == \
+        ["python3", "scripts/x.py", "FIX", "--json"]
+    assert new_manifest._argv("python3 scripts/x.py --out=r.json", "FIX") == \
+        ["python3", "scripts/x.py", "--out=r.json", "FIX"]
+    assert new_manifest._argv("python3 scripts/x.py --strict notes/", "FIX") == \
+        ["python3", "scripts/x.py", "--strict", "FIX"]
+    assert new_manifest._argv("python3 scripts/x.py data/ --out report.json", "FIX") == \
+        ["python3", "scripts/x.py", "FIX", "--out", "report.json"]

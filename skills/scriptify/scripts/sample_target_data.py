@@ -10,7 +10,7 @@ hand costs one tool call each; this costs one.
 
 WHAT IT REPORTS
 Per data directory -- the target root when it holds data files beside SKILL.md,
-plus any folder under it that is not scripts/, references/, assets/, evals/,
+plus any folder under it that is not scripts/, references/, assets/, evals/, fixtures/,
 tests/, or a dot-folder:
   files        name, bytes, lines, first non-empty line
   shape        the first-line shape shared by the majority of files

@@ -184,3 +184,20 @@ def test_explicit_null_cwd_treated_as_default(tmp_path):
     r = run(mf)
     assert r.returncode == 0, r.stdout + r.stderr
     assert "FAIL" not in r.stdout
+
+
+def test_only_ignores_todos_in_other_entries(tmp_path):
+    target = make_target(tmp_path)
+    m = manifest_for(target)
+    m["scripts"].append({"path": "scripts/unfinished.py", "kind": "transform",
+                         "invocations": [{"argv": ["python3", "scripts/unfinished.py"],
+                                          "expect_exit": 0,
+                                          "expect_stdout_contains": "TODO: fill me"}],
+                         "bad_invocation": {"argv": ["python3", "scripts/unfinished.py"],
+                                            "expect_exit_nonzero": True}})
+    mf = tmp_path / "manifest.json"
+    mf.write_text(json.dumps(m))
+    r = run(mf, "--only", "toy_check")
+    assert r.returncode == 0, r.stderr + r.stdout
+    r = run(mf)
+    assert r.returncode == 2 and "TODO" in r.stderr

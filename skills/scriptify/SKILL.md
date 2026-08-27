@@ -4,9 +4,12 @@ description: >-
   Reviews a target skill folder for workflow steps to delegate to pre-written
   deterministic scripts, then, after the user picks delegations, writes the
   scripts into the target skill, rewrites its SKILL.md steps to invoke them,
-  and smoke-tests every generated script. Use when the user says "scriptify
+  and smoke-tests every generated script. Also names the rules that belong in
+  hooks or validators instead of prose. Use when the user says "scriptify
   this skill", "make my skill use scripts", "which of these steps could be a
-  script", or "this skill re-derives the same busywork every run". Not for a
+  script", "which parts should be hooks", "make this skill more
+  deterministic", "this skill is flaky", "drifts run to run", or "this skill
+  re-derives the same busywork every run". Not for a
   general skill quality or triggering review with no intent to add scripts
   (use skillit:review), and not for authoring a brand-new skill from scratch
   (use skillit:create).
@@ -38,16 +41,9 @@ resolve it.
 
 "Target" = the skill under review.
 
-Transient files live in `.delegation-review/` in the working directory. If the
-working directory is at or under the target, put `.delegation-review/`
-somewhere else. Two exits leave that directory behind: a report-only
-stop at Step 4 and a red smoke test at Step 7. A run started inside the target
-then pollutes the skill it reviews. Print where you put it.
-
-Every `.delegation-review/` path below means the directory you chose.
-Substitute the real path. If you moved the directory, pass
-`--out <dir>/manifest.json --fixtures <dir>/fixtures` to `new_manifest.py`.
-Pass `--review-dir <dir>` to `keep_residue.py`.
+Transient files live in the review directory. Step 1's inventory command
+chooses it and prints it as `review_dir:`. Every `<review>` below means that
+path. Substitute the real path.
 
 ## Step 0 — Locate the target and check eligibility
 
@@ -62,16 +58,21 @@ Ineligible target → run Steps 1-3 report-only. Then offer to copy the skill
 into the project. Offer to continue from Step 4 on the copy. Do not open the
 Step 4 gate on a target you cannot write to.
 
-On an eligible target only, run `git status` on the target SKILL.md. If it
-holds uncommitted changes, warn the user first. Then copy the file to
-`.delegation-review/SKILL.md.orig`, because that copy is the restore point.
-Skip the `git status` check and the copy on an ineligible target, because the restore point protects a
-rewrite that branch never performs.
+On an eligible target only, run exactly:
+`git -C <target-dir> status --porcelain SKILL.md`. Non-empty output means
+uncommitted changes: warn the user first. A non-git target prints an error;
+continue, because the backup Step 1 makes is the restore point either way.
 
 ## Step 1 — Inventory (deterministic)
 
-    mkdir -p .delegation-review
-    python3 <skill>/scripts/inventory.py <target-dir> --out .delegation-review/inventory.json
+    python3 <skill>/scripts/inventory.py <target-dir> --review
+
+It writes `<review>/inventory.json` and prints `review_dir:`. Use that path
+everywhere `<review>` appears below.
+
+It also copies the target SKILL.md to `<review>/SKILL.md.orig` and prints
+`backup:`. Step 8 restores from that copy when the rewrite fails. Add
+`--no-backup` on an ineligible target, because that branch never rewrites.
 
 The interface audit runs each existing target script with `--help`, which
 executes it. Add `--no-probe` to the command above whenever the target is
@@ -96,24 +97,22 @@ one call per file.
 An interface you propose without opening the data invents its own fixture. It
 misses the malformed file already in the target, so Step 5 derives
 expectations that never exercise that file. Name in the report at least one
-real finding the target's own data produces.
+real finding the target's own data produces. Exit 1 → skip that requirement
+and say so in the report.
 
 ## Step 2 — Classify (judgment)
 
-Read `references/delegation-rubric.md`. Then classify every inventoried step
-as SCRIPT, CLAUDE, HYBRID, DEAD, or ALREADY_DELEGATED.
-
-Classify every step SCRIPT or HYBRID unless a named judgment blocks it,
-because CLAUDE is the last resort.
-
-The rubric owns the tie-break ladder: SCRIPT over HYBRID, HYBRID over CLAUDE,
-CLAUDE last. This file does not restate it, because two copies drift and you
-hold both. What follows is only what the rubric does not say:
+Read `references/rubric.md`. Its classes, tie-break ladder, and Gotchas bind
+for the whole run. Then classify every inventoried step. What follows is only
+what the rubric does not say:
 
 - A step mixing mechanical and judgment work is HYBRID, never CLAUDE. Cover
   every mechanical part with the proposed script. Leave a minimal judgment
   core. Keep the one inventory id, because render_report.py rejects invented
   ids.
+- A step with `enforcement_hints` in the inventory is a HOOK candidate before
+  a SCRIPT candidate. Confirm the hint against the text. Every HOOK entry
+  carries a full `proposed_hook`. The false-positive cost line is never empty.
 - Every CLAUDE entry needs a `why` naming the specific judgment, conversation
   input, or user interaction no script can replace. "Requires thinking" is not
   a reason. "Reasonable runs should differ here" is.
@@ -128,22 +127,25 @@ hold both. What follows is only what the rubric does not say:
   hint CLAUDE with `why: reference prose, not a workflow step`. Do not force a
   script onto it. Do not skip its row.
 
-Write the decisions to `.delegation-review/classification.json`. Keep the file
+Write the decisions to `<review>/classification.json`. Keep the file
 terse. Reference inventory step ids. Never duplicate step text. The schema
 follows. render_report.py's header holds the full version:
 
     {"target": "<abs path>", "steps": [
       {"id": "s2", "class": "SCRIPT", "why": "same regex check every run",
        "proposed_script": {"name": "check_headings.py",
-         "interface": "python3 scripts/check_headings.py changelogs/ --json",
-         "stdout": "findings JSON", "exit": "0 clean / 1 findings / 2 usage"}}]}
+         "interface": "python3 scripts/check_headings.py changelogs/",
+         "stdout": "findings JSON", "exit": "0 clean / 1 findings / 2 usage",
+         "touches": "reads changelogs/*.md, writes nothing"}}]}
 
-SCRIPT and HYBRID entries need a full proposed_script. Every other class sets
-it null.
+SCRIPT, VALIDATOR, and HYBRID entries need a full proposed_script. HOOK needs a
+full proposed_hook, plus a proposed_script when the hook command is a new
+script. Every other class sets both null. `touches` names the files the
+script reads and writes, because the report's Security section shows it.
 
 ## Step 3 — Render the report
 
-    python3 <skill>/scripts/render_report.py .delegation-review/classification.json .delegation-review/inventory.json
+    python3 <skill>/scripts/render_report.py <review>/classification.json <review>/inventory.json
 
 Exit 1 means the classification is invalid. Fix classification.json per the
 stderr messages. Re-run the command. Paste the rendered report to the user
@@ -157,7 +159,7 @@ caps at 4 options, so the rows and the residue choice cannot share a question.
 **Question 1 — which rows to apply.** Default to "apply all", because
 the gate exists so the user can drop rows, not so the user must opt in.
 
-- 4 or fewer SCRIPT and HYBRID rows → `multiSelect: true`, one option per row,
+- 4 or fewer SCRIPT, VALIDATOR, HYBRID, and HOOK rows → `multiSelect: true`, one option per row,
   every option marked "(Recommended)".
 - More than 4 rows → three options: "Apply all N (Recommended)", "Apply a
   subset — list row ids in Other", "Report only, write nothing". Do not list
@@ -170,36 +172,13 @@ and manifest in the target's `scripts/tests/`. Offer "No (Recommended)" and
 No pick → stop after the report. Never write into the target without an
 explicit pick.
 
-## Steps 5-9 — Apply the picks
+## Step 4b — Route on the pick
 
 The user picked rows → read `references/applying.md`. Follow Steps 5 to 9:
 contract first, implement, smoke test, rewrite the target SKILL.md, wrap up.
-`applying.md` is a reference rather than part of this body because a
-report-only run never reaches it, and an unread reference costs nothing.
+It carries the conventions for generated scripts. It is a reference rather
+than part of this body because a report-only run never reaches it, and an
+unread reference costs nothing.
 
 No pick → stop here.
 
-## Gotchas
-
-`references/delegation-rubric.md`'s Gotchas, read at Step 2, stay binding for
-the whole run.
-
-## Bundled files
-
-| Script (run, do not reimplement) | Does |
-|---|---|
-| `scripts/inventory.py <target> --out F` | step anchors, token costs, hints, existing-script audit. Exit 0 or 2 |
-| `scripts/sample_target_data.py <target>` | digests the target's own data, names first-line outliers. Exit 0, 1, or 2 |
-| `scripts/new_manifest.py <cls> --target D` | scaffolds the smoke manifest from the classification. Exit 0, 1, or 2 |
-| `scripts/render_report.py <cls> <inv>` | validates classification, renders report. Exit 0, 1, or 2 |
-| `scripts/smoke_test.py <manifest>` | verifies generated scripts. Exit 0, 1, or 2 |
-| `scripts/keep_residue.py <target>` | installs the residue and proves it survives relocation. `--force` replaces existing residue files in `scripts/tests/`. Exit 0, 1, or 2 |
-
-| Reference | Read at |
-|---|---|
-| `references/delegation-rubric.md` | Step 2, before classifying |
-| `references/script-conventions.md` | Step 6, before writing scripts |
-| `references/applying.md` | after the Step 4 gate opens, for Steps 5-9 |
-
-`tests/` holds authoring-time pytest coverage for the bundled scripts, run
-with `python3 -m pytest tests/`. Claude does not read that coverage at run time.

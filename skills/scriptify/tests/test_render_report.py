@@ -33,7 +33,8 @@ GOOD_CLASSIFICATION = {
          "proposed_script": {"name": "list_files.py",
                              "interface": "python3 scripts/list_files.py docs/ --json",
                              "stdout": "file list JSON",
-                             "exit": "0 ok / 2 usage"}},
+                             "exit": "0 ok / 2 usage",
+                             "touches": "reads docs/"}},
         {"id": "s2", "class": "CLAUDE", "why": "prose synthesis",
          "proposed_script": None},
     ],
@@ -143,3 +144,75 @@ def test_missing_steps_key_exits_2(tmp_path):
                        capture_output=True, text=True, timeout=30)
     assert r.returncode == 2
     assert "steps" in r.stderr
+
+
+HOOK = {"event": "PreToolUse", "matcher": "Bash",
+        "command": "python3 scripts/block_push.py", "scope": "project settings",
+        "false_positive_cost": "blocks a deliberate push to main"}
+
+
+def _with(cls_s1):
+    c = json.loads(json.dumps(GOOD_CLASSIFICATION))
+    c["steps"][0].update(cls_s1)
+    return c
+
+
+def test_hook_renders_hooks_section(tmp_path):
+    r = run(tmp_path, _with({"class": "HOOK", "proposed_script": None, "proposed_hook": HOOK}))
+    assert r.returncode == 0, r.stderr
+    assert "### Hooks" in r.stdout
+    assert "1 step(s) become hooks" in r.stdout
+    assert "blocks a deliberate push to main" in r.stdout
+
+
+def test_hook_requires_all_five_fields(tmp_path):
+    h = dict(HOOK)
+    del h["false_positive_cost"]
+    r = run(tmp_path, _with({"class": "HOOK", "proposed_script": None, "proposed_hook": h}))
+    assert r.returncode == 1
+    assert "false_positive_cost" in r.stderr
+
+
+def test_non_hook_rejects_proposed_hook(tmp_path):
+    r = run(tmp_path, _with({"proposed_hook": HOOK}))
+    assert r.returncode == 1
+    assert "must not carry a proposed_hook" in r.stderr
+
+
+def test_validator_counts_as_pure_and_lists_security(tmp_path):
+    c = _with({"class": "VALIDATOR"})
+    c["steps"][0]["proposed_script"]["touches"] = "reads docs/*.md"
+    r = run(tmp_path, c)
+    assert r.returncode == 0, r.stderr
+    assert "1 of 2 steps" in r.stdout
+    assert "### Security" in r.stdout and "reads docs/*.md" in r.stdout
+
+
+def test_unreferenced_existing_script_flagged(tmp_path):
+    inv = json.loads(json.dumps(INVENTORY))
+    inv["scripts"] = [{"path": "scripts/old.py", "mentioned_in_body": False}]
+    r = run(tmp_path, GOOD_CLASSIFICATION, inventory=inv)
+    assert r.returncode == 0, r.stderr
+    assert "wire or delete" in r.stdout and "scripts/old.py" in r.stdout
+
+
+def test_script_requires_touches(tmp_path):
+    c = json.loads(json.dumps(GOOD_CLASSIFICATION))
+    del c["steps"][0]["proposed_script"]["touches"]
+    r = run(tmp_path, c)
+    assert r.returncode == 1 and "touches" in r.stderr
+
+
+def test_hook_partial_script_is_named_error_not_traceback(tmp_path):
+    r = run(tmp_path, _with({"class": "HOOK", "proposed_hook": HOOK,
+                             "proposed_script": {"name": "guard.py"}}))
+    assert r.returncode == 1
+    assert "requires proposed_script with fields" in r.stderr
+    assert "Traceback" not in r.stderr
+
+
+def test_stop_hook_allows_empty_matcher(tmp_path):
+    h = dict(HOOK, event="Stop", matcher="")
+    r = run(tmp_path, _with({"class": "HOOK", "proposed_script": None, "proposed_hook": h}))
+    assert r.returncode == 0, r.stderr
+    assert "Stop: `python3 scripts/block_push.py`" in r.stdout

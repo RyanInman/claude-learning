@@ -1,189 +1,186 @@
 ---
 name: adversarial-review
 description: >-
-  Run a lightweight two-role adversarial review of an existing plan, design doc, code change, or
-  proposal: the main agent defends it while a fresh-eyes Adversary attacks it over three passes
-  (questions, objections, rebuttal), and the Defender closes with a report that separates conceded
-  fixes from contested points for the user to decide. Use whenever the user wants something
-  attacked fast — "adversarial review this", "poke holes in this plan", "red-team this quickly",
-  "attack my design", "devil's advocate pass", "what could go wrong with this?" — or when a full
-  four-role debate is overkill. Do NOT use when the user asks for
-  a neutral judge, an explicit steelman, or to "argue both sides" — use debate-review, which adds
-  a fresh Advocate and Judge. Do NOT use for severity-graded findings or a retest
-  loop — use adversarial-review-2. Do NOT use for routine line-by-line review of a diff (use a
-  code-review skill) or when there is no artifact yet to defend — creating the plan comes first,
-  attacking it comes after.
+  Run a lightweight fresh-eyes adversarial review of an existing plan, design doc, code
+  change, or proposal: one independent subagent that has never seen the conversation attacks
+  the artifact, scores every problem on real-world impact from 1 to 10, and the report raises
+  only findings that score 8 or above - real problems, never nitpicks. Use whenever the user
+  wants a fast second opinion that only flags what matters - "adversarial review 3 this",
+  "fresh eyes on this plan", "what would actually hurt here", "only tell me the big problems",
+  "quick red-team, no nitpicks", "sanity check this before I commit", "is anything here a
+  dealbreaker" - or when they want an outside perspective without a full debate or retest
+  loop. Do NOT use for an attack with rebuttals (use adversarial-review), for three-lens
+  coverage with charter and retest (use adversarial-review-2), or for a neutral judge (use
+  debate-review). Do NOT use for line-by-line diff review or when no artifact exists yet.
 ---
 
 # Adversarial Review
 
-The lightweight sibling of debate-review: attack only. Two roles instead of four — the Defender
-absorbs the Advocate's steelman duty and the Judge's report duty, so only the Adversary keeps
-fresh eyes. Three subagents instead of seven. The trade is explicit: the final report loses its
-neutral author, so the report never rules on contested points — it states both sides and hands
-the call to the user.
+The lightest sibling of the adversarial-review family: one fresh subagent, one impact
+score per finding, one short report. The published red-teaming literature (NIST AI 600-1,
+OWASP, Microsoft's 100-product retrospective) agrees on what separates a real review from
+security theater: start from downstream impact rather than attack technique, keep the
+attacker independent of the author, make every finding reproducible, and grade outcomes
+rather than cleverness. This skill keeps those four rules and drops the ceremony.
 
-## Roles
+The 8-of-10 floor is the whole design. A review that lists twelve problems teaches the user
+to skim; a review that lists two problems that would each cost real money or real rework
+gets acted on.
 
-| Role | Played by | Knows | Stance |
-|------|-----------|-------|--------|
-| **Defender** | Main agent (usually authored the artifact) | Full conversation context | Confident in the artifact but wants the best solution; defends with evidence, concedes on proof, and writes the final report |
-| **Adversary** | Fresh subagent per phase | Artifact + transcript only | Believes the artifact is good but not yet best; hunts real problems and gaps, proposes better ways; changes mind only on convincing proof |
+## Workflow
 
-The fresh-eyes constraint is the whole point: if the Adversary inherits the conversation
-history, it inherits the author's framing and the attack collapses into agreement. Every
-Adversary appearance is a new subagent whose only inputs are its role brief, the artifact, and
-the transcript — no agent carries private memory between phases. An agent that survives across
-phases starts defending its earlier words instead of the strongest position; a fresh reader
-weighs only what is on the page. The main agent plays the Defender because it usually wrote the
-artifact and holds the context to defend it. When the artifact arrives as a file the main agent
-did not author, the Defender still plays — speaking only from the artifact text and any real
-context in the conversation. A gap the artifact leaves open is a finding to convert into a
-verification item, not a hole to patch with invented facts.
+### Step 0 - Intake
 
-## Setup
+Collect three facts before spawning anything. Mine the conversation first. Ask the user only
+for what is missing, and proceed silently when all three are known.
 
-1. Run the overkill check first: if the artifact is tiny or the decision is cheaply reversible,
-   tell the user that even this review — three subagents — is more ceremony than the decision
-   warrants, and offer an inline critique instead. Stop here if they agree.
-2. Identify the artifact: file paths for the plan, design doc, or code. If the proposal is
-   inline, write it out to a file first, because both roles must read the same fixed text.
-3. Copy `assets/transcript-template.md` to `adversarial-review/transcript.md` next to the
-   artifact. If that directory does not accept new files, put the transcript in the scratchpad.
-   The transcript is append-only: each phase fills its own section, and it is the only memory
-   each fresh Adversary gets.
+1. **The artifact.** File paths for the plan, design doc, diff, or proposal. If the proposal
+   is inline in the conversation, write it to a file first, because the subagent must read
+   fixed text and never the conversation.
+2. **Downstream impact.** One or two sentences: who or what consumes this, and what happens
+   when it fails. Impact lives downstream of the artifact, so the adversary cannot score
+   without this.
+3. **Out of scope.** Anything the user does not want judged (style, an unrelated system, a
+   decision already made). Without this, the adversary spends its findings on things the
+   user cannot act on.
 
-## Phases
+Overkill check: if the artifact is under about 30 lines or the decision is cheaply
+reversible, say so and offer an inline critique instead. Stop here if the user agrees.
 
-Run in order. The Adversary brief and per-phase instructions are in the next section. The
-Adversary never edits the transcript — it returns its section in its reply, and the Defender
-transcribes it verbatim, because a single-author transcript keeps every section attributable
-and lets the harness spawn the Adversary read-only.
+### Step 1 - Attack
 
-1. **Opening statement** — Defender explains the artifact's goal and each key decision's why,
-   including constraints invisible in the artifact (deadlines, past incidents, rejected
-   alternatives). Flag the decisions you are least sure of. ≤400 words.
-2. **Clarifying questions** — a fresh Adversary returns up to 3 questions about the case
-   (questions only, no arguments yet).
-3. **Defender's answers** — transcribe the questions, then answer every one. Facts and reasons,
-   not advocacy — the attack starts in phase 4. Answer unknowns as "unknown" rather than
-   stipulating plausible facts, because the final report inherits every answer as evidence.
-4. **Objections** — a fresh Adversary returns its case against the artifact; objections must
-   pass the nitpick filter (see Gotchas).
-5. **Defense** — the Defender answers each objection directly: concede it, naming the proof that
-   convinced you, or contest it by disputing the problem, the evidence, or the better way — and
-   say which. This is where the Advocate's steelman duty lives: give the strongest honest case,
-   including second-order reasons the artifact does not state. Restating the plan's virtues
-   without answering the objection concedes it by default.
-6. **Rebuttal** — a fresh Adversary reads the defense, then sustains or drops each objection.
-7. **Final report** — the Defender writes the report (format below), transcribes it, and
-   presents it to the user. The user decides. Never apply changes before the user rules on the
-   contested points.
+Spawn one fresh subagent. Give it only the brief below, the artifact path, and the three
+intake facts. Never paste conversation history, the author's rationale, or a prior review,
+because an adversary that inherits the author's framing inherits the author's blind spots.
+Independence is the only thing that makes a second reader worth more than a second pass by
+the first reader.
 
-## Adversary brief
-
-Paste this brief into each Adversary subagent prompt, filling `{ARTIFACT}`, `{TRANSCRIPT}`, and
-`{PHASE}` from the per-phase instructions below.
+Fill `{ARTIFACT}`, `{IMPACT}`, and `{OUT_OF_SCOPE}` in this brief:
 
 ```
-You are the ADVERSARY in an adversarial review.
+You are a fresh-eyes ADVERSARY reviewing an artifact you have never seen before. Read
+{ARTIFACT}. Everything you know comes from that file and these two lines, deliberately:
 
-Read {ARTIFACT} and {TRANSCRIPT}. You have never seen this artifact before — everything you know
-about it comes from those files, and that is deliberate.
+Downstream impact if this fails: {IMPACT}
+Out of scope: {OUT_OF_SCOPE}
 
-Your stance: the artifact is good, but it is not yet the best version of itself. Your job is to
-find real problems and gaps — the kind that change correctness, cost, risk, or maintainability.
-For each one, propose a concretely better way. You are not a cynic. You want this to go from good
-to great. If the Defender produces convincing proof — a counterexample, a benchmark, a failure
-scenario, a precedent — you change your mind and say exactly what convinced you.
+Hunt for real problems: things that make the artifact fail its own goal, lose or corrupt
+data, cost major rework, break something downstream, or leave nobody able to tell it is
+failing. Attack the whole system the artifact describes - its inputs, integrations,
+operators, and failure paths - not only the text, because simple attacks on the end-to-end
+system succeed more often than clever attacks on one component.
 
-Never raise style preferences or "I would have done it differently" — an objection that doesn't
-change an outcome is noise that buries your strong objections.
+Score every candidate on IMPACT from 1 to 10, using the worst plausible outcome of its
+failure scenario:
+  10  irreversible harm: data loss, security breach, users misled at scale, or the
+      artifact fails its stated goal from day one
+  8-9 core outcome fails or major rework is required; recovery is possible but costly
+  5-7 degraded outcome or recurring friction; workarounds exist
+  1-4 real but small; style, naming, "I would have done it differently"
 
-The Defender authored the artifact and also writes the final report, so your sustained
-objections are the only counterweight in that report. Sustain only what the evidence backs — an
-overclaimed objection discredits the rest.
+Score the outcome, never the cleverness of the path to it. An elegant edge case with
+trivial consequences is a 3. A blunt, obvious path to data loss is a 10.
 
-{PHASE}
+Return every candidate that scores 6 or above, strongest first, each in exactly this format:
 
-Return only your section's content, with headings at ### or deeper, because the transcript
-reserves ## for phase headings. No meta commentary and no notes to the main agent — your reply
-is pasted into the transcript as-is. Do not edit the transcript — the Defender is its only
-author, which keeps every section attributable.
+### <one-line title naming the harm>
+- **Impact:** <score>/10 - <one clause naming the worst plausible outcome>
+- **Failure scenario:** <concrete and reproducible: the specific inputs, state, or
+  sequence, then what goes wrong, then the downstream consequence. A reader must be able
+  to check this scenario against a revised artifact.>
+- **Root cause:** <the weakness in the artifact that permits the scenario, cited by
+  section, heading, or line>
+- **Smallest fix:** <the minimum change that closes the root cause>
+
+Return at most 6 candidates. If you find fewer real problems, return fewer; padding with
+weak findings discredits the strong ones. If you find nothing at 6 or above, say so in one
+line and stop. Return only the findings, no preamble, because your reply is merged
+verbatim into a report.
 ```
 
-Per-phase instructions for `{PHASE}`:
+Ask for 6-and-above rather than 8-and-above, because the subagent's calibration is
+unverified. The band from 6 to 7 is where the main agent's verification most often moves a
+score up or down.
 
-- **Phase 2 (questions):** Write up to 3 clarifying questions about the Defender's opening case.
-  Questions only — no arguments, no implied criticism. Ask what you will genuinely need to build
-  your case against the artifact.
-- **Phase 4 (objections):** Write your case: up to 5 objections. For each: **Problem** (what
-  goes wrong), **Evidence** (why you believe it), **Better way** (your concrete alternative).
-  Rank them, strongest first.
-- **Phase 6 (rebuttal):** Read the Defender's defense. Two duties. First, re-assess each
-  objection: sustain it with new substance, or drop it and state what in the defense convinced
-  you. Dropping a weak objection strengthens your remaining ones. Second, challenge any defense
-  point that overclaims or rests on weak evidence — with new substance, not repetition.
+### Step 2 - Verify and score
 
-## Final report format
+For each candidate the subagent returned:
 
-Write the report with exactly these sections, because a fixed format makes run 50 comparable to
-run 1:
+1. **Verify against the artifact.** Re-read the cited section. Kill any finding that
+   misreads the artifact or attacks something out of scope, and note the kill with its
+   reason, because a report padded with false positives teaches the user to ignore it.
+2. **Re-score on the same 1-to-10 rubric.** The subagent scored blind. The main agent knows
+   the context and corrects for it in both directions: a 6 that hits a constraint the
+   subagent could not see becomes an 8, and a 9 that assumes a fact the artifact rules out
+   becomes a 4. Record the final score and, when it moved, one clause saying why. Lower a
+   score only when the artifact text itself rules the scenario out, because the main agent
+   authored or defended the artifact and its instinct is to explain problems away. "It
+   seems unlikely" is not a reason; a cited line is.
+3. **Apply the floor.** Raise only findings with a final score of 8 or above. Everything
+   from 5 to 7 goes into one collapsed line at the end of the report so the user can see it
+   existed without reading it. Everything under 5 is dropped.
+4. **Mark certainty.** Tag each raised finding **Confirmed** (the reasoning holds against
+   the artifact alone) or **Plausible** (it depends on a fact outside the artifact, and the
+   report names that fact).
 
-- `## Agreed changes` — objections the Defender conceded: changes ready to act on, each naming
-  the proof that earned the concession.
-- `## Dropped objections` — objections the Adversary dropped, and what answered each one. This
-  is the record of why the artifact is fine as-is on those points.
-- `## Contested points` — per point: the Adversary's final position and the Defender's, each
-  stated fairly in its own words. No ruling — you wrote both the artifact and this report, so a
-  ruling here would be the interested party judging its own case.
-- `## Defender's recommendation` — one recommendation with reasoning, opening with a declared
-  interest: you are the artifact's author and defender.
-- `## Your decision` — the concrete options the user is choosing between.
+### Step 3 - Report
 
-Save the report as a standalone file too, keeping its `##` headings, because the report is the
-deliverable the user reads outside the transcript.
+Write the report to `adversarial-review-3/report.md` next to the artifact (fall back to the
+scratchpad if that directory rejects new files) and present it inline. Use exactly this
+structure, because a fixed format makes run 50 comparable to run 1:
+
+```
+## Verdict
+<One sentence: does the artifact achieve its stated goal as written, and what is the
+single worst live problem. Then one sentence naming the smallest set of fixes that
+clears every raised finding.>
+
+## Raised findings (impact 8+)
+<Each finding in the Step 1 format, plus final score, Confirmed/Plausible, and the
+score-change note if any. Ranked by final score, no ties.>
+
+## Below the floor
+<One line per finding scored 5-7: title and score only.>
+
+## Verification items
+<One line per Plausible finding: the outside fact the user must check.>
+```
+
+If nothing survives at 8 or above, the verdict says so plainly and the report still lists
+the below-the-floor line, because "nothing serious" is a finding the user paid for.
+
+Present the report and stop. The user decides what to fix. Never apply fixes before they
+rule, because the review's product is evidence, not action. If they ask to retest after a
+fix, re-run each raised finding's failure scenario against the revised artifact and report
+fixed or still failing.
 
 ## Gotchas
 
-- **Nitpick filter.** An objection must change an outcome — correctness, cost, risk, or
-  maintainability. Style preferences and "I'd have done it differently" don't qualify. Five weak
-  objections bury one strong one.
-- **Proof, not rhetoric.** Both roles change their mind on evidence — a counterexample, a
-  benchmark, a failure scenario, a precedent — never on confident restatement. A concession must
-  name the proof that earned it.
-- **Concede honestly.** The Defender's temptation is to contest everything, because it wrote
-  both the artifact and the report. The review's value is exactly the objections you cannot
-  answer — a contested point that belongs in Agreed changes cheats the user who trusts the
-  report.
-- **No context leakage.** Never paste conversation history into the Adversary prompt. Its value
-  is what fresh eyes see.
-- **Verbatim transcription.** Paste returned sections word for word. A summary injects the
-  Defender's framing into the one document every fresh Adversary trusts as ground truth.
-  Verbatim binds the wording, not the packaging: drop wrapper lines addressed to you ("here is
-  my section") and shift heading depth to nest under the transcript heading — never change the
-  words inside.
-- **Fixed rounds.** Exactly one rebuttal phase. An objection the Adversary sustains becomes a
-  contested point in the report — not an extra round. Debates that loop don't converge, they
-  exhaust.
+- **The floor is the feature.** The pull is to raise a 7 "just so they know". Resist it.
+  Every sub-8 item in the raised list dilutes the ones that matter, and the below-the-floor
+  line already preserves it.
+- **Cleverness is not impact.** An ingenious multi-step bypass that yields a cosmetic
+  glitch is a 3. Score the outcome.
+- **No downstream impact, no review.** If Step 0 cannot state what failure costs, that gap
+  is itself the first finding: the artifact's purpose is underspecified. Say so and stop.
+- **No context leakage.** The subagent's value is that it did not write the artifact and
+  did not hear the reasoning. Conversation history stays out of the brief.
+- **Attack the system, not the text.** Real failures start at the boundaries the artifact
+  assumes clean: the input, the operator, the dependency. A review confined to what the
+  text says misses them.
+- **Do not inflate to fill the report.** An empty raised list is a valid, valuable result.
+  It is not a failure of the review.
 
 ## Example
 
 User request:
 
-> poke holes in cache-design.md for me before I start building it, I don't need a full debate, just attack it and tell me what actually needs fixing
+> fresh eyes on `docs/session-cache-design.md` before I open the PR - only the stuff that would actually hurt
 
-One Adversary objection from that run's transcript, verbatim. The objections phase produced
-five, and every objection takes this shape:
+One raised finding from that run, verbatim:
 
-> ### Objection 1 — Per-worker cache incoherence turns every bulk import into a 15-minute window of user-visible data inconsistency, and the design has no mitigation.
->
-> **Problem:** With 8 independent in-process caches (4 nodes × 2 workers) and no cross-worker invalidation, consecutive requests from the same user land on workers whose caches expire at different moments. After a nightly bulk import changes up to 30% of the catalog, a user can see a product's new price in one request and the old price in the next for up to 15 minutes. The design acknowledges staleness generally but never addresses *incoherence* — divergent answers to the same question at the same moment — which is what users actually notice and report as bugs.
->
-> **Evidence:** The design states TTL is the only expiry mechanism, workers hold independent caches, and imports run nightly plus "ad-hoc during business hours." The Defender's answer to Q2 confirms there is no invalidation path and no import-completion signal today.
->
-> **Better way:** Keep the in-process cache but add one narrow invalidation hook: have the import job POST to a `/cache/flush` admin endpoint on each node when it completes (the import runner already knows the node list from deploy config). Workers flush on receipt; cost is one small HTTP handler and one curl loop in the import script. This converts the worst-case window from 15 minutes of incoherence after every import to sub-second, while preserving every latency and simplicity benefit the design claims. TTL stays as the backstop for the ad-hoc edit path.
-
-## Files
-
-- `assets/transcript-template.md` — pre-structured transcript with all 7 phase sections.
+> ### Cache never invalidates on password change, so a revoked session stays valid for up to 24h
+> - **Impact:** 9/10 - Confirmed - a user who changes their password after a credential leak stays logged in on the attacker's device for a full TTL
+> - **Failure scenario:** Section 3 sets session TTL to 24h and Section 5 lists the only invalidation trigger as explicit logout. A user resets their password from a new device; the old session's cache entry is untouched. Any device holding the old session token keeps full access until the TTL expires.
+> - **Root cause:** Section 5, "Invalidation", enumerates logout only. Password change and admin revoke are absent.
+> - **Smallest fix:** Store a `credentials_version` on the user row, embed it in the cached session, and treat a mismatch as a miss.

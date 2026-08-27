@@ -1,0 +1,3 @@
+- The doc describes a ledger service that records account transfers: idempotency keys on requests, a month-partitioned transfers table, a 30 s risk-engine timeout with two retries, and a nightly bank-feed reconciliation job.
+- Contradiction: "Timeouts and retries" sets the risk-engine timeout at 30 seconds (L37) while "Operations" tells on-call it is 90 seconds (L85). One of them misleads whoever reads it.
+- Every claim is unverified: no numbers cite a source, and about 90% of the text is the same twelve boilerplate sentences repeated in shuffled order, which hides the six substantive lines.

@@ -1,0 +1,23 @@
+{
+  "summary": "This chunk adds three new files for an eval iteration of the adversarial-review-2 skill. benchmark.md reports pass rate, time, and token deltas between with-skill and without-skill runs, with a caveat that results come from a single run per eval. eval_metadata.json defines a red-team eval prompt asking the skill to review a checkout session-cache design with severities and a retest mechanism, listing nine required findings/behaviors. session-cache-design.md is the target design doc itself: a Redis session-pricing cache with TTL, KEYS-based invalidation, and sizing that consumes all free memory on a shared cluster.",
+  "claims": [
+    {"text": "With-skill pass rate is 100% ± 0%, without-skill is 67% ± 0%, delta +0.33", "anchor": "benchmark.md:12", "status": "verified"},
+    {"text": "With-skill time is 106.4s ± 16.4s, without-skill is 22.9s ± 8.2s, delta +83.5s", "anchor": "benchmark.md:13", "status": "verified"},
+    {"text": "With-skill tokens are 62781 ± 5612, without-skill are 36016 ± 2879, delta +26765", "anchor": "benchmark.md:14", "status": "verified"},
+    {"text": "The benchmark is one run per eval per arm across 2 evals, so the ± figure is a spread across evals, not run-to-run variance, and each delta should be treated as a single-draw observation", "anchor": "benchmark.md:7", "status": "verified"},
+    {"text": "The eval expects the report to flag KEYS-based invalidation on the shared Redis cluster and rank it at or above conditional findings that depend on unverified facts", "anchor": "eval_metadata.json:11", "status": "verified"},
+    {"text": "The eval expects the report to flag sizing math of 200k sessions x 40KB = 8GB, equal to all free memory on the shared cluster", "anchor": "eval_metadata.json:12", "status": "verified"},
+    {"text": "The eval expects the report to flag a wrong/stale price window from TTL or invalidation gaps", "anchor": "eval_metadata.json:13", "status": "verified"},
+    {"text": "The design caches per-session pricing (catalog prices, promos, tax rates) in a Redis hash session:{id}:pricing with a 30-minute TTL, keyed only by session ID", "anchor": "session-cache-design.md:9-13", "status": "verified"},
+    {"text": "Invalidation on promo change is done by a consumer running KEYS session:*:pricing then DEL", "anchor": "session-cache-design.md:19-20", "status": "verified"},
+    {"text": "Sizing is ~40KB per session hash at ~200k active sessions peak, against an existing cluster with 8GB free", "anchor": "session-cache-design.md:23-24", "status": "verified"},
+    {"text": "On any cache error the design falls through to the three downstream calls, with no circuit breaker because fallthrough is the current behavior", "anchor": "session-cache-design.md:26-27", "status": "verified"},
+    {"text": "The Redis cluster in this design also serves rate limiting and feature flags", "anchor": "session-cache-design.md:16", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "session-cache-design.md:19-20", "note": "Invalidation relies on a KEYS scan across the shared cluster, which blocks Redis during the scan; the doc presents this as adequate without addressing the impact on the co-located rate-limiting and feature-flag traffic."},
+    {"kind": "uncited-number", "anchor": "session-cache-design.md:23-24", "note": "40KB x 200k sessions = 8GB is presented as fitting exactly the cluster's free memory, leaving no headroom for growth, overhead, or the cache's own metadata, but no margin or eviction policy is discussed."},
+    {"kind": "missing-edge-case", "anchor": "session-cache-design.md:9-13,19", "note": "Cache key is session ID only, and the only stated invalidation trigger is a promo_changed event; a tax-rate change is not named as an invalidation trigger, so a stale tax rate could be served for up to the 30-minute TTL."}
+  ],
+  "least_confident": "Whether the benchmark's single-run-per-eval caveat means the reported pass-rate and token deltas should be read as directionally suggestive only, since the chunk gives no indication of statistical significance."
+}

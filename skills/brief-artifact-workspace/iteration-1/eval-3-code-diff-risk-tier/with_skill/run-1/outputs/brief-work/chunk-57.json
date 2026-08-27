@@ -1,0 +1,22 @@
+{
+  "summary": "This diff adds a new file, skills/debug-loop/evals/eval_queries.json, containing 20 test queries for evaluating a debug-loop skill's triggering logic. Each entry has a \"query\" string and a \"should_trigger\" boolean. 11 queries (failing builds, red tests, tracebacks, regressions, sluggish performance, worker queue issues) are marked should_trigger: true. 9 queries (adding validation, PR review, refactoring, TDD, error-handling cleanup, code walkthroughs, lint fixes, brainstorming, pagination theory) are marked should_trigger: false.",
+  "claims": [
+    {
+      "text": "New file skills/debug-loop/evals/eval_queries.json is added with 82 lines, containing a JSON array of 20 query objects.",
+      "anchor": "skills/debug-loop/evals/eval_queries.json:1-82",
+      "status": "verified"
+    },
+    {
+      "text": "11 queries are labeled should_trigger: true, covering scenarios like build failures, red tests, tracebacks, regressions, CI failures, typo fixes, repeated failed fixes, intermittent login bugs, and performance regressions.",
+      "anchor": "skills/debug-loop/evals/eval_queries.json:1-56",
+      "status": "verified"
+    },
+    {
+      "text": "9 queries are labeled should_trigger: false, covering feature additions, PR review, refactoring, TDD, error-handling cleanup, code explanation requests, lint cleanup, brainstorming, and theoretical questions.",
+      "anchor": "skills/debug-loop/evals/eval_queries.json:57-82",
+      "status": "verified"
+    }
+  ],
+  "risks": [],
+  "least_confident": "The chunk only shows the labeled eval dataset, not the actual triggering logic it tests against, so I cannot verify whether these should_trigger labels are correct for the skill they evaluate."
+}

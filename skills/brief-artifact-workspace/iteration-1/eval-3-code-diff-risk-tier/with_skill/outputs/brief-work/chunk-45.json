@@ -1,0 +1,58 @@
+{
+  "summary": "This chunk adds new eval artifacts for iteration-2 of the debug-loop skill. It adds benchmark.md showing with_skill outperforms without_skill (100% vs 70% pass rate, higher time and tokens). It adds eval-0-vague-login-failure's eval_metadata.json (prompt + 5 expectations about a session/login bug fix), a with_skill/grading.json showing all 5 expectations passed with evidence, a with_skill/outputs/metrics.json with tool-call counts and created files, and a new git submodule pointer (project) at commit 9ebb9b4.",
+  "claims": [
+    {
+      "text": "With-skill configuration achieved 100% ± 0% pass rate vs 70% ± 26% without skill, a +0.30 delta",
+      "anchor": "skills/debug-loop-workspace/iteration-2/benchmark.md:11",
+      "status": "verified"
+    },
+    {
+      "text": "With-skill configuration took longer (105.7s ± 51.5s vs 62.3s ± 20.5s) and used more tokens (41900 ± 7083 vs 31052 ± 1872)",
+      "anchor": "skills/debug-loop-workspace/iteration-2/benchmark.md:12-13",
+      "status": "verified"
+    },
+    {
+      "text": "All 5 expectations for eval-0-vague-login-failure passed under with_skill, including root-cause fix by selecting the session row with highest version",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/grading.json:9-33",
+      "status": "verified"
+    },
+    {
+      "text": "get_session keys on version and created_at ordering was removed as the fix",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/grading.json:21",
+      "status": "unverified"
+    },
+    {
+      "text": "The with_skill run for eval-0 made 18 total tool calls across 14 steps with 0 errors encountered",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/outputs/metrics.json:9-15",
+      "status": "verified"
+    },
+    {
+      "text": "Files created during the run reference path 'running-debug-loops-workspace' rather than 'debug-loop-workspace'",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/outputs/metrics.json:11-14 vs skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/grading.json:1",
+      "status": "contradicted"
+    },
+    {
+      "text": "A new git submodule 'project' was added pointing to commit 9ebb9b467c7cf7fde02d1808ae7035383057d390",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/outputs/project:1+",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/grading.json:21",
+      "note": "Grading evidence text asserts the fix mechanism (keys on version, removes created_at ordering) but the chunk shows no actual source diff of sessions.py to confirm this."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "skills/debug-loop-workspace/iteration-2/benchmark.md:11-13",
+      "note": "Benchmark percentages/times/tokens are asserted with no underlying per-run data shown in this chunk."
+    },
+    {
+      "kind": "duplicate-logic",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/outputs/metrics.json:11-14 vs skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/grading.json:1",
+      "note": "File paths in metrics.json use a different workspace directory name ('running-debug-loops-workspace') than the surrounding diff paths ('debug-loop-workspace'), suggesting a rename or stale path."
+    }
+  ],
+  "least_confident": "Whether the 'running-debug-loops-workspace' vs 'debug-loop-workspace' naming discrepancy in metrics.json is a meaningful bug/rename artifact or just leftover text from an earlier skill name, since the chunk gives no direct explanation."
+}

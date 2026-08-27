@@ -1,0 +1,73 @@
+{
+  "summary": "This chunk adds three new JSON files for a graded eval run (iteration-2, eval-1-cache-design-redteam, with_skill, run-1): grading.json, run-1/timing.json, and a duplicate top-level timing.json. grading.json records 9 expectations (all passed), execution metrics (11 tool calls, 8 steps, 1 error), timing (118s, 66749 tokens, noting the run was killed by a session limit and resumed), 7 factual/process claims about a cache-design adversarial review (mostly verified), user notes on uncertainties and workarounds, and eval_feedback suggesting two improvements to the expectation set. The two timing.json files are identical, giving token/duration totals for the resumed segment.",
+  "claims": [
+    {
+      "text": "All 9 expectations for this eval run passed (pass_rate 1.0)",
+      "anchor": "grading.json summary: passed 9, failed 0, total 9, pass_rate 1.0",
+      "status": "verified"
+    },
+    {
+      "text": "Expectation 3 requires the KEYS-based invalidation finding to rank at or above conditional findings depending on unverified facts",
+      "anchor": "grading.json expectations[2].text",
+      "status": "verified"
+    },
+    {
+      "text": "F-1 sizing finding is graded Critical despite the eviction policy being unverified, because both eviction-policy branches produce a co-tenant outage",
+      "anchor": "grading.json expectations[2].evidence quoting F-1's note",
+      "status": "verified"
+    },
+    {
+      "text": "The design's Invalidation section handles only the promo_changed event, with no invalidation path for catalog or tax changes",
+      "anchor": "grading.json claims[1]",
+      "status": "verified"
+    },
+    {
+      "text": "The design specifies KEYS session:*:pricing then DEL on a Redis cluster shared with rate limiting and feature flags",
+      "anchor": "grading.json claims[2]",
+      "status": "verified"
+    },
+    {
+      "text": "12 raw findings, 1 merge, 1 seam-sweep addition, 0 killed, yielding 12 final findings",
+      "anchor": "grading.json claims[0]",
+      "status": "verified"
+    },
+    {
+      "text": "Two adversaries independently hit the stampede root cause (F-4 corroboration)",
+      "anchor": "grading.json claims[6]: verified: false, 'No transcript available... unverifiable from outputs alone'",
+      "status": "unverified"
+    },
+    {
+      "text": "The run's duration was 118.0 seconds and total tokens were 66749, cumulative across a killed-and-resumed session",
+      "anchor": "grading.json timing / run-1/timing.json / with_skill/timing.json",
+      "status": "verified"
+    },
+    {
+      "text": "The Write tool was blocked for report.md, so the executor wrote it via a shell heredoc instead",
+      "anchor": "grading.json user_notes_summary.workarounds",
+      "status": "verified"
+    },
+    {
+      "text": "No expectation checks whether findings cite the artifact accurately, which is a gap the eval_feedback suggests filling",
+      "anchor": "grading.json eval_feedback.suggestions[1]",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "duplicate-logic",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/run-1/timing.json:1+ vs skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/timing.json:1+",
+      "note": "Two identical timing.json files (same tokens/duration/note) are added at different directory levels, duplicating the same data."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "grading.json claims[0]: '12 raw findings, 1 merge, 1 seam-sweep addition, 0 killed -> 12 final findings'",
+      "note": "Marked verified:true but the evidence field itself says 'Cannot be independently confirmed without a transcript' -- verification rests on internal arithmetic consistency, not external evidence."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "grading.json execution_metrics.errors_encountered: 1",
+      "note": "One error is reported in execution metrics but this chunk shows no detail on what the error was or how it was handled."
+    }
+  ],
+  "least_confident": "Whether the 'verified: true' status on the process claim about 12 raw findings/1 merge/1 seam-sweep is well-founded, since its own evidence text admits it cannot be independently confirmed without a transcript."
+}

@@ -1,0 +1,73 @@
+{
+  "summary": "This chunk adds a new file, benchmark.json, recording eval results for the adversarial-review-2 skill. It ran 2 evals (each with 9 expectation checks) in two configurations: with_skill and without_skill, one run each. with_skill scored 1.0 pass rate on both evals (9/9); without_skill scored 0.67 (6/9) on both, failing on strict rank ordering, an explicit ranked-harm charter, and a bottom-line verdict with prioritized minimum-changes list. with_skill took much longer (94.8-118.0s vs 17.1-28.7s) and used more tokens (~58.8k-66.7k vs ~34.0k-38.1k). A run_summary aggregates means/stddev/min/max per configuration plus deltas (+0.33 pass rate, +83.5s, +26765 tokens).",
+  "claims": [
+    {
+      "text": "Benchmark covers skill 'adversarial-review-2', executor model claude-fable-5, analyzer_model unrecorded, timestamp 2026-08-12T22:10:03Z, evals_run [1,2], runs_per_configuration 1",
+      "anchor": "benchmark.json:8-18",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 1 with_skill: pass_rate 1.0 (9/9 passed), time 118.0s, 66749 tokens, 11 tool_calls, 1 error",
+      "anchor": "benchmark.json:22-32",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 2 with_skill: pass_rate 1.0 (9/9 passed), time 94.8s, 58813 tokens, 8 tool_calls, 1 error",
+      "anchor": "benchmark.json:93-102",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 1 without_skill: pass_rate 0.67 (6/9 passed), time 17.1s, 33980 tokens, 5 tool_calls, 0 errors",
+      "anchor": "benchmark.json:~193-203 (eval_id 1, configuration without_skill)",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 2 without_skill: pass_rate 0.67 (6/9 passed), time 28.7s, 38052 tokens, 6 tool_calls, 1 error",
+      "anchor": "benchmark.json:~257-267 (eval_id 2, configuration without_skill)",
+      "status": "verified"
+    },
+    {
+      "text": "without_skill runs both failed the same three expectations: strict total rank order, explicit ranked-harm charter/threat model, and a bottom-line verdict with a prioritized minimum-changes list",
+      "anchor": "benchmark.json:281 (\"passed\": false, evidence on minimum-changes list) and prior 'passed': false entries in both without_skill blocks",
+      "status": "verified"
+    },
+    {
+      "text": "run_summary aggregates: with_skill pass_rate mean 1.0 (stddev 0.0), time mean 106.4s (stddev 16.4049, min 94.8, max 118.0), tokens mean 62781.0 (stddev 5611.5994)",
+      "anchor": "benchmark.json:292-310",
+      "status": "verified"
+    },
+    {
+      "text": "run_summary aggregates: without_skill pass_rate mean 0.67 (stddev 0.0), time mean 22.9s (stddev 8.2024, min 17.1, max 28.7), tokens mean 36016.0 (stddev 2879.3388)",
+      "anchor": "benchmark.json:312-330",
+      "status": "verified"
+    },
+    {
+      "text": "delta section states pass_rate +0.33, time_seconds +83.5, tokens +26765 (with_skill minus without_skill)",
+      "anchor": "benchmark.json:332-336",
+      "status": "verified"
+    },
+    {
+      "text": "Notes across runs state the Write tool was blocked/refused for report.md in three of four runs, so the executor wrote it via a Bash heredoc instead; one run also notes a mid-session limit hit followed by resume",
+      "anchor": "benchmark.json:284-288 (and similar notes blocks earlier in file)",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "benchmark.json:12",
+      "note": "analyzer_model is recorded as the literal string \"unrecorded\", so the model that judged pass/fail for these expectations is not identified anywhere in the chunk."
+    },
+    {
+      "kind": "duplicate-logic",
+      "anchor": "benchmark.json:284-288 vs earlier without_skill notes blocks",
+      "note": "The same 'Write tool blocked, used Bash heredoc' workaround note recurs across multiple runs, suggesting a systemic harness issue rather than an isolated incident, but the file only logs it as a per-run footnote each time."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "benchmark.json:332-336",
+      "note": "The delta block reports deltas (+0.33, +83.5, +26765) as flat numbers with only 1 run per configuration per eval feeding the means, so stddev of 0.0 for pass_rate reflects identical results across the 2 evals rather than genuine run-to-run variance testing; no confidence interval or significance note accompanies the delta."
+    }
+  ],
+  "least_confident": "I could not independently verify the per-expectation pass/fail judgments (e.g., why a given without_skill answer was scored false for 'ranked harm categories') since this chunk only contains the aggregated benchmark.json summary/evidence text, not the underlying reports being graded."
+}

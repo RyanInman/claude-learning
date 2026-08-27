@@ -1,0 +1,60 @@
+{
+  "target": "evals/fixtures/ledger-design.md",
+  "chunk_count": 6,
+  "chunks": [
+    {
+      "id": "chunk-01",
+      "type": "prose",
+      "anchor": "Ledger Service Design .. Ledger Service Design > Overview (L1-L18)",
+      "text_path": "/Users/admin/claude-learning/skills/brief-artifact-workspace/iteration-3/eval-2-planted-contradiction-fanout/with_skill/outputs/brief-work/chunk-01.txt",
+      "risk_tier": "low",
+      "size": 924,
+      "unit": "words"
+    },
+    {
+      "id": "chunk-02",
+      "type": "prose",
+      "anchor": "Ledger Service Design > Request handling (L19-L34)",
+      "text_path": "/Users/admin/claude-learning/skills/brief-artifact-workspace/iteration-3/eval-2-planted-contradiction-fanout/with_skill/outputs/brief-work/chunk-02.txt",
+      "risk_tier": "low",
+      "size": 921,
+      "unit": "words"
+    },
+    {
+      "id": "chunk-03",
+      "type": "prose",
+      "anchor": "Ledger Service Design > Timeouts and retries (L35-L50)",
+      "text_path": "/Users/admin/claude-learning/skills/brief-artifact-workspace/iteration-3/eval-2-planted-contradiction-fanout/with_skill/outputs/brief-work/chunk-03.txt",
+      "risk_tier": "low",
+      "size": 930,
+      "unit": "words"
+    },
+    {
+      "id": "chunk-04",
+      "type": "prose",
+      "anchor": "Ledger Service Design > Storage (L51-L66)",
+      "text_path": "/Users/admin/claude-learning/skills/brief-artifact-workspace/iteration-3/eval-2-planted-contradiction-fanout/with_skill/outputs/brief-work/chunk-04.txt",
+      "risk_tier": "low",
+      "size": 900,
+      "unit": "words"
+    },
+    {
+      "id": "chunk-05",
+      "type": "prose",
+      "anchor": "Ledger Service Design > Reconciliation (L67-L82)",
+      "text_path": "/Users/admin/claude-learning/skills/brief-artifact-workspace/iteration-3/eval-2-planted-contradiction-fanout/with_skill/outputs/brief-work/chunk-05.txt",
+      "risk_tier": "low",
+      "size": 914,
+      "unit": "words"
+    },
+    {
+      "id": "chunk-06",
+      "type": "prose",
+      "anchor": "Ledger Service Design > Operations (L83-L97)",
+      "text_path": "/Users/admin/claude-learning/skills/brief-artifact-workspace/iteration-3/eval-2-planted-contradiction-fanout/with_skill/outputs/brief-work/chunk-06.txt",
+      "risk_tier": "low",
+      "size": 921,
+      "unit": "words"
+    }
+  ]
+}

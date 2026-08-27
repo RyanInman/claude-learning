@@ -1,0 +1,3 @@
+- First render failed: one TL;DR bullet exceeded 35 words. Trimmed and re-rendered; no other issues.
+- Brief written to outputs/brief.md rather than resources/human-level-ai-review.md.brief.md per task instructions; nothing left in resources/.
+- The one contradiction (64.53% vs 65.53%) sits inside chunk-02, so the chunk reader marked it; no cross-chunk contradictions found in reconciliation.

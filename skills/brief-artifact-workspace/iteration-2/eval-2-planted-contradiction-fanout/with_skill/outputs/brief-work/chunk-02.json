@@ -1,0 +1,18 @@
+{
+  "summary": "This section describes how the Ledger Service handles requests. Each request carries an idempotency key to prevent duplicate posting on retry. The rest of the section lists operational properties: alerting and paging thresholds, latency targets, health/readiness endpoints, test coverage, logging, a completed migration, dashboards, secrets rotation, schema review process, and configuration loading. These same claims repeat many times across the paragraphs in varying order without adding new information.",
+  "claims": [
+    {"text": "Each request carries an idempotency key so a retried transfer does not post twice.", "anchor": "L21", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "L23", "status": "unverified"},
+    {"text": "Latency targets stay under 200 ms at the 95th percentile for reads.", "anchor": "L23", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "L23", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "L25", "status": "unverified"},
+    {"text": "Schema changes go through a review that checks index impact.", "anchor": "L23", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L23", "note": "200 ms p95 latency target stated with no source or measurement shown."},
+    {"kind": "uncited-number", "anchor": "L25", "note": "Ninety-day secrets rotation period stated with no source."},
+    {"kind": "uncited-number", "anchor": "L23", "note": "Five-minute page threshold and three-phase/two-weekend migration claim given with no supporting data."},
+    {"kind": "unsupported-claim", "anchor": "L23", "note": "Migration completed \"without downtime\" is asserted with no evidence in the chunk."}
+  ],
+  "least_confident": "Whether the extensive verbatim repetition of the same sentences across L23-L33 is meaningful (e.g., emphasis) or just noise, since no contradiction or new detail emerges despite the volume of repeated text."
+}

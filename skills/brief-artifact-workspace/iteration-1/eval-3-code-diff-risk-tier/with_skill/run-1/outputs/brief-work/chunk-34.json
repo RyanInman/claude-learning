@@ -1,0 +1,78 @@
+{
+  "summary": "This chunk adds two new files documenting a debug session for a login/session-refresh bug. response.md walks through diagnosing why `get_session` picked an expired row on a same-second refresh (root cause: `max` on tied `created_at` values returns the first, i.e. oldest, row), fixes it by keying on `version` instead, and verifies the fix with a failing-then-passing test, a revert check, and a fresh-reviewer pass. transcript-notes.md is a numbered log of the commands and edits performed during that session, including a `.gitignore`/`__pycache__` cleanup encountered mid-verification.",
+  "claims": [
+    {
+      "text": "`get_session` originally selected the newest session row using `max(rows, key=lambda r: r[\"created_at\"])`, and since `created_at` has one-second resolution, a tie causes `max` to return the first (older) row.",
+      "anchor": "response.md diff hunk: `-    return max(rows, key=lambda r: r[\"created_at\"])`",
+      "status": "verified"
+    },
+    {
+      "text": "The fix changes the sort key to `version`, which is monotonic per session and has no ties.",
+      "anchor": "response.md diff hunk: `+    return max(rows, key=lambda r: r[\"version\"])`",
+      "status": "verified"
+    },
+    {
+      "text": "A new test `test_refresh_within_same_second_uses_highest_version` fails against the buggy code (`assert 401 == 200`) and passes after the fix.",
+      "anchor": "response.md Step 2 and Step 5 test output",
+      "status": "verified"
+    },
+    {
+      "text": "Instrumented output showed `rows: [(1, 100, 120), (2, 100, 400)]`, `max(created_at) picks: 1`, `max(version) picks: 2`, confirming hypothesis 1.",
+      "anchor": "response.md Step 3 instrumentation output",
+      "status": "verified"
+    },
+    {
+      "text": "Reverting the fix via `git stash` causes the new test to fail again, confirming the fix (not an unrelated change) caused the pass.",
+      "anchor": "response.md Step 5 `git stash` output",
+      "status": "verified"
+    },
+    {
+      "text": "The fix is independent of row insertion order, since appending version 2 before version 1 still returns token `t2`.",
+      "anchor": "response.md Step 5 order-independence check output",
+      "status": "verified"
+    },
+    {
+      "text": "An independent fresh reviewer found no high-confidence issues in the diff, noting only that a duplicate `version` value would recreate the tie, which is guarded by the append invariant in the docstring.",
+      "anchor": "response.md paragraph beginning 'Independent review of the diff by a fresh reviewer'",
+      "status": "unverified"
+    },
+    {
+      "text": "`expires_at <= now` rejects a session on its exact expiry second, but this is left unfixed as likely intentional (inclusive expiry).",
+      "anchor": "response.md 'Two things worth flagging, not fixed here' section",
+      "status": "unverified"
+    },
+    {
+      "text": "`__pycache__/*.pyc` files were committed to the repo and collided with a `git stash` during verification; they were untracked and a `.gitignore` was added.",
+      "anchor": "response.md final bullet, and transcript-notes.md step 13-14",
+      "status": "verified"
+    },
+    {
+      "text": "Two commits were made: `448b3db` (failing test) and `b987a38` (fix).",
+      "anchor": "response.md 'Commits: `448b3db` (failing test), `b987a38` (fix).'",
+      "status": "verified"
+    },
+    {
+      "text": "transcript-notes.md step 16 states a `feature-dev:code-reviewer` subagent was launched on the two-commit diff, matching the 'independent review' described in response.md.",
+      "anchor": "transcript-notes.md:16 vs response.md paragraph on independent review",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "response.md paragraph beginning 'Independent review of the diff by a fresh reviewer'",
+      "note": "The claim that the reviewer found no high-confidence issues is asserted narratively; the actual reviewer output/report is not shown in this chunk, so it cannot be checked against source."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "response.md 'The expires_at <= now ... is defensible as intentional (expiry is inclusive)'",
+      "note": "This is presented as a judgment call with no test or evidence in the chunk confirming the boundary is intentional versus a latent bug."
+    },
+    {
+      "kind": "missing-edge-case",
+      "anchor": "response.md 'if two rows ever shared a version, max would tie again'",
+      "note": "Explicitly flagged in the chunk itself as an unhandled edge case, relying on an unenforced caller invariant."
+    }
+  ],
+  "least_confident": "Whether the fresh-reviewer pass in response.md genuinely corresponds one-to-one with the code-reviewer subagent invocation logged in transcript-notes.md step 16, since the chunk shows only the narrative summary of the review, not its actual output."
+}

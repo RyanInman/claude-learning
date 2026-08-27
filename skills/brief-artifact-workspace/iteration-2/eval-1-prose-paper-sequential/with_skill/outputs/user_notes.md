@@ -1,0 +1,2 @@
+- render_brief.py rejected chunk-03 once (summary 126 words, max 120); trimmed and re-rendered.
+- Skill template names the brief `resources/human-level-ai-review.md.brief.md`; wrote to outputs/brief.md per task instruction instead. Chunk JSONs copied from brief-work/ to outputs root.

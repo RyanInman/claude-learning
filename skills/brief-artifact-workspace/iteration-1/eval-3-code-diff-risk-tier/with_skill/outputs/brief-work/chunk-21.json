@@ -1,0 +1,27 @@
+{
+  "summary": "This chunk adds two new files: a red-team report on a session pricing-cache design, and the author's notes/assumptions. The report lists 13 numbered findings (F-01 to F-13) against a Redis-based pricing cache, rated Critical/High/Medium/Low, each with a fix direction. Three Criticals center on wrong-price risk: a dangerous `KEYS` mass-delete, missing invalidation for catalog/tax changes, and no stated re-pricing at charge time. Highs cover thundering-herd invalidation, mid-session staleness, memory headroom, a kill switch that depends on the same Redis, and downsized downstream capacity post-rollout. A re-check protocol with per-ID pass criteria closes the report. The notes file states assumptions: no live user, arch-review audience, and that numbers in fix directions are conventional, not measured.",
+  "claims": [
+    {"text": "`KEYS session:*:pricing` is O(N), blocks the Redis event loop, and can stall rate-limiting and feature-flag reads on the shared cluster", "anchor": "F-01 (Critical)", "status": "verified"},
+    {"text": "On Redis Cluster, `KEYS` only sees one node per call, so mass-delete is incomplete as well as dangerous", "anchor": "F-01 (Critical)", "status": "verified"},
+    {"text": "The design's invalidation section covers promos only, leaving catalog price and tax-rate changes stale for up to 30 minutes with no fix", "anchor": "F-02 (Critical)", "status": "verified"},
+    {"text": "The doc never states that the charge/confirm path re-prices from source of truth, so cache staleness could translate into wrong charges, not just wrong quotes", "anchor": "F-03 (Critical)", "status": "verified"},
+    {"text": "Full invalidation of ~200k session entries causes a simultaneous fan-out miss storm to catalog, promo, and tax services sized only for cache-miss traffic", "anchor": "F-04 (High)", "status": "unverified"},
+    {"text": "Promos that expire mid-session (e.g. flash sale ending) keep applying from cache until TTL, because `promo_changed` may not fire for time-based expiry", "anchor": "F-05 (High)", "status": "verified"},
+    {"text": "The cache key is session-ID only, so mid-session changes to shipping address (tax) or coupon/cart contents (promo) are not reflected until the entry expires", "anchor": "F-06 (High)", "status": "verified"},
+    {"text": "40KB per session times 200k sessions equals 8GB, exactly the stated free capacity, leaving no headroom for per-key overhead, replication, or fragmentation", "anchor": "F-07 (High)", "status": "unverified"},
+    {"text": "The rollback kill switch is a feature flag served from the same Redis cluster the design is meant to protect, so it may be unusable during the incident it's meant to stop", "anchor": "F-08 (High)", "status": "verified"},
+    {"text": "Post-rollout, downstream services are sized for cache-miss traffic only, so a Redis outage delivers a full-traffic step function to now-undersized services, and without a circuit breaker each request first burns a Redis timeout, raising p95 rather than restoring it", "anchor": "F-09 (High)", "status": "verified"},
+    {"text": "The doc names no delivery guarantee, consumer-lag alert, or reconciliation for the `promo_changed` event, so a missed event leaves stale promos undetected", "anchor": "F-10 (Medium)", "status": "verified"},
+    {"text": "A one-day 5%-then-100% rollout cannot surface memory footprint, invalidation herd size, or a promo publish/Redis blip, and defines no success/abort criteria or metrics", "anchor": "F-11 (Medium)", "status": "verified"},
+    {"text": "The cached hash has no schema version, so a deploy changing its layout risks silent misparse of pricing data", "anchor": "F-12 (Medium)", "status": "verified"},
+    {"text": "First-quote caching stores whatever the downstream calls return, including degraded/partial results, freezing them for 30 minutes; concurrent first quotes both write, which is harmless but worth noting", "anchor": "F-13 (Low)", "status": "verified"},
+    {"text": "Numbers used in fix directions (timeouts, headroom fractions) are conventional starting points, not measured values, and pass criteria require the doc's own measured numbers", "anchor": "user_notes.md: assumptions bullet 4", "status": "verified"},
+    {"text": "The review was performed directly without invoking the `debate-review` skill because the output directory is a `without_skill` baseline", "anchor": "user_notes.md: assumptions bullet 5", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "F-07 (High)", "note": "The 40KB-per-session and 200k-session figures used to compute the 8GB memory estimate are not shown in this chunk; they appear to come from the target design doc, which this chunk doesn't include."},
+    {"kind": "uncited-number", "anchor": "F-09 (High)", "note": "The 480ms baseline p95 figure is referenced as a comparison point but its source isn't shown in this chunk."},
+    {"kind": "unsupported-claim", "anchor": "F-04 (High)", "note": "The claim that downstream services will be 'sized for ~cache-miss traffic only' post-rollout is asserted as a prediction about future capacity planning, not evidenced in this chunk."}
+  ],
+  "least_confident": "Whether the 40KB/200k-session/8GB memory figures in F-07 accurately reflect the underlying design doc, since that doc isn't part of this chunk and I can't verify the arithmetic's inputs."
+}

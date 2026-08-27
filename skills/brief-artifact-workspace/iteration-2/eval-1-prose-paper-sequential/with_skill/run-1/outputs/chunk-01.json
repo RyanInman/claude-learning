@@ -1,0 +1,17 @@
+{
+  "summary": "Opening of the report: TL;DR, six key findings, and the cognitive-science foundations. It argues that comprehension, not generation, is now the bottleneck, so reviewers should read re-presentations of AI code (summaries, stated intent, tests, back-translations) rather than raw diffs. It grounds this in cognitive load theory (about four working-memory chunks), the SmartBear/Cisco review-size limits (best under 200 LOC, collapse past 400 LOC or 60-90 minutes), automation bias (Stanford CCS 2023), distinctive AI failure modes (40% vulnerable in Pearce et al., GitClear duplication trends, MSR 2026 redundancy 1.87x), and Bacchelli & Bird's finding that review is mostly about understanding.",
+  "claims": [
+    {"text": "Defect detection is highest under 200 LOC per review and falls off past 400 LOC; reviewers faster than 450 LOC/hour had below-average defect density in 87% of cases (SmartBear/Cisco, 2500 reviews, 3.2M LOC)", "anchor": "L12", "status": "verified"},
+    {"text": "Participants with an AI assistant wrote significantly less secure code yet were more likely to believe they wrote secure code (Perry et al., ACM CCS 2023, 47 participants)", "anchor": "L14", "status": "verified"},
+    {"text": "About 40% (39.33% of top suggestions) of 1,689 Copilot-generated programs across 89 scenarios were vulnerable (Pearce et al., IEEE S&P 2022)", "anchor": "L16", "status": "verified"},
+    {"text": "GitClear 2025: moved/refactored code fell from 24.8% (2021) to 9.5% (2024); copy/paste rose from 8.4% to 12.3%; commits with 5+ duplicated lines rose eightfold in 2024", "anchor": "L16", "status": "verified"},
+    {"text": "AI agents' Average Max Redundancy was 0.2867 vs 0.1532 for humans (~1.87x, p<0.001), yet reviewers express more positive sentiment toward AI PRs (Huang et al., MSR 2026)", "anchor": "L20", "status": "verified"},
+    {"text": "Developers spend a majority of their time reading rather than writing code", "anchor": "L10", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "L10", "note": "The 'majority of time reading' claim carries no source in the chunk."},
+    {"kind": "unsupported-claim", "anchor": "L18", "note": "Finding 5 asserts re-presentation converts extraneous to germane load without citing a study that measured it."},
+    {"kind": "uncited-number", "anchor": "L42", "note": "'Defect comments were only about one-eighth of the sample' is stated without a quoted figure from Bacchelli & Bird."}
+  ],
+  "least_confident": "Whether the 200/400 LOC and 87% figures are quoted exactly from the SmartBear study or paraphrased from secondary marketing material."
+}

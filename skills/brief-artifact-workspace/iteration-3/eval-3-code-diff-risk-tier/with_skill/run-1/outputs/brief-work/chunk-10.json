@@ -1,0 +1,17 @@
+{
+  "summary": "Adds a new skill file skills/p-review/SKILL.md defining a one-reviewer adversarial review. The conductor establishes artifact, baseline (via git merge-base fallbacks), and intent, dispatches a fresh subagent with a verbatim brief, rules on findings by vetoing only false premises, then presents Concerns, noted-not-recommended, Rejected, and writes Minor findings to minor-findings.md. A --inline flag skips the subagent and the Ruling step.",
+  "claims": [
+    {"text": "--inline skips subagent dispatch and the Ruling step; conductor reviews directly using the brief.", "anchor": "skills/p-review/SKILL.md:24-25, 45-47", "status": "verified"},
+    {"text": "Baseline resolves via git merge-base HEAD @{u}, falls back to origin/HEAD, then asks the user.", "anchor": "skills/p-review/SKILL.md:32-36", "status": "verified"},
+    {"text": "Reviewer must not report issues that compiler, linter, type-checker, or tests would catch.", "anchor": "skills/p-review/SKILL.md:79-81", "status": "verified"},
+    {"text": "Ruling rejects only findings on false premises; all other findings are kept.", "anchor": "skills/p-review/SKILL.md:118-120", "status": "verified"},
+    {"text": "Minor findings are written verbatim to minor-findings.md beside the artifact or at repo root, never printed.", "anchor": "skills/p-review/SKILL.md:132-136", "status": "verified"},
+    {"text": "Description claims this is cheaper than debate-review, adversarial-review, adversarial-review-2, which exist as skills.", "anchor": "skills/p-review/SKILL.md:17-19", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/p-review/SKILL.md:32-36", "note": "Baseline procedure covers only diffs; plans get n/a but conductor steps do not say so explicitly."},
+    {"kind": "missing-edge-case", "anchor": "skills/p-review/SKILL.md:132-133", "note": "Writing minor-findings.md at repo root may overwrite an existing file; no collision guidance."},
+    {"kind": "unsupported-claim", "anchor": "skills/p-review/SKILL.md:37-38", "note": "Asserts craft-vs-fit review is weaker without evidence; stylistic, low stakes."}
+  ],
+  "least_confident": "I cannot verify that the referenced sibling skills (debate-review, adversarial-review, adversarial-review-2) exist or that git symbolic-ref fallback behaves as described."
+}

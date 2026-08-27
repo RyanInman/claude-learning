@@ -1,0 +1,237 @@
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/response.md b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/response.md
+new file mode 100644
+index 0000000..8735ce7
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/response.md
+@@ -0,0 +1,65 @@
++Found and fixed it. The bug is in `get_session`, and it explains every part of what you described: only some users, no obvious pattern, and they can't get back in.
++
++## Root cause
++
++`sessions` is append-only — a refresh writes a *new* row for the same `session_id` with `version + 1`. `get_session` picked the current row like this:
++
++```python
++return max(rows, key=lambda r: r["created_at"])
++```
++
++`created_at` is stored with **one-second resolution**. When a user refreshes within the same second that their previous row was written, both rows carry an identical `created_at`. Python's `max` returns the **first** maximal element on a tie, which is the *older* row — the one already at or near its expiry.
++
++So `refresh` reads the stale row, sees `expires_at <= now`, and returns `401`. The user is bounced to login. Their newly issued, still-valid session exists in the table but is never selected, so logging in again just writes another row that the same tie can hide — that's the "can't get back in" part.
++
++Reproduced directly against the original code:
++
++```
++append_session('s1', version=1, token='t1', expires_at=120, created_at=100)
++append_session('s1', version=2, token='t2', expires_at=400, created_at=100)
++refresh('s1', now=150)  ->  {'status': 401}    # expected 200 / 't2'
++```
++
++This is why it looks random. It only fires when a refresh lands in the same clock second as the row before it, which depends on request timing — so it hits a fraction of users and never reproduces on demand.
++
++## The fix
++
++Order by `version`, not by `created_at`:
++
++```python
++def get_session(session_id):
++    rows = [r for r in ROWS if r["session_id"] == session_id]
++    if not rows:
++        return None
++    # created_at has one-second resolution, so two rows can share a timestamp and
++    # ordering by it can pick a stale row. version is the authoritative append
++    # order (previous + 1), so order by that.
++    return max(rows, key=lambda r: r["version"])
++```
++
++`version` is the authoritative sequence for a session (each refresh is `previous + 1`), so it is exact where `created_at` is lossy. I chose it over a `(created_at, version)` tiebreak because ordering by `version` alone is also immune to a backwards clock adjustment, which would reintroduce the same class of bug — a newer row with an earlier `created_at`.
++
++## Tests
++
++Added three regression tests to `tests/test_sessions.py`:
++
++- `test_refresh_within_same_second_uses_new_row` — the exact production scenario; fails on the old code with `401 != 200`.
++- `test_same_second_tie_independent_of_insertion_order` — same tie, rows appended in the other order, so the test can't pass by accident of list ordering.
++- `test_backwards_clock_still_uses_newest_version` — newer row has an *earlier* `created_at`.
++
++Full suite: **7 passed**, including all 4 original tests.
++
++## Assumptions I made
++
++You weren't around to ask, so I want to be explicit about two things I assumed:
++
++1. **`version` is strictly increasing per `session_id` and never reset or reused.** The module docstring states refresh appends `version = previous version + 1`, and I took that as a guarantee. If any code path writes a row without incrementing, or re-numbers versions, this fix would need `(created_at, version)` or a real sequence column instead. Worth a quick grep on your side for other writers of the `sessions` table.
++2. **The stored data is fine and only the read was wrong.** I did not change `append_session` or the schema. Existing rows are all still correct — the newest version was always there, just not being selected.
++
++## One thing I did not change
++
++`refresh` treats `expires_at <= now` as expired, so a session expires exactly *at* its expiry second rather than one tick later. That's a defensible choice and it's unrelated to your bug, so I left it alone. Flagging it only so you know I saw it.
++
++## Worth checking
++
++If you have logging on 401s, the affected users should stop appearing right after deploy. If any *keep* getting bounced, that points at a second cause rather than this one, and I'd want to see those logs.
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/transcript-notes.md b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/transcript-notes.md
+new file mode 100644
+index 0000000..5896635
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/transcript-notes.md
+@@ -0,0 +1,22 @@
++# Transcript notes
++
++1. `cp -R .../evals/fixtures/expired-sessions .../without_skill/outputs/project` — copied fixture.
++2. `cd project && git init -q && git add -A && git commit -qm baseline` — baseline commit.
++3. `find` over fixture — listed files: `sessions.py`, `tests/test_sessions.py`.
++4. Read `project/sessions.py`. Noted docstring: append-only table, `version = previous + 1`, `created_at` at one-second resolution. Noted `get_session` uses `max(rows, key=created_at)`.
++5. Read `project/tests/test_sessions.py` — 4 existing tests.
++6. `python3 -m pytest tests/ -q` — 4 passed (baseline green).
++7. Formed hypothesis: one-second resolution → `created_at` ties → `max` returns first maximal element → stale/expired row wins → spurious 401.
++8. `python3 -c` inline repro: two rows for `s1`, versions 1 and 2, both `created_at=100`. `get_session` returned the version-1 row; `refresh(now=150)` returned `{'status': 401}`. Hypothesis confirmed.
++9. Edited `tests/test_sessions.py` — added `test_refresh_within_same_second_uses_new_row` and `test_same_second_tie_independent_of_insertion_order`.
++10. `python3 -m pytest tests/ -q` — 1 failed, 5 passed. Failure is the same-second test, `assert 401 == 200`. Red confirmed against unmodified source.
++11. Edited `sessions.py` — `get_session` key changed from `r["created_at"]` to `(r["created_at"], r["version"])`.
++12. `python3 -m pytest tests/ -q` — 6 passed. `git diff --stat` to confirm scope.
++13. Reconsidered: tuple key still breaks under a backwards clock adjustment. Edited `sessions.py` again — key simplified to `r["version"]` alone, comment updated.
++14. Edited `tests/test_sessions.py` — added `test_backwards_clock_still_uses_newest_version` (newer row with earlier `created_at`).
++15. `python3 -m pytest tests/ -q` — 7 passed. Final.
++16. Wrote `response.md`, `transcript-notes.md`, `metrics.json` in outputs dir.
++
++## Files edited
++- `project/sessions.py` — 1 logic line + 3 comment lines in `get_session`.
++- `project/tests/test_sessions.py` — 3 tests appended.
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/user_notes.md b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/user_notes.md
+new file mode 100644
+index 0000000..6747336
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/user_notes.md
+@@ -0,0 +1,11 @@
++# User notes
++
++No live user to ask, so two things were assumed rather than confirmed:
++
++1. **`version` is strictly increasing per `session_id`, never reset or reused.** Basis: the `sessions.py` module docstring says refresh appends `version = previous version + 1`. The fix orders rows by `version`, so this must hold. The fixture contains no other writer to verify against. If a real codebase has a write path that skips the increment, the fix needs `(created_at, version)` or a dedicated sequence column.
++
++2. **The intended semantics of `refresh` is "return the newest row for this session".** Inferred from the existing test `test_refreshed_session_uses_new_row`, which asserts the version-2 token is returned. No spec was available.
++
++Also noted but deliberately not changed: `refresh` uses `expires_at <= now`, so a session expires exactly at its expiry second rather than after it. Off-by-one is arguable but unrelated to the reported symptom, so it was left alone per surgical-change discipline and flagged in the response.
++
++No workarounds were required. Baseline suite was green before the change (4 passed), the new test was confirmed red against unmodified source, and the suite is green after (7 passed).
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/grading.json b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/grading.json
+new file mode 100644
+index 0000000..536fb3f
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 0,
++  "eval_name": "vague-login-failure",
++  "config": "without_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": false,
++      "evidence": "No brief. Response opens with 'Found and fixed it' and the root cause; symptom/repro/check never stated as a gate"
++    },
++    {
++      "text": "Lists at least two ranked hypotheses before the first edit",
++      "passed": false,
++      "evidence": "No ranked hypotheses. Went straight to the confirmed cause"
++    },
++    {
++      "text": "Adds a test reproducing the failure and shows it failing before the fix",
++      "passed": false,
++      "evidence": "Three regression tests added, but a single commit contains tests plus fix and no red test run is shown, only a hand-run repro snippet"
++    },
++    {
++      "text": "Fixes the root cause by selecting the session row with the highest version, not by patching created_at handling or widening the expiry comparison",
++      "passed": true,
++      "evidence": "get_session keys on r['version'], with a reasoned rejection of a (created_at, version) tiebreak"
++    },
++    {
++      "text": "Shows real pytest output as evidence in the final message rather than asserting the fix works",
++      "passed": true,
++      "evidence": "Shows the repro output and reports 7 passed"
++    }
++  ],
++  "passed": 2,
++  "total": 5,
++  "summary": {
++    "passed": 2,
++    "failed": 3,
++    "total": 5,
++    "pass_rate": 0.4
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/metrics.json b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/metrics.json
+new file mode 100644
+index 0000000..959d844
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/metrics.json
+@@ -0,0 +1,18 @@
++{
++  "tool_calls": {
++    "Bash": 6,
++    "Read": 2,
++    "Edit": 4,
++    "Write": 3
++  },
++  "total_tool_calls": 15,
++  "total_steps": 16,
++  "files_created": [
++    "response.md",
++    "transcript-notes.md",
++    "metrics.json"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 4066,
++  "transcript_chars": 2049
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/timing.json b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/timing.json
+new file mode 100644
+index 0000000..f4455b1
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 36283, "duration_ms": 115867, "total_duration_seconds": 115.9}
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/timing.json b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/timing.json
+new file mode 100644
+index 0000000..f4455b1
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 36283, "duration_ms": 115867, "total_duration_seconds": 115.9}
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/eval_metadata.json b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/eval_metadata.json
+new file mode 100644
+index 0000000..05ea08e
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/eval_metadata.json
+@@ -0,0 +1,22 @@
++{
++  "eval_id": 1,
++  "eval_name": "pasted-traceback",
++  "prompt": "The report script blows up on this month's export:\n\nTraceback (most recent call last):\n  File \"report.py\", line 20, in <module>\n    for region, amount in sorted(total_by_region(sys.argv[1]).items()):\n  File \"report.py\", line 12, in total_by_region\n    region = row[\"region\"]\nKeyError: 'region'\n\nRan it as `python3 report.py data/sales-2026-08.csv`. The test suite is green so I don't get it. Fix it and verify.",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
++    },
++    {
++      "text": "Reproduces the crash by running the exact failing command and shows the output"
++    },
++    {
++      "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys"
++    },
++    {
++      "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact"
++    },
++    {
++      "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing"
++    }
++  ]
++}
+\ No newline at end of file

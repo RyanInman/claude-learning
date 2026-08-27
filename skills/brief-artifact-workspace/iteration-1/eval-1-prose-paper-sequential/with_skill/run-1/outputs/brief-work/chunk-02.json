@@ -1,0 +1,98 @@
+{
+  "summary": "Covers AI-specific review hazards, the prioritized technique list, and 2025-2026 industry workflows. Hazards: automation bias, vigilance decrement after ~30 minutes, GitClear quality erosion, 40% vulnerable suggestions, hallucinated packages (huggingface-cli incident; Spracklen et al. 19.7% fictitious packages). Argues AI errors are plausible-but-wrong, so review must ask 'does it do what was intended and do the APIs exist'. Ranks nine techniques in three tiers: spec-first review, AI self-explanation with least-confident section, tests as specs; chunking and risk tiering, layered summaries, diagrams; back-translation, adversarial second model, review-friendly prompting. Workflows: Google SRE move-up-the-ladder guidance, Anthropic verification emphasis, GitHub agentic PR gates, EASE 2026 AIDev review-comment statistics, named human accountability.",
+  "claims": [
+    {
+      "text": "A fake 'huggingface-cli' PyPI package under an LLM-hallucinated name received over 30,000 downloads in three months (Lasso Security)",
+      "anchor": "Details > 3 > Hallucinated APIs / slopsquatting (L7)",
+      "status": "verified"
+    },
+    {
+      "text": "19.7% of LLM-generated package names were fictitious across 16 LLMs and 576,000 samples; commercial 5.2% vs open-source 21.7% (Spracklen et al., USENIX Security 2025)",
+      "anchor": "Details > 3 > Hallucinated APIs / slopsquatting (L7)",
+      "status": "verified"
+    },
+    {
+      "text": "A 2026 re-evaluation found frontier models still hallucinate packages at ~4.6%-6.1%, with 127 names invented identically by five models",
+      "anchor": "Details > 3 > Hallucinated APIs / slopsquatting (L7)",
+      "status": "verified"
+    },
+    {
+      "text": "Monitoring performance drops after the first ~30 minutes (vigilance decrement)",
+      "anchor": "Details > 3 > Vigilance decrement (L4)",
+      "status": "unverified"
+    },
+    {
+      "text": "Detection of automation failures falls dramatically when a system is usually reliable (Parasuraman)",
+      "anchor": "Details > 3 > Over-trust / automation bias (L3)",
+      "status": "unverified"
+    },
+    {
+      "text": "Reviewing a one-page plan is a fraction of the intrinsic load of reviewing 500 LOC",
+      "anchor": "Details > 4 > Tier A > 1 (L14)",
+      "status": "unverified"
+    },
+    {
+      "text": "Reviewing tests is often faster and higher-signal than reviewing implementation",
+      "anchor": "Details > 4 > Tier A > 3 (L18)",
+      "status": "unverified"
+    },
+    {
+      "text": "Google SRE guidance requires the code-generating agent to be isolated from the test-defining or reviewing agent",
+      "anchor": "Details > 4 > Tier A > 3 (L18)",
+      "status": "verified"
+    },
+    {
+      "text": "Google SRE guidance says line-by-line review does not scale with 4x-10x code volume and oversight must move to designs, intent, and policies",
+      "anchor": "Details > 5 > Trust but verify (L38)",
+      "status": "verified"
+    },
+    {
+      "text": "Anthropic usage data shows experienced users shift from per-action approval to monitoring and intervening",
+      "anchor": "Details > 5 > Anthropic / Claude Code (L39)",
+      "status": "unverified"
+    },
+    {
+      "text": "64.53% of human comments on AI-authored PRs were direct human review; 28.37% agent steering; 7.10% CI (EASE 2026, AIDev >932k PRs)",
+      "anchor": "Details > 5 > Empirical reality check (L41, '64.53% were direct human review') vs Details > 5 > Empirical reality check (L41, '65.53% direct review ... on AI-authored PRs')",
+      "status": "contradicted"
+    },
+    {
+      "text": "On AI-authored PRs, 65.53% of human comments were direct review and 25.92% steering, vs 93.56% and 1.63% on human-authored PRs",
+      "anchor": "Details > 5 > Empirical reality check (L41, '64.53% were direct human review') vs Details > 5 > Empirical reality check (L41, '65.53% direct review ... on AI-authored PRs')",
+      "status": "contradicted"
+    },
+    {
+      "text": "71.58% of all review comments on AI PRs were authored by agents",
+      "anchor": "Details > 5 > Empirical reality check (L41)",
+      "status": "verified"
+    },
+    {
+      "text": "Human-only reviews occur on 8.08% of AI PRs vs 25.21% of human PRs",
+      "anchor": "Details > 5 > Empirical reality check (L41)",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "Details > 5 > Empirical reality check (L41)",
+      "note": "Two different figures (64.53% and 65.53%) are given for direct-review share of human comments on AI PRs in the same paragraph."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "Details > 3 > Code-quality erosion (L5)",
+      "note": "'Churn roughly doubling' has no year range or base figure."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "Details > 4 > Tier C > 7 (L30)",
+      "note": "Mutation-style consistency checking is called the 'research backbone' with no paper named."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "Details > 4 > Tier A > 3 (L18)",
+      "note": "Industrial use of property-based testing at Amazon, Volvo, Stripe is asserted without a source."
+    }
+  ],
+  "least_confident": "Whether 64.53% and 65.53% describe two different denominators in the EASE 2026 study or one of them is a typo; the chunk does not make the distinction clear."
+}

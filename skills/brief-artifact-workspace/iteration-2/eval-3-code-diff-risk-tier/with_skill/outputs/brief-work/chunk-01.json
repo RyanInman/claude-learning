@@ -1,0 +1,18 @@
+{
+  "summary": "This diff adds two new markdown files. The first, docs/plans/brief-artifact-plan.md, is an implementation plan for a `brief-artifact` skill that chunks a prose doc, code tree, or git diff, has readers write per-chunk JSON (summary, anchored claims with verified/unverified/contradicted status, typed risks, least-confident line), and renders a layered brief with TL;DR, structure map, claims table, and ranked risks. It lists scripts, references, workflow steps, triggers, and six verifiable implementation steps. The second, resources/efficient-debug-loop-strategies.md, is a research playbook on debugging with Claude Code: verification-gated loops, context management (/clear after two failed corrections, compact at ~60%), subagents, hooks, git bisect, a failure-mode table, staged recommendations, and caveats about secondary-sourced numbers.",
+  "claims": [
+    {"text": "resources/human-level-ai-review.md argues comprehension is the bottleneck and recommends layered summaries, ~200 LOC chunks, risk tiering, and claim extraction.", "anchor": "docs/plans/brief-artifact-plan.md:11", "status": "unverified"},
+    {"text": "No existing skill in skills/ performs layered briefing; closest is session-review.", "anchor": "docs/plans/brief-artifact-plan.md:11", "status": "unverified"},
+    {"text": "risk_tier is high only for code chunks touching auth, DB, IO, or dependency files; prose is always low.", "anchor": "docs/plans/brief-artifact-plan.md:40", "status": "verified"},
+    {"text": "Chroma's Context Rot report (July 14, 2025) evaluated 18 frontier models and found performance grows unreliable as input length grows.", "anchor": "resources/efficient-debug-loop-strategies.md:91", "status": "unverified"},
+    {"text": "Spracklen et al. USENIX Security 2025 found 19.7% of recommended packages across 576,000 samples from 16 LLMs were hallucinated.", "anchor": "resources/efficient-debug-loop-strategies.md:156", "status": "unverified"},
+    {"text": "Extended-thinking budgets: blog implies think < think hard < think harder < ultrathink, but Willison's decompilation maps think harder and ultrathink both to 31,999.", "anchor": "resources/efficient-debug-loop-strategies.md:140 vs resources/efficient-debug-loop-strategies.md:193", "status": "contradicted"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "resources/efficient-debug-loop-strategies.md:123", "note": "'accuracy can drop 30+ points' for lost-in-the-middle has no named source."},
+    {"kind": "uncited-number", "anchor": "resources/efficient-debug-loop-strategies.md:120", "note": "60% compact threshold and ~80% auto-compact threshold attributed only to unnamed 'practitioners'."},
+    {"kind": "uncited-number", "anchor": "resources/efficient-debug-loop-strategies.md:156", "note": "'2026 re-evaluation' giving 4.6-6.1% rates and 127 identical fake names names no author or venue."},
+    {"kind": "unsupported-claim", "anchor": "docs/plans/brief-artifact-plan.md:67", "note": "Grader threshold 'brief <=1/5 source length' is asserted with no rationale; 'Decisions (approved in brainstorm)' cites no record of that approval."}
+  ],
+  "least_confident": "I could not check whether the quoted Anthropic docs passages (lines 87, 93, 116, 138) are verbatim or whether the plan's claim that no existing skill covers layered briefing is accurate."
+}

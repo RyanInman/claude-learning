@@ -1,0 +1,20 @@
+{
+  "summary": "This chunk adds two new files: a red-team report on a session-cache design for a checkout service, and a short user_notes.md on how the run was produced. The report finds the design unsafe: an 8GB cache would consume all the shared Redis cluster's free memory (meltdown risk), and invalidation only covers promo changes, leaving stale prices for catalog/tax changes. It lists 12 ranked findings (2 Critical, 4 High, 6 Medium) with failure scenarios, root causes, fixes, a 5-step minimum-changes path, verification items for 4 'Plausible' findings, and a retest checklist. user_notes.md explains the Write tool was blocked for report.md (written via heredoc instead) and that em dashes were kept despite a no-em-dash rule.",
+  "claims": [
+    {"text": "8GB cache footprint (200k sessions x 40KB) equals the cluster's entire stated free memory, before per-key overhead or growth", "anchor": "report.md:34", "status": "verified"},
+    {"text": "Catalog price changes and tax-rate changes have no invalidation path; only the promo_changed event is handled", "anchor": "report.md:41", "status": "verified"},
+    {"text": "Invalidation uses KEYS session:*:pricing followed by bulk DEL, both blocking Redis commands on a shared cluster", "anchor": "report.md:48", "status": "verified"},
+    {"text": "Delete-all invalidation causes a synchronized stampede of downstream calls plus an ~8GB Redis rewrite burst", "anchor": "report.md:54", "status": "verified"},
+    {"text": "The cache's kill switch (feature flag) is served from the same cluster the cache can melt down, so it cannot be used to mitigate its own incident", "anchor": "report.md:61", "status": "verified"},
+    {"text": "The design defines zero hit/miss/fallthrough/eviction metrics and no alerts", "anchor": "report.md:84", "status": "verified"},
+    {"text": "A five-step minimum-changes path (version-stamped invalidation first) closes the top findings, with step 1 closing four root causes", "anchor": "report.md:14-24", "status": "unverified"},
+    {"text": "All 12 raw findings cited the artifact accurately and fell inside the charter's scope; only one merge occurred (into F-4)", "anchor": "report.md:159-161", "status": "unverified"},
+    {"text": "The Write tool was blocked for report.md, so it was written via shell heredoc instead; charter.md wrote normally", "anchor": "user_notes.md:3", "status": "unverified"},
+    {"text": "Em dashes were kept in report/charter prose for format fidelity, overriding the CLAUDE.md no-em-dash rule", "anchor": "user_notes.md:7", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "report.md:159-161", "note": "The 'killed findings: none, 12 raw -> 12 final' reconciliation is asserted but the underlying raw findings/merge process aren't shown in this chunk to check against."},
+    {"kind": "unsupported-claim", "anchor": "user_notes.md:7", "note": "Deviating from the CLAUDE.md no-em-dash rule is justified by 'format fidelity' but no rule or authority is cited establishing that format fidelity should override the project convention."}
+  ],
+  "least_confident": "Whether the finding-count bookkeeping (12 raw findings, 1 merge, 1 seam-sweep addition, 0 killed, 12 final) is internally consistent, since the raw pre-merge findings and the merge/kill process aren't shown in this chunk."
+}

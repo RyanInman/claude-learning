@@ -1,0 +1,237 @@
+diff --git a/skills/debug-loop/evals/fixtures/expired-sessions/sessions.py b/skills/debug-loop/evals/fixtures/expired-sessions/sessions.py
+new file mode 100644
+index 0000000..613c38f
+--- /dev/null
++++ b/skills/debug-loop/evals/fixtures/expired-sessions/sessions.py
+@@ -0,0 +1,41 @@
++"""Session store.
++
++The `sessions` table is append-only: refreshing a session appends a new row for
++the same session_id with version = previous version + 1. `created_at` is stored
++with one-second resolution.
++"""
++
++ROWS = []
++
++
++def reset():
++    ROWS.clear()
++
++
++def append_session(session_id, version, token, expires_at, created_at):
++    ROWS.append(
++        {
++            "session_id": session_id,
++            "version": version,
++            "token": token,
++            "expires_at": expires_at,
++            "created_at": created_at,
++        }
++    )
++
++
++def get_session(session_id):
++    rows = [r for r in ROWS if r["session_id"] == session_id]
++    if not rows:
++        return None
++    return max(rows, key=lambda r: r["created_at"])
++
++
++def refresh(session_id, now):
++    """Return the live session, or a 401 payload when it has expired."""
++    row = get_session(session_id)
++    if row is None:
++        return {"status": 404}
++    if row["expires_at"] <= now:
++        return {"status": 401}
++    return {"status": 200, "token": row["token"]}
+
+diff --git a/skills/debug-loop/evals/fixtures/expired-sessions/tests/test_sessions.py b/skills/debug-loop/evals/fixtures/expired-sessions/tests/test_sessions.py
+new file mode 100644
+index 0000000..3d3ee65
+--- /dev/null
++++ b/skills/debug-loop/evals/fixtures/expired-sessions/tests/test_sessions.py
+@@ -0,0 +1,31 @@
++import sys, os
++
++sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++
++import sessions
++
++
++def setup_function():
++    sessions.reset()
++
++
++def test_missing_session_is_404():
++    assert sessions.refresh("nope", now=100)["status"] == 404
++
++
++def test_live_session_refreshes():
++    sessions.append_session("s1", version=1, token="t1", expires_at=200, created_at=100)
++    assert sessions.refresh("s1", now=150)["status"] == 200
++
++
++def test_expired_session_is_401():
++    sessions.append_session("s1", version=1, token="t1", expires_at=120, created_at=100)
++    assert sessions.refresh("s1", now=150)["status"] == 401
++
++
++def test_refreshed_session_uses_new_row():
++    sessions.append_session("s1", version=1, token="t1", expires_at=120, created_at=100)
++    sessions.append_session("s1", version=2, token="t2", expires_at=400, created_at=130)
++    result = sessions.refresh("s1", now=150)
++    assert result["status"] == 200
++    assert result["token"] == "t2"
+
+diff --git a/skills/debug-loop/evals/fixtures/pricing-regression/pricing.py b/skills/debug-loop/evals/fixtures/pricing-regression/pricing.py
+new file mode 100644
+index 0000000..fdf909f
+--- /dev/null
++++ b/skills/debug-loop/evals/fixtures/pricing-regression/pricing.py
+@@ -0,0 +1,11 @@
++def line_total(unit_price, qty, discount_pct):
++    """Price for one order line, in dollars, rounded to the cent."""
++    return round(unit_price * qty * (1 - discount_pct / 100), 2)
++
++
++def order_total(lines):
++    """lines is a list of (unit_price, qty, discount_pct) tuples."""
++    total = 0.0
++    for unit_price, qty, discount_pct in lines:
++        total += line_total(unit_price, qty, discount_pct)
++    return round(total, 2)
+
+diff --git a/skills/debug-loop/evals/fixtures/pricing-regression/tests/test_pricing.py b/skills/debug-loop/evals/fixtures/pricing-regression/tests/test_pricing.py
+new file mode 100644
+index 0000000..4166a71
+--- /dev/null
++++ b/skills/debug-loop/evals/fixtures/pricing-regression/tests/test_pricing.py
+@@ -0,0 +1,23 @@
++import sys, os
++
++sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++
++import pricing
++
++
++def test_no_discount():
++    assert pricing.line_total(9.99, 2, 0) == 19.98
++
++
++def test_whole_cent_discount():
++    assert pricing.line_total(10.00, 2, 50) == 10.00
++
++
++def test_half_cent_rounds_up():
++    # 0.70 * 3 = 2.10, less 5% = 1.995, which bills as 2.00
++    assert pricing.line_total(0.70, 3, 5) == 2.00
++
++
++def test_order_total():
++    lines = [(0.70, 3, 5), (10.00, 2, 50)]
++    assert pricing.order_total(lines) == 12.00
+
+diff --git a/skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py b/skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py
+new file mode 100644
+index 0000000..c1e97db
+--- /dev/null
++++ b/skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py
+@@ -0,0 +1,23 @@
++"""Attach customer records to orders for the nightly report."""
++
++
++def index_customers(customers):
++    """Return the customer records the enrichment step searches."""
++    return [dict(c) for c in customers]
++
++
++def enrich_orders(orders, customers):
++    """Attach the matching customer to every order.
++
++    Orders whose customer_id is unknown get customer=None.
++    """
++    index = index_customers(customers)
++    enriched = []
++    for order in orders:
++        match = None
++        for customer in index:
++            if customer["id"] == order["customer_id"]:
++                match = customer
++                break
++        enriched.append({**order, "customer": match})
++    return enriched
+
+diff --git a/skills/debug-loop/evals/fixtures/slow-enrichment/run_nightly.py b/skills/debug-loop/evals/fixtures/slow-enrichment/run_nightly.py
+new file mode 100644
+index 0000000..ea8c5d0
+--- /dev/null
++++ b/skills/debug-loop/evals/fixtures/slow-enrichment/run_nightly.py
+@@ -0,0 +1,32 @@
++"""Nightly enrichment job. Prints the row count and the elapsed seconds."""
++
++import time
++
++from enrich import enrich_orders
++
++CUSTOMER_COUNT = 20000
++ORDER_COUNT = 20000
++
++
++def build_input():
++    customers = [
++        {"id": i, "name": f"customer-{i}", "tier": "gold" if i % 3 == 0 else "standard"}
++        for i in range(CUSTOMER_COUNT)
++    ]
++    orders = [
++        {"id": 100000 + i, "customer_id": (i * 7919) % CUSTOMER_COUNT, "total_cents": 500 + i}
++        for i in range(ORDER_COUNT)
++    ]
++    return orders, customers
++
++
++def main():
++    orders, customers = build_input()
++    start = time.perf_counter()
++    rows = enrich_orders(orders, customers)
++    elapsed = time.perf_counter() - start
++    print(f"enriched {len(rows)} orders in {elapsed:.2f}s")
++
++
++if __name__ == "__main__":
++    main()
+
+diff --git a/skills/debug-loop/evals/fixtures/slow-enrichment/tests/test_enrich.py b/skills/debug-loop/evals/fixtures/slow-enrichment/tests/test_enrich.py
+new file mode 100644
+index 0000000..3d48709
+--- /dev/null
++++ b/skills/debug-loop/evals/fixtures/slow-enrichment/tests/test_enrich.py
+@@ -0,0 +1,28 @@
++import sys, os
++
++sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++
++from enrich import enrich_orders
++
++CUSTOMERS = [
++    {"id": 1, "name": "ada", "tier": "gold"},
++    {"id": 2, "name": "bo", "tier": "standard"},
++]
++
++
++def test_attaches_matching_customer():
++    rows = enrich_orders([{"id": 9, "customer_id": 2}], CUSTOMERS)
++    assert rows[0]["customer"]["name"] == "bo"
++
++
++def test_unknown_customer_is_none():
++    rows = enrich_orders([{"id": 9, "customer_id": 77}], CUSTOMERS)
++    assert rows[0]["customer"] is None
++
++
++def test_preserves_order_fields_and_count():
++    orders = [{"id": 9, "customer_id": 1, "total_cents": 500}, {"id": 10, "customer_id": 2}]
++    rows = enrich_orders(orders, CUSTOMERS)
++    assert len(rows) == 2
++    assert rows[0]["total_cents"] == 500
++    assert [r["id"] for r in rows] == [9, 10]

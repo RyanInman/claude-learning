@@ -1,0 +1,16 @@
+{
+  "summary": "New file adds a JSON array of 20 trigger-eval queries for the debug-loop skill. Each entry pairs a natural-language user request with a should_trigger boolean. Eleven positives cover build failures, red tests, pasted tracebacks, regressions, CI failures, a trivial typo, a restart after failed fixes, intermittent login bounces, a latency regression, and a nightly queue backup. Nine negatives cover feature work, PR review, refactoring, TDD, error-handling cleanup, code walkthroughs, lint noise, brainstorming, and theory questions. No harness or scoring logic appears in the chunk; the file is data only.",
+  "claims": [
+    {"text": "File is new (created from /dev/null) with 82 added lines.", "anchor": "skills/debug-loop/evals/eval_queries.json:1", "status": "verified"},
+    {"text": "Array holds 20 entries, each with exactly the keys query and should_trigger.", "anchor": "skills/debug-loop/evals/eval_queries.json:7", "status": "verified"},
+    {"text": "11 entries set should_trigger true, 9 set false.", "anchor": "skills/debug-loop/evals/eval_queries.json:8", "status": "verified"},
+    {"text": "A trivial typo fix is expected to trigger the skill (positive case).", "anchor": "skills/debug-loop/evals/eval_queries.json:33", "status": "verified"},
+    {"text": "A 'broken by design' walkthrough request is expected not to trigger despite the word 'broken'.", "anchor": "skills/debug-loop/evals/eval_queries.json:73", "status": "verified"},
+    {"text": "The traceback query embeds escaped newlines and quotes and is valid JSON.", "anchor": "skills/debug-loop/evals/eval_queries.json:25", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/eval_queries.json:77", "note": "Lint failures marked non-triggering; if the linter blocks CI this overlaps with the positive CI-failure case at line 29, so the boundary is judgment-based and may flake."},
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/eval_queries.json:73", "note": "Negative case relies on subtle intent ('before I touch it'); a classifier keyed on 'broken' will likely misfire."}
+  ],
+  "least_confident": "Whether the expected should_trigger labels match the skill's actual trigger description, since the SKILL.md is not in this chunk."
+}

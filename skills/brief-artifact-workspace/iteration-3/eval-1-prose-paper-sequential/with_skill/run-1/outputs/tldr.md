@@ -1,0 +1,5 @@
+- The report argues reviewers should read re-presentations of AI code, not raw diffs: spec before code, AI self-explanation with a least-confident section, tests as specs, ~200 LOC risk-tiered chunks, adversarial second-model checks.
+- Grounds: working memory holds ~4 chunks, defect detection collapses past 400 LOC and 60-90 minutes, and AI code triggers over-trust (Stanford CCS 2023) while carrying ~1.87x human redundancy (MSR 2026).
+- Package hallucination is a live supply-chain risk: 19.7% fictitious packages across 16 LLMs (USENIX 2025), frontier models still 4.6-6.1% in 2026; validate package existence in CI before raising agent autonomy.
+- Action plan: this week cap units at 200 LOC and name one human per PR; this quarter go spec-driven with an adversarial pass; tighten review if AI churn exceeds ~1.5x baseline.
+- One internal inconsistency: the EASE 2026 direct-review share of human comments on AI PRs is given as both 64.53% and 65.53% in the same paragraph (L84). Most Recommendations thresholds are uncited.

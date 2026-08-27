@@ -1,0 +1,17 @@
+{
+  "summary": "Adds three new eval fixtures for the debug-loop skill, each a small Python module plus pytest tests. expired-sessions: an append-only in-memory session store where get_session picks the newest row by created_at and refresh returns 404/401/200. pricing-regression: line_total rounds unit_price*qty*(1-discount) to cents; order_total sums rounded lines. slow-enrichment: enrich_orders does a linear scan over a copied customer list per order (O(n*m)); run_nightly.py drives it with 20000 orders and 20000 customers and prints elapsed time. Each fixture appears designed to carry a planted bug or performance flaw for the eval to diagnose. Tests insert the parent dir on sys.path and import the module directly.",
+  "claims": [
+    {"text": "get_session returns the row with the max created_at, not the max version, despite the docstring saying created_at has one-second resolution (ties between refresh rows are unresolved).", "anchor": "sessions.py:37 vs sessions.py:9-11", "status": "verified"},
+    {"text": "refresh returns 401 when expires_at <= now, 404 when no row exists, else 200 with the token.", "anchor": "sessions.py:43-47", "status": "verified"},
+    {"text": "test_half_cent_rounds_up expects line_total(0.70,3,5) == 2.00, but round() uses banker's rounding on a float near 1.995, so this test likely fails (intended regression).", "anchor": "tests/test_pricing.py:126-128", "status": "unverified"},
+    {"text": "enrich_orders performs a nested linear scan over the customer list for every order.", "anchor": "enrich.py:154-161", "status": "verified"},
+    {"text": "run_nightly builds 20000 customers and 20000 orders and prints row count and elapsed seconds.", "anchor": "run_nightly.py:177-198", "status": "verified"},
+    {"text": "test_refreshed_session_uses_new_row expects the version-2 row with later created_at to win.", "anchor": "tests/test_sessions.py:80-85", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "sessions.py:37", "note": "Two rows with equal created_at (one-second resolution) are ordered by max() insertion tie-break, not by version; stale row can win. Likely the planted bug."},
+    {"kind": "missing-edge-case", "anchor": "pricing.py:95", "note": "round() on binary float 1.995 does not reliably round half up; test at test_pricing.py:128 may fail. Likely the planted regression."},
+    {"kind": "duplicate-logic", "anchor": "enrich.py:146", "note": "index_customers returns a list copy, not a dict index; name implies indexing but scan is O(n*m). Likely the planted perf flaw."}
+  ],
+  "least_confident": "Whether the pricing test and sessions tie-case are intended to fail as fixture bugs, since the chunk does not include the eval prompts or expected outcomes."
+}

@@ -1,0 +1,5 @@
+- The report argues that reviewing AI code as a raw diff fails; review re-presentations instead: spec before code, AI self-explanation, tests as specs, ~200 LOC risk-tiered chunks, layered summaries, adversarial second model.
+- Evidence: defect detection collapses past 400 LOC and 60-90 minutes (SmartBear/Cisco); AI-assisted developers write less secure code while feeling more secure (Stanford CCS 2023); AI code runs ~1.87x human redundancy (MSR 2026).
+- Package hallucination is a live supply-chain risk: 19.7% fictitious packages across 16 LLMs (USENIX 2025), frontier models still ~4.6-6.1%; validate package existence in CI before raising agent autonomy.
+- One internal inconsistency: the EASE 2026 direct-review share of human comments on AI PRs appears as both 64.53% and 65.53% in the same paragraph.
+- Three-stage plan: cap review units and name one accountable human now; spec-driven review plus adversarial pass this quarter; auto summaries and churn tracking ongoing. Thresholds are author judgment, not sourced.

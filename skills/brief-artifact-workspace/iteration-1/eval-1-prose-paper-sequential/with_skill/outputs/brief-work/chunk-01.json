@@ -1,0 +1,24 @@
+{
+  "summary": "Opens the report. Argues that reviewing AI code as a raw diff fails because comprehension, not generation, is the bottleneck, and that reviewers should read re-presentations instead: plans, self-explanations, tests, layered summaries, diagrams, adversarial back-translation. Grounds this in cognitive science (four-chunk working memory, cognitive load theory, top-down comprehension via beacons, dual coding) and in code-review empirics (SmartBear/Cisco size and speed limits, author annotation, checklists, Bacchelli & Bird on review as comprehension). Adds AI-specific evidence: Perry et al. over-trust, Pearce et al. 40% vulnerable suggestions, GitClear duplication trends, MSR 2026 reviewer blind spot.",
+  "claims": [
+    {"text": "Defect detection is highest under 200 LOC per review and falls off past 400 LOC; 200-400 LOC over 60-90 minutes yields 70-90% defect discovery", "anchor": "Key Findings > 2 (L12)", "status": "verified"},
+    {"text": "Reviewers faster than 450 lines/hour had below-average defect density in 87% of cases", "anchor": "Key Findings > 2 (L12)", "status": "verified"},
+    {"text": "AI-assisted participants wrote significantly less secure code yet were more likely to believe they wrote secure code (Perry et al., CCS 2023, 47 participants)", "anchor": "Key Findings > 3 (L14)", "status": "verified"},
+    {"text": "39.33% of top Copilot suggestions across 89 scenarios (1,689 programs) were vulnerable (Pearce et al., IEEE S&P 2022)", "anchor": "Key Findings > 4 (L16)", "status": "verified"},
+    {"text": "Moved/refactored code fell from 24.8% (2021) to 9.5% (2024); copy/paste rose from 8.4% to 12.3%; 5+ line duplicate blocks rose eightfold in 2024 (GitClear 2025, 211M lines)", "anchor": "Key Findings > 4 (L16)", "status": "verified"},
+    {"text": "AI agents' Average Max Redundancy was 0.2867 vs 0.1532 for humans (~1.87x, p<0.001), yet reviewers express more positive sentiment toward AI PRs (Huang et al., MSR 2026)", "anchor": "Key Findings > 6 (L20)", "status": "verified"},
+    {"text": "Usable working memory is about four chunks, revised down from 7+/-2", "anchor": "Details > 1 > Cognitive load theory (L26)", "status": "unverified"},
+    {"text": "Pairing a diagram with concise text measurably improves comprehension and recall over text alone", "anchor": "Details > 1 > Dual coding (L32)", "status": "unverified"},
+    {"text": "Authors who annotated changes before review produced markedly lower defect densities (Cisco data)", "anchor": "Details > 2 > Author annotation (L40)", "status": "unverified"},
+    {"text": "Checklist-based reading beats ad-hoc on effectiveness, efficiency, and false positives, especially for omissions", "anchor": "Details > 2 > Checklists vs ad-hoc (L41)", "status": "unverified"},
+    {"text": "In Bacchelli & Bird (ICSE 2013), defect comments were only about one-eighth of the sample and understanding is the key aspect of review", "anchor": "Details > 2 > What review is really for (L43)", "status": "verified"},
+    {"text": "Developers spend a majority of their time reading rather than writing code", "anchor": "Key Findings > 1 (L10)", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "Key Findings > 1 (L10)", "note": "The 'majority of time reading' figure names no study."},
+    {"kind": "unsupported-claim", "anchor": "Key Findings > 5 (L18)", "note": "Asserts re-presentation converts extraneous into germane load without citing a study that measured it on code review."},
+    {"kind": "unsupported-claim", "anchor": "Details > 2 > Author annotation (L40)", "note": "The annotation mechanism ('forces self-review') is asserted, and the magnitude ('markedly lower') has no number."},
+    {"kind": "uncited-number", "anchor": "Details > 1 > Reading vs writing (L34)", "note": "'Volume is now many times larger' has no source."}
+  ],
+  "least_confident": "Whether the 'four chunks' working-memory figure and the annotation finding in the Cisco data are as settled as the chunk presents; neither cites a specific source in this chunk."
+}

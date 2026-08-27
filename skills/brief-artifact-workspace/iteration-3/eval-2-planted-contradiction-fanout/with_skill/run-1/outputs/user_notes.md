@@ -1,0 +1,3 @@
+- The SKILL.md brief path convention is `X.brief.md` beside the source; the task asked for `brief.md` in the outputs dir, so the render wrote there and evals/fixtures/ stays untouched.
+- Chunk JSON files were copied from brief-work/ to the outputs root so both locations hold them.
+- transcript_chars is an estimate.

@@ -1,0 +1,211 @@
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/grading.json b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/grading.json
+new file mode 100644
+index 0000000..24d634d
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 3,
++  "eval_name": "trivial-typo-fast-path",
++  "config": "without_skill",
++  "expectations": [
++    {
++      "text": "Takes the fast path: a short brief of about three lines, with no ranked hypothesis list",
++      "passed": true,
++      "evidence": "No brief, but the 7-line response carries no ceremony either, which is the behavior this expectation is guarding"
++    },
++    {
++      "text": "Adds no instrumentation, no new test file, and no revert-to-red check",
++      "passed": true,
++      "evidence": "No instrumentation, no new test file, no revert check"
++    },
++    {
++      "text": "Fixes the typo in slug.py and changes nothing else in the source",
++      "passed": true,
++      "evidence": "One-character fix at slug.py:7; rest of the source byte-identical to the fixture"
++    },
++    {
++      "text": "Leaves tests/test_slug.py unmodified",
++      "passed": true,
++      "evidence": "tests/test_slug.py byte-identical to the fixture"
++    },
++    {
++      "text": "Shows the passing pytest output as evidence",
++      "passed": true,
++      "evidence": "Reports 3 passed"
++    }
++  ],
++  "passed": 5,
++  "total": 5,
++  "summary": {
++    "passed": 5,
++    "failed": 0,
++    "total": 5,
++    "pass_rate": 1.0
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/metrics.json b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/metrics.json
+new file mode 100644
+index 0000000..3afaca9
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/metrics.json
+@@ -0,0 +1,19 @@
++{
++  "tool_calls": {
++    "Bash": 2,
++    "Read": 1,
++    "Edit": 1,
++    "Write": 3
++  },
++  "total_tool_calls": 7,
++  "total_steps": 7,
++  "files_created": [
++    "outputs/response.md",
++    "outputs/transcript-notes.md",
++    "outputs/metrics.json",
++    "outputs/project/.gitignore"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 163,
++  "transcript_chars": 546
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/project b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/project
+new file mode 160000
+index 0000000..e865892
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/project
+@@ -0,0 +1 @@
++Subproject commit e865892e2942b88414c4ac462ad303b4df034d60-dirty
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/response.md b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/response.md
+new file mode 100644
+index 0000000..1712953
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/response.md
+@@ -0,0 +1,7 @@
++Fixed. `slug.py:7` called `.stip()` instead of `.strip()`.
++
++```python
++cleaned = _NON_WORD.sub("-", text.lower().strip())
++```
++
++`python3 -m pytest -q` → 3 passed.
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/transcript-notes.md b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/transcript-notes.md
+new file mode 100644
+index 0000000..a7051ba
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/transcript-notes.md
+@@ -0,0 +1,9 @@
++# Transcript notes
++
++1. Bash: `cp -R .../fixtures/slug-typo .../outputs/project && cd project && git init -q && printf '__pycache__/\n.pytest_cache/\n' > .gitignore && git add -A && git commit -qm baseline && ls -la`
++2. Read: `project/slug.py` (9 lines) — saw `text.lower().stip()` on line 7.
++3. Edit: `project/slug.py` — `text.lower().stip()` → `text.lower().strip()`
++4. Bash: `python3 -m pytest -q` in project → `3 passed in 0.00s`
++5. Write: `outputs/response.md`
++6. Write: `outputs/transcript-notes.md`
++7. Write: `outputs/metrics.json`
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/grading.json b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/grading.json
+new file mode 100644
+index 0000000..24d634d
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 3,
++  "eval_name": "trivial-typo-fast-path",
++  "config": "without_skill",
++  "expectations": [
++    {
++      "text": "Takes the fast path: a short brief of about three lines, with no ranked hypothesis list",
++      "passed": true,
++      "evidence": "No brief, but the 7-line response carries no ceremony either, which is the behavior this expectation is guarding"
++    },
++    {
++      "text": "Adds no instrumentation, no new test file, and no revert-to-red check",
++      "passed": true,
++      "evidence": "No instrumentation, no new test file, no revert check"
++    },
++    {
++      "text": "Fixes the typo in slug.py and changes nothing else in the source",
++      "passed": true,
++      "evidence": "One-character fix at slug.py:7; rest of the source byte-identical to the fixture"
++    },
++    {
++      "text": "Leaves tests/test_slug.py unmodified",
++      "passed": true,
++      "evidence": "tests/test_slug.py byte-identical to the fixture"
++    },
++    {
++      "text": "Shows the passing pytest output as evidence",
++      "passed": true,
++      "evidence": "Reports 3 passed"
++    }
++  ],
++  "passed": 5,
++  "total": 5,
++  "summary": {
++    "passed": 5,
++    "failed": 0,
++    "total": 5,
++    "pass_rate": 1.0
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/metrics.json b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/metrics.json
+new file mode 100644
+index 0000000..3afaca9
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/metrics.json
+@@ -0,0 +1,19 @@
++{
++  "tool_calls": {
++    "Bash": 2,
++    "Read": 1,
++    "Edit": 1,
++    "Write": 3
++  },
++  "total_tool_calls": 7,
++  "total_steps": 7,
++  "files_created": [
++    "outputs/response.md",
++    "outputs/transcript-notes.md",
++    "outputs/metrics.json",
++    "outputs/project/.gitignore"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 163,
++  "transcript_chars": 546
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/timing.json b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/timing.json
+new file mode 100644
+index 0000000..1826a1b
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 28304, "duration_ms": 34125, "total_duration_seconds": 34.1}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/timing.json b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/timing.json
+new file mode 100644
+index 0000000..1826a1b
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 28304, "duration_ms": 34125, "total_duration_seconds": 34.1}
+
+diff --git a/skills/debug-loop/.gitignore b/skills/debug-loop/.gitignore
+new file mode 100644
+index 0000000..75c6182
+--- /dev/null
++++ b/skills/debug-loop/.gitignore
+@@ -0,0 +1,3 @@
++__pycache__/
++*.pyc
++.pytest_cache/

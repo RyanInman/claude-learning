@@ -1,0 +1,25 @@
+{
+  "summary": "The Reconciliation section states one substantive point: a nightly job compares ledger totals against the bank feed and opens a ticket on any mismatch. The rest of the chunk is boilerplate operational sentences repeated many times in shuffled order: structured logging with request ids on every write path, low-priority backfills, per-region dashboards, schema review for index impact, a three-phase no-downtime migration, health and readiness endpoints, ninety-day secret rotation, a 200 ms p95 read latency target, unit test coverage of parser/validator/posting logic, single YAML config, alerts to the payments channel paging after five minutes, and a spring planning review. No evidence, data, or sources appear anywhere in the chunk.",
+  "claims": [
+    {"text": "A nightly job compares ledger totals against the bank feed and opens a ticket on any mismatch.", "anchor": "Reconciliation L3", "status": "unverified"},
+    {"text": "Every write path emits a structured log line with the request id.", "anchor": "Reconciliation L5", "status": "unverified"},
+    {"text": "Backfills run at low priority so they do not starve live traffic.", "anchor": "Reconciliation L5", "status": "unverified"},
+    {"text": "Dashboards show throughput, error rate, and queue depth per region.", "anchor": "Reconciliation L5", "status": "unverified"},
+    {"text": "Schema changes go through a review that checks index impact.", "anchor": "Reconciliation L5", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "Reconciliation L5", "status": "unverified"},
+    {"text": "The service exposes health and readiness endpoints for the orchestrator.", "anchor": "Reconciliation L5", "status": "unverified"},
+    {"text": "The team reviewed this design in the spring planning cycle.", "anchor": "Reconciliation L7", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "Reconciliation L7", "status": "unverified"},
+    {"text": "Latency targets stay under 200 ms at the 95th percentile for reads.", "anchor": "Reconciliation L7", "status": "unverified"},
+    {"text": "Unit tests cover the parser, the validator, and the posting logic.", "anchor": "Reconciliation L7", "status": "unverified"},
+    {"text": "Configuration lives in a single YAML file loaded at startup.", "anchor": "Reconciliation L7", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "Reconciliation L7", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "Reconciliation L7", "note": "200 ms p95 read latency target stated with no measurement or source."},
+    {"kind": "uncited-number", "anchor": "Reconciliation L7", "note": "Ninety-day secret rotation and five-minute page delay stated without policy reference."},
+    {"kind": "unsupported-claim", "anchor": "Reconciliation L5", "note": "Migration claimed to run in three phases over two weekends without downtime; no dates, metrics, or postmortem cited."},
+    {"kind": "unsupported-claim", "anchor": "Reconciliation L3", "note": "Nightly reconciliation job described with no schedule, tolerance threshold, or ticket destination; heading topic gets one sentence while the rest is repeated filler unrelated to reconciliation."}
+  ],
+  "least_confident": "I could not tell whether the heavy sentence repetition is intentional padding or a corrupted document, and no reconciliation specifics (mismatch tolerance, ticket target) exist to check."
+}

@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "prose-paper-sequential",
+  "prompt": "brief me on resources/human-level-ai-review.md, I don't have time to read the whole thing",
+  "expectations": [
+    "Output brief.md exists and contains sections TL;DR, Claims, Risks, Least confident",
+    "Every claim row has a source anchor (line number or heading)",
+    "Each claim carries a status of verified, unverified, or contradicted",
+    "Brief is at most 1/3 the word count of the source (about 1066 words of 3200)",
+    "TL;DR has 5 or fewer bullets and names the comprehension bottleneck thesis"
+  ]
+}

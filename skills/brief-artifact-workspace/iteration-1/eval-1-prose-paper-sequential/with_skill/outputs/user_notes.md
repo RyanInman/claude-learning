@@ -1,0 +1,3 @@
+- Brief written to outputs dir as brief.md instead of resources/human-level-ai-review.md.brief.md, per task instruction (no new files in resources/).
+- The one contradicted claim is intra-chunk (chunk-02, L41 of chunk = L84 of source): 64.53% vs 65.53% for direct-review share of human comments on AI PRs. Marked both claims contradicted with an "A vs B" anchor citing the two quoted figures.
+- transcript_chars is an estimate.

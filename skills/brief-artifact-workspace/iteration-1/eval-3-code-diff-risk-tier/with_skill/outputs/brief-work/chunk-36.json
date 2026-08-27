@@ -1,0 +1,58 @@
+{
+  "summary": "This chunk adds output/grading artifacts for a 'without_skill' debug-loop eval (eval-0-vague-login-failure). It includes the agent's response.md (diagnosing a session-tie bug where get_session picked a stale row on same-second created_at ties, fixed by keying on version instead), transcript-notes.md and user_notes.md documenting the process and assumptions, plus grading.json (2/5 expectations passed: no debug brief, no ranked hypotheses, no shown red test run, but root-cause fix and pytest evidence passed), metrics.json, and two identical timing.json files. It also adds eval_metadata.json defining a new eval (eval-1-pasted-traceback) about a KeyError from a BOM-prefixed CSV export.",
+  "claims": [
+    {
+      "text": "get_session originally selected the row with max(created_at), and one-second timestamp resolution caused ties that resolved to the older/stale row",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/response.md:1+",
+      "status": "verified"
+    },
+    {
+      "text": "The fix changes get_session to key on r['version'] alone rather than a (created_at, version) tuple, to also be immune to backwards clock adjustments",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/response.md:1+",
+      "status": "verified"
+    },
+    {
+      "text": "Three regression tests were added and the full suite shows 7 passed",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/response.md:1+",
+      "status": "verified"
+    },
+    {
+      "text": "Transcript notes describe an initial fix using key=(created_at, version), later simplified to key=version alone, with pytest runs (4 passed baseline, 1 failed/5 passed after adding tests, 6 passed after tuple fix, 7 passed after final fix)",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/transcript-notes.md:1+",
+      "status": "verified"
+    },
+    {
+      "text": "The without_skill run failed 3 of 5 grading expectations: no debug brief before editing, no ranked hypotheses before first edit, and no shown red test run before the fix",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/grading.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "The run passed 2 of 5 expectations: fixing root cause via version-based ordering, and showing real pytest output as evidence",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/grading.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "The run used 15 total tool calls (6 Bash, 2 Read, 4 Edit, 3 Write) across 16 steps with 0 errors",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/metrics.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "The run consumed 36283 total tokens over a duration of 115867 ms (115.9 seconds)",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/timing.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "A new eval, eval-1-pasted-traceback, is defined with a prompt about a KeyError: 'region' crash and expectations including identifying a UTF-8 BOM in the export header as the cause and adding a BOM regression test",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/eval_metadata.json:1+",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "duplicate-logic",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/timing.json:1+ vs skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/timing.json:1+",
+      "note": "Two timing.json files with identical byte content ({\"total_tokens\": 36283, \"duration_ms\": 115867, \"total_duration_seconds\": 115.9}) are added at different paths (run-1/ and the parent outputs level), suggesting duplicated/redundant data files."
+    }
+  ],
+  "least_confident": "I could not determine why timing.json is duplicated at both the run-1/ and parent outputs/ directory levels, since the chunk shows only the added files and not the harness logic that produces them."
+}

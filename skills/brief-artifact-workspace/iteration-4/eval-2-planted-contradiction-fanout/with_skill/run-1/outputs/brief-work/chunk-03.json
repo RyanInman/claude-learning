@@ -1,0 +1,53 @@
+{
+  "summary": "The section states the risk-engine timeout (30 seconds) and retry policy (two retries with backoff), then fills five paragraphs with repeated boilerplate sentences about dashboards, low-priority backfills, structured logging, alerting, secret rotation, schema review, a 200 ms p95 read latency target, YAML config, health endpoints, unit test coverage, and a three-phase migration. No sentence is supported by data or citation, and the filler is heavily duplicated.",
+  "claims": [
+    {
+      "text": "Downstream calls to the risk engine time out after 30 seconds; the client retries twice with backoff.",
+      "anchor": "L37 'time out after 30 seconds' vs L85 'timeout is 90 seconds'",
+      "status": "contradicted"
+    },
+    {
+      "text": "Alerts route to the payments channel and page after five minutes.",
+      "anchor": "39",
+      "status": "unverified"
+    },
+    {
+      "text": "Secrets rotate every ninety days through the platform vault.",
+      "anchor": "41",
+      "status": "unverified"
+    },
+    {
+      "text": "Read latency target is under 200 ms at the 95th percentile.",
+      "anchor": "43",
+      "status": "unverified"
+    },
+    {
+      "text": "The migration ran in three phases over two weekends without downtime.",
+      "anchor": "39",
+      "status": "unverified"
+    },
+    {
+      "text": "Unit tests cover the parser, the validator, and the posting logic.",
+      "anchor": "39",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "37",
+      "note": "30-second timeout and two retries stated without rationale or source."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "43",
+      "note": "200 ms p95 target given with no measurement or data."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "39",
+      "note": "Migration claimed complete without downtime; no evidence. Paragraphs are repeated boilerplate, likely padding."
+    }
+  ],
+  "least_confident": "Whether 30-second timeout with two retries conflicts with the 200 ms latency target or with timeouts stated elsewhere in the document, which this chunk cannot show."
+}

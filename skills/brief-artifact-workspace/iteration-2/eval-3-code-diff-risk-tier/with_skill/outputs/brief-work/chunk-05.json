@@ -1,0 +1,18 @@
+{
+  "summary": "Adds a new 254-line skills/debug-loop/SKILL.md. Frontmatter declares the skill, its trigger phrases, and states it supersedes the diagnose skill. The body prescribes a debugging procedure: Step 0 gathers symptom, repro, check, and scope; Step 1 emits a fixed Debug Brief template with 2-4 ranked hypotheses; Step 1a is a fast path for small bugs meeting three conditions; Step 2 reproduces and commits a failing test before any fix; Step 3 instruments (profiler for latency, subagent for wide search); Step 4 makes one change and runs the check; Step 5 verifies via full check, revert, and conditional subagent review; Step 6 hands off with a template after two failed fixes. Ends with a worked example, gotchas, and pointers to references/tactics.md.",
+  "claims": [
+    {"text": "Skill supersedes the diagnose skill; when both match, run debug-loop only.", "anchor": "skills/debug-loop/SKILL.md:18", "status": "unverified"},
+    {"text": "Fast path applies only when all three conditions hold: error names file and line, line explains failure, fix touches one place.", "anchor": "skills/debug-loop/SKILL.md:95-99", "status": "verified"},
+    {"text": "Committing the failing test before the fix overrides the usual commit-only-when-asked default.", "anchor": "skills/debug-loop/SKILL.md:119", "status": "verified"},
+    {"text": "Reset trigger fires after 2 failed fixes on the same issue.", "anchor": "skills/debug-loop/SKILL.md:80", "status": "verified"},
+    {"text": "references/tactics.md contains sections 'Building a check when none exists', 'Locating a regression with git bisect', and 'Catching a fix that overfits the test'.", "anchor": "skills/debug-loop/SKILL.md:52-55", "status": "unverified"},
+    {"text": "/rewind checkpoints track only file-editing-tool edits, not shell-command changes.", "anchor": "skills/debug-loop/SKILL.md:247", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "skills/debug-loop/SKILL.md:52-55", "note": "References sections of references/tactics.md that are not in this chunk; existence and names cannot be confirmed here."},
+    {"kind": "unsupported-claim", "anchor": "skills/debug-loop/SKILL.md:18", "note": "Supersession of diagnose relies on a description-level instruction; no mechanism in the chunk enforces that only one skill runs."},
+    {"kind": "unsupported-claim", "anchor": "skills/debug-loop/SKILL.md:247", "note": "Claim about /rewind checkpoint behavior is stated without a source."},
+    {"kind": "uncited-number", "anchor": "skills/debug-loop/SKILL.md:246", "note": "'Run a flaky check five times' is a bare number with no rationale."}
+  ],
+  "least_confident": "Whether references/tactics.md exists with the section titles cited, and whether the /rewind checkpoint claim is accurate, since neither is visible in this chunk."
+}

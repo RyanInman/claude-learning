@@ -1,0 +1,19 @@
+{
+  "summary": "This chunk adds four new files for the eval-2 oncall-plan-redteam without_skill run: a grading.json scoring the without_skill report against 6 expectations (5 passed, 1 failed, listing factual claim verifications), two duplicate timing.json files (81.5s, 29650 tokens), and a shared feedback.json recording reviewer feedback for four runs across eval-1 and eval-2, comparing with_skill vs without_skill reports on coverage, severity calibration, and cost.",
+  "claims": [
+    {"text": "grading.json: 5 of 6 expectations passed for the without_skill run", "anchor": "grading.json:2-77 summary block", "status": "verified"},
+    {"text": "The retest-list expectation failed because remediations are not framed as re-checks of the findings", "anchor": "grading.json line for 'Report contains a retest list' passed:false", "status": "verified"},
+    {"text": "Overlap runs 08:00-14:00 ET; nightly uncovered gap is six hours (20:00-02:00 ET / 02:00-08:00 CET)", "anchor": "grading.json claims block, first claim", "status": "verified"},
+    {"text": "Polish public holidays include May 1-3 and Aug 15 claim is marked verified:false due to May 2 not being statutory", "anchor": "chunk-14.txt:77 vs chunk-14.txt:80", "status": "contradicted"},
+    {"text": "Timing: run took 81.5s / 81548ms and used 29650 total tokens", "anchor": "run-1/timing.json:1-5 vs without_skill/timing.json:1-5", "status": "verified"},
+    {"text": "eval-2-oncall-plan-redteam with_skill report missed cross-shift handover, weekend/holiday misalignment, DST drift, and rollback criteria that the baseline (without_skill) caught", "anchor": "feedback.json 'eval-2-oncall-plan-redteam-with_skill' feedback entry", "status": "unverified"},
+    {"text": "with_skill run for eval-2 took 1204s vs 82s for without_skill (about 15x), using roughly 2x tokens, for narrower coverage", "anchor": "feedback.json 'eval-2-oncall-plan-redteam-with_skill' feedback entry", "status": "unverified"},
+    {"text": "eval-1-cache-design-redteam-without_skill and eval-2-oncall-plan-redteam-without_skill feedback entries are empty strings", "anchor": "feedback.json 'eval-1-cache-design-redteam-without_skill' and 'eval-2-oncall-plan-redteam-without_skill' feedback fields", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "duplicate-logic", "anchor": "run-1/timing.json:1-5 vs .../without_skill/timing.json:1-5", "note": "Identical timing.json content committed at two paths (per-run and rolled-up), a duplicated file rather than a single source of truth."},
+    {"kind": "uncited-number", "anchor": "feedback.json eval-2-oncall-plan-redteam-with_skill entry, '1204s vs 82s' and '2x tokens'", "note": "These comparison numbers appear only as prose in the feedback text with no accompanying data file in this chunk to verify them against."},
+    {"kind": "unsupported-claim", "anchor": "grading.json 'Industry floor for a sustainable on-call rotation is 4-6 engineers' claim", "note": "Verified as 'consistent with common SRE guidance' but no source is cited in the chunk beyond a parenthetical reference to 'the Google SRE book'."}
+  ],
+  "least_confident": "Whether the two empty-string feedback entries (eval-1-...-without_skill and eval-2-...-without_skill) are an intentional convention (baseline runs get no separate review) or missing data is not explained anywhere in the chunk."
+}

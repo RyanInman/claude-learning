@@ -1,0 +1,58 @@
+{
+  "summary": "Operations section of the ledger service design. States the risk engine timeout is 90 seconds and on-call should expect a 90 second stall before retry. Then lists operational facts, heavily repeated: per-region dashboards, three-phase migration with no downtime, low-priority backfills, health/readiness endpoints, single YAML config, 90-day secret rotation, alerts paging after five minutes, structured logs with request id, unit test coverage, 200 ms p95 read latency target, schema review for index impact, spring design review.",
+  "claims": [
+    {
+      "text": "Risk engine timeout is 90 seconds; a slow engine stalls 90 seconds before retry starts.",
+      "anchor": "L37 'time out after 30 seconds' vs L85 'timeout is 90 seconds'",
+      "status": "contradicted"
+    },
+    {
+      "text": "Migration ran in three phases over two weekends without downtime.",
+      "anchor": "87",
+      "status": "unverified"
+    },
+    {
+      "text": "Alerts route to the payments channel and page after five minutes.",
+      "anchor": "87",
+      "status": "unverified"
+    },
+    {
+      "text": "Latency target is under 200 ms at the 95th percentile for reads.",
+      "anchor": "89",
+      "status": "unverified"
+    },
+    {
+      "text": "Secrets rotate every ninety days through the platform vault.",
+      "anchor": "87",
+      "status": "unverified"
+    },
+    {
+      "text": "Unit tests cover the parser, the validator, and the posting logic.",
+      "anchor": "89",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "85",
+      "note": "90 second timeout stated without source; check against timeout values in other sections."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "89",
+      "note": "200 ms p95 read target has no measurement or source."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "87",
+      "note": "Zero-downtime three-phase migration asserted with no evidence."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "87",
+      "note": "Paragraphs repeat the same sentences many times; likely generated filler, content may be padding."
+    }
+  ],
+  "least_confident": "Whether the 90 second risk engine timeout at line 85 agrees with timeout values stated elsewhere in the document, which this chunk cannot show."
+}

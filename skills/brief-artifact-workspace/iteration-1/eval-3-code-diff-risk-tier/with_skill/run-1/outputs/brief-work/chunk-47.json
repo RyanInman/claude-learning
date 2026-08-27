@@ -1,0 +1,20 @@
+{
+  "summary": "This chunk adds new files for the 'vague-login-failure' eval run under the 'without_skill' config (iteration-2). It includes grading.json (2/5 expectations passed: no debug brief, no ranked hypotheses, and no failing test shown before the fix; root-cause fix and pytest evidence both passed), metrics.json (11 tool calls, 9 steps), a project subproject commit pointer, response.md describing a fix to sessions.py that breaks created_at ties using version, transcript-notes.md logging the debugging steps, and duplicate copies of grading.json/metrics.json/timing.json under a run-1/ subdirectory plus a top-level timing.json (31746 tokens, 70.2s).",
+  "claims": [
+    {"text": "The run failed to emit a debug brief before editing any source file", "anchor": "grading.json:8-12", "status": "verified"},
+    {"text": "The run did not list at least two ranked hypotheses before the first edit", "anchor": "grading.json:13-17", "status": "verified"},
+    {"text": "A regression test was added but not committed before the fix, and no red run is shown in grading evidence", "anchor": "grading.json:18-22 vs outputs/transcript-notes.md:5-9", "status": "contradicted"},
+    {"text": "The root cause fix keys get_session on (version, created_at) rather than patching created_at handling", "anchor": "grading.json:23-27", "status": "verified"},
+    {"text": "Final message reports real pytest output: 6 passed", "anchor": "grading.json:28-32", "status": "verified"},
+    {"text": "get_session previously used max(rows, key=lambda r: r[\"created_at\"]), causing same-second ties to resolve to the older, expired row", "anchor": "outputs/response.md:5-11", "status": "verified"},
+    {"text": "The fix changes get_session to key on (version, created_at) since version is strictly increasing per session_id", "anchor": "outputs/response.md:19-24", "status": "verified"},
+    {"text": "Full test suite reports 6 passed after the fix", "anchor": "outputs/response.md:31", "status": "verified"},
+    {"text": "Transcript notes show pytest run went from 4 passed (baseline) to 1 failed/5 passed (new test red) to 6 passed (after fix)", "anchor": "outputs/transcript-notes.md:5-9", "status": "verified"},
+    {"text": "Timing.json reports 31746 total tokens and 70.2 total duration seconds", "anchor": "timing.json:1", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "grading.json:18-22 vs outputs/transcript-notes.md:5-9", "note": "grading.json's evidence says the regression test was added but no red run is shown, yet transcript-notes.md explicitly logs a red run ('1 failed, 5 passed... new same-second test failed with assert 401 == 200')."},
+    {"kind": "duplicate-logic", "anchor": "run-1/grading.json:1+ vs grading.json:1+", "note": "Identical grading.json content duplicated at top level and under run-1/, same for metrics.json and timing.json."}
+  ],
+  "least_confident": "Whether the grading.json evidence ('no red run is shown') refers to a stricter standard (e.g., not shown in the final response.md rather than the transcript) than what transcript-notes.md documents, since the chunk doesn't clarify which artifact the grader inspected."
+}

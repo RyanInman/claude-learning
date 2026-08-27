@@ -1,0 +1,205 @@
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/response.md b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/response.md
+new file mode 100644
+index 0000000..e2d578b
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/response.md
+@@ -0,0 +1,58 @@
++Fixed. Root cause: `data/sales-2026-08.csv` starts with a UTF-8 BOM.
++
++## What was happening
++
++First 3 bytes of the export are `EF BB BF` (the UTF-8 byte order mark). Opening with `encoding="utf-8"` keeps the BOM as a literal `﻿` character, so `csv.DictReader` reads the first header as `"﻿region"` instead of `"region"`. `row["region"]` then misses → `KeyError: 'region'`.
++
++Verified with `xxd`:
++
++```
++$ xxd data/sales-2026-08.csv | head -1
++00000000: efbb bf72 6567 696f 6e2c 616d 6f75 6e74  ...region,amount
++
++$ xxd tests/data/clean.csv | head -1
++00000000: 7265 6769 6f6e 2c61 6d6f 756e 740a 6561  region,amount.ea
++```
++
++That is also why the suite was green: every test fixture is plain UTF-8 with no BOM, so the failing case was never covered. Whatever produced this month's export (Excel and several BI tools do this on "CSV UTF-8" save) added the BOM; the code never handled it.
++
++## The fix
++
++`report.py`, one line:
++
++```python
++-    with open(path, newline="", encoding="utf-8") as fh:
+++    with open(path, newline="", encoding="utf-8-sig") as fh:
++```
++
++`utf-8-sig` strips a leading BOM if present and is a no-op on files without one, so existing BOM-free exports keep working.
++
++## Regression test
++
++Added `tests/data/bom.csv` (identical to `clean.csv` but BOM-prefixed) and a test pinning the behavior:
++
++```python
++def test_utf8_bom_header_is_stripped():
++    totals = report.total_by_region(os.path.join(HERE, "data", "bom.csv"))
++    assert totals == {"east": 30.0, "west": 12.5}
++```
++
++Confirmed it fails on the old code (`KeyError: 'region'`) and passes on the new.
++
++## Verification
++
++```
++$ python3 -m pytest -q
++...                                                                      [100%]
++3 passed in 0.01s
++
++$ python3 report.py data/sales-2026-08.csv
++east	30.00
++west	12.50
++```
++
++Exit code 0.
++
++## Assumption
++
++I left the checked-in export file untouched rather than stripping its BOM, on the assumption you want the script to tolerate BOM-prefixed exports going forward instead of hand-cleaning each month's file. Say the word if you'd rather fix it upstream at the export step.
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/transcript-notes.md b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/transcript-notes.md
+new file mode 100644
+index 0000000..3068b17
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/transcript-notes.md
+@@ -0,0 +1,14 @@
++# Transcript notes
++
++1. `cp -R .../fixtures/csv-report .../outputs/project` — copy fixture.
++2. `git init -q && git add -A && git commit -qm baseline` in `project`.
++3. `find . -type f` — listed project files.
++4. Read `report.py` and `tests/test_report.py`.
++5. `xxd data/sales-2026-08.csv | head -5` and `xxd tests/data/clean.csv` — found `efbbbf` BOM on the export, absent from the test fixture. Hypothesis: BOM makes header key `﻿region`.
++6. `python3 report.py data/sales-2026-08.csv` — reproduced `KeyError: 'region'`, exit 1. `python3 -m pytest -q` — 2 passed (confirming suite misses the case).
++7. Created `tests/data/bom.csv` via python one-liner (clean.csv content + UTF-8 BOM); verified bytes with `xxd`.
++8. Edited `tests/test_report.py` — added `test_utf8_bom_header_is_stripped`.
++9. `python3 -m pytest -q` — 1 failed, 2 passed (red confirmed on unfixed code).
++10. Edited `report.py` — `encoding="utf-8"` → `encoding="utf-8-sig"` in `load()`.
++11. `python3 -m pytest -q` — 3 passed. `python3 report.py data/sales-2026-08.csv` — printed east 30.00 / west 12.50, exit 0.
++12. Wrote `response.md`, `transcript-notes.md`, `metrics.json` in outputs dir.
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/grading.json b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/grading.json
+new file mode 100644
+index 0000000..c3d5c16
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 1,
++  "eval_name": "pasted-traceback",
++  "config": "without_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": false,
++      "evidence": "No brief. Opens with 'Fixed. Root cause: ...'"
++    },
++    {
++      "text": "Reproduces the crash by running the exact failing command and shows the output",
++      "passed": true,
++      "evidence": "Reproduced and verified with xxd byte dumps of both the failing export and a clean fixture"
++    },
++    {
++      "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys",
++      "passed": true,
++      "evidence": "BOM identified with EF BB BF evidence and the reason the test suite missed it"
++    },
++    {
++      "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact",
++      "passed": true,
++      "evidence": "One-line change to encoding='utf-8-sig'"
++    },
++    {
++      "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing",
++      "passed": true,
++      "evidence": "Added tests/data/bom.csv plus a test, reports 3 passed and a clean CLI run"
++    }
++  ],
++  "passed": 4,
++  "total": 5,
++  "summary": {
++    "passed": 4,
++    "failed": 1,
++    "total": 5,
++    "pass_rate": 0.8
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/metrics.json b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/metrics.json
+new file mode 100644
+index 0000000..64b78e9
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/metrics.json
+@@ -0,0 +1,19 @@
++{
++  "tool_calls": {
++    "Bash": 5,
++    "Read": 2,
++    "Edit": 2,
++    "Write": 3
++  },
++  "total_tool_calls": 12,
++  "total_steps": 12,
++  "files_created": [
++    "project/tests/data/bom.csv",
++    "response.md",
++    "transcript-notes.md",
++    "metrics.json"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 2079,
++  "transcript_chars": 1177
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/timing.json b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/timing.json
+new file mode 100644
+index 0000000..05f1e7b
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 31480, "duration_ms": 66111, "total_duration_seconds": 66.1}
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/timing.json b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/timing.json
+new file mode 100644
+index 0000000..05f1e7b
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 31480, "duration_ms": 66111, "total_duration_seconds": 66.1}
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/eval_metadata.json b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/eval_metadata.json
+new file mode 100644
+index 0000000..eaa95b6
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/eval_metadata.json
+@@ -0,0 +1,22 @@
++{
++  "eval_id": 2,
++  "eval_name": "red-tests-after-merge",
++  "prompt": "Tests are red after I merged main: 2 failures in tests/test_pricing.py. Get them passing.",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
++    },
++    {
++      "text": "Leaves every assertion in tests/test_pricing.py unchanged"
++    },
++    {
++      "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance"
++    },
++    {
++      "text": "Explains why binary float rounding produced 1.99 instead of 2.00"
++    },
++    {
++      "text": "Shows the full pytest run passing as evidence in the final message"
++    }
++  ]
++}
+\ No newline at end of file

@@ -1,0 +1,17 @@
+{
+  "summary": "The Storage section states one concrete design fact: transfers live in a month-partitioned transfers table with a covering index on account_id. The rest is boilerplate repeated many times: structured logging with request ids, 90-day secret rotation via the vault, health/readiness endpoints, alerts paging after five minutes, schema review for index impact, sub-200 ms p95 read latency, single YAML config, low-priority backfills, unit test coverage, dashboards, and a three-phase zero-downtime migration.",
+  "claims": [
+    {"text": "Transfers table is partitioned by month with a covering index on account_id.", "anchor": "53", "status": "unverified"},
+    {"text": "Read latency target is under 200 ms at the 95th percentile.", "anchor": "55", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "55", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "55", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "55", "status": "unverified"},
+    {"text": "Configuration lives in a single YAML file loaded at startup.", "anchor": "57", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "55", "note": "200 ms p95 target, 90-day rotation, and five-minute paging stated without source or measurement."},
+    {"kind": "unsupported-claim", "anchor": "55", "note": "Migration claimed complete without downtime; no dates, metrics, or evidence given."},
+    {"kind": "unsupported-claim", "anchor": "57", "note": "Section is mostly duplicated filler sentences unrelated to storage; likely padding, little reviewable content."}
+  ],
+  "least_confident": "Whether the covering index on account_id is meant per partition or global, since the chunk gives no schema detail."
+}

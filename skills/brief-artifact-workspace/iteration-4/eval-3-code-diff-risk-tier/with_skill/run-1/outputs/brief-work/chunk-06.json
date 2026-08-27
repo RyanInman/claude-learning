@@ -1,0 +1,16 @@
+{
+  "summary": "Adds a new file skills/debug-loop/evals/eval_queries.json: a JSON array of 20 trigger-eval entries for the debug-loop skill. Each entry pairs a user query with a should_trigger boolean. Eleven positive cases cover build failures, red tests, tracebacks, CI logs, regressions, intermittent bugs, performance regressions, and retry-after-failure. Nine negative cases cover feature additions, PR review, refactoring, TDD, error-handling cleanup, code explanation, lint noise, brainstorming, and theory questions.",
+  "claims": [
+    {"text": "File is new; 82 lines added, none removed.", "anchor": "skills/debug-loop/evals/eval_queries.json:1", "status": "verified"},
+    {"text": "Every entry has exactly two fields: query (string) and should_trigger (boolean).", "anchor": "skills/debug-loop/evals/eval_queries.json:2", "status": "verified"},
+    {"text": "11 queries marked should_trigger true, 9 marked false.", "anchor": "skills/debug-loop/evals/eval_queries.json:3", "status": "verified"},
+    {"text": "Trivial typo fix in slug.py is expected to trigger the skill.", "anchor": "skills/debug-loop/evals/eval_queries.json:31", "status": "verified"},
+    {"text": "Performance regression (p95 200ms to 1.4s) is expected to trigger.", "anchor": "skills/debug-loop/evals/eval_queries.json:43", "status": "verified"},
+    {"text": "Linter formatting violations and 'broken by design' walkthrough are expected not to trigger.", "anchor": "skills/debug-loop/evals/eval_queries.json:71", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/eval_queries.json:67", "note": "'broken by design' query contains the word broken yet expects no trigger; borderline case may flake."},
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/eval_queries.json:71", "note": "Linter 'blowing up' vs typo 'blowing up the suite' (line 31) split on trigger; distinction is subtle."}
+  ],
+  "least_confident": "Whether the JSON schema (query/should_trigger) matches what the eval harness that consumes this file expects, since the consumer is not in this chunk."
+}

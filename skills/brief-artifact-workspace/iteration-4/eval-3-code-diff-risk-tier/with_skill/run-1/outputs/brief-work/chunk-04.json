@@ -1,0 +1,53 @@
+{
+  "summary": "Diff adds two eval cases for a new adversarial-review-2 skill: a Redis session-cache design and a follow-the-sun on-call plan, each with planted flaws and graded expectations (severity ranking, failure scenarios, retest checks, verdicts). It adds the two fixture documents and edits the existing adversarial-review SKILL.md description to route severity-graded or retest-loop requests to adversarial-review-2.",
+  "claims": [
+    {
+      "text": "Eval 1 expects sizing math 200k x 40KB = 8GB equal to cluster free space; fixture states those numbers.",
+      "anchor": "skills/adversarial-review-2/evals/evals.json:16 vs skills/adversarial-review-2/evals/files/session-cache-design.md:23",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 1 expects KEYS-based invalidation flagged; fixture invalidates via KEYS session:*:pricing on shared cluster.",
+      "anchor": "skills/adversarial-review-2/evals/files/session-cache-design.md:19",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 2 expects timezone gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET leaves 20:00-02:00 ET uncovered.",
+      "anchor": "skills/adversarial-review-2/evals/evals.json:35",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 2 expects US-only IC pool flagged; fixture says IC pool is all US-based.",
+      "anchor": "skills/adversarial-review-2/evals/files/oncall-rotation-plan.md:14",
+      "status": "verified"
+    },
+    {
+      "text": "adversarial-review SKILL.md now defers severity-graded findings and retest loops to adversarial-review-2.",
+      "anchor": "skills/adversarial-review/SKILL.md:12",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 2 mentions a 'zero-overnight-pages goal'; fixture's success metric is zero overnight pages within first month.",
+      "anchor": "skills/adversarial-review-2/evals/files/oncall-rotation-plan.md:15",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/adversarial-review-2/evals/evals.json:35",
+      "note": "CET-to-ET offset is 6 hours only outside DST mismatch weeks; eval hardcodes it."
+    },
+    {
+      "kind": "missing-edge-case",
+      "anchor": "skills/adversarial-review/SKILL.md:12",
+      "note": "Description references adversarial-review-2 skill; its SKILL.md is not in this chunk, so existence unverified."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/adversarial-review-2/evals/evals.json:45",
+      "note": "evals.json lacks trailing newline; may matter for tooling or linting."
+    }
+  ],
+  "least_confident": "Whether the file paths in evals.json (\"evals/files/...\") resolve correctly relative to how the eval runner locates fixtures, since the runner is not in this chunk."
+}

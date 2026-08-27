@@ -1,0 +1,18 @@
+{
+  "summary": "Adds a new 78-line research note arguing that a good adversarial review of an AI chatbot rests on discipline, not clever jailbreaks: explicit impact-first threat model, diverse and partly independent testers, taxonomy-anchored reproducible methodology, manual plus automated probing, severity grading, and a closed remediate-retest loop. It surveys NIST, OWASP, MITRE ATLAS, Microsoft, OpenAI, Anthropic, DeepMind, and Feffer et al., lists pitfalls of weak reviews, gives a four-stage recommendation, and closes with caveats about field immaturity and vendor-sourced figures.",
+  "claims": [
+    {"text": "Feffer et al. (AIES 2024) found red-teaming purpose is often vague and warned of security theater without structure.", "anchor": "resources/good-adversarial-review.md:26", "status": "unverified"},
+    {"text": "NIST AI 600-1 defines 12 GenAI risk categories and places red teaming under Measure as recurring.", "anchor": "resources/good-adversarial-review.md:28", "status": "unverified"},
+    {"text": "OpenAI external red teaming white paper is arXiv 2503.16431 (Ahmad, Agarwal, Lampe, Mishkin, 2025) with four design steps.", "anchor": "resources/good-adversarial-review.md:33", "status": "unverified"},
+    {"text": "Crescendomation achieves 29-61% higher performance on GPT-4, 49-71% on Gemini-Pro, 98% binary success (arXiv:2404.01833).", "anchor": "resources/good-adversarial-review.md:43", "status": "unverified"},
+    {"text": "Constitutional Classifiers cut jailbreak success 86% to 4.4% at 23.7% compute increase, 0.38% refusal rise.", "anchor": "resources/good-adversarial-review.md:49", "status": "unverified"},
+    {"text": "Constitutional Classifiers++ released January 9, 2026 at ~1% additional compute with no universal jailbreak found.", "anchor": "resources/good-adversarial-review.md:49", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "resources/good-adversarial-review.md:49", "note": "Bug-bounty participant counts (405 of ~800, 339, 300,000 interactions, 8 levels) have no source link."},
+    {"kind": "uncited-number", "anchor": "resources/good-adversarial-review.md:43", "note": "Crescendo performance ranges quoted verbatim but chunk cannot confirm they match the arXiv paper."},
+    {"kind": "unsupported-claim", "anchor": "resources/good-adversarial-review.md:46", "note": "Anthropic CVSS-modeled jailbreak scoring framework and a 2026 ASR-validity paper are named without citation."},
+    {"kind": "unsupported-claim", "anchor": "resources/good-adversarial-review.md:36", "note": "OWASP Top 10 for Agentic Applications (2026) and ASI Top 10 dated without a source."}
+  ],
+  "least_confident": "I could not check whether the many specific dates, arXiv ids, and percentages (especially the 2026-dated items the caveats flag) are accurate, since the chunk cites no verifiable links."
+}

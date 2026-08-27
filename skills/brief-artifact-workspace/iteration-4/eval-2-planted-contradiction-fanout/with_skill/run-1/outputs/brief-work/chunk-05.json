@@ -1,0 +1,17 @@
+{
+  "summary": "The Reconciliation section states one reconciliation mechanism: a nightly job compares ledger totals to the bank feed and opens a ticket on mismatch. The rest is heavily repeated boilerplate about operations: structured logs with request ids, low-priority backfills, per-region dashboards, schema review for index impact, health/readiness endpoints, ninety-day secret rotation, sub-200 ms p95 read latency, single YAML config, alerts paging after five minutes, and a three-phase zero-downtime migration.",
+  "claims": [
+    {"text": "A nightly job compares ledger totals against the bank feed and opens a ticket on any mismatch.", "anchor": "69", "status": "unverified"},
+    {"text": "Every write path emits a structured log line with the request id.", "anchor": "71", "status": "unverified"},
+    {"text": "Latency targets stay under 200 ms at the 95th percentile for reads.", "anchor": "73", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "73", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "73", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "71", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "73", "note": "200 ms p95 read target stated with no measurement or source."},
+    {"kind": "unsupported-claim", "anchor": "71", "note": "Zero-downtime three-phase migration asserted with no evidence or date."},
+    {"kind": "unsupported-claim", "anchor": "71", "note": "Paragraphs 71-81 repeat the same sentences many times; filler, no reconciliation detail beyond line 69."}
+  ],
+  "least_confident": "I could not check whether the reconciliation job's mismatch handling (ticket only, no auto-correction or alert) matches other sections, since line 69 is the only substantive reconciliation sentence."
+}

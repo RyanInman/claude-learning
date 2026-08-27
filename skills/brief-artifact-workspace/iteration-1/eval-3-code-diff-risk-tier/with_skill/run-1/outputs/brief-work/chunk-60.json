@@ -1,0 +1,18 @@
+{
+  "summary": "This chunk adds a debug-loop eval fixture: a buggy slugify function (slug.py) with a typo calling .stip() instead of .strip(), three pytest tests exercising it (test_slug.py), and a new reference doc tactics.md covering deeper debug tactics: git bisect for regressions, building a check when none exists, automating gates with hooks, delegating investigation to subagents, catching fixes that overfit tests, and context hygiene during long sessions.",
+  "claims": [
+    {"text": "slugify calls text.lower().stip() where .stip() is not a valid str method (should be .strip())", "anchor": "skills/debug-loop/evals/fixtures/slug-typo/slug.py:8", "status": "verified"},
+    {"text": "Three tests are defined: test_basic, test_trims_whitespace, test_collapses_punctuation", "anchor": "skills/debug-loop/evals/fixtures/slug-typo/tests/test_slug.py:9-17", "status": "verified"},
+    {"text": "Binary search via git bisect finds a culprit commit in about 10 steps across 1,000 commits", "anchor": "references/tactics.md: Locating a regression with git bisect", "status": "unverified"},
+    {"text": "A Stop hook can block the turn from ending until a check passes, but Claude Code overrides it after 8 consecutive blocks", "anchor": "references/tactics.md: Automating the gate with hooks", "status": "unverified"},
+    {"text": "A subagent run costs about three times the tokens of the same work inline", "anchor": "references/tactics.md: Delegating investigation to subagents", "status": "unverified"},
+    {"text": "Compacting should happen at about 60% context use, ahead of the automatic threshold", "anchor": "references/tactics.md: Context hygiene during a long session", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "hallucinated-api", "anchor": "skills/debug-loop/evals/fixtures/slug-typo/slug.py:8", "note": ".stip() is not a real str method; this is likely the intentional injected bug for the eval fixture, not a hallucination in the surrounding prose, but it is a nonexistent API call in the code as written."},
+    {"kind": "uncited-number", "anchor": "references/tactics.md: Locating a regression with git bisect", "note": "\"about 10 steps across 1,000 commits\" is stated with no source or calculation shown."},
+    {"kind": "uncited-number", "anchor": "references/tactics.md: Delegating investigation to subagents", "note": "\"about three times the tokens\" cost claim for subagents has no cited source or measurement."},
+    {"kind": "uncited-number", "anchor": "references/tactics.md: Automating the gate with hooks", "note": "\"overrides it after 8 consecutive blocks\" is a specific figure stated without a citation in this chunk."}
+  ],
+  "least_confident": "I could not verify whether the 8-consecutive-blocks Stop hook override behavior is an accurate description of Claude Code's actual behavior, since no source is given in this chunk."
+}

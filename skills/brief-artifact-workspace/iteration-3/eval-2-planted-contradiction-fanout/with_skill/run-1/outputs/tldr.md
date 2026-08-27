@@ -1,0 +1,4 @@
+- Design doc for a Ledger service that records account transfers: idempotency keys per request, month-partitioned transfers table with account_id covering index, nightly bank-feed reconciliation, and a risk-engine timeout with two retries.
+- Contradiction: Timeouts section says the risk engine times out after 30 seconds (L37); Operations tells on-call the timeout is 90 seconds (L85). One of these misleads on-call.
+- Every claim is unverified: no numbers, dates, or reviews cite a source, and the 200 ms p95 target sits next to a 30 to 90 second downstream timeout with no explanation.
+- Most of the document is the same dozen operational sentences repeated; only one sentence per section carries design content.

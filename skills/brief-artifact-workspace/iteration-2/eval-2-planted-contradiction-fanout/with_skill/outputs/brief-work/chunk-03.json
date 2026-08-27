@@ -1,0 +1,58 @@
+{
+  "summary": "Under a heading on timeouts and retries, the chunk states the risk-engine call times out at 30 seconds with two backoff retries, then shifts into a long list of unrelated operational claims (dashboards, backfills, logging, alerting, tests, health endpoints, migrations, secrets rotation, schema review, latency targets, config) repeated many times in varying order with no elaboration or supporting detail.",
+  "claims": [
+    {
+      "text": "Downstream calls to the risk engine time out after 30 seconds.",
+      "anchor": "L37 vs L85",
+      "status": "contradicted"
+    },
+    {
+      "text": "The client retries twice with backoff.",
+      "anchor": "L37",
+      "status": "unverified"
+    },
+    {
+      "text": "Alerts route to the payments channel and page after five minutes.",
+      "anchor": "L39",
+      "status": "unverified"
+    },
+    {
+      "text": "Secrets rotate every ninety days through the platform vault.",
+      "anchor": "L41",
+      "status": "unverified"
+    },
+    {
+      "text": "Latency targets stay under 200 ms at the 95th percentile for reads.",
+      "anchor": "L43",
+      "status": "unverified"
+    },
+    {
+      "text": "The migration ran in three phases over two weekends without downtime.",
+      "anchor": "L39",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "L37",
+      "note": "30-second timeout and two retries given with no source or measurement backing them."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "L43",
+      "note": "200 ms p95 latency target stated with no benchmark or data cited."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "L39",
+      "note": "Five-minute page threshold stated with no source."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "L41",
+      "note": "Ninety-day secrets rotation asserted with no policy reference or evidence."
+    }
+  ],
+  "least_confident": "The bulk of the chunk under a 'Timeouts and retries' heading is a repetitive list of unrelated claims (dashboards, migrations, secrets, schema review) with no clear connection to timeouts or retries, and I could not tell if this reflects a formatting/rendering error in the source rather than intended content."
+}

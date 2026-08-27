@@ -1,0 +1,18 @@
+{
+  "summary": "Three new files. slug.py adds a slugify() that lowercases, strips, replaces non-alphanumerics with dashes, and trims dashes, but calls .stip() instead of .strip(), a deliberate typo fixture named slug-typo. test_slug.py adds three tests (basic, whitespace trim, punctuation collapse) that all hit the typo and raise AttributeError. tactics.md is a prose reference for a debug-loop skill: git bisect for regressions, building a check when none exists (test, repro script, exit-code command, timed threshold), PostToolUse/Stop hooks as gates, delegating disposable investigation to subagents, detecting fixes that overfit tests, and context hygiene (compact at 60%, /clear between bugs, handoff block, lean CLAUDE.md).",
+  "claims": [
+    {"text": "slugify calls text.lower().stip(), a misspelling of strip(); every call raises AttributeError.", "anchor": "slug.py:7", "status": "verified"},
+    {"text": "The three tests import slugify via sys.path insertion of the parent dir and assert hello-world, release-notes, v2-0-final.", "anchor": "tests/test_slug.py:3-17", "status": "verified"},
+    {"text": "Bisect finds the culprit in about 10 steps across 1,000 commits.", "anchor": "tactics.md:19", "status": "verified"},
+    {"text": "Claude Code overrides a Stop hook after 8 consecutive blocks.", "anchor": "tactics.md:63-64", "status": "unverified"},
+    {"text": "A subagent run costs about three times the tokens of the same work inline.", "anchor": "tactics.md:81-82", "status": "unverified"},
+    {"text": "If the fix commit also modified the test, the fix overfits the test.", "anchor": "tactics.md:95-96", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "slug.py:7", "note": "Intentional typo fixture; if it is meant as a working fixture the .stip() call breaks all tests. Also no handling of non-str input, likely fine for a fixture."},
+    {"kind": "uncited-number", "anchor": "tactics.md:63-64", "note": "The 8-consecutive-blocks Stop hook override limit is stated without a source."},
+    {"kind": "uncited-number", "anchor": "tactics.md:81-82", "note": "The 3x token cost of subagents is stated without a source."},
+    {"kind": "unsupported-claim", "anchor": "tactics.md:95-96", "note": "A fix commit that touches the test does not always mean overfitting (e.g. fixing a wrong assertion); stated as absolute."}
+  ],
+  "least_confident": "Whether the .stip() typo in slug.py is the intended fixture bug (the directory name slug-typo suggests yes) and whether the hook override count of 8 matches actual Claude Code behavior."
+}

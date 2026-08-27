@@ -1,0 +1,18 @@
+{
+  "summary": "This diff adds a new file, skills/p-review/SKILL.md, defining a 'p-review' skill for fast, single-reviewer adversarial review of an existing artifact (plan, spec, or diff). The conductor gathers artifact/baseline/intent, dispatches a fresh subagent with a fixed reviewer brief, rules on findings (rejecting only false-premise ones), then presents Concerns, Noted-not-recommended, Rejected, and a Minor list written to a separate file for a downstream auto-fix agent. An --inline flag skips the subagent and rules step for a faster single-pass review.",
+  "claims": [
+    {"text": "Frontmatter defines name 'p-review' and a description covering when to use vs. not use it", "anchor": "skills/p-review/SKILL.md:1-16", "status": "verified"},
+    {"text": "Baseline ref is resolved via `git merge-base HEAD @{u}`, falling back to `git merge-base HEAD \"$(git symbolic-ref --short refs/remotes/origin/HEAD)\"`, and asking the user if that also fails", "anchor": "skills/p-review/SKILL.md:24-27", "status": "verified"},
+    {"text": "The conductor always dispatches a fresh subagent as Reviewer, even under conditions where the artifact isn't the conductor's own", "anchor": "skills/p-review/SKILL.md:29-31", "status": "verified"},
+    {"text": "Under --inline, the dispatch and Ruling step are both skipped and the conductor follows the brief itself", "anchor": "skills/p-review/SKILL.md:33-34", "status": "verified"},
+    {"text": "The reviewer brief instructs the subagent not to surface issues a compiler/type-checker/linter/test run would already catch", "anchor": "skills/p-review/SKILL.md:66-68", "status": "verified"},
+    {"text": "Findings are split into Concerns (need user judgment, ranked /10) and Minor (for a downstream auto-fix agent, no decision needed)", "anchor": "skills/p-review/SKILL.md:73-80", "status": "verified"},
+    {"text": "The Ruling step lets the conductor veto a finding only if it rests on a misunderstanding or false premise, not to defend the work", "anchor": "skills/p-review/SKILL.md:97-100", "status": "verified"},
+    {"text": "The Minor list is written verbatim to minor-findings.md beside the artifact (or repo root if none) and is not summarized or printed to the user", "anchor": "skills/p-review/SKILL.md:110-114", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "duplicate-logic", "anchor": "skills/p-review/SKILL.md:14 (\"Do NOT use ... debate-review, adversarial-review, and adversarial-review-2\")", "note": "Explicitly names three other overlapping review skills already in the repo (debate-review, adversarial-review, adversarial-review-2), suggesting this new skill sits close to existing functionality; differentiation rests solely on being 'the cheap one-reviewer pass.'"},
+    {"kind": "missing-edge-case", "anchor": "skills/p-review/SKILL.md:26-27", "note": "The baseline-resolution fallback chain has a third failure mode (\"That fallback fails too when the clone never set origin/HEAD\") which is handled by asking the user rather than a further automated fallback — reasonable, but leaves no automated resolution path documented beyond that point."}
+  ],
+  "least_confident": "Whether the described interaction pattern (conductor dispatches subagent, then separately performs a 'Ruling' pass over its findings) is actually implementable as specified within the Agent tool conventions is not verifiable from this chunk alone, since it's a prose/process spec rather than code with visible execution semantics."
+}

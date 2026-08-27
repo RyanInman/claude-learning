@@ -1,0 +1,3 @@
+- Brief written to outputs/brief.md instead of beside the fixture, per task instruction; chunk JSONs copied from brief-work/ to outputs root.
+- Chunk readers used "Section, LN" anchors relative to the chunk file, not the source file. Source lines: 30 s timeout at ledger-design.md L37, 90 s timeout at L85.
+- render_brief.py rejected chunk-06 once (summary 125 words, max 120); trimmed the summary's opening clause and re-rendered.

@@ -1,0 +1,11 @@
+{
+  "eval_id": 2,
+  "eval_name": "planted-contradiction-fanout",
+  "prompt": "summarize evals/fixtures/ledger-design.md for me and flag anything that doesn't add up",
+  "expectations": [
+    "Brief flags the risk-engine timeout as contradicted (30 seconds vs 90 seconds)",
+    "The contradiction cites both locations (Timeouts and retries section and Operations section)",
+    "Output brief.md has sections TL;DR, Claims, Risks, Least confident",
+    "Brief is at most 1500 words (1/3 of source, capped)"
+  ]
+}

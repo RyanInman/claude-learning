@@ -1,0 +1,16 @@
+{
+  "summary": "This chunk adds new eval files for the debug-loop skill. evals.json defines five evals (vague login failure, pasted traceback, red tests after merge, trivial typo fast path, perf regression), each with a fixture path, a prompt, and five graded expectations. It then adds the csv-report fixture: a sales CSV whose header starts with a UTF-8 BOM, a report.py that opens files with encoding=\"utf-8\" and sums amounts by region via csv.DictReader, two clean test CSVs (one header-only), and a two-test pytest file asserting totals on the clean file and an empty dict on the header-only file. The fixture is built so the suite is green while the BOM file crashes with KeyError: 'region'.",
+  "claims": [
+    {"text": "evals.json defines five evals with ids 0 through 4, each carrying five expectations.", "anchor": "skills/debug-loop/evals/evals.json:7-126", "status": "verified"},
+    {"text": "The sales-2026-08.csv fixture header begins with a UTF-8 BOM before 'region'.", "anchor": "skills/debug-loop/evals/fixtures/csv-report/data/sales-2026-08.csv:1", "status": "verified"},
+    {"text": "report.py opens files with encoding=\"utf-8\" (not utf-8-sig), so the BOM stays in the first header key and row[\"region\"] raises KeyError.", "anchor": "skills/debug-loop/evals/fixtures/csv-report/report.py:5-12", "status": "verified"},
+    {"text": "test_report.py only exercises clean.csv and header_only.csv, so the suite passes despite the BOM bug, matching the prompt's 'test suite is green' claim.", "anchor": "skills/debug-loop/evals/fixtures/csv-report/tests/test_report.py:9-15", "status": "verified"},
+    {"text": "The eval 1 prompt traceback lines (report.py line 20 and line 12) match the added report.py source line numbers.", "anchor": "skills/debug-loop/evals/evals.json:37", "status": "verified"},
+    {"text": "Fixtures referenced by evals 0, 2, 3, 4 (expired-sessions, pricing-regression, slug-typo, slow-enrichment) exist.", "anchor": "skills/debug-loop/evals/evals.json:13", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/fixtures/csv-report/tests/test_report.py:9-11", "note": "Tests compare floats with exact equality; passes for these values but brittle if fixture amounts change."},
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/evals.json:46", "note": "Expectation text names the BOM cause; grader must confirm the fixture's BOM survives git/editor checkouts, otherwise the eval cannot reproduce."}
+  ],
+  "least_confident": "Whether the other four fixture directories referenced in evals.json exist elsewhere in the diff, since only csv-report appears in this chunk."
+}

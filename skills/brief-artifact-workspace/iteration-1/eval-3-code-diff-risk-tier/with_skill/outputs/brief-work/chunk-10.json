@@ -1,0 +1,20 @@
+{
+  "summary": "This chunk adds three new files from an adversarial red-team review of an on-call rotation plan (US-East plus a new Krakow team). grading.json scores the review against six expectations, all passed, covering severity grading, failure scenarios, timezone-gap arithmetic, Krakow readiness risk, IC-pool coverage, and a retest list, plus execution metrics and per-claim verification notes. charter.md defines the review's scope: harm categories ranked from unanswered pages down to burnout, explicit out-of-scope items, and a success criterion for counting a finding. metrics.json records tool-call counts, steps, files created, and one error encountered during the run.",
+  "claims": [
+    {"text": "All eight findings (F1-F8) carry an explicit severity (F1-F5 High, F6-F8 Medium), each tagged Confirmed or Plausible", "anchor": "grading.json:5-8 (expectations[0].evidence)", "status": "verified"},
+    {"text": "Krakow 08:00-20:00 CET equals 02:00-14:00 ET, leaving a 20:00-02:00 ET daily uncovered window", "anchor": "grading.json:12-14 (expectations[2].evidence)", "status": "verified"},
+    {"text": "The entire incident-commander pool is US-based with no on-call IC schedule, forcing the Krakow engineer to run Sev1s alone or cold-call US engineers off-rotation", "anchor": "grading.json:20 (expectations[4].evidence, F2)", "status": "verified"},
+    {"text": "Twelve raw findings were merged to eight with none killed", "anchor": "grading.json:66-68 (claims array, process claim)", "status": "unverified"},
+    {"text": "Three fresh-eyes adversaries attacked in parallel", "anchor": "grading.json:70-72 (claims array, process claim)", "status": "unverified"},
+    {"text": "A harness guard rejected the Write tool for report.md, so the executor used a shell heredoc instead", "anchor": "grading.json:96-97 (user_notes_summary.workarounds)", "status": "verified"},
+    {"text": "10 total tool calls across 7 steps, with 1 error encountered", "anchor": "metrics.json:1-7", "status": "verified"},
+    {"text": "The Krakow team is 6 weeks old, has never shipped to production, and lacks full prod access", "anchor": "charter.md:3-5 (Artifact and context)", "status": "verified"},
+    {"text": "A finding counts only if it would plausibly change a decision about the plan's correctness, cost, risk, or maintainability", "anchor": "charter.md:34-38 (Success criterion)", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "grading.json:66-68", "note": "The '12 raw findings merged to 8, none killed' process claim is explicitly marked verified: false in the chunk itself, since no transcript is available to check it."},
+    {"kind": "unsupported-claim", "anchor": "grading.json:70-72", "note": "The '3 fresh-eyes adversaries in parallel' claim is also self-flagged verified: false — only the Agent-call count (3) in metrics.json is consistent, not the parallelism or fresh-eyes property."},
+    {"kind": "uncited-number", "anchor": "grading.json:104-107 (eval_feedback.suggestions)", "note": "The chunk itself flags that no expectation checks severity calibration or fabrication resistance, meaning the six passed checks may not catch a report that grades everything flat or invents facts."}
+  ],
+  "least_confident": "Whether the 'F4' and 'F8' findings referenced in grading.json's claims section (destructive failover branch, tribal-knowledge runbooks) are graded Plausible for good reason is hard to fully assess without seeing report.md itself, which is outside this chunk."
+}

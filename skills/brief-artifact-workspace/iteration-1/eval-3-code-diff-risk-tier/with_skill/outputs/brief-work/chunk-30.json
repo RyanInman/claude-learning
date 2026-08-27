@@ -1,0 +1,23 @@
+{
+  "summary": "This chunk adds two new eval fixture files and an evals.json for a new 'adversarial-review-2' skill, then edits the existing adversarial-review SKILL.md description. evals.json defines two evals: a red-team of a Redis session-cache design (checkout pricing) and of a follow-the-sun on-call rotation plan, each with a prompt and a list of expected-output checks covering severity grading, ranked findings, retest mechanisms, and specific planted flaws (KEYS-based cache invalidation, sizing math, timezone coverage gap, US-only IC pool). The two new markdown fixture files contain the actual design/plan documents being evaluated. The SKILL.md diff trims wording and adds a new 'Do NOT use' clause pointing severity-graded/retest-loop requests to adversarial-review-2.",
+  "claims": [
+    {"text": "New file evals/evals.json defines two evals for skill 'adversarial-review-2'", "anchor": "evals.json:1-9", "status": "verified"},
+    {"text": "Eval 1 (cache-design-redteam) expects the report to flag KEYS-based invalidation blocking the shared Redis cluster and rank it at or above conditional findings", "anchor": "evals.json:21", "status": "verified"},
+    {"text": "Eval 1 expects sizing math flagged: 200k sessions x 40KB = 8GB, equal to all free memory on the shared cluster", "anchor": "evals.json:22", "status": "verified"},
+    {"text": "session-cache-design.md states ~40KB per session hash, ~200k active sessions peak, existing cluster has 8GB free", "anchor": "session-cache-design.md:110", "status": "verified"},
+    {"text": "session-cache-design.md invalidation uses 'KEYS session:*:pricing' then 'DEL', which is the flaw the eval expects to be caught", "anchor": "session-cache-design.md:106-107", "status": "verified"},
+    {"text": "Eval 2 (oncall-plan-redteam) expects identification of a timezone coverage gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET, leaving 20:00-02:00 ET uncovered", "anchor": "evals.json:41", "status": "verified"},
+    {"text": "oncall-rotation-plan.md states Krakow covers 08:00-20:00 CET and US-East covers 08:00-20:00 ET, with gaps paged to whichever shift is 'closest'", "anchor": "oncall-rotation-plan.md:68-69", "status": "verified"},
+    {"text": "oncall-rotation-plan.md notes the Krakow team joined 6 weeks ago, has not shipped to production, and access provisioning is 'in progress'", "anchor": "oncall-rotation-plan.md:78-79", "status": "verified"},
+    {"text": "oncall-rotation-plan.md states the current Sev1 incident-commander pool is all US-based and stays as-is", "anchor": "oncall-rotation-plan.md:73-74", "status": "verified"},
+    {"text": "adversarial-review/SKILL.md description is edited to shorten 'a full four-role debate is more ceremony than the decision warrants' to 'a full four-role debate is overkill'", "anchor": "SKILL.md:124-125 (diff -/+)", "status": "verified"},
+    {"text": "adversarial-review/SKILL.md adds a new 'Do NOT use for severity-graded findings or a retest loop — use adversarial-review-2' clause", "anchor": "SKILL.md:128", "status": "verified"},
+    {"text": "The new adversarial-review-2 skill (referenced by the SKILL.md edit and evals.json) produces severity-graded findings with a retest mechanism, distinguishing it from adversarial-review", "anchor": "SKILL.md:128 vs evals.json:19,24", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "evals.json:19", "note": "Eval requires 'no flat band of same-grade ties without sub-ranking' but nothing in this chunk shows the actual skill logic that would produce such ranking; only the eval expectation is visible, not an implementation."},
+    {"kind": "duplicate-logic", "anchor": "SKILL.md:128 vs adversarial-review-2 (not in chunk)", "note": "The SKILL.md edit references a new skill 'adversarial-review-2' whose own SKILL.md/definition is not shown in this chunk, so the split of responsibility between the two skills can't be fully confirmed here."},
+    {"kind": "missing-edge-case", "anchor": "oncall-rotation-plan.md:72", "note": "Escalation rule pages 'the other region's primary' after 15 minutes with no ack, but the plan does not define what happens if that secondary also fails to ack, which the plan itself leaves open."}
+  ],
+  "least_confident": "Whether adversarial-review-2's own SKILL.md (not included in this chunk) actually implements the severity-grading and retest behavior the evals.json expects, since only the eval definitions and fixture files are visible, not the skill's instructions."
+}

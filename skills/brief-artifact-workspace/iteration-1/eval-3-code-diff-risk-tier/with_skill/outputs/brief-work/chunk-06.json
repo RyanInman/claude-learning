@@ -1,0 +1,68 @@
+{
+  "summary": "This chunk adds a new grading.json file recording eval results for an adversarial cache-design review, plus two timing.json files. The grading.json shows all 7 expectations passed (100% pass rate), lists execution metrics (10 tool calls, 1 error), timing (1178.8s, 62950 tokens), per-claim verification notes, user notes on uncertainties/workarounds, and eval feedback suggesting the retest and citation-accuracy expectations could be tightened. The two timing.json files duplicate the same token/duration figures.",
+  "claims": [
+    {
+      "text": "All 7 expectations passed with a 1.0 pass rate",
+      "anchor": "grading.json:2-52 (summary: passed 7, failed 0, total 7, pass_rate 1.0)",
+      "status": "verified"
+    },
+    {
+      "text": "Execution used 10 total tool calls (Read:2, Write:4, Agent:3, Bash:1) with 1 error encountered",
+      "anchor": "grading.json execution_metrics",
+      "status": "verified"
+    },
+    {
+      "text": "Executor duration was 1178.8 seconds and total tokens 62950",
+      "anchor": "grading.json timing vs timing.json (both files)",
+      "status": "verified"
+    },
+    {
+      "text": "The Write tool was blocked for report.md, so the executor wrote it via a Bash heredoc instead",
+      "anchor": "grading.json user_notes_summary.workarounds",
+      "status": "unverified"
+    },
+    {
+      "text": "Three fresh-eyes adversaries attacked in parallel",
+      "anchor": "grading.json claims (Three fresh-eyes adversaries attacked in parallel)",
+      "status": "unverified"
+    },
+    {
+      "text": "12 raw findings, 2 merged pairs, 0 killed, 10 survive",
+      "anchor": "grading.json claims (12 raw findings; 2 merged pairs; 0 killed; 10 survive) - marked verified:false",
+      "status": "unverified"
+    },
+    {
+      "text": "All cited artifact line numbers (12, 13, 16, 19-20, 23, 26-27) are accurate",
+      "anchor": "grading.json claims (All cited artifact line numbers are accurate)",
+      "status": "verified"
+    },
+    {
+      "text": "No expectation checks factual accuracy of report citations against the artifact, so a report with hallucinated line references would still pass",
+      "anchor": "grading.json eval_feedback.suggestions (second suggestion, no expectation text)",
+      "status": "unverified"
+    },
+    {
+      "text": "run-1/timing.json and the parent with_skill/timing.json contain identical token and duration values",
+      "anchor": "run-1/timing.json:1-5 vs with_skill/timing.json:1-5",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "grading.json claims (12 raw findings; 2 merged pairs; 0 killed; 10 survive)",
+      "note": "The chunk itself states this raw count 'cannot be verified without a transcript' — it is an internally-flagged unverified number."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "grading.json claims (Three fresh-eyes adversaries attacked in parallel)",
+      "note": "Evidence given is only 'metrics.json shows 3 Agent tool calls' plus an admission 'No transcript available to confirm prompts or parallelism' — the parallelism claim is not actually supported."
+    },
+    {
+      "kind": "duplicate-logic",
+      "anchor": "run-1/timing.json:1-5 vs with_skill/timing.json:1-5",
+      "note": "Two separate timing.json files carry the exact same total_tokens/duration_ms/total_duration_seconds values, suggesting duplicated data rather than independently computed figures."
+    }
+  ],
+  "least_confident": "Whether the two identical timing.json files (run-1 and with_skill level) represent an intentional rollup/copy convention or accidental duplication cannot be determined from this chunk alone."
+}

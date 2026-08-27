@@ -1,0 +1,4 @@
+- Chunker excluded 51 chunks by its default path filter (workspace/outputs dirs); the brief covers the 10 remaining diff chunks.
+- render_brief.py rejected chunk-05 twice for summary length (87, then 81 words vs 80 max). I trimmed wording in the JSON directly instead of re-running the reader, since only the summary length was invalid; claims untouched.
+- Brief written to outputs dir instead of ./diff-<ref>.brief.md per task instruction.
+- No cross-chunk contradictions found; the "existence unconfirmed" risks in chunks 04, 05, 10 are answered by files added in chunks 03 and 09.

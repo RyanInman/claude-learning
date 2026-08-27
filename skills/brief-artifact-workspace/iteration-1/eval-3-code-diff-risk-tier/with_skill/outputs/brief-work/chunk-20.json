@@ -1,0 +1,58 @@
+{
+  "summary": "This chunk adds two new files documenting an eval run of a 'without_skill' adversarial red-team baseline for a caching design doc. grading.json records 9 expectations checked against the baseline report (6 passed, 3 failed), execution metrics, timing notes, factual claims verified from the design doc, user notes, and eval feedback suggesting a tightened expectation wording. outputs/metrics.json duplicates the same execution metrics (tool calls, files created, output/transcript sizes) as a standalone file.",
+  "claims": [
+    {
+      "text": "9 expectations were graded with 6 passed, 3 failed (pass_rate 0.67)",
+      "anchor": "grading.json:87-92 (summary block)",
+      "status": "verified"
+    },
+    {
+      "text": "The baseline report flags KEYS-based invalidation as Critical (F-01), ranked above the conditional sizing-collision finding F-07 (High)",
+      "anchor": "grading.json:16-17 (expectation 3 evidence)",
+      "status": "verified"
+    },
+    {
+      "text": "Sizing math 40KB x 200k sessions = 8GB matches stated free capacity, flagged as F-07",
+      "anchor": "grading.json:19-20 (expectation 4 evidence)",
+      "status": "verified"
+    },
+    {
+      "text": "The report never states an explicit charter or ranked harm-category list before findings",
+      "anchor": "grading.json:31-32 (expectation 6 evidence)",
+      "status": "verified"
+    },
+    {
+      "text": "The report gives no single bottom-line verdict statement, and its consolidated fix path covers only 9 of 13 findings",
+      "anchor": "grading.json:34-35 (expectation 7 evidence)",
+      "status": "verified"
+    },
+    {
+      "text": "Executor tool calls were Read: 1, Bash: 2, Write: 2 (5 total)",
+      "anchor": "grading.json:41-44 (execution_metrics) vs outputs/metrics.json:2-3",
+      "status": "verified"
+    },
+    {
+      "text": "The executor run was killed by a session limit and resumed, with duration covering only the resumed segment",
+      "anchor": "grading.json:47-49 (timing block)",
+      "status": "unverified"
+    },
+    {
+      "text": "Numeric values in the report's fix directions (timeouts, headroom fractions) are conventional starting points, not measured",
+      "anchor": "grading.json:78-80 (claims block, 'quality' type)",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "duplicate-logic",
+      "anchor": "grading.json:41-44 (execution_metrics) vs outputs/metrics.json:2-9",
+      "note": "The same tool-call/step/output metrics are recorded twice in two separate new files with no indication of a single source of truth."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "grading.json:47-49 (timing.executor_duration_seconds: 17.1)",
+      "note": "The duration figure and the claim that it 'covers only the resumed segment' are asserted with a pointer to timing.json, but timing.json itself is not part of this chunk, so the number can't be checked here."
+    }
+  ],
+  "least_confident": "Whether the 'session limit kill and resume' note in the timing block reflects an actual interruption or is boilerplate, since the referenced timing.json is not included in this chunk."
+}

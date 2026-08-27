@@ -1,0 +1,313 @@
+{
+  "metadata": {
+    "skill_name": "brief-artifact",
+    "skill_path": "/Users/admin/claude-learning/skills/brief-artifact",
+    "executor_model": "claude-fable-5",
+    "analyzer_model": "unrecorded",
+    "timestamp": "2026-08-27T16:19:59Z",
+    "evals_run": [
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 66.9,
+        "tokens": 49357,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output brief.md exists and contains sections TL;DR, Claims, Risks, Least confident",
+          "passed": true,
+          "evidence": "sections present"
+        },
+        {
+          "text": "Every claim row has a source anchor (line number or heading)",
+          "passed": true,
+          "evidence": "21 table rows, anchored=True"
+        },
+        {
+          "text": "Each claim carries a status of verified, unverified, or contradicted",
+          "passed": true,
+          "evidence": "18 status-marked claims"
+        },
+        {
+          "text": "Brief is at most 1/3 the word count of the source (about 1066 words of 3200)",
+          "passed": true,
+          "evidence": "1087 words (limit 1097)"
+        },
+        {
+          "text": "TL;DR has 5 or fewer bullets and names the comprehension bottleneck thesis",
+          "passed": true,
+          "evidence": "5 bullets"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 125.6,
+        "tokens": 68204,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Brief flags the risk-engine timeout as contradicted (30 seconds vs 90 seconds)",
+          "passed": true,
+          "evidence": "contradiction with 30/90 present"
+        },
+        {
+          "text": "The contradiction cites both locations (Timeouts and retries section and Operations section)",
+          "passed": true,
+          "evidence": "both section names present"
+        },
+        {
+          "text": "Output brief.md has sections TL;DR, Claims, Risks, Least confident",
+          "passed": true,
+          "evidence": "sections present"
+        },
+        {
+          "text": "Brief is at most 1500 words (1/3 of source, capped)",
+          "passed": true,
+          "evidence": "1457 words (limit 1500)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 107.0,
+        "tokens": 66736,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output brief.md covers the diff with per-file or per-chunk summaries anchored to file paths",
+          "passed": true,
+          "evidence": "37 path references"
+        },
+        {
+          "text": "High-risk chunks or files (scripts, tests, fixtures with subprocess/open) are listed before low-risk prose",
+          "passed": true,
+          "evidence": "high before low"
+        },
+        {
+          "text": "Brief states at least one behavior claim with an anchor of the form path:line",
+          "passed": true,
+          "evidence": "path:line anchor found"
+        },
+        {
+          "text": "Brief includes a least-confident or uncertainty statement",
+          "passed": true,
+          "evidence": "uncertainty statement present"
+        },
+        {
+          "text": "Brief is at most 1500 words, because a brief longer than the reader can absorb in one sitting defeats its purpose",
+          "passed": true,
+          "evidence": "1254 words (limit 1500)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.2,
+        "passed": 1,
+        "failed": 4,
+        "total": 5,
+        "time_seconds": 30.2,
+        "tokens": 39221,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output brief.md exists and contains sections TL;DR, Claims, Risks, Least confident",
+          "passed": false,
+          "evidence": "missing a section"
+        },
+        {
+          "text": "Every claim row has a source anchor (line number or heading)",
+          "passed": false,
+          "evidence": "0 table rows, anchored=False"
+        },
+        {
+          "text": "Each claim carries a status of verified, unverified, or contradicted",
+          "passed": false,
+          "evidence": "0 status-marked claims"
+        },
+        {
+          "text": "Brief is at most 1/3 the word count of the source (about 1066 words of 3200)",
+          "passed": true,
+          "evidence": "540 words (limit 1097)"
+        },
+        {
+          "text": "TL;DR has 5 or fewer bullets and names the comprehension bottleneck thesis",
+          "passed": false,
+          "evidence": "0 bullets"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 25.6,
+        "tokens": 42119,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Brief flags the risk-engine timeout as contradicted (30 seconds vs 90 seconds)",
+          "passed": true,
+          "evidence": "contradiction with 30/90 present"
+        },
+        {
+          "text": "The contradiction cites both locations (Timeouts and retries section and Operations section)",
+          "passed": true,
+          "evidence": "both section names present"
+        },
+        {
+          "text": "Output brief.md has sections TL;DR, Claims, Risks, Least confident",
+          "passed": false,
+          "evidence": "missing a section"
+        },
+        {
+          "text": "Brief is at most 1500 words (1/3 of source, capped)",
+          "passed": true,
+          "evidence": "522 words (limit 1500)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.4,
+        "passed": 2,
+        "failed": 3,
+        "total": 5,
+        "time_seconds": 49.3,
+        "tokens": 41266,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output brief.md covers the diff with per-file or per-chunk summaries anchored to file paths",
+          "passed": true,
+          "evidence": "13 path references"
+        },
+        {
+          "text": "High-risk chunks or files (scripts, tests, fixtures with subprocess/open) are listed before low-risk prose",
+          "passed": false,
+          "evidence": "no explicit risk ordering"
+        },
+        {
+          "text": "Brief states at least one behavior claim with an anchor of the form path:line",
+          "passed": false,
+          "evidence": "none"
+        },
+        {
+          "text": "Brief includes a least-confident or uncertainty statement",
+          "passed": false,
+          "evidence": "none"
+        },
+        {
+          "text": "Brief is at most 1500 words, because a brief longer than the reader can absorb in one sitting defeats its purpose",
+          "passed": true,
+          "evidence": "497 words (limit 1500)"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 99.8333,
+        "stddev": 29.9991,
+        "min": 66.9,
+        "max": 125.6
+      },
+      "tokens": {
+        "mean": 61432.3333,
+        "stddev": 10483.273,
+        "min": 49357,
+        "max": 68204
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.45,
+        "stddev": 0.2784,
+        "min": 0.2,
+        "max": 0.75
+      },
+      "time_seconds": {
+        "mean": 35.0333,
+        "stddev": 12.5676,
+        "min": 25.6,
+        "max": 49.3
+      },
+      "tokens": {
+        "mean": 40868.6667,
+        "stddev": 1489.2973,
+        "min": 39221,
+        "max": 42119
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.55",
+      "time_seconds": "+64.8",
+      "tokens": "+20564"
+    }
+  },
+  "notes": []
+}

@@ -1,0 +1,48 @@
+{
+  "summary": "Adds evals.json for the debug-loop skill with five evals (vague login failure, pasted traceback, red tests after merge, trivial typo fast path, perf regression), each with a fixture path, prompt, and expectations. Also adds the csv-report fixture: a BOM-prefixed sales CSV, a report.py that opens files as plain utf-8 and reads row[\"region\"], two clean test CSVs, and a two-test suite that passes on the clean data.",
+  "claims": [
+    {
+      "text": "Five evals defined, ids 0-4, each naming a fixture directory under evals/fixtures/.",
+      "anchor": "skills/debug-loop/evals/evals.json:10-124",
+      "status": "verified"
+    },
+    {
+      "text": "sales-2026-08.csv header starts with a UTF-8 BOM before 'region'.",
+      "anchor": "skills/debug-loop/evals/fixtures/csv-report/data/sales-2026-08.csv:1",
+      "status": "verified"
+    },
+    {
+      "text": "report.py opens with encoding=\"utf-8\" (not utf-8-sig), so BOM stays in first header key and row[\"region\"] raises KeyError.",
+      "anchor": "skills/debug-loop/evals/fixtures/csv-report/report.py:5-12",
+      "status": "verified"
+    },
+    {
+      "text": "Test suite uses only BOM-free CSVs, so it stays green while the export crashes, matching the eval prompt.",
+      "anchor": "skills/debug-loop/evals/fixtures/csv-report/tests/test_report.py:9-15",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 1 traceback cites report.py line 20 and line 12, which match the fixture's line numbers.",
+      "anchor": "skills/debug-loop/evals/evals.json:37",
+      "status": "verified"
+    },
+    {
+      "text": "Fixtures expired-sessions, pricing-regression, slug-typo, slow-enrichment exist with the behavior the expectations describe.",
+      "anchor": "skills/debug-loop/evals/evals.json:13,59,82,105",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "missing-edge-case",
+      "anchor": "skills/debug-loop/evals/fixtures/csv-report/report.py:12",
+      "note": "Intentional fixture bug: no BOM-aware decoding; also float(row[\"amount\"]) has no guard for blank or malformed amounts."
+    },
+    {
+      "kind": "missing-edge-case",
+      "anchor": "skills/debug-loop/evals/evals.json:86",
+      "note": "Fast-path expectation 'about three lines' is fuzzy; grader may score inconsistently on brief length."
+    }
+  ],
+  "least_confident": "Whether the BOM byte in sales-2026-08.csv survives git and the diff rendering intact, since the chunk shows only the visible character at line 134."
+}

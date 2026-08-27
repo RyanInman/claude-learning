@@ -1,0 +1,58 @@
+{
+  "summary": "This chunk adds three new grading/timing files for the 'oncall-rotation-plan-redteam' eval's without_skill run-1. grading.json scores an adversarial review against 9 expectations (6 passed, 1 failed=3, 0.67 pass rate), covering timezone-gap detection, Krakow readiness risks, IC-pool contradiction, and goal-failure verdict, but faulting missing strict rank ordering, missing per-finding retest checks, and an unprioritized fix list. It also includes claim verification, user notes on workarounds (Write tool refusal, session resume), and eval-feedback suggestions for refining the expectation set. Two identical timing.json files record 38052 tokens and 28.7s duration, noting the run was killed by a session limit and resumed.",
+  "claims": [
+    {
+      "text": "9 expectations evaluated with 6 passed, 3 failed, pass_rate 0.67",
+      "anchor": "grading.json:1+ (summary block)",
+      "status": "verified"
+    },
+    {
+      "text": "Krakow 08:00-20:00 CET converts to 02:00-14:00 ET, leaving 20:00-02:00 ET uncovered",
+      "anchor": "grading.json:1+ (expectations[2].evidence)",
+      "status": "verified"
+    },
+    {
+      "text": "The IC pool is entirely US-based and a Sev1 at 10:00 CET (04:00 ET) pages a sleeping US engineer, undermining the zero-overnight-pages metric",
+      "anchor": "grading.json:1+ (expectations[4].evidence)",
+      "status": "verified"
+    },
+    {
+      "text": "No per-finding retest checks exist; only a few findings embed fix gates (C2 live-fire drill, H3 game-day scenarios)",
+      "anchor": "grading.json:1+ (expectations[7].evidence)",
+      "status": "verified"
+    },
+    {
+      "text": "The closing gate list is a minimum-changes list but carries no priority order",
+      "anchor": "grading.json:1+ (expectations[8].evidence)",
+      "status": "verified"
+    },
+    {
+      "text": "Industry floor for a sustainable rotation is 4-6 people",
+      "anchor": "grading.json:1+ (claims[4])",
+      "status": "unverified"
+    },
+    {
+      "text": "Write tool refused to create report.md due to a harness guard, so the executor wrote it via Bash heredoc instead",
+      "anchor": "grading.json:1+ (user_notes_summary.workarounds)",
+      "status": "unverified"
+    },
+    {
+      "text": "Executor run was killed by a session limit and resumed",
+      "anchor": "timing.json:1+ (note)",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "duplicate-logic",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/without_skill/run-1/timing.json:1+ vs skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/without_skill/timing.json:1+",
+      "note": "Two timing.json files at different path depths contain byte-identical content (same tokens, duration, note)."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "grading.json:1+ (claims[4] 'Industry floor for a sustainable rotation is 4-6 people')",
+      "note": "Grader itself marks this claim verified: false and notes the report gives no source for the 4-6 person floor."
+    }
+  ],
+  "least_confident": "Whether the duplicate timing.json at two path depths is an intentional artifact of the eval harness's directory structure or an unintended duplication, since the chunk gives no context on the harness's file layout conventions."
+}

@@ -1,0 +1,166 @@
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/response.md b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/response.md
+new file mode 100644
+index 0000000..b6367c2
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/response.md
+@@ -0,0 +1,54 @@
++Both failures traced to one root cause. Fixed in `pricing.py`; all 4 tests pass.
++
++## What was failing
++
++```
++FAILED tests/test_pricing.py::test_half_cent_rounds_up - assert 1.99 == 2.0
++FAILED tests/test_pricing.py::test_order_total - assert 11.99 == 12.0
++```
++
++`test_order_total` was collateral: its line list contains the same `(0.70, 3, 5)` line, so it inherited the one-cent error.
++
++## Root cause
++
++`line_total` computed in binary floats and rounded with `round()`:
++
++```python
++return round(unit_price * qty * (1 - discount_pct / 100), 2)
++```
++
++Two problems stack:
++- `0.70 * 3 * 0.95` is not 1.995 in binary float, it is `1.9949999999999999` → rounds down.
++- Even at an exact 1.995, `round()` uses banker's rounding (half to even) → 1.99.
++
++Tests encode billing semantics: half a cent bills up. Float `round()` cannot express that.
++
++## Fix
++
++`pricing.py` now does the money math in `Decimal` and quantizes with `ROUND_HALF_UP`:
++
++```python
++def line_total(unit_price, qty, discount_pct):
++    amount = (
++        _to_decimal(unit_price)
++        * _to_decimal(qty)
++        * (1 - _to_decimal(discount_pct) / 100)
++    )
++    return _round_cents(amount)
++```
++
++Inputs convert via `Decimal(str(value))` so `0.70` stays 0.70 rather than its binary approximation. `order_total` accumulates in `Decimal` and rounds through the same helper, so summing many lines cannot drift.
++
++Signatures and return types are unchanged: callers still pass floats/ints and get a float back.
++
++## Verification
++
++```
++$ python3 -m pytest tests/test_pricing.py -q
++....                                                                     [100%]
++4 passed in 0.01s
++```
++
++## Assumption
++
++No live confirmation was available, so I assumed the tests are correct and the code is wrong — half-cent-rounds-up is the intended billing rule, and the merge brought in tests asserting it against an implementation that never had it. If instead the intended rule is banker's rounding, the fix belongs in the tests, not `pricing.py` — say so and I will flip it.
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/transcript-notes.md b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/transcript-notes.md
+new file mode 100644
+index 0000000..e5ed86c
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/transcript-notes.md
+@@ -0,0 +1,11 @@
++# Transcript notes
++
++1. `cp -R .../evals/fixtures/pricing-regression .../outputs/project` — copied fixture.
++2. `cd project && git init -q && git add -A && git commit -qm baseline && ls -R` — baseline commit; tree is `pricing.py`, `tests/test_pricing.py`.
++3. Read `project/pricing.py`.
++4. Read `project/tests/test_pricing.py`.
++5. `python3 -m pytest tests/test_pricing.py -q` — 2 failed, 2 passed. `test_half_cent_rounds_up` 1.99 != 2.0; `test_order_total` 11.99 != 12.0.
++6. Diagnosed: float `round()` — binary repr of `0.70*3*0.95` is 1.9949999999999999, and `round()` is half-to-even anyway.
++7. Wrote `project/pricing.py` — Decimal math, `Decimal(str(x))` input conversion, `quantize(0.01, ROUND_HALF_UP)` via `_round_cents`; `order_total` accumulates in Decimal.
++8. `python3 -m pytest tests/test_pricing.py -q` — 4 passed.
++9. Wrote `outputs/response.md`, `outputs/transcript-notes.md`, `outputs/metrics.json`.
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/grading.json b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/grading.json
+new file mode 100644
+index 0000000..f9cba18
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 2,
++  "eval_name": "red-tests-after-merge",
++  "config": "without_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": false,
++      "evidence": "No brief. Opens with the root cause and the fix"
++    },
++    {
++      "text": "Leaves every assertion in tests/test_pricing.py unchanged",
++      "passed": true,
++      "evidence": "Diff of tests/test_pricing.py against the fixture is empty"
++    },
++    {
++      "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance",
++      "passed": true,
++      "evidence": "Decimal with ROUND_HALF_UP and Decimal(str(v)) input conversion"
++    },
++    {
++      "text": "Explains why binary float rounding produced 1.99 instead of 2.00",
++      "passed": false,
++      "evidence": "Explanation is partly asserted rather than measured: claims 'even at an exact 1.995, round() uses banker's rounding -> 1.99', but round(1.995, 2) returns 2.0 in CPython. The stated float value 1.9949999999999999 was also not printed from a run"
++    },
++    {
++      "text": "Shows the full pytest run passing as evidence in the final message",
++      "passed": true,
++      "evidence": "Pasted pytest output showing 4 passed"
++    }
++  ],
++  "passed": 3,
++  "total": 5,
++  "summary": {
++    "passed": 3,
++    "failed": 2,
++    "total": 5,
++    "pass_rate": 0.6
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/metrics.json b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/metrics.json
+new file mode 100644
+index 0000000..eab7883
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/metrics.json
+@@ -0,0 +1,17 @@
++{
++  "tool_calls": {
++    "Bash": 4,
++    "Read": 2,
++    "Write": 4
++  },
++  "total_tool_calls": 10,
++  "total_steps": 9,
++  "files_created": [
++    "response.md",
++    "transcript-notes.md",
++    "metrics.json"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 2008,
++  "transcript_chars": 922
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/timing.json b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/timing.json
+new file mode 100644
+index 0000000..ed432ff
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 30492, "duration_ms": 53846, "total_duration_seconds": 53.8}
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/timing.json b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/timing.json
+new file mode 100644
+index 0000000..ed432ff
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 30492, "duration_ms": 53846, "total_duration_seconds": 53.8}

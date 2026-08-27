@@ -1,0 +1,63 @@
+{
+  "summary": "This chunk adds five new files for eval-1 (\"pasted-traceback\") under debug-loop-workspace iteration-2, with_skill config. It includes eval_metadata.json (a KeyError traceback prompt and 5 expectations for a BOM-caused bug), grading.json (all 5 expectations marked passed), metrics.json (tool-call and file-creation stats), a new git submodule pointer for outputs/project, and response.md documenting a full debug: BOM found via od -c and DictReader keys, a regression test added and shown failing then passing, a one-line fix to open() with encoding=\"utf-8-sig\", and a stash-based revert check confirming the test pins the bug.",
+  "claims": [
+    {
+      "text": "eval_metadata.json defines expectations requiring a debug brief, exact repro, BOM identification with evidence, a root-cause BOM-aware decode fix, and a regression test",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/eval_metadata.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "grading.json marks all 5 expectations as passed, 5/5, pass_rate 1.0",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/grading.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "metrics.json reports 16 total tool calls (Bash 8, Read 3, Edit 2, Write 3) across 12 steps with 0 errors",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/metrics.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "outputs/project is added as a new git submodule pointing at commit 05dabc53c295a636772d811d8ed4c62c949c396a",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/project:1+",
+      "status": "verified"
+    },
+    {
+      "text": "root cause is a UTF-8 BOM (bytes EF BB BF) in the CSV header, causing DictReader to name the first field '﻿region' instead of 'region'",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/response.md:1+",
+      "status": "verified"
+    },
+    {
+      "text": "fix changes open() encoding from 'utf-8' to 'utf-8-sig' in report.py, a one-line change",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/response.md: Fix section",
+      "status": "verified"
+    },
+    {
+      "text": "a regression test test_utf8_bom_header_is_parsed was added, shown failing before the fix and passing after, with a stash-based revert check confirming it pins the bug",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/response.md: Verified section",
+      "status": "verified"
+    },
+    {
+      "text": "the pre-existing test suite was green before the fix because both fixtures were plain ASCII and never exercised this month's export",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/response.md: Reproduced section",
+      "status": "verified"
+    },
+    {
+      "text": "metrics.json's files_created paths use 'running-debug-loops-workspace' vs the diff's own directory path 'debug-loop-workspace'",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/metrics.json:1+ vs debug-loop-workspace/iteration-2/eval-1-pasted-traceback path",
+      "status": "contradicted"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/metrics.json:1+",
+      "note": "files_created lists paths under 'running-debug-loops-workspace/iteration-2/...' which does not match the directory this diff is adding files to ('debug-loop-workspace/iteration-2/...'); the metrics file's own path recorded elsewhere is not shown in this chunk to confirm which is correct."
+    },
+    {
+      "kind": "missing-edge-case",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/response.md: Note section",
+      "note": "response.md itself notes that float(row[\"amount\"]) will still raise on blank/non-numeric amounts and ragged rows yield None; these are explicitly left unhandled."
+    }
+  ],
+  "least_confident": "Whether the 'running-debug-loops-workspace' path in metrics.json's files_created list is a typo/stale artifact or reflects a real directory rename, since the chunk gives no other reference to resolve the discrepancy."
+}

@@ -1,0 +1,36 @@
+{
+  "expectations": [
+    {
+      "text": "Output brief.md exists and contains sections TL;DR, Claims, Risks, Least confident",
+      "passed": false,
+      "evidence": "missing a section"
+    },
+    {
+      "text": "Every claim row has a source anchor (line number or heading)",
+      "passed": false,
+      "evidence": "0 table rows, anchored=False"
+    },
+    {
+      "text": "Each claim carries a status of verified, unverified, or contradicted",
+      "passed": false,
+      "evidence": "0 status-marked claims"
+    },
+    {
+      "text": "Brief is at most 1/3 the word count of the source (about 1066 words of 3200)",
+      "passed": true,
+      "evidence": "540 words (limit 1097)"
+    },
+    {
+      "text": "TL;DR has 5 or fewer bullets and names the comprehension bottleneck thesis",
+      "passed": false,
+      "evidence": "0 bullets"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 4,
+    "total": 5,
+    "pass_rate": 0.2
+  },
+  "notes": "brief words=540"
+}

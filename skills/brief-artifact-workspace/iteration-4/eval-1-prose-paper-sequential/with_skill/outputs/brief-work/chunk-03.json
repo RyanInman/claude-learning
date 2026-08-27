@@ -1,0 +1,17 @@
+{
+  "summary": "Extends re-presentation to prose and research output (claim extraction, citation verification pipeline, numeric registry, summary-first reading). Gives a three-stage recommendation plan: immediately cap units at ~200 LOC and sessions at 60-90 minutes, require self-explanation blocks, name one accountable human; this quarter adopt spec-driven review, adversarial second-model pass, package validation, risk tiering; ongoing, auto-generate summaries and track churn. Ends with caveats on vendor sources, 2006-era limits, correlation, and preprint status.",
+  "claims": [
+    {"text": "Hallucinated legal citations have produced sanctions in more than a thousand tracked cases worldwide", "anchor": "L91", "status": "unverified"},
+    {"text": "If AI PR defect or churn exceeds ~1.5x human baseline, tighten to full line-by-line review and shrink chunks", "anchor": "L111", "status": "unverified"},
+    {"text": "Approvals faster than ~300-500 LOC/hour should be treated as rubber-stamping", "anchor": "L111", "status": "unverified"},
+    {"text": "The 200-400 LOC and 60-90 minute limits come from 2006 human-code data, not re-derived for AI diffs", "anchor": "L115", "status": "verified"},
+    {"text": "The 64.53% direct-review figure merges evaluative feedback with workflow acknowledgments, so it overstates substantive review", "anchor": "L117", "status": "verified"},
+    {"text": "GitClear churn/duplication trends are correlational with AI adoption, not causal", "anchor": "L116", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L91", "note": "'More than a thousand tracked cases' names no tracker or source."},
+    {"kind": "uncited-number", "anchor": "L111", "note": "1.5x threshold and 300-500 LOC/hour cutoff are author-chosen; no derivation given."},
+    {"kind": "unsupported-claim", "anchor": "L92", "note": "Numeric-registry whitelist approach recommended with no evidence it works."}
+  ],
+  "least_confident": "The origin of the action thresholds in the 'Thresholds that change the plan' paragraph, which read as author judgment rather than sourced values."
+}

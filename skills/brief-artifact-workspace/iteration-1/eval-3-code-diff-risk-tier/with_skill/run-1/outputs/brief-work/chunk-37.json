@@ -1,0 +1,53 @@
+{
+  "summary": "This chunk adds grading and output artifacts for the debug-loop skill's 'pasted-traceback' eval (with_skill config). grading.json records all 5 expectations passed: a debug brief before edits, reproduction of the KeyError, identification of a UTF-8 BOM as root cause, a BOM-aware fix (utf-8-sig), and a regression test. metrics.json logs 17 tool calls and 2 errors. A new project subproject (git submodule) is added. response.md is the full debug-brief transcript: diagnosing that report.py's utf-8 decode leaves a BOM glued to the header key 'region', fixing it with encoding='utf-8-sig', adding a failing-then-passing regression test, and revert-verifying the fix.",
+  "claims": [
+    {
+      "text": "All 5 grading expectations passed for the with_skill pasted-traceback eval",
+      "anchor": "grading.json:11-45",
+      "status": "verified"
+    },
+    {
+      "text": "Root cause is that report.py opened the CSV with encoding='utf-8', which does not strip a byte-order mark, so the header key becomes '\\ufeffregion' and row['region'] raises KeyError",
+      "anchor": "response.md Root cause paragraph (chunk-37.txt:135-137)",
+      "status": "verified"
+    },
+    {
+      "text": "Fix changes report.py's open() call from encoding='utf-8' to encoding='utf-8-sig', a one-line change",
+      "anchor": "response.md Step 4 (chunk-37.txt:157-164)",
+      "status": "verified"
+    },
+    {
+      "text": "A regression test using tests/data/bom.csv was added, shown failing before the fix and passing after, and re-verified red on revert",
+      "anchor": "response.md Step 3 and Step 5 (chunk-37.txt:139-153, 179-189)",
+      "status": "verified"
+    },
+    {
+      "text": "metrics.json reports 17 total tool calls (8 Bash, 3 Read, 2 Edit, 4 Write) and 2 errors_encountered",
+      "anchor": "metrics.json:56-72",
+      "status": "verified"
+    },
+    {
+      "text": "The eval's project output is stored as a git submodule reference (mode 160000, subproject commit b1d14f7...), not inline file diffs",
+      "anchor": "chunk-37.txt:78-84",
+      "status": "verified"
+    },
+    {
+      "text": "An unrelated .gitignore addition (untracking __pycache__/.pytest_cache) was made alongside the fix and flagged to the reviewer as optional to drop",
+      "anchor": "response.md Net diff vs baseline (chunk-37.txt:201)",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "missing-edge-case",
+      "anchor": "response.md 'Worth knowing, not fixed here' (chunk-37.txt:205)",
+      "note": "total_by_region will still raise a raw KeyError on other header drift (renamed/missing amount column), explicitly left unfixed."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "metrics.json:72",
+      "note": "'errors_encountered': 2 is stated with no detail in this chunk on what those two errors were."
+    }
+  ],
+  "least_confident": "I could not verify what the two errors_encountered in metrics.json correspond to, since no detail or trace of them appears in this chunk's response.md transcript."
+}

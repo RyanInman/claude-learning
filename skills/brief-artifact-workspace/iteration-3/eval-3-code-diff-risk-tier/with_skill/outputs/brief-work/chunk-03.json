@@ -1,0 +1,18 @@
+{
+  "summary": "New file adding the adversarial-review-2 skill. It defines a five-stage red-team workflow: intake, a one-page charter naming ranked harm categories, three parallel fresh-eyes adversary subagents with distinct lenses and a fixed finding format, main-agent verification/dedup/seam-sweep with an outcome-based Critical-to-Low severity rubric and strict total ranking, a fixed-section report, and a retest stage that re-runs each failing scenario after fixes. Ends with gotchas and a worked example finding.",
+  "claims": [
+    {"text": "Skill cites NIST, OWASP, and Microsoft's 100-product retrospective as converging on discipline over cleverness.", "anchor": "skills/adversarial-review-2/SKILL.md:26-28", "status": "unverified"},
+    {"text": "Adversaries receive only the brief, artifact, and charter; conversation history is never pasted.", "anchor": "skills/adversarial-review-2/SKILL.md:80-82", "status": "verified"},
+    {"text": "Each adversary returns at most 4 findings in a fixed format with category, scenario, root cause, fix.", "anchor": "skills/adversarial-review-2/SKILL.md:95-104", "status": "verified"},
+    {"text": "Severity rubric grades outcomes: Critical includes failing the artifact's own stated goal from day one.", "anchor": "skills/adversarial-review-2/SKILL.md:138", "status": "verified"},
+    {"text": "Charter written next to the artifact, falling back to scratchpad if directory rejects new files.", "anchor": "skills/adversarial-review-2/SKILL.md:56-57", "status": "verified"},
+    {"text": "Overkill check says 'four subagents' though Stage 2 spawns three adversaries.", "anchor": "skills/adversarial-review-2/SKILL.md:50 vs skills/adversarial-review-2/SKILL.md:75", "status": "contradicted"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review-2/SKILL.md:26-28", "note": "Literature sources named but not cited; 'converges on one lesson' is asserted without references."},
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review-2/SKILL.md:59-60", "note": "'the literature's most-cited failure mode' has no source."},
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review-2/SKILL.md:214", "note": "Example finding described as 'verbatim' from a run; no run or artifact is provided."},
+    {"kind": "missing-edge-case", "anchor": "skills/adversarial-review-2/SKILL.md:65-76", "note": "Charter allows 3-5 harm categories but Stage 2 assigns exactly top three; merge/split guidance is vague."}
+  ],
+  "least_confident": "Whether the referenced red-teaming literature (NIST, OWASP, Microsoft retrospective) actually supports the five-discipline framing, since the chunk provides no citations."
+}

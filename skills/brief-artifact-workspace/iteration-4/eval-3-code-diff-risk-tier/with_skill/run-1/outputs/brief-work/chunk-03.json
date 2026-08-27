@@ -1,0 +1,18 @@
+{
+  "summary": "Adds a new SKILL.md, adversarial-review-2, a systematic red-team review skill. It runs five stages: intake with an overkill check, a one-page charter of ranked harm categories, three parallel fresh-eyes adversary subagents with distinct lenses and a fixed finding format, main-agent verification with dedup, seam sweep, outcome-based severity rubric and strict total ranking, a fixed-section report, then a retest loop after fixes. Includes gotchas and a worked example finding.",
+  "claims": [
+    {"text": "Description positions skill as distinct from adversarial-review (conversational) and debate-review (neutral judge), and excludes routine diff review.", "anchor": "skills/adversarial-review-2/SKILL.md:12-15", "status": "verified"},
+    {"text": "Claims NIST, OWASP, and Microsoft's 100-product retrospective converge on discipline-over-cleverness with five elements.", "anchor": "skills/adversarial-review-2/SKILL.md:20-24", "status": "unverified"},
+    {"text": "Charter written to adversarial-review-2/charter.md with four sections; review stops without harm categories.", "anchor": "skills/adversarial-review-2/SKILL.md:50-66", "status": "verified"},
+    {"text": "Three adversaries spawned in parallel, each receiving only brief, artifact, and charter, never conversation history.", "anchor": "skills/adversarial-review-2/SKILL.md:70-77", "status": "verified"},
+    {"text": "Severity graded by outcome via four-row rubric, then ranked in strict total order with no ties.", "anchor": "skills/adversarial-review-2/SKILL.md:133-146", "status": "verified"},
+    {"text": "Report has six fixed sections; retest re-runs each Confirmed finding's original scenario after fixes.", "anchor": "skills/adversarial-review-2/SKILL.md:150-181", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review-2/SKILL.md:20-22", "note": "Literature citations (NIST, OWASP, Microsoft) named without links or titles; readers cannot check the claimed convergence."},
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review-2/SKILL.md:53-54", "note": "'Literature's most-cited failure mode' asserted without source."},
+    {"kind": "uncited-number", "anchor": "skills/adversarial-review-2/SKILL.md:200-228", "note": "Example finding presented as verbatim from a real run; no run or file is referenced."},
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review-2/SKILL.md:44-46", "note": "Overkill check says 'four subagents' but Stage 2 spawns three; count inconsistent."}
+  ],
+  "least_confident": "I could not check whether the cited red-teaming literature (NIST, OWASP, Microsoft retrospective) actually states the five discipline elements attributed to it."
+}

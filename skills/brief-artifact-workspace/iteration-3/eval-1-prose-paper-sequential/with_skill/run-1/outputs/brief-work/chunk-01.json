@@ -1,0 +1,18 @@
+{
+  "summary": "Opens the report: comprehension, not generation, is now the bottleneck for AI code, so reviewers should read re-presentations (specs, self-explanations, tests, summaries, diagrams, back-translations) instead of raw diffs. Grounds this in cognitive-load theory (four-chunk working memory, top-down comprehension via beacons, dual coding), the SmartBear/Cisco review-size limits, Stanford over-trust findings, AI-specific failure data (Pearce 40% vulnerable, GitClear duplication), and Bacchelli & Bird's finding that review is mainly about understanding.",
+  "claims": [
+    {"text": "Defect detection is highest under 200 LOC, falls past 400 LOC; 200-400 LOC over 60-90 minutes yields 70-90% defect discovery.", "anchor": "L12", "status": "verified"},
+    {"text": "AI-assisted participants wrote less secure code yet believed it more secure (Perry et al., CCS 2023, 47 participants).", "anchor": "L14", "status": "verified"},
+    {"text": "About 40% (39.33%) of Copilot top suggestions across 89 security scenarios were vulnerable (Pearce et al., S&P 2022).", "anchor": "L16", "status": "verified"},
+    {"text": "GitClear 2025: moved code fell 24.8% to 9.5%, copy/paste rose 8.4% to 12.3%, 5+ line duplicate blocks up eightfold.", "anchor": "L16", "status": "verified"},
+    {"text": "AI agent redundancy 0.2867 vs human 0.1532 (~1.87x, p<0.001), yet reviewers react more positively to AI PRs (Huang et al., MSR 2026).", "anchor": "L20", "status": "verified"},
+    {"text": "Modern code review is mainly about understanding; defect comments were about one-eighth of the sample (Bacchelli & Bird, ICSE 2013).", "anchor": "L42", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "L10", "note": "'Developers spend a majority of their time reading' has no source in the chunk."},
+    {"kind": "unsupported-claim", "anchor": "L18", "note": "Re-presentation converting extraneous to germane load is asserted from theory, no study cited."},
+    {"kind": "uncited-number", "anchor": "L39", "note": "'400-500 LOC/hour' threshold differs from the 450 figure at L12; no separate source."},
+    {"kind": "unsupported-claim", "anchor": "L41", "note": "Checklist superiority is described as 'mixed but leans' with no study named."}
+  ],
+  "least_confident": "Whether the 2006 SmartBear/Cisco human-code limits transfer to AI diffs; the chunk asserts it without evidence."
+}

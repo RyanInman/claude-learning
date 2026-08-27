@@ -1,0 +1,48 @@
+{
+  "summary": "Adds five eval cases for the debug-loop skill (vague login failure, pasted traceback, red tests after merge, trivial typo fast path, perf regression), each with a fixture path, prompt, and five expectations. Adds the csv-report fixture: report.py sums amounts by region via csv.DictReader with utf-8 encoding, a BOM-prefixed monthly export that triggers KeyError 'region', clean and header-only test CSVs, and two passing tests.",
+  "claims": [
+    {
+      "text": "evals.json defines five evals with ids 0-4, each naming a fixture directory under evals/fixtures.",
+      "anchor": "skills/debug-loop/evals/evals.json:5-115",
+      "status": "verified"
+    },
+    {
+      "text": "report.py opens files with encoding='utf-8', not 'utf-8-sig', so a BOM stays in the first header key.",
+      "anchor": "skills/debug-loop/evals/fixtures/csv-report/report.py:5",
+      "status": "verified"
+    },
+    {
+      "text": "sales-2026-08.csv starts with a UTF-8 BOM before 'region', matching the eval's expected root cause.",
+      "anchor": "skills/debug-loop/evals/fixtures/csv-report/data/sales-2026-08.csv:1",
+      "status": "verified"
+    },
+    {
+      "text": "Eval 1 prompt traceback cites report.py lines 12 and 20; those line numbers match the fixture file.",
+      "anchor": "skills/debug-loop/evals/evals.json:31",
+      "status": "verified"
+    },
+    {
+      "text": "Test suite uses only BOM-free CSVs, so it passes while the real export crashes, as the eval prompt states.",
+      "anchor": "skills/debug-loop/evals/fixtures/csv-report/tests/test_report.py:9-15",
+      "status": "verified"
+    },
+    {
+      "text": "Fixtures expired-sessions, pricing-regression, slug-typo, slow-enrichment are referenced but not present in this chunk.",
+      "anchor": "skills/debug-loop/evals/evals.json:7",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "missing-edge-case",
+      "anchor": "skills/debug-loop/evals/fixtures/csv-report/report.py:13",
+      "note": "float(row['amount']) has no guard for blank or malformed amounts; intentional for fixture but untested."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/debug-loop/evals/evals.json:7",
+      "note": "Four of five fixture directories are referenced without their contents in this chunk; existence cannot be checked here."
+    }
+  ],
+  "least_confident": "I could not confirm the BOM byte is actually present in sales-2026-08.csv beyond the visible marker, nor that the other four fixture directories exist."
+}

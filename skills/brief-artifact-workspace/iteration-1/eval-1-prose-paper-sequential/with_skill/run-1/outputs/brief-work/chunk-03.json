@@ -1,0 +1,19 @@
+{
+  "summary": "Extends the re-presentation approach beyond code to prose and research output: extract atomic claims, verify citations in a pipeline (DOI resolution, bibliographic matching, LLM relevance check), keep a numeric registry of computed values, and read a structured summary before the full text. Then gives staged recommendations: this week cap units at ~200 LOC and sessions at 60-90 minutes, require self-explanation blocks, name a human of record; this quarter move to spec-driven review, add an adversarial second-model pass plus package validation and security scanning, tier by risk; ongoing, auto-generate summaries and diagrams and track churn/duplication against a human baseline. Closes with thresholds that trigger tighter review and caveats about vendor sources, 2006-era limits, correlational trends, and preprint status.",
+  "claims": [
+    {"text": "Hallucinated legal citations have produced sanctions in more than a thousand tracked cases worldwide", "anchor": "Details > 6 > Citation verification pipeline (L5)", "status": "unverified"},
+    {"text": "AI redundancy ran ~1.87x human levels in the MSR 2026 study", "anchor": "Recommendations > Stage 3 > 8 (L23)", "status": "verified"},
+    {"text": "Post-merge defect or churn above ~1.5x the human baseline should trigger full line-by-line review and smaller chunks", "anchor": "Recommendations > Thresholds that change the plan (L25)", "status": "unverified"},
+    {"text": "Approval faster than ~300-500 LOC/hour should be treated as rubber-stamping", "anchor": "Recommendations > Thresholds that change the plan (L25)", "status": "unverified"},
+    {"text": "The 200-400 LOC and 60-90 minute figures come from 2006 human-written-code data and have not been re-derived for AI diffs", "anchor": "Caveats (L29)", "status": "unverified"},
+    {"text": "GitClear churn/duplication trends are correlational, not causal", "anchor": "Caveats (L30)", "status": "verified"},
+    {"text": "The EASE 2026 64.53% figure merges evaluative feedback with workflow acknowledgments, so it is not a pure measure of substantive review", "anchor": "Caveats (L31)", "status": "verified"},
+    {"text": "SmartBear, CodeRabbit, Qodo, and GitClear are vendor sources with commercial interest", "anchor": "Caveats (L28)", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "Details > 6 > Citation verification pipeline (L5)", "note": "'More than a thousand tracked cases' names no tracker or database."},
+    {"kind": "uncited-number", "anchor": "Recommendations > Thresholds that change the plan (L25)", "note": "The 1.5x and 300-500 LOC/hour thresholds are author-chosen and not tied to a study; 300-500 differs from the 450 figure cited earlier."},
+    {"kind": "unsupported-claim", "anchor": "Details > 6 > Numeric registry (L6)", "note": "A whitelist of computed values is proposed without evidence it catches errors in practice."}
+  ],
+  "least_confident": "Whether the citation-verification pipeline (CrossRef/OpenAlex/Semantic Scholar plus LLM relevance check) reflects an existing tool or is the author's proposal; the chunk does not say."
+}

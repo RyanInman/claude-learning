@@ -1,0 +1,22 @@
+{
+  "summary": "This chunk adds three new debug-loop eval fixtures, each a small bug scenario with its own tests. (1) expired-sessions: an append-only session store where refresh() returns 404/401/200 based on expiry, picking the row with the highest created_at. (2) pricing-regression: line_total/order_total compute discounted order pricing rounded to the cent, tested against specific rounding cases. (3) slow-enrichment: enrich_orders attaches a matching customer to each order via a nested linear scan over 20000 customers and 20000 orders, with run_nightly.py timing the run and tests checking correctness only, not speed.",
+  "claims": [
+    {"text": "sessions.py stores rows append-only; refreshing appends a new row with version = previous + 1, created_at at one-second resolution", "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/sessions.py:1-5", "status": "verified"},
+    {"text": "get_session returns the row with the maximum created_at for a session_id, or None if no rows exist", "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/sessions.py:20-24", "status": "verified"},
+    {"text": "refresh returns 404 for unknown session, 401 if expires_at <= now, else 200 with the token", "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/sessions.py:27-33", "status": "verified"},
+    {"text": "tests confirm a refreshed session (new row with later created_at) returns the newer token", "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/tests/test_sessions.py:27-31", "status": "verified"},
+    {"text": "line_total computes unit_price * qty * (1 - discount_pct/100), rounded to 2 decimals", "anchor": "skills/debug-loop/evals/fixtures/pricing-regression/pricing.py:1-3", "status": "verified"},
+    {"text": "order_total sums line_total results and rounds the sum to 2 decimals again", "anchor": "skills/debug-loop/evals/fixtures/pricing-regression/pricing.py:6-11", "status": "verified"},
+    {"text": "a test asserts 0.70 * 3 with 5% discount rounds to 2.00, per an inline comment computing 1.995", "anchor": "skills/debug-loop/evals/fixtures/pricing-regression/tests/test_pricing.py:16-18", "status": "unverified"},
+    {"text": "index_customers just copies each customer dict into a list; it builds no lookup index despite the name", "anchor": "skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py:4-6", "status": "verified"},
+    {"text": "enrich_orders matches each order to a customer via a linear inner loop over the full customer list", "anchor": "skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py:14-21", "status": "verified"},
+    {"text": "run_nightly.py builds 20000 customers and 20000 orders and times enrich_orders over them", "anchor": "skills/debug-loop/evals/fixtures/slow-enrichment/run_nightly.py:7-17", "status": "verified"},
+    {"text": "enrich tests check correctness (matching, unknown customer, field/order preservation) but not performance", "anchor": "skills/debug-loop/evals/fixtures/slow-enrichment/tests/test_enrich.py:12-28", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/sessions.py:20-24", "note": "get_session picks the row with max(created_at), but created_at has one-second resolution while version increments on every refresh; two refreshes within the same second tie on created_at, so the row returned is not guaranteed to be the latest version."},
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py:4-21", "note": "index_customers is named as if it builds a lookup structure but only copies the list; enrich_orders then does a linear scan per order, giving O(orders*customers) cost, which run_nightly.py's 20000x20000 input is set up to expose."},
+    {"kind": "uncited-number", "anchor": "skills/debug-loop/evals/fixtures/pricing-regression/tests/test_pricing.py:16-18", "note": "The comment asserts the intermediate float value 1.995 and that it 'bills as 2.00', but the chunk shows no computed output confirming this floating-point arithmetic actually lands on 2.00 rather than 1.99 due to binary rounding."}
+  ],
+  "least_confident": "Whether test_half_cent_rounds_up's asserted result of 2.00 actually holds given floating-point representation of 0.70 * 3 * 0.95, since the chunk only shows the comment's claimed intermediate value, not an executed result."
+}

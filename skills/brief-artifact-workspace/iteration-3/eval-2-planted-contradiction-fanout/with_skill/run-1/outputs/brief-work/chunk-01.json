@@ -1,0 +1,18 @@
+{
+  "summary": "Overview of the Ledger service, which records every transfer between accounts. The section is a repetitive list of operational assertions: a three-phase zero-downtime migration, structured logging with request ids, unit test coverage, schema review for index impact, a 200 ms p95 read latency target, health/readiness endpoints, low-priority backfills, single YAML config, alerts paging after five minutes, ninety-day secret rotation, and per-region dashboards. No evidence, data, or references accompany any statement.",
+  "claims": [
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "L7", "status": "unverified"},
+    {"text": "Read latency targets stay under 200 ms at the 95th percentile.", "anchor": "L7", "status": "unverified"},
+    {"text": "Unit tests cover the parser, the validator, and the posting logic.", "anchor": "L7", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "L11", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "L15", "status": "unverified"},
+    {"text": "Backfills run at low priority so they do not starve live traffic.", "anchor": "L7", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L7", "note": "200 ms p95 target stated repeatedly with no measurement or source."},
+    {"kind": "uncited-number", "anchor": "L7", "note": "Three phases, two weekends, zero downtime asserted without migration record."},
+    {"kind": "unsupported-claim", "anchor": "L7", "note": "Unit test coverage claimed with no test list or coverage figure."},
+    {"kind": "unsupported-claim", "anchor": "L7", "note": "Section repeats the same sentences many times; reads as filler, not design content."}
+  ],
+  "least_confident": "Whether the heavy repetition hides a subtle variant of a sentence that I missed; I found no internal contradiction in this chunk."
+}

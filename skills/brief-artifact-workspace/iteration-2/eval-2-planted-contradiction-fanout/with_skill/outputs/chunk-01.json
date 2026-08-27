@@ -1,0 +1,18 @@
+{
+  "summary": "Overview section for a Ledger service design doc. States the service records every transfer between accounts, then lists operational properties: a three-phase zero-downtime migration, structured logging with request ids, unit tests on parser/validator/posting logic, schema review for index impact, a spring planning review, sub-200ms p95 read latency, health/readiness endpoints, low-priority backfills, single YAML config, payments-channel alerting with a five-minute page delay, ninety-day secret rotation, and per-region dashboards for throughput, error rate, and queue depth. These same claims repeat many times across the paragraphs with no added detail.",
+  "claims": [
+    {"text": "The Ledger service records every transfer between accounts.", "anchor": "L5", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "L7", "status": "unverified"},
+    {"text": "Latency targets stay under 200 ms at the 95th percentile for reads.", "anchor": "L7", "status": "unverified"},
+    {"text": "Unit tests cover the parser, the validator, and the posting logic.", "anchor": "L7", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "L11", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "L15", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L7", "note": "200 ms p95 latency target and the three-phase/two-weekend migration timeline are stated with no supporting data or source."},
+    {"kind": "uncited-number", "anchor": "L11", "note": "Five-minute page delay for alerts is asserted with no citation."},
+    {"kind": "uncited-number", "anchor": "L15", "note": "Ninety-day secret rotation interval is asserted with no citation."},
+    {"kind": "unsupported-claim", "anchor": "L7", "note": "Claim that unit tests cover parser, validator, and posting logic has no test evidence in this chunk."}
+  ],
+  "least_confident": "Whether the migration actually completed in three phases over two weekends without downtime, since the chunk only asserts this repeatedly with no evidence."
+}

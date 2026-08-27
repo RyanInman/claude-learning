@@ -1,0 +1,5 @@
+- The diff adds four new skills (adversarial-review-2, debug-loop, p-review, and a brief-artifact plan), two research notes, and planted-bug eval fixtures; it edits one existing file, adversarial-review/SKILL.md, to route severity-graded requests.
+- Nothing runtime-facing changes: every added .py file is a debug-loop eval fixture with a deliberate bug (BOM header, .stip() typo, banker's rounding, O(n*m) scan, same-second session tie).
+- Subagent token cost disagrees across files: tactics.md:82 says ~3x, efficient-debug-loop-strategies.md:67 says 15x and ~4x; neither cites a source.
+- Highest reader-flagged risk: adversarial-review-2 overkill check says four subagents while Stage 2 spawns three; p-review overwrites minor-findings.md silently on rerun.
+- The research notes carry many dated figures, arXiv ids, and percentages with no links; readers marked nearly all of them unverified.

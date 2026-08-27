@@ -1,0 +1,18 @@
+{
+  "summary": "Diff adds two new markdown files. First is a plan for a brief-artifact skill: chunk prose, code, or diffs; read chunks sequentially or via subagents; extract claims with anchors and status; render a layered brief. Second is a debug-loop playbook for Claude Code: verification-driven loops, context management (/clear after two failed corrections, /compact at ~60%), prompting tips, hooks and subagents, anti-patterns table, hallucinated-package statistics, staged recommendations, and caveats about secondary numbers.",
+  "claims": [
+    {"text": "Plan splits reading by size: under 4 chunks sequential, 4+ chunks one subagent per chunk.", "anchor": "docs/plans/brief-artifact-plan.md:17", "status": "verified"},
+    {"text": "Plan says chunk summary limit is 120 words.", "anchor": "docs/plans/brief-artifact-plan.md:43", "status": "verified"},
+    {"text": "Chroma Context Rot report evaluated 18 frontier models and found performance degrades with input length.", "anchor": "resources/efficient-debug-loop-strategies.md:14", "status": "unverified"},
+    {"text": "Anthropic docs recommend /clear after correcting Claude more than twice on same issue.", "anchor": "resources/efficient-debug-loop-strategies.md:16", "status": "unverified"},
+    {"text": "USENIX 2025 study found 19.7% of recommended packages across 576,000 samples were hallucinated.", "anchor": "resources/efficient-debug-loop-strategies.md:79", "status": "unverified"},
+    {"text": "Thinking budget ordering: blog implies strict order, Willison decompilation says think harder and ultrathink both 31,999.", "anchor": "resources/efficient-debug-loop-strategies.md:63 vs resources/efficient-debug-loop-strategies.md:116", "status": "contradicted"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "resources/efficient-debug-loop-strategies.md:43", "note": "60% compact threshold and ~80% auto-compact attributed only to unnamed practitioners."},
+    {"kind": "uncited-number", "anchor": "resources/efficient-debug-loop-strategies.md:46", "note": "Lost-in-the-middle 30+ point accuracy drop has no source named."},
+    {"kind": "uncited-number", "anchor": "resources/efficient-debug-loop-strategies.md:79", "note": "2026 re-evaluation with 4.6-6.1% rates and 127 identical fake names has no author or venue."},
+    {"kind": "unsupported-claim", "anchor": "resources/efficient-debug-loop-strategies.md:61", "note": "Stop hook override after 8 consecutive blocks stated without source."}
+  ],
+  "least_confident": "I could not check any of the quoted Anthropic docs, Chroma, or USENIX figures; the playbook's many quotations are unsourced within the chunk."
+}

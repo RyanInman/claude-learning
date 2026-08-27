@@ -1,0 +1,96 @@
+{
+  "target": "diff 5e3c12b~3",
+  "chunk_count": 10,
+  "chunks": [
+    {
+      "id": "chunk-01",
+      "type": "diff",
+      "anchor": "docs/plans/brief-artifact-plan.md:1+, resources/efficient-debug-loop-strategies.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-01.txt",
+      "risk_tier": "low",
+      "size": 188,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-02",
+      "type": "diff",
+      "anchor": "resources/good-adversarial-review.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-02.txt",
+      "risk_tier": "low",
+      "size": 80,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-03",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2/SKILL.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-03.txt",
+      "risk_tier": "low",
+      "size": 229,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-04",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2/evals/evals.json:1+, skills/adversarial-review-2/evals/files/oncall-rotation-plan.md:1+, skills/adversarial-review-2/evals/files/session-cache-design.md:1+, skills/adversarial-review/SKILL.md:7+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-04.txt",
+      "risk_tier": "high",
+      "size": 110,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-05",
+      "type": "diff",
+      "anchor": "skills/debug-loop/SKILL.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-05.txt",
+      "risk_tier": "low",
+      "size": 255,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-06",
+      "type": "diff",
+      "anchor": "skills/debug-loop/evals/eval_queries.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-06.txt",
+      "risk_tier": "low",
+      "size": 83,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-07",
+      "type": "diff",
+      "anchor": "skills/debug-loop/evals/evals.json:1+, skills/debug-loop/evals/fixtures/csv-report/data/sales-2026-08.csv:1+, skills/debug-loop/evals/fixtures/csv-report/report.py:1+, skills/debug-loop/evals/fixtures/csv-report/tests/data/clean.csv:1+, skills/debug-loop/evals/fixtures/csv-report/tests/data/header_only.csv:1+, skills/debug-loop/evals/fixtures/csv-report/tests/test_report.py:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-07.txt",
+      "risk_tier": "high",
+      "size": 171,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-08",
+      "type": "diff",
+      "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/sessions.py:1+, skills/debug-loop/evals/fixtures/expired-sessions/tests/test_sessions.py:1+, skills/debug-loop/evals/fixtures/pricing-regression/pricing.py:1+, skills/debug-loop/evals/fixtures/pricing-regression/tests/test_pricing.py:1+, skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py:1+, skills/debug-loop/evals/fixtures/slow-enrichment/run_nightly.py:1+, skills/debug-loop/evals/fixtures/slow-enrichment/tests/test_enrich.py:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-08.txt",
+      "risk_tier": "high",
+      "size": 196,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-09",
+      "type": "diff",
+      "anchor": "skills/debug-loop/evals/fixtures/slug-typo/slug.py:1+, skills/debug-loop/evals/fixtures/slug-typo/tests/test_slug.py:1+, skills/debug-loop/references/tactics.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-09.txt",
+      "risk_tier": "low",
+      "size": 136,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-10",
+      "type": "diff",
+      "anchor": "skills/p-review/SKILL.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-10.txt",
+      "risk_tier": "low",
+      "size": 131,
+      "unit": "lines"
+    }
+  ]
+}

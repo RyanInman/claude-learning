@@ -1,0 +1,88 @@
+{
+  "summary": "This chunk adds two new files for the 'without_skill' baseline run of eval-1 (cache-design redteam): grading.json and outputs/metrics.json. grading.json records that a baseline (no-skill) red-team review of session-cache-design.md passed all 7 grading expectations (severity grades, concrete failure scenarios, KEYS-scan risk, sizing math, stale-price window, retest checklist, and an explicit scope/charter), lists 6 supporting factual/process claims with evidence, notes reviewer uncertainties, and includes eval_feedback suggesting the expectation set may not discriminate skill from baseline. outputs/metrics.json duplicates the same execution metrics (tool call counts, output/transcript sizes).",
+  "claims": [
+    {
+      "text": "All 7 expectations for the without_skill eval-1 run passed (7/7, pass_rate 1.0)",
+      "anchor": "without_skill/grading.json:45-50",
+      "status": "verified"
+    },
+    {
+      "text": "Every finding (F1-F12) carries an explicit Severity line under Critical/High/Medium/Low headers",
+      "anchor": "without_skill/grading.json:10-13",
+      "status": "unverified"
+    },
+    {
+      "text": "F1 flags KEYS as an O(N) blocking scan that stalls rate-limit checks and feature-flag reads for the whole cluster on a promo_changed event",
+      "anchor": "without_skill/grading.json:20-23",
+      "status": "unverified"
+    },
+    {
+      "text": "F4 flags the sizing math: 40KB x 200k sessions = ~8GB, exactly the cluster's stated free capacity",
+      "anchor": "without_skill/grading.json:25-28",
+      "status": "unverified"
+    },
+    {
+      "text": "F2/F3/F7 flag a stale-price window: catalog/tax changes or invalidation gaps can serve outdated prices for up to 30 minutes",
+      "anchor": "without_skill/grading.json:30-33",
+      "status": "unverified"
+    },
+    {
+      "text": "Every finding ends with a Re-check step, and the report closes with a Re-check checklist table covering F1-F12",
+      "anchor": "without_skill/grading.json:35-38",
+      "status": "verified"
+    },
+    {
+      "text": "The report states scope/target and a harm-ranked severity ladder before any finding, satisfying the 'charter or equivalent' expectation",
+      "anchor": "without_skill/grading.json:40-43",
+      "status": "unverified"
+    },
+    {
+      "text": "The baseline run used 5 tool calls total (Read: 1, Write: 3, Bash: 1) across 3 steps with 0 errors",
+      "anchor": "without_skill/grading.json:52-58",
+      "status": "verified"
+    },
+    {
+      "text": "The executor run took 120.6 seconds",
+      "anchor": "without_skill/grading.json:59-61",
+      "status": "verified"
+    },
+    {
+      "text": "40KB x 200k sessions = ~8GB matches the design doc's stated Sizing section (~40KB per session, ~200k sessions, 8GB free)",
+      "anchor": "without_skill/grading.json:64-68",
+      "status": "unverified"
+    },
+    {
+      "text": "The only invalidation trigger in the design doc is promo_changed; no catalog or tax invalidation path exists",
+      "anchor": "without_skill/grading.json:69-74",
+      "status": "unverified"
+    },
+    {
+      "text": "No codebase or Redis access was used; all findings derive from the doc text, and this cannot be fully confirmed without a transcript",
+      "anchor": "without_skill/grading.json:93-98",
+      "status": "unverified"
+    },
+    {
+      "text": "eval_feedback suggests the 'charter or equivalent' expectation may not discriminate a skilled review from a competent baseline",
+      "anchor": "without_skill/grading.json:110-115",
+      "status": "verified"
+    },
+    {
+      "text": "outputs/metrics.json created files redteam-report.md, user_notes.md, metrics.json with the same tool-call and size figures as grading.json's execution_metrics",
+      "anchor": "without_skill/outputs/metrics.json:130-138",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "duplicate-logic",
+      "anchor": "without_skill/grading.json:51-58 vs without_skill/outputs/metrics.json:130-138",
+      "note": "The same execution metrics (tool_calls, total_tool_calls, errors_encountered, output_chars, transcript_chars) are recorded identically in both grading.json's execution_metrics block and the separate outputs/metrics.json file."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "without_skill/grading.json:93-98",
+      "note": "The claim that 'no codebase or Redis access was used' is marked verified:true, but the entry's own evidence text admits it 'cannot be fully confirmed without a transcript.'"
+    }
+  ],
+  "least_confident": "I could not verify any of grading.json's factual claims about the reviewed report (F1-F12 findings) or the design doc itself, since neither redteam-report.md nor session-cache-design.md appears in this chunk -- I can only confirm that grading.json states these things, not that they are true."
+}

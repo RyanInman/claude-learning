@@ -1,0 +1,58 @@
+{
+  "summary": "Diff adds three new files. slug.py defines slugify(), which lowercases, strips, replaces non-alphanumeric runs with hyphens, and trims edge hyphens; it contains a deliberate typo (.stip()) so the fixture fails. test_slug.py adds three pytest cases for basic, whitespace, and punctuation input. tactics.md is a debug-loop reference covering git bisect, building a check when none exists, hooks as gates, subagent delegation, overfitted fixes, and context hygiene.",
+  "claims": [
+    {
+      "text": "slugify calls text.lower().stip(), a misspelling of strip(); every test will raise AttributeError.",
+      "anchor": "skills/debug-loop/evals/fixtures/slug-typo/slug.py:7",
+      "status": "verified"
+    },
+    {
+      "text": "Tests import slug by inserting the fixture parent directory onto sys.path.",
+      "anchor": "skills/debug-loop/evals/fixtures/slug-typo/tests/test_slug.py:3",
+      "status": "verified"
+    },
+    {
+      "text": "test_collapses_punctuation expects 'v2.0 -- final!' to become 'v2-0-final'; regex plus edge strip supports this once typo is fixed.",
+      "anchor": "skills/debug-loop/evals/fixtures/slug-typo/tests/test_slug.py:17",
+      "status": "verified"
+    },
+    {
+      "text": "git bisect finds the culprit in about 10 steps across 1,000 commits.",
+      "anchor": "skills/debug-loop/references/tactics.md:19",
+      "status": "verified"
+    },
+    {
+      "text": "Claude Code overrides a Stop hook after 8 consecutive blocks.",
+      "anchor": "skills/debug-loop/references/tactics.md:63",
+      "status": "unverified"
+    },
+    {
+      "text": "A subagent run costs about three times the tokens of the same work inline.",
+      "anchor": "skills/debug-loop/references/tactics.md:82 vs resources/efficient-debug-loop-strategies.md:67",
+      "status": "contradicted"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "skills/debug-loop/references/tactics.md:63",
+      "note": "8-block Stop hook override limit stated without source."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "skills/debug-loop/references/tactics.md:82",
+      "note": "3x subagent token cost stated without source."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "skills/debug-loop/references/tactics.md:97",
+      "note": "Compact at 60% context; no basis given for the threshold."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/debug-loop/references/tactics.md:107",
+      "note": "Claims Claude ignores a bloated CLAUDE.md wholesale; no evidence."
+    }
+  ],
+  "least_confident": "Whether the .stip() typo is intentional fixture design (the directory is named slug-typo, suggesting yes) rather than an accidental bug."
+}

@@ -1,0 +1,17 @@
+{
+  "summary": "This diff adds three new eval files for a new skill, adversarial-review-2, and edits the description of the existing adversarial-review skill. evals.json defines two evals: a red-team of a Redis session-cache design for a checkout service, and a red-team of a follow-the-sun on-call rotation plan. Each eval lists a prompt, an expected output, and a checklist of expectations (severity grades, strict rank order, concrete failure scenarios, planted flaws caught, falsifiable retest checks, a verdict plus minimum-changes list). The two fixture markdown files contain the planted flaws. The SKILL.md edit shortens one phrase and adds a routing rule: send severity-graded findings or retest loops to adversarial-review-2.",
+  "claims": [
+    {"text": "Eval 1 expects the report to flag KEYS-based invalidation blocking the shared Redis cluster; the fixture shows KEYS session:*:pricing then DEL on a shared cluster.", "anchor": "evals.json:21 and session-cache-design.md:106-107", "status": "verified"},
+    {"text": "Eval 1 expects sizing math 200k x 40KB = 8GB equal to free memory; fixture states ~40KB/session, ~200k sessions, 8GB free.", "anchor": "evals.json:22 and session-cache-design.md:110", "status": "verified"},
+    {"text": "Eval 2 expects a timezone gap: Krakow 08:00-20:00 CET = 02:00-14:00 ET, leaving 20:00-02:00 ET uncovered; fixture gives the two windows.", "anchor": "evals.json:41 and oncall-rotation-plan.md:68", "status": "verified"},
+    {"text": "Eval 2 expects the readiness risk (6-week-old team, no prod shipments, access in progress); fixture Notes state exactly this.", "anchor": "evals.json:42 and oncall-rotation-plan.md:78-79", "status": "verified"},
+    {"text": "adversarial-review SKILL.md now routes severity-graded findings or a retest loop to adversarial-review-2.", "anchor": "skills/adversarial-review/SKILL.md:128-129", "status": "verified"},
+    {"text": "Eval file paths are relative ('evals/files/...') and resolve against the skill directory.", "anchor": "evals.json:16", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "evals.json:41", "note": "CET-to-ET offset is 6 hours only outside DST-drift weeks; the expectation hardcodes 02:00-14:00 ET, which a correct report using CEST/EDT could phrase differently."},
+    {"kind": "unsupported-claim", "anchor": "evals.json:14", "note": "Expected output asserts the stale-price window is a planted flaw, but the fixture only implies it via the 30-minute TTL; graders may disagree on what counts as catching it."},
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review/SKILL.md:129", "note": "Description references adversarial-review-2 but the chunk does not show that skill's SKILL.md exists."}
+  ],
+  "least_confident": "Whether the evals.json schema (skill_name, evals, expectations) matches what the eval runner expects, since no runner or schema appears in the chunk."
+}

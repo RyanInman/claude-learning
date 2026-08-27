@@ -1,0 +1,18 @@
+{
+  "summary": "This chunk adds a new skill file, adversarial-review-2/SKILL.md. The skill defines a five-stage red-team review: intake and an overkill check, a one-page charter naming ranked harm categories, three parallel fresh-eyes adversary subagents each assigned one lens from the charter and given only the artifact and charter, a verify-dedupe-seam-sweep-grade pass by the main agent with an outcome-based Critical/High/Medium/Low rubric and strict total ranking, a fixed-format report written to adversarial-review-2/report.md, and a retest stage that reruns each confirmed finding's failing scenario after fixes. It justifies the design by citing red-teaming literature (NIST, OWASP, Microsoft), lists gotchas, and closes with one example finding from a queue-migration review.",
+  "claims": [
+    {"text": "Published red-teaming literature (NIST, OWASP, Microsoft 100-product retrospective) converges on discipline over cleverness and on the five listed properties.", "anchor": "skills/adversarial-review-2/SKILL.md:26-30", "status": "unverified"},
+    {"text": "Adversaries receive only the brief, artifact, and charter; conversation history is never pasted.", "anchor": "skills/adversarial-review-2/SKILL.md:80-82", "status": "verified"},
+    {"text": "Severity is graded from worst plausible outcome using the four-row rubric, then ranked in a strict total order with certainty weighing in.", "anchor": "skills/adversarial-review-2/SKILL.md:131-146", "status": "verified"},
+    {"text": "The report has exactly six sections: Verdict, Summary table, Findings, Killed findings, Verification items, Retest list.", "anchor": "skills/adversarial-review-2/SKILL.md:154-171", "status": "verified"},
+    {"text": "Attacking without a threat model is the literature's most-cited failure mode; a review without retest is the literature's most common weak-review pattern.", "anchor": "skills/adversarial-review-2/SKILL.md:59-60 vs 201-202", "status": "unverified"},
+    {"text": "The example finding is a verbatim excerpt from a real run's report.", "anchor": "skills/adversarial-review-2/SKILL.md:214", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review-2/SKILL.md:26-28", "note": "Cites NIST, OWASP, and a Microsoft 100-product retrospective without document names or links; the specific five-property convergence is not sourced."},
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review-2/SKILL.md:59-60", "note": "'the literature's most-cited failure mode' is asserted with no citation."},
+    {"kind": "unsupported-claim", "anchor": "skills/adversarial-review-2/SKILL.md:214", "note": "Example labeled 'verbatim' from a run, but no run artifact is referenced; may be fabricated illustration."},
+    {"kind": "uncited-number", "anchor": "skills/adversarial-review-2/SKILL.md:233", "note": "Example fix specifies 'publish-success-ratio >= 99.99% over 24h' with no basis stated."}
+  ],
+  "least_confident": "I cannot check whether the cited NIST/OWASP/Microsoft red-teaming sources exist or say what the chunk attributes to them, nor whether the example finding came from an actual run."
+}

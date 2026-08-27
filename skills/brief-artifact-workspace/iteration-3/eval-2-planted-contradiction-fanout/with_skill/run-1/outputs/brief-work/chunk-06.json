@@ -1,0 +1,58 @@
+{
+  "summary": "Operations section of the ledger service design. Opens with an on-call note: the risk engine timeout is 90 seconds, so a slow engine stalls 90 seconds before retry. The rest is heavily repeated boilerplate: per-region dashboards, low-priority backfills, health/readiness endpoints, single YAML config, 90-day secret rotation, alerts paging after five minutes, structured logs per write, unit test coverage, 200 ms p95 read latency target, index-impact schema review, and a three-phase no-downtime migration.",
+  "claims": [
+    {
+      "text": "Risk engine timeout is 90 seconds; a slow engine stalls 90 seconds before retry.",
+      "anchor": "L37 'time out after 30 seconds' vs L85 'timeout is 90 seconds'",
+      "status": "contradicted"
+    },
+    {
+      "text": "Alerts route to the payments channel and page after five minutes.",
+      "anchor": "L87",
+      "status": "unverified"
+    },
+    {
+      "text": "Secrets rotate every ninety days through the platform vault.",
+      "anchor": "L87",
+      "status": "unverified"
+    },
+    {
+      "text": "Read latency target is under 200 ms at the 95th percentile.",
+      "anchor": "L89",
+      "status": "unverified"
+    },
+    {
+      "text": "Migration ran in three phases over two weekends without downtime.",
+      "anchor": "L87",
+      "status": "unverified"
+    },
+    {
+      "text": "Unit tests cover the parser, validator, and posting logic.",
+      "anchor": "L89",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "L85",
+      "note": "90 second timeout stated without config or source reference; check against the rest of the design."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "L89",
+      "note": "200 ms p95 read target given with no measurement or SLO source."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "L87",
+      "note": "Zero-downtime three-phase migration asserted with no dates or evidence."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "L95",
+      "note": "Design reviewed in spring planning cycle; no reviewers or record named."
+    }
+  ],
+  "least_confident": "The 90 second risk engine timeout on L85 is the one specific figure here, and I cannot check it against the timeout stated elsewhere in the document."
+}

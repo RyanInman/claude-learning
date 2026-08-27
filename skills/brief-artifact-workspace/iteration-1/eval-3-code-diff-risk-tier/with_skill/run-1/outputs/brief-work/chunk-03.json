@@ -1,0 +1,58 @@
+{
+  "summary": "This chunk adds a new file, benchmark.json, recording eval results for the adversarial-review-2 skill. It runs eval 1 and eval 2 twice each: once with_skill, once without_skill. All four configurations pass every expectation except without_skill/eval_id 2, which fails the retest-mechanism check. with_skill scores a perfect 1.0 mean pass rate on both evals but takes far longer (~1191s mean vs ~101s) and uses roughly double the tokens (~62.7k vs ~31.4k). A run_summary block aggregates mean/stddev/min/max per configuration and states deltas: pass_rate +0.08, time_seconds +1090.1, tokens +31278, all favoring without_skill on cost and with_skill on pass rate.",
+  "claims": [
+    {
+      "text": "with_skill eval 1 passed 7/7 expectations, pass_rate 1.0, took 1178.8s, used 62950 tokens, 10 tool calls, 1 error",
+      "anchor": "benchmark.json:16-27 (eval_id 1, configuration with_skill)",
+      "status": "verified"
+    },
+    {
+      "text": "with_skill eval 2 passed 6/6 expectations, pass_rate 1.0, took 1203.5s, used 62457 tokens, 10 tool calls, 1 error",
+      "anchor": "benchmark.json:70-81 (eval_id 2, configuration with_skill)",
+      "status": "verified"
+    },
+    {
+      "text": "without_skill eval 1 passed 7/7 expectations, pass_rate 1.0, took 120.6s, used 33200 tokens, 5 tool calls, 0 errors",
+      "anchor": "benchmark.json:116-127 (eval_id 1, configuration without_skill)",
+      "status": "verified"
+    },
+    {
+      "text": "without_skill eval 2 passed 5/6 expectations, pass_rate 0.83, took 81.5s, used 29650 tokens, 4 tool calls, 0 errors",
+      "anchor": "benchmark.json:174-185 (eval_id 2, configuration without_skill)",
+      "status": "verified"
+    },
+    {
+      "text": "The one failing expectation across all runs is 'Report contains a retest list or equivalent re-check mechanism' for without_skill eval 2, because the report's 'Bottom line' section lists remediations rather than a mechanism to re-verify findings after fixes",
+      "anchor": "benchmark.json:204-208 (expectation passed: false, evidence)",
+      "status": "verified"
+    },
+    {
+      "text": "Both with_skill runs hit a harness guard that blocked the Write tool for report.md, so the executor wrote it via a Bash/shell heredoc instead, which is the one recorded error in each run's metrics",
+      "anchor": "benchmark.json:63-66, 112-115 (notes)",
+      "status": "verified"
+    },
+    {
+      "text": "run_summary aggregates show with_skill mean pass_rate 1.0 (stddev 0.0), mean time 1191.15s, mean tokens 62703.5; without_skill mean pass_rate 0.915 (stddev 0.1202), mean time 101.05s, mean tokens 31425.0",
+      "anchor": "benchmark.json:224-260 (run_summary)",
+      "status": "verified"
+    },
+    {
+      "text": "Delta block states pass_rate +0.08, time_seconds +1090.1, tokens +31278 (with_skill minus without_skill)",
+      "anchor": "benchmark.json:261-265 (run_summary.delta)",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "benchmark.json:12 (\"analyzer_model\": \"unrecorded\")",
+      "note": "The analyzer_model field is explicitly unrecorded, so grading provenance for these pass/fail calls is not established in this chunk."
+    },
+    {
+      "kind": "missing-edge-case",
+      "anchor": "benchmark.json:6-14 (metadata.evals_run: [1,2], runs_per_configuration: 1)",
+      "note": "Only 1 run per configuration is recorded, so the without_skill stddev of 0.1202 in pass_rate is computed from just two data points (eval 1 and eval 2), which is a thin sample for a variance claim."
+    }
+  ],
+  "least_confident": "I could not verify from this chunk alone whether the without_skill runs and with_skill runs graded the same underlying report artifacts fairly, since the reports themselves and the grading rubric live outside this chunk."
+}

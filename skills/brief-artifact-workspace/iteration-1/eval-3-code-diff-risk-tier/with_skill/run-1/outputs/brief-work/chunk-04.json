@@ -1,0 +1,83 @@
+{
+  "summary": "This chunk adds four new files for the adversarial-review-2 skill benchmark's eval-1 (cache-design-redteam). benchmark.md reports 100% vs 92% pass rate, more time and tokens with the skill, and flags itself as single-draw data. eval_metadata.json defines the eval prompt and seven expectations for red-teaming a Redis session-cache design. session-cache-design.md is the design under test: a Redis-cached checkout pricing hash with a KEYS-based invalidation sweep, 30-min TTL, and sizing that consumes all free cluster memory. with_skill/grading.json shows the with-skill run passed all seven expectations, cites specific findings (F1-F10) as evidence, and appends internal claims and eval-feedback notes about grading limitations.",
+  "claims": [
+    {
+      "text": "With-skill pass rate 100% ± 0%, without-skill 92% ± 12%, delta +0.08",
+      "anchor": "benchmark.md:11",
+      "status": "verified"
+    },
+    {
+      "text": "With-skill time 1191.2s ± 17.5s vs without-skill 101.0s ± 27.6s, delta +1090.1s",
+      "anchor": "benchmark.md:12",
+      "status": "verified"
+    },
+    {
+      "text": "With-skill tokens 62704 ± 349 vs without-skill 31425 ± 2510, delta +31278",
+      "anchor": "benchmark.md:13",
+      "status": "verified"
+    },
+    {
+      "text": "The benchmark itself states each delta is a single-draw observation with no run-to-run variance information",
+      "anchor": "benchmark.md:7",
+      "status": "verified"
+    },
+    {
+      "text": "eval-1 requires severities on every finding, reproducible failure scenarios, flags on KEYS-based invalidation, the 8GB sizing match, stale pricing, a retest mechanism, and an explicit scope/threat model",
+      "anchor": "eval_metadata.json:6-12",
+      "status": "verified"
+    },
+    {
+      "text": "Design caches per-session pricing in Redis with a 30-minute TTL, keyed only by session ID, on a cluster shared with rate limiting and feature flags",
+      "anchor": "session-cache-design.md:9-16",
+      "status": "verified"
+    },
+    {
+      "text": "Invalidation deletes all pricing keys via 'KEYS session:*:pricing' then DEL",
+      "anchor": "session-cache-design.md:19-20",
+      "status": "verified"
+    },
+    {
+      "text": "Sizing: ~40KB per session x ~200k active sessions peak, against an 8GB-free cluster",
+      "anchor": "session-cache-design.md:23",
+      "status": "verified"
+    },
+    {
+      "text": "with_skill run passed all 7 expectations (pass_rate 1.0)",
+      "anchor": "grading.json:summary",
+      "status": "verified"
+    },
+    {
+      "text": "Three fresh-eyes adversaries attacked in parallel, marked verified:true",
+      "anchor": "grading.json:claims[0].verified vs grading.json:claims[0].evidence",
+      "status": "contradicted"
+    },
+    {
+      "text": "12 raw findings merged to 10 (2 merges, 0 killed)",
+      "anchor": "grading.json:claims[1]",
+      "status": "unverified"
+    },
+    {
+      "text": "Harness blocked the Write tool for report.md; executor used a Bash heredoc workaround instead (the run's one recorded error)",
+      "anchor": "grading.json:user_notes_summary.workarounds",
+      "status": "verified"
+    },
+    {
+      "text": "Grading eval feedback notes no expectation checks citation accuracy, so a report with hallucinated line references would still pass all seven expectations",
+      "anchor": "grading.json:eval_feedback.suggestions[1]",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "benchmark.md:7",
+      "note": "Doc explicitly warns its own ± figures come from only 2 evals and carry no true variance info, so all summary deltas are single-draw stats presented with a misleadingly precise standard-deviation format."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "grading.json:claims[0] vs grading.json:claims[0].evidence",
+      "note": "The claim 'Three fresh-eyes adversaries attacked in parallel' is marked verified:true, but its own evidence text says 'No transcript available to confirm their prompts or parallelism' — the verified flag is not supported by the stated evidence."
+    }
+  ],
+  "least_confident": "Whether the grading.json claim of three adversaries attacking 'in parallel' should count as verified, since the object's own evidence field admits there is no transcript to confirm parallelism (only an Agent-call count of 3)."
+}

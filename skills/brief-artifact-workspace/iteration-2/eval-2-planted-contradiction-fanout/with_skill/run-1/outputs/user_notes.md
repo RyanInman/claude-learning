@@ -1,0 +1,4 @@
+- Brief written to outputs/brief.md per the task instead of the skill's default `X.brief.md` beside the source, to keep evals/fixtures/ clean.
+- Chunk readers ran on sonnet via general-purpose subagents; all 6 returned valid JSON on the first pass.
+- Reconciliation edited chunk-03 claim 0 and chunk-06 claim 0 in place (30 s vs 90 s risk-engine timeout, anchor "L37 vs L85").
+- Skill workflow waits for fan-out with no built-in wait; used a background until-loop on JSON file presence.

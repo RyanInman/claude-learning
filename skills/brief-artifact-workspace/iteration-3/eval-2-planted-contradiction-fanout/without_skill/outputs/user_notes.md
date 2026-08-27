@@ -1,0 +1,2 @@
+- The fixture is almost entirely repeated boilerplate sentences; only one substantive sentence per section. Treated the repeated sentences as cross-cutting claims and summarized them once.
+- The planted contradiction (30 s vs 90 s risk engine timeout) is flagged as item 1.

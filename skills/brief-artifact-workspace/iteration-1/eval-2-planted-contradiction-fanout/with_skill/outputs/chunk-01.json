@@ -1,0 +1,26 @@
+{
+  "summary": "Overview section of the Ledger Service Design. It states the service records every transfer between accounts, then repeats a fixed set of operational claims many times across six paragraphs: a three-phase zero-downtime migration, structured request-id logging on write paths, unit tests for parser/validator/posting, schema review for index impact, a spring planning review, a 200 ms p95 read latency target, health and readiness endpoints, low-priority backfills, single-YAML config, alerts to the payments channel paging after five minutes, 90-day secret rotation via the platform vault, and per-region dashboards. No sentence contradicts another; the text is heavily duplicated filler with no evidence for any claim.",
+  "claims": [
+    {"text": "The Ledger service records every transfer between accounts.", "anchor": "L5", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "L7", "status": "unverified"},
+    {"text": "Every write path emits a structured log line with the request id.", "anchor": "L7", "status": "unverified"},
+    {"text": "Unit tests cover the parser, the validator, and the posting logic.", "anchor": "L7", "status": "unverified"},
+    {"text": "Schema changes go through a review that checks index impact.", "anchor": "L7", "status": "unverified"},
+    {"text": "The team reviewed this design in the spring planning cycle.", "anchor": "L7", "status": "unverified"},
+    {"text": "Read latency target is under 200 ms at the 95th percentile.", "anchor": "L7", "status": "unverified"},
+    {"text": "The service exposes health and readiness endpoints for the orchestrator.", "anchor": "L7", "status": "unverified"},
+    {"text": "Backfills run at low priority so they do not starve live traffic.", "anchor": "L7", "status": "unverified"},
+    {"text": "Configuration lives in a single YAML file loaded at startup.", "anchor": "L7", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "L11", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "L15", "status": "unverified"},
+    {"text": "Dashboards show throughput, error rate, and queue depth per region.", "anchor": "L15", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L7", "note": "200 ms p95 read latency target stated with no measurement or source."},
+    {"kind": "uncited-number", "anchor": "L11", "note": "Five-minute page delay for alerts stated with no source."},
+    {"kind": "uncited-number", "anchor": "L15", "note": "Ninety-day secret rotation stated with no policy reference."},
+    {"kind": "unsupported-claim", "anchor": "L7", "note": "Zero-downtime three-phase migration claim has no runbook, dates, or metrics."},
+    {"kind": "unsupported-claim", "anchor": "L7-L17", "note": "Section is the same dozen sentences repeated many times with no supporting detail; reads as filler rather than design content."}
+  ],
+  "least_confident": "I could not check whether the repeated sentences are intentional padding or a generation error, and whether any of the operational claims hold outside this chunk."
+}

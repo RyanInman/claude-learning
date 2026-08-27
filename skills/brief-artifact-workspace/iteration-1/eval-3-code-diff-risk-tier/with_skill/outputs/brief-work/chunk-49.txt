@@ -1,0 +1,194 @@
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/transcript-notes.md b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/transcript-notes.md
+new file mode 100644
+index 0000000..ca96206
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/transcript-notes.md
+@@ -0,0 +1,14 @@
++# Transcript notes
++
++1. Bash: `cp -R` fixture `csv-report` → `outputs/project`; `git init -q`; wrote `.gitignore` (`__pycache__/`, `.pytest_cache/`); `git add -A && git commit -qm baseline`; `ls -R`.
++2. Read: `/Users/admin/claude-learning/skills/running-debug-loops/SKILL.md`.
++3. Read: `project/report.py`; Read: `project/tests/test_report.py`; Bash: `od -c data/sales-2026-08.csv | head -20` + `head -3 tests/data/clean.csv` (parallel).
++4. Bash (repro): `python3 report.py data/sales-2026-08.csv` → KeyError, exit 1; `python3 -m pytest tests -q` → 2 passed.
++5. Bash (instrument): `python3 -c` printing `list(rows[0].keys())` and `repr` of first key → `'﻿region'`. Hypothesis 1 confirmed.
++6. Bash: wrote `tests/data/bom.csv` via `printf '\xef\xbb\xbf...'`; verified bytes with `od -c`.
++7. Edit: `tests/test_report.py` — added `test_utf8_bom_header_is_parsed`.
++8. Bash: `pytest tests -q` → 1 failed, 2 passed; `git commit -qm "failing test: BOM header"` (df84b43). No impl code touched.
++9. Edit: `report.py` — `encoding="utf-8"` → `encoding="utf-8-sig"` in `load()`.
++10. Bash (check): `pytest tests -q` → 3 passed; `python3 report.py data/sales-2026-08.csv` → east 30.00 / west 12.50, exit 0.
++11. Bash (revert check): `git stash` → 1 failed, 2 passed; `git stash pop` → 3 passed; `git commit -qm "fix: read CSV as utf-8-sig..."` (05dabc5); `git log --oneline`.
++12. Write: `outputs/response.md`, `outputs/transcript-notes.md`, `outputs/metrics.json`.
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/grading.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/grading.json
+new file mode 100644
+index 0000000..33aebb9
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 1,
++  "eval_name": "pasted-traceback",
++  "config": "with_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": true,
++      "evidence": "Debug Brief emitted before any edit"
++    },
++    {
++      "text": "Reproduces the crash by running the exact failing command and shows the output",
++      "passed": true,
++      "evidence": "Ran the exact failing command and pasted the KeyError"
++    },
++    {
++      "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys",
++      "passed": true,
++      "evidence": "BOM identified with evidence from the parsed header keys"
++    },
++    {
++      "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact",
++      "passed": true,
++      "evidence": "encoding='utf-8-sig'; no defaulted key, no post-hoc rename"
++    },
++    {
++      "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing",
++      "passed": true,
++      "evidence": "BOM fixture and test added, 3 passed, repro exits 0"
++    }
++  ],
++  "passed": 5,
++  "total": 5,
++  "summary": {
++    "passed": 5,
++    "failed": 0,
++    "total": 5,
++    "pass_rate": 1.0
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/metrics.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/metrics.json
+new file mode 100644
+index 0000000..3b999c9
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/metrics.json
+@@ -0,0 +1,20 @@
++{
++  "tool_calls": {
++    "Bash": 8,
++    "Read": 3,
++    "Edit": 2,
++    "Write": 3
++  },
++  "total_tool_calls": 16,
++  "total_steps": 12,
++  "files_created": [
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/project/.gitignore",
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/project/tests/data/bom.csv",
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/response.md",
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/transcript-notes.md",
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/metrics.json"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 4233,
++  "transcript_chars": 1474
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/timing.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/timing.json
+new file mode 100644
+index 0000000..7a63eb9
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 37860, "duration_ms": 86706, "total_duration_seconds": 86.7}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/timing.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/timing.json
+new file mode 100644
+index 0000000..7a63eb9
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 37860, "duration_ms": 86706, "total_duration_seconds": 86.7}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/grading.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/grading.json
+new file mode 100644
+index 0000000..daf97d2
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 1,
++  "eval_name": "pasted-traceback",
++  "config": "without_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": false,
++      "evidence": "No brief"
++    },
++    {
++      "text": "Reproduces the crash by running the exact failing command and shows the output",
++      "passed": true,
++      "evidence": "Reproduced the crash and showed the output"
++    },
++    {
++      "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys",
++      "passed": true,
++      "evidence": "BOM identified as the cause with byte-level evidence"
++    },
++    {
++      "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact",
++      "passed": true,
++      "evidence": "encoding='utf-8-sig'"
++    },
++    {
++      "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing",
++      "passed": true,
++      "evidence": "BOM test added and confirmed red without the fix; 3 passed"
++    }
++  ],
++  "passed": 4,
++  "total": 5,
++  "summary": {
++    "passed": 4,
++    "failed": 1,
++    "total": 5,
++    "pass_rate": 0.8
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/metrics.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/metrics.json
+new file mode 100644
+index 0000000..14ee0c8
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/metrics.json
+@@ -0,0 +1,20 @@
++{
++  "tool_calls": {
++    "Bash": 5,
++    "Read": 2,
++    "Edit": 2,
++    "Write": 3
++  },
++  "total_tool_calls": 12,
++  "total_steps": 10,
++  "files_created": [
++    "project/tests/data/bom.csv",
++    "project/.gitignore",
++    "response.md",
++    "transcript-notes.md",
++    "metrics.json"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 2126,
++  "transcript_chars": 1227
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/project b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/project
+new file mode 160000
+index 0000000..f4b8e70
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/project
+@@ -0,0 +1 @@
++Subproject commit f4b8e7098eb0ad942754faa1eb45f26a7f7247a2-dirty

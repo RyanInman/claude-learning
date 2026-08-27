@@ -1,0 +1,93 @@
+{
+  "summary": "The Operations section opens with an on-call note: the risk engine timeout is 90 seconds, so a slow engine appears as a 90 second stall before retry. The rest is a heavily repeated set of operational statements: per-region dashboards for throughput, error rate, and queue depth; a three-phase migration over two weekends with no downtime; low-priority backfills; health and readiness endpoints; a single YAML config loaded at startup; secrets rotated every ninety days via the platform vault; alerts to the payments channel paging after five minutes; structured logs with request id on write paths; unit tests for parser, validator, posting logic; 200 ms p95 read latency target; schema review for index impact; a spring planning review.",
+  "claims": [
+    {
+      "text": "Risk engine timeout is 90 seconds; a slow engine shows as a 90 second stall before retry starts.",
+      "anchor": "Timeouts and retries, L3 vs Operations L3",
+      "status": "contradicted"
+    },
+    {
+      "text": "Dashboards show throughput, error rate, and queue depth per region.",
+      "anchor": "Operations L5",
+      "status": "unverified"
+    },
+    {
+      "text": "The migration ran in three phases over two weekends without downtime.",
+      "anchor": "Operations L5",
+      "status": "unverified"
+    },
+    {
+      "text": "Backfills run at low priority so they do not starve live traffic.",
+      "anchor": "Operations L5",
+      "status": "unverified"
+    },
+    {
+      "text": "The service exposes health and readiness endpoints for the orchestrator.",
+      "anchor": "Operations L5",
+      "status": "unverified"
+    },
+    {
+      "text": "Configuration lives in a single YAML file loaded at startup.",
+      "anchor": "Operations L5",
+      "status": "unverified"
+    },
+    {
+      "text": "Secrets rotate every ninety days through the platform vault.",
+      "anchor": "Operations L5",
+      "status": "unverified"
+    },
+    {
+      "text": "Alerts route to the payments channel and page after five minutes.",
+      "anchor": "Operations L5",
+      "status": "unverified"
+    },
+    {
+      "text": "Every write path emits a structured log line with the request id.",
+      "anchor": "Operations L7",
+      "status": "unverified"
+    },
+    {
+      "text": "Unit tests cover the parser, the validator, and the posting logic.",
+      "anchor": "Operations L7",
+      "status": "unverified"
+    },
+    {
+      "text": "Latency targets stay under 200 ms at the 95th percentile for reads.",
+      "anchor": "Operations L7",
+      "status": "unverified"
+    },
+    {
+      "text": "Schema changes go through a review that checks index impact.",
+      "anchor": "Operations L9",
+      "status": "unverified"
+    },
+    {
+      "text": "The team reviewed this design in the spring planning cycle.",
+      "anchor": "Operations L13",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "Operations L3",
+      "note": "90 second risk engine timeout stated with no config or source reference; other chunks may state a different value."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "Operations L7",
+      "note": "200 ms p95 read latency target has no measurement or SLO document cited."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "Operations L5",
+      "note": "Ninety-day secret rotation and five-minute page delay stated without source."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "Operations L5",
+      "note": "Migration 'without downtime' is asserted with no data; the section is also mostly repeated boilerplate sentences, which suggests padding rather than evidence."
+    }
+  ],
+  "least_confident": "I could not check whether the 90 second timeout at L3 agrees with timeout values stated elsewhere in the document."
+}

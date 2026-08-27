@@ -1,0 +1,68 @@
+{
+  "summary": "This diff adds three new files from a red-team review run on a Redis session-cache design: grading.json, charter.md, and metrics.json. grading.json records that all 9 grading expectations passed (12 findings ranked 1-12, sizing math, stale-price windows, KEYS-based invalidation risk, a verdict with a minimum-changes path, and coverage beyond the planted flaws), plus a claims list, execution metrics, timing notes, uncertainties/workarounds, and eval-feedback suggestions for improving the grading criteria. charter.md defines the review's scope: the artifact under review, four ranked harm categories (wrong prices, Redis cluster meltdown, checkout latency collapse, silent failure), out-of-scope items, and a success criterion. metrics.json duplicates the tool-call and output-size figures already present in grading.json's execution_metrics block.",
+  "claims": [
+    {
+      "text": "All 9 grading expectations passed (passed=9, failed=0, total=9, pass_rate=1.0)",
+      "anchor": "grading.json:49-54",
+      "status": "verified"
+    },
+    {
+      "text": "F-3 (KEYS-based invalidation, rank 3) is ranked above every Plausible/conditional finding, and F-1/F-2 above it are shown as unconditional or reasoned to hold under every branch",
+      "anchor": "grading.json:14-17",
+      "status": "verified"
+    },
+    {
+      "text": "The design's Invalidation section handles only the promo_changed event; catalog and tax changes have no invalidation path",
+      "anchor": "grading.json:80-83",
+      "status": "verified"
+    },
+    {
+      "text": "The design specifies KEYS session:*:pricing then DEL on a Redis cluster shared with rate limiting and feature flags",
+      "anchor": "grading.json:86-89",
+      "status": "verified"
+    },
+    {
+      "text": "Cache key includes session ID only, cited as the basis for findings F-6 and F-8",
+      "anchor": "grading.json:98-101",
+      "status": "verified"
+    },
+    {
+      "text": "Rollout is a single jump from 5% to 100% after a day, gated by feature flag cache_pricing_v1",
+      "anchor": "grading.json:104-107",
+      "status": "verified"
+    },
+    {
+      "text": "12 raw findings, 1 merge, 1 seam-sweep addition, 0 killed, yielding 12 final findings",
+      "anchor": "grading.json:74-77",
+      "status": "unverified"
+    },
+    {
+      "text": "Two adversaries independently hit the stampede root cause (F-4 corroboration)",
+      "anchor": "grading.json:109-113",
+      "status": "unverified"
+    },
+    {
+      "text": "charter.md ranks four harm categories: wrong prices, shared Redis cluster meltdown, checkout latency/availability collapse, silent failure",
+      "anchor": "outputs/charter.md:1+",
+      "status": "verified"
+    },
+    {
+      "text": "metrics.json reports the same tool_calls, total_tool_calls, output_chars, and transcript_chars values as grading.json's execution_metrics block",
+      "anchor": "outputs/metrics.json:1-9 vs grading.json:55-67",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "duplicate-logic",
+      "anchor": "outputs/metrics.json:1-9 vs grading.json:55-67",
+      "note": "metrics.json restates the identical tool-call counts and character totals already embedded in grading.json's execution_metrics field, as two copies of the same data with no indicated source of truth."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "grading.json:74-77",
+      "note": "The claim about raw/merged/seam-swept finding counts is marked verified:true, but its own evidence text says it 'cannot be independently confirmed without a transcript' -- the verified flag is stronger than the evidence backing it."
+    }
+  ],
+  "least_confident": "Whether marking the '12 raw findings, 1 merge, 1 seam-sweep' claim as verified:true is justified, since the chunk's own evidence text for that claim says it cannot be independently confirmed without a transcript."
+}

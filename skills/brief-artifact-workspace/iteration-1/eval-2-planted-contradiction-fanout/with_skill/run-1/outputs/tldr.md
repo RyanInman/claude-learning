@@ -1,0 +1,4 @@
+- The doc describes a ledger service that records account transfers: idempotency keys on requests, a month-partitioned transfers table with a covering index on account_id, a nightly reconciliation job against the bank feed, and a risk-engine call with timeout plus two retries.
+- Contradiction: "Timeouts and retries" states the risk engine timeout is 30 seconds; "Operations" tells on-call it is 90 seconds. One of the two sections is wrong, and on-call runbooks depend on which.
+- Every claim is unverified. No section cites a source, config, or measurement for the 200 ms p95 target, the five-minute page delay, the ninety-day secret rotation, or the zero-downtime migration.
+- Roughly 95% of the text is the same twelve operational sentences repeated in shuffled order across every section, so each section carries one real sentence of content.

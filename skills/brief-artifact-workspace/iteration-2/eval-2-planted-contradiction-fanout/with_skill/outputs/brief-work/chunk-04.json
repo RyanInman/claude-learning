@@ -1,0 +1,18 @@
+{
+  "summary": "This chunk describes the Ledger Service's storage design: transfers are stored in a monthly-partitioned table with a covering index on account_id. The rest of the section is a dense, heavily repeated list of operational claims: structured logging with request ids, 90-day secret rotation, health/readiness endpoints, a spring design review, alerting with a 5-minute page threshold, index-impact schema reviews, a 200ms p95 latency target for reads, a three-phase zero-downtime migration, single-file YAML config, low-priority backfills, unit test coverage of parser/validator/posting logic, and per-region dashboards.",
+  "claims": [
+    {"text": "Transfers land in the transfers table, partitioned by month, with a covering index on account_id.", "anchor": "L53", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "L55", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "L55", "status": "unverified"},
+    {"text": "Latency targets stay under 200 ms at the 95th percentile for reads.", "anchor": "L55", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "L55", "status": "unverified"},
+    {"text": "Unit tests cover the parser, the validator, and the posting logic.", "anchor": "L57", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L55", "note": "90-day secret rotation, 5-minute page threshold, and 200 ms p95 latency target are all asserted with no source or measurement shown."},
+    {"kind": "uncited-number", "anchor": "L55", "note": "The three-phases-over-two-weekends migration claim has no supporting detail or reference."},
+    {"kind": "unsupported-claim", "anchor": "L57", "note": "\"Unit tests cover the parser, the validator, and the posting logic\" is stated with no test evidence or file references in this chunk."},
+    {"kind": "unsupported-claim", "anchor": "L55", "note": "\"The team reviewed this design in the spring planning cycle\" names no reviewers, date, or artifact."}
+  ],
+  "least_confident": "I cannot tell whether the extreme repetition of identical sentences across L55-L65 is meaningful (e.g., emphasis or a document artifact) or simply noise, since no single occurrence adds new information."
+}

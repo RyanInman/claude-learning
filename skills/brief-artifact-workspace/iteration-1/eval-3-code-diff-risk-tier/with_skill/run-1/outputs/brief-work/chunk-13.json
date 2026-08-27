@@ -1,0 +1,58 @@
+{
+  "summary": "This diff adds three new files for the without_skill variant of an eval where an agent red-teamed a follow-the-sun on-call rotation plan (Krakow/US-East). redteam-report.md is the agent's actual review: three Critical findings (nightly coverage gap, missing Krakow prod access, no incident commander during Krakow's solo window), four High findings, four Medium, two Low, and five remediation steps. grading.json is the eval harness's scoring of that report against six expectations (5 passed, 1 failed: no retest/re-check list), plus its own fact-checks of the report's claims. metrics.json records execution stats (4 tool calls, 0 errors, 8730 output chars).",
+  "claims": [
+    {
+      "text": "grading.json scores the report 5/6 expectations passed (pass_rate 0.83), failing only 'contains a retest list or equivalent re-check mechanism'",
+      "anchor": "grading.json:1-27 (summary block)",
+      "status": "verified"
+    },
+    {
+      "text": "redteam-report.md C1: the two 12-hour windows leave a six-hour nightly gap (20:00-02:00 ET / 02:00-08:00 CET) with no defined page owner",
+      "anchor": "redteam-report.md:C1",
+      "status": "verified"
+    },
+    {
+      "text": "redteam-report.md C1 states the gap boundary two different ways: 'the uncovered gap runs 20:00 CET to 08:00 ET' vs the immediately following '02:00–08:00 CET / 20:00–02:00 ET'",
+      "anchor": "redteam-report.md:C1 (20:00 CET to 08:00 ET vs 02:00-08:00 CET/20:00-02:00 ET)",
+      "status": "contradicted"
+    },
+    {
+      "text": "redteam-report.md C2: Krakow prod access (SSH, dashboards, PagerDuty) is still 'in progress' with go-live 'next month', so Krakow cannot act on or even receive pages",
+      "anchor": "redteam-report.md:C2",
+      "status": "verified"
+    },
+    {
+      "text": "redteam-report.md C3: the incident-commander pool is all US-based, so a Sev1 during Krakow's solo window still wakes a US IC, defeating the zero-overnight-pages goal",
+      "anchor": "redteam-report.md:C3",
+      "status": "verified"
+    },
+    {
+      "text": "grading.json's own claims section marks 'Polish public holidays include May 1-3 and Aug 15' as unverified/false, noting May 2 is not a statutory holiday",
+      "anchor": "grading.json:claims (Polish public holidays include May 1-3 and Aug 15)",
+      "status": "verified"
+    },
+    {
+      "text": "metrics.json: the run used 4 tool calls (Read:1, Write:2, Bash:1), 4 steps, 0 errors, and produced 8730 output characters",
+      "anchor": "metrics.json:1-9",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "redteam-report.md:H2",
+      "note": "\"Industry floor for a sustainable rotation is 4-6\" is stated with no citation in the report itself; grading.json supplies a citation as external commentary, not the report."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "redteam-report.md:M4",
+      "note": "Cites 'May 1-3, Aug 15' as Polish holidays; grading.json's own fact-check flags May 2 as not actually a statutory holiday."
+    },
+    {
+      "kind": "missing-edge-case",
+      "anchor": "grading.json:expectations (Report contains a retest list or equivalent re-check mechanism for the findings)",
+      "note": "Most Critical/High findings (C3, H1-H4) have no re-verification step defined even after the go-live gate checklist is applied."
+    }
+  ],
+  "least_confident": "I cannot independently verify the timezone/DST arithmetic or the Polish holiday calendar claims in redteam-report.md and grading.json; I'm relying on grading.json's self-reported fact-check rather than checking the underlying dates myself."
+}

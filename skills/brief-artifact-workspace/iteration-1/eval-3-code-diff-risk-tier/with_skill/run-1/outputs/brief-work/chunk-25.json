@@ -1,0 +1,68 @@
+{
+  "summary": "Four new files added by this diff, all from an eval run of an on-call plan red-team review. user_notes.md logs workarounds (heredoc used instead of Write for report.md, Stage 0 intake mined from the artifact itself, Stage 5 retest skipped). grading.json scores the run 9/9 expectations passed, giving detailed evidence for each (timezone gaps, Krakow readiness, IC pool contradiction, DST drift, retest checks, verdict/minimum-changes list) plus five claims (two verified timezone/DST arithmetic, one unverified corroboration claim, one flagged-imprecise Polish leave figure, one verified process claim) and a suggestion to save per-adversary transcripts for verifiability. timing.json (duplicated in two paths) records 58,813 tokens and a 94.8s duration for a resumed, previously session-limit-killed run.",
+  "claims": [
+    {
+      "text": "Write tool rejected report.md so the report was written via shell heredoc instead, with identical content",
+      "anchor": "user_notes.md:1",
+      "status": "unverified"
+    },
+    {
+      "text": "Stage 0 intake facts were mined from the artifact's own Goal and Notes sections because no live user was available; the overkill check was skipped",
+      "anchor": "user_notes.md:1",
+      "status": "unverified"
+    },
+    {
+      "text": "Stage 5 retest was not run because it triggers only after the user lands fixes",
+      "anchor": "user_notes.md:1",
+      "status": "unverified"
+    },
+    {
+      "text": "9 of 9 expectations passed, 0 failed, pass_rate 1.0",
+      "anchor": "run-1/grading.json:summary",
+      "status": "verified"
+    },
+    {
+      "text": "Winter timezone gap is 01:00-07:00 UTC (20:00-02:00 ET), 6 hours, with a 13:00-19:00 UTC overlap between shifts",
+      "anchor": "run-1/grading.json:claims[0]",
+      "status": "verified"
+    },
+    {
+      "text": "DST mismatch weeks shrink the US/EU offset to 5h and grow the coverage hole to 7 hours",
+      "anchor": "run-1/grading.json:claims[1]",
+      "status": "verified"
+    },
+    {
+      "text": "F1 and F2 were found independently by all three adversaries; F4 by two; twelve adversary findings merged into seven with none killed",
+      "anchor": "run-1/grading.json:claims[2]",
+      "status": "unverified"
+    },
+    {
+      "text": "Polish statutory leave minimum exceeds 20 days (finding F5)",
+      "anchor": "run-1/grading.json:claims[3].claim vs run-1/grading.json:claims[3].evidence",
+      "status": "contradicted"
+    },
+    {
+      "text": "Executor run total: 58,813 tokens, 94.8s duration, resumed after being killed by a session limit",
+      "anchor": "run-1/timing.json:1 vs timing.json:1",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "run-1/grading.json:claims[2]",
+      "note": "Corroboration and merge/kill counts across three adversaries are asserted as verified:false, explicitly because no transcript exists to check them; grading.json itself flags this as unverifiable process narration."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "run-1/grading.json:claims[3]",
+      "note": "Grading.json's own evidence contradicts the report's phrasing: it states Polish statutory leave is 20 days (26 with 10+ years), not 'exceeds 20', and calls the claim slightly imprecise though not load-bearing."
+    },
+    {
+      "kind": "duplicate-logic",
+      "anchor": "run-1/timing.json:1 vs timing.json:1",
+      "note": "Two identical timing.json files exist at different paths (run-1/timing.json and the parent timing.json) with byte-identical content, suggesting a duplicated/copied artifact rather than two distinct measurements."
+    }
+  ],
+  "least_confident": "Whether the two identical timing.json files represent an intentional copy-up-a-level convention or an accidental duplication is not stated anywhere in the chunk."
+}

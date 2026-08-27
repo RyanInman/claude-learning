@@ -1,0 +1,18 @@
+{
+  "summary": "This chunk covers reconciliation: a nightly job compares ledger totals against the bank feed and opens a ticket on any mismatch. Beyond that one sentence, the rest of the chunk is a block of repeated, generic operational statements (logging, backfills, dashboards, schema review, migration timing, health endpoints, secrets rotation, latency targets, alerts, config, tests) that repeat verbatim many times with no added detail and no clear connection to reconciliation specifically.",
+  "claims": [
+    {"text": "A nightly job compares ledger totals against the bank feed and opens a ticket on any mismatch.", "anchor": "L69", "status": "unverified"},
+    {"text": "Every write path emits a structured log line with the request id.", "anchor": "L71", "status": "unverified"},
+    {"text": "Backfills run at low priority so they do not starve live traffic.", "anchor": "L71", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "L71", "status": "unverified"},
+    {"text": "Latency targets stay under 200 ms at the 95th percentile for reads.", "anchor": "L73", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "L73", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L73", "note": "\"under 200 ms at the 95th percentile\" latency target given with no source or measurement."},
+    {"kind": "uncited-number", "anchor": "L73", "note": "\"ninety days\" secret rotation period stated with no policy citation."},
+    {"kind": "uncited-number", "anchor": "L71", "note": "\"three phases over two weekends\" migration timeline given with no evidence or reference."},
+    {"kind": "unsupported-claim", "anchor": "L69", "note": "Reconciliation ticket process is asserted in one line with no detail on how mismatches are resolved or ticket routing."}
+  ],
+  "least_confident": "The bulk of the chunk (L71-L82) is heavily repeated boilerplate sentences unrelated to reconciliation mechanics, so I could not confirm what, if anything, in that repeated text is meant to describe reconciliation itself versus unrelated service operations."
+}

@@ -1,0 +1,58 @@
+{
+  "summary": "This chunk adds new benchmark and eval-0 files for the running-debug-loops skill. benchmark.md reports With-Skill vs Without-Skill results across 3 evals (pass rate, time, tokens). eval_metadata.json defines the vague-login-failure eval prompt and five expectations for a debug-loop fix. with_skill/grading.json shows all five expectations passed for that eval, each with cited evidence. with_skill/outputs/metrics.json logs tool-call counts, files created, and error/output stats for that run. Finally, a new git submodule pointer (project) is added at commit b987a38.",
+  "claims": [
+    {
+      "text": "With Skill pass rate is 100% ± 0% vs Without Skill 60% ± 20%, a +0.40 delta",
+      "anchor": "benchmark.md:1+ (Summary table)",
+      "status": "verified"
+    },
+    {
+      "text": "With Skill takes 159.8s ± 44.9s vs Without Skill 78.6s ± 32.9s, a +81.2s delta",
+      "anchor": "benchmark.md:1+ (Summary table)",
+      "status": "verified"
+    },
+    {
+      "text": "With Skill uses 46996 ± 6055 tokens vs Without Skill 32752 ± 3098, a +14244 delta",
+      "anchor": "benchmark.md:1+ (Summary table)",
+      "status": "verified"
+    },
+    {
+      "text": "eval-0-vague-login-failure has 5 expectations covering debug brief, ranked hypotheses, failing test before fix, root-cause fix on session version, and real pytest evidence",
+      "anchor": "eval-0-vague-login-failure/eval_metadata.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "with_skill run for eval-0 passed all 5 expectations (pass_rate 1.0)",
+      "anchor": "eval-0-vague-login-failure/with_skill/grading.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "with_skill eval-0 run made 21 total tool calls across 20 steps and created 5 files including project/.gitignore and metrics.json",
+      "anchor": "eval-0-vague-login-failure/with_skill/outputs/metrics.json:1+",
+      "status": "verified"
+    },
+    {
+      "text": "with_skill eval-0 run encountered 2 errors during execution",
+      "anchor": "eval-0-vague-login-failure/with_skill/outputs/metrics.json:1+ (errors_encountered)",
+      "status": "verified"
+    },
+    {
+      "text": "A new git submodule 'project' was added at commit b987a38041ce5e85548bf923aad21215f296f124",
+      "anchor": "eval-0-vague-login-failure/with_skill/outputs/project:1+",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "benchmark.md:1+ (Pass Rate row)",
+      "note": "Pass rate deltas and time/token stats are presented as summary aggregates with no link to per-eval raw data within this chunk; only eval-0's grading.json is shown here to substantiate any of it."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "eval-0-vague-login-failure/with_skill/grading.json:1+ (evidence fields)",
+      "note": "Evidence strings (e.g. 'git history shows test commit 448b3db precedes the fix commit') describe commits and code not shown in this chunk, so they cannot be independently verified from the diff alone."
+    }
+  ],
+  "least_confident": "I could not verify whether the benchmark.md summary statistics (159.8s ± 44.9s, 46996 ± 6055 tokens, etc.) are actually derived from the eval-0 metrics.json shown here or from other evals (1 and 2) not present in this chunk, since only one eval's raw metrics file is visible."
+}

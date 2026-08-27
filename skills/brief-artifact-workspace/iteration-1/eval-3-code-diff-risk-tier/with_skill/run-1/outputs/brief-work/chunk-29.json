@@ -1,0 +1,18 @@
+{
+  "summary": "This chunk adds a new file, skills/adversarial-review-2/SKILL.md, defining an agent skill for disciplined red-team review of plans, designs, or code. It specifies a six-stage workflow: Intake, Charter (threat model naming harm categories), Attack (three parallel fresh-eyes adversary subagents each assigned a distinct lens), Verify and grade (dedupe, sweep seams, severity-rank findings as Confirmed/Plausible), Report (fixed sections: Verdict, Summary table, Findings, Killed findings, Verification items, Retest list), and Retest (re-run failing scenarios after fixes). It includes gotchas warning against skipping the charter, conflating cleverness with severity, and omitting retest, plus a worked example finding about silent message loss during a broker migration.",
+  "claims": [
+    {"text": "New file skills/adversarial-review-2/SKILL.md is added with 228 lines.", "anchor": "@@ -0,0 +1,228 @@", "status": "verified"},
+    {"text": "The skill runs three parallel fresh-eyes adversary subagents, each assigned a distinct lens from the charter's ranked harm categories.", "anchor": "### Stage 2 — Attack", "status": "verified"},
+    {"text": "Adversaries never receive conversation history or the artifact's prior review results, only the artifact and charter.", "anchor": "## Gotchas: No context leakage", "status": "verified"},
+    {"text": "Severity is graded on outcome (Critical/High/Medium/Low), not on how clever the attack is.", "anchor": "Severity rubric (outcome-based)", "status": "verified"},
+    {"text": "Findings are ranked in one strict total order with no ties.", "anchor": "Stage 3 — Verify and grade, step 4", "status": "verified"},
+    {"text": "The user decides what to fix; the skill does not apply fixes before the user rules.", "anchor": "### Stage 4 — Report", "status": "verified"},
+    {"text": "This skill is described as the 'systematic sibling' of adversarial-review, differing by having no debate or rebuttals.", "anchor": "This is the systematic sibling of `adversarial-review`", "status": "verified"},
+    {"text": "The design converges on lessons from NIST, OWASP, and a Microsoft 100-product retrospective on red-teaming.", "anchor": "The published red-teaming literature (NIST, OWASP, Microsoft's 100-product retrospective)", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "The published red-teaming literature (NIST, OWASP, Microsoft's 100-product retrospective) converges on one lesson", "note": "Cites three sources for a converging lesson with no links, titles, or dates given in the chunk."},
+    {"kind": "unsupported-claim", "anchor": "simple attacks on the end-to-end system succeed more often than clever attacks on one component", "note": "Stated as a general truth inside the adversary prompt template with no supporting citation or data in the chunk."}
+  ],
+  "least_confident": "I cannot verify the claim attributing the discipline lesson to NIST, OWASP, and a Microsoft 100-product retrospective, since the chunk names them only in passing with no citation detail."
+}

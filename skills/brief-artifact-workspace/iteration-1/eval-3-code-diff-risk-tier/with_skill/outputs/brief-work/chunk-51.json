@@ -1,0 +1,28 @@
+{
+  "summary": "This chunk adds output files for a debug-loop eval (red tests after merge, with_skill run). It records a metrics.json with tool-call counts and files created, a subproject pointer to a committed project, a response.md documenting root cause (binary-float rounding in pricing.py), a debug brief, reproduction, instrumentation, a Decimal-based fix with ROUND_HALF_UP, a revert check, an overfitting check, and a fresh-eyes review flagging three out-of-scope issues (negative rounding, exotic inputs, float round-trip). transcript-notes.md logs the 20-step process that produced these outputs.",
+  "claims": [
+    {"text": "Root cause is round() on binary floats: 0.70*3*0.95 evaluates to 1.9949999999999997, below the half cent, so round(...,2) yields 1.99 instead of 2.00", "anchor": "chunk-51.txt:44,85-88", "status": "verified"},
+    {"text": "Two failing tests, test_half_cent_rounds_up and test_order_total, fail with assert 1.99 == 2.0 and assert 11.99 == 12.0 respectively", "anchor": "chunk-51.txt:47-49,68-76", "status": "verified"},
+    {"text": "Python's round() uses banker's rounding, confirmed via round(0.125,2) == 0.12", "anchor": "chunk-51.txt:90,93", "status": "verified"},
+    {"text": "order_total's failure is only a knock-on of line_total's error, not its own double-rounding bug", "anchor": "chunk-51.txt:56,93", "status": "verified"},
+    {"text": "Fix replaces float round() with Decimal arithmetic and ROUND_HALF_UP, adding _dec and _to_cents helper functions", "anchor": "chunk-51.txt:101-133", "status": "verified"},
+    {"text": "After the fix, python3 -m pytest tests -q reports 4 passed", "anchor": "chunk-51.txt:142-144", "status": "verified"},
+    {"text": "Revert check: git stash reproduces the 2 failed/2 passed state, git stash pop restores 4 passed, confirming causality", "anchor": "chunk-51.txt:149-157", "status": "verified"},
+    {"text": "Overfitting check ran 9 extra cases not in the test suite, all producing expected corrected values", "anchor": "chunk-51.txt:159-170", "status": "verified"},
+    {"text": "Fix committed as 5ccfb16 on top of baseline 94da7d4", "anchor": "chunk-51.txt:173", "status": "verified"},
+    {"text": "A fresh-eyes reviewer flagged negative amounts now rounding away from zero (ROUND_HALF_UP behavior), differing from prior behavior for a refund line example", "anchor": "chunk-51.txt:179", "status": "verified"},
+    {"text": "Reviewer flagged that exotic inputs (float('inf'), Fraction, amounts above ~1e26) now raise InvalidOperation instead of returning a value", "anchor": "chunk-51.txt:180", "status": "verified"},
+    {"text": "Reviewer flagged order_total round-trips each line total through float, exact only for cent-granular values below 2^53", "anchor": "chunk-51.txt:181", "status": "verified"},
+    {"text": "Functions still return float rather than Decimal because tests compare against float literals and the public signature was kept unchanged", "anchor": "chunk-51.txt:187", "status": "verified"},
+    {"text": "No test file was touched during the fix", "anchor": "chunk-51.txt:137", "status": "verified"},
+    {"text": "The fixture arrived as a single baseline commit with no merge history, so the pre-merge pricing.py could not be diffed", "anchor": "chunk-51.txt:61,202", "status": "unverified"},
+    {"text": "metrics.json records total_tool_calls: 20 and total_steps: 14", "anchor": "chunk-51.txt:16-17", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "chunk-51.txt:179", "note": "Negative-amount rounding direction is left unresolved as a product decision, explicitly not fixed or tested."},
+    {"kind": "missing-edge-case", "anchor": "chunk-51.txt:180", "note": "Exotic inputs (inf, Fraction, amounts above ~1e26) now raise InvalidOperation instead of returning, an undocumented behavior change."},
+    {"kind": "missing-edge-case", "anchor": "chunk-51.txt:181", "note": "order_total round-trips line totals through float, reintroducing the representation the fix was meant to avoid, though stated as harmless for cent-granular values."},
+    {"kind": "uncited-number", "anchor": "chunk-51.txt:16", "note": "metrics.json's total_tool_calls (20) and total_steps (14) are asserted counts with no breakdown shown to verify against the per-tool tallies except a sum check (9+3+5+1+1+1=20, consistent)."}
+  ],
+  "least_confident": "Whether the transcript-notes.md 20-step log fully and accurately matches every action in response.md cannot be independently checked from this chunk alone since the two files describe the same process at different granularity."
+}

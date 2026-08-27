@@ -1,0 +1,48 @@
+{
+  "summary": "This chunk adds eval artifacts for a debug-loop skill benchmark. It includes a without_skill transcript where an agent fixed a UTF-8 BOM CSV parsing bug (using utf-8-sig encoding) but skipped writing a debug brief before editing, scoring 4/5 on expectations. It also adds eval-2 metadata (a pricing rounding bug prompt) and its with_skill grading.json, which scores 5/5: the agent emitted a debug brief first, left test assertions unchanged, fixed rounding with Decimal/ROUND_HALF_UP, explained the float rounding cause, and showed passing pytest output.",
+  "claims": [
+    {
+      "text": "The without_skill run for eval-1-pasted-traceback fixed a UTF-8 BOM bug by changing file encoding from utf-8 to utf-8-sig in report.py",
+      "anchor": "outputs/response.md:20-23",
+      "status": "verified"
+    },
+    {
+      "text": "The without_skill run failed the expectation of emitting a debug brief before editing any source file",
+      "anchor": "run-1/grading.json:8-13",
+      "status": "verified"
+    },
+    {
+      "text": "The without_skill run added a regression test bom.csv and verified it fails without the fix and passes with it",
+      "anchor": "outputs/transcript-notes.md line 9",
+      "status": "verified"
+    },
+    {
+      "text": "The without_skill run passed 4 of 5 expectations overall",
+      "anchor": "run-1/grading.json:33-39",
+      "status": "verified"
+    },
+    {
+      "text": "The eval-2-red-tests-after-merge prompt asks to fix 2 failures in tests/test_pricing.py after a merge",
+      "anchor": "eval_metadata.json:8",
+      "status": "verified"
+    },
+    {
+      "text": "The with_skill run for eval-2-red-tests-after-merge passed all 5 expectations, including emitting a debug brief before editing and explaining the float rounding cause (product falling below the half-cent)",
+      "anchor": "with_skill/grading.json:5-33",
+      "status": "verified"
+    },
+    {
+      "text": "The with_skill fix used Decimal with ROUND_HALF_UP without loosening assertions or adding tolerance",
+      "anchor": "with_skill/grading.json:20",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "missing-edge-case",
+      "anchor": "outputs/response.md line 43",
+      "note": "The fix author admits an unverified assumption that the BOM will keep appearing from the export tool rather than being a one-off, without evidence either way."
+    }
+  ],
+  "least_confident": "I could not verify from this chunk alone whether the with_skill eval-2 run's 'Instrumented and printed 1.9949999999999997' evidence appears in the actual response transcript, since only the grading.json summary of that evidence is shown here, not the underlying output."
+}

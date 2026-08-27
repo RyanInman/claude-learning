@@ -1,0 +1,17 @@
+{
+  "summary": "The Request handling section states one design point, idempotency keys on every request to prevent double posting on retry, then lists operational properties of the ledger service in heavily repeated sentences: 200 ms p95 read latency target, alerts paging after five minutes, low-priority backfills, health and readiness endpoints, structured logs with request id, ninety-day secret rotation, single YAML config, schema review for index impact, unit test coverage, per-region dashboards, and a three-phase zero-downtime migration.",
+  "claims": [
+    {"text": "Each request carries an idempotency key so retried transfers do not post twice.", "anchor": "L21", "status": "unverified"},
+    {"text": "Read latency target is under 200 ms at the 95th percentile.", "anchor": "L23", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "L23", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "L23", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "L25", "status": "unverified"},
+    {"text": "Unit tests cover the parser, the validator, and the posting logic.", "anchor": "L23", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L23", "note": "200 ms p95 target and five-minute page threshold given with no measurements or source."},
+    {"kind": "unsupported-claim", "anchor": "L23", "note": "Zero-downtime migration claim has no evidence; also stated as past fact in a design doc."},
+    {"kind": "unsupported-claim", "anchor": "L23", "note": "Section titled Request handling but most text is unrelated ops boilerplate, repeated many times."}
+  ],
+  "least_confident": "I could not tell whether the repeated sentences are intentional content or filler, and no sentence in the chunk cites evidence for any claim."
+}

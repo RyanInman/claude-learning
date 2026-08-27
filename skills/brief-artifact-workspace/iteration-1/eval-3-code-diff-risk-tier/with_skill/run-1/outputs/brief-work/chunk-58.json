@@ -1,0 +1,17 @@
+{
+  "summary": "Adds new eval fixtures and definitions for the debug-loop skill. evals.json defines five evals (ids 0-4: vague-login-failure, pasted-traceback, red-tests-after-merge, trivial-typo-fast-path, perf-regression-threshold-check), each with a prompt and a list of expectations the skill's output must satisfy. Also adds the csv-report fixture: a report.py script that reads a CSV and sums amounts by region, a sales CSV with a UTF-8 BOM prefix on its header line, clean and header-only test CSVs, and a test_report.py with two tests (normal totals, empty file).",
+  "claims": [
+    {"text": "evals.json defines 5 evals for skill \"debug-loop\" with ids 0 through 4", "anchor": "skills/debug-loop/evals/evals.json:1-9,+107-119", "status": "verified"},
+    {"text": "Eval 1 (pasted-traceback) expects the skill to identify a UTF-8 BOM in the export header as the cause of the KeyError", "anchor": "skills/debug-loop/evals/evals.json:+31 (\"eval_name\": \"pasted-traceback\")", "status": "verified"},
+    {"text": "report.total_by_region reads a CSV with csv.DictReader and sums amount by region key", "anchor": "skills/debug-loop/evals/fixtures/csv-report/report.py:+10-15", "status": "verified"},
+    {"text": "The fixture CSV sales-2026-08.csv has a BOM character before \"region\" in its header row", "anchor": "skills/debug-loop/evals/fixtures/csv-report/data/sales-2026-08.csv:+1", "status": "verified"},
+    {"text": "load() opens the file with encoding=\"utf-8\" (not utf-8-sig), so a BOM would remain attached to the first header field", "anchor": "skills/debug-loop/evals/fixtures/csv-report/report.py:+5", "status": "verified"},
+    {"text": "test_report.py's two tests use clean.csv and header_only.csv, neither of which contains a BOM", "anchor": "skills/debug-loop/evals/fixtures/csv-report/tests/test_report.py:+8-15", "status": "verified"},
+    {"text": "Running report.py against sales-2026-08.csv raises KeyError: 'region' while the checked-in test suite stays green", "anchor": "skills/debug-loop/evals/evals.json:+31-33 (prompt text)", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/fixtures/csv-report/tests/test_report.py:1-15", "note": "No test in this fixture covers a BOM-prefixed CSV; the only file exhibiting the bug (sales-2026-08.csv) is used solely as the eval prompt's repro data, not as a test case, so the existing suite cannot catch the bug the eval is designed around."},
+    {"kind": "duplicate-logic", "anchor": "skills/debug-loop/evals/fixtures/csv-report/data/sales-2026-08.csv:1-4 vs skills/debug-loop/evals/fixtures/csv-report/tests/data/clean.csv:1-4", "note": "Both files hold identical region/amount rows (east 10.0, west 12.5, east 20.0); the only difference is the BOM, which is easy to miss when comparing the two."}
+  ],
+  "least_confident": "I could not directly confirm the BOM byte sequence in sales-2026-08.csv beyond the visual ﻿ marker shown before \"region\" in the diff text, since I cannot run code or inspect raw bytes."
+}

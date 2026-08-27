@@ -1,0 +1,17 @@
+{
+  "summary": "This chunk adds a new skill file, skills/p-review/SKILL.md (130 lines). It defines a fast single-reviewer adversarial review of a plan, spec, or diff. The conductor first establishes three facts (artifact, baseline ref for diffs, intent), then dispatches one fresh subagent with a verbatim reviewer brief, rules on its findings (rejecting only false premises), and presents them as Concerns, Noted-not-recommended, Rejected, and a Minor list written to minor-findings.md. An --inline flag skips the subagent and the Ruling step. The baseline is resolved via git merge-base against the upstream, falling back to origin/HEAD, then asking the user. The description frontmatter positions it as the cheap alternative to debate-review and adversarial-review skills.",
+  "claims": [
+    {"text": "The skill always dispatches a fresh subagent as Reviewer unless --inline is passed.", "anchor": "skills/p-review/SKILL.md:40-47", "status": "verified"},
+    {"text": "Baseline resolution: `git merge-base HEAD @{u}`, fallback to origin/HEAD via symbolic-ref, then ask the user.", "anchor": "skills/p-review/SKILL.md:32-36", "status": "verified"},
+    {"text": "Reviewer reads the change with `git diff {BASELINE}...HEAD` plus untracked files.", "anchor": "skills/p-review/SKILL.md:64-65", "status": "verified"},
+    {"text": "Ruling may reject a finding only when it rests on a false premise; all other findings are kept.", "anchor": "skills/p-review/SKILL.md:118-120", "status": "verified"},
+    {"text": "Minor findings are written verbatim to minor-findings.md beside the artifact (or repo root), never printed to the user.", "anchor": "skills/p-review/SKILL.md:132-136", "status": "verified"},
+    {"text": "The skill is distinct from debate-review, adversarial-review, and adversarial-review-2 as the cheap one-reviewer pass.", "anchor": "skills/p-review/SKILL.md:17-19", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/p-review/SKILL.md:64", "note": "`git diff {BASELINE}...HEAD` ignores uncommitted working-tree changes; the brief mentions untracked files but not modified-unstaged or staged edits, which a 'review my changes' request often includes."},
+    {"kind": "missing-edge-case", "anchor": "skills/p-review/SKILL.md:132-134", "note": "Writing minor-findings.md into the repo root or beside the artifact can overwrite a prior run's file or land in a tracked directory with no mention of overwrite or cleanup."},
+    {"kind": "unsupported-claim", "anchor": "skills/p-review/SKILL.md:18", "note": "References sibling skills adversarial-review and adversarial-review-2 whose existence is not shown in this chunk."}
+  ],
+  "least_confident": "I could not check whether the referenced sibling skills (debate-review, adversarial-review, adversarial-review-2) exist or whether the frontmatter description length is acceptable to the skill loader."
+}

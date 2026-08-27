@@ -1,0 +1,5 @@
+- Diff adds three new skills (adversarial-review-2, debug-loop, p-review), their eval suites and fixtures, three research notes, and a brief-artifact plan; one existing file edited (adversarial-review/SKILL.md routes to adversarial-review-2).
+- Highest-risk code is fixture code with planted bugs: BOM-breaking CSV report, session tie-break on same-second created_at, float half-cent rounding, O(n*m) enrichment scan, a .stip() typo.
+- Two intra-file inconsistencies: adversarial-review-2 says "four subagents" but spawns three; thinking-budget ordering in efficient-debug-loop-strategies.md conflicts with the cited Willison decompilation.
+- Research notes carry many unsourced numbers (60% compact threshold, 8-block Stop hook override, 3x subagent cost, bug-bounty stats); treat as unverified.
+- Skill boundaries shift: debug-loop declares it supersedes diagnose, and adversarial-review defers severity-graded work to adversarial-review-2.

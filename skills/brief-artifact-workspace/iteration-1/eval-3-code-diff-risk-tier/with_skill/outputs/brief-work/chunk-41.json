@@ -1,0 +1,23 @@
+{
+  "summary": "This chunk adds two new files documenting a debugging session for a pricing bug: response.md (the debug brief and write-up) and transcript-notes.md (a step log). The bug: line_total(0.70,3,5) returned 1.99 instead of 2.00 because 0.70*3*0.95 evaluates to 1.9949999999999997 in binary float, below the true half-cent midpoint, so round() correctly rounded down — not banker's rounding, since round(1.995,2) returns 2.0 on this machine. The fix rewrites pricing.py to use decimal.Decimal with ROUND_HALF_UP. All 4 tests pass, reverting reproduces the failure, and an overfit check across other values succeeds. Two follow-ups are flagged: floats still cross the API boundary, and the repo tracks .pyc/.pytest_cache files.",
+  "claims": [
+    {"text": "0.70*3*(1-5/100) evaluates to 1.9949999999999997, strictly below the 1.995 half-cent midpoint, so round(raw,2) legitimately rounds down to 1.99.", "anchor": "Step 2 — Instrument before guessing", "status": "verified"},
+    {"text": "round(1.995, 2) returns 2.0 on this machine, ruling out banker's (half-to-even) rounding as the cause.", "anchor": "Step 2 — Instrument before guessing", "status": "verified"},
+    {"text": "order_total's failure (11.99 vs 12.00) is fully explained by line_total's bad output: 1.99 + 10.00 = 11.99.", "anchor": "Step 2 — Instrument before guessing", "status": "verified"},
+    {"text": "The fix rewrites line_total and order_total to use decimal.Decimal with Decimal(str(value)) conversion and quantize(CENT, ROUND_HALF_UP).", "anchor": "Step 3 — One change, then run the check", "status": "verified"},
+    {"text": "After the fix, `python3 -m pytest tests/test_pricing.py -q` reports 4 passed.", "anchor": "Step 3 — One change, then run the check", "status": "verified"},
+    {"text": "Reverting the fix via `git stash` reproduces the original 2 failed / 2 passed result, confirming the fix (not something else) caused the pass.", "anchor": "Step 4 — Verify the fix is real", "status": "verified"},
+    {"text": "The fix generalizes beyond the two originally-failing cases: manual checks on (2.675,1,0), (0.1,3,0), (9.99,2,0), (1.005,1,0), (0.01,1,50), (19.99,3,10) all match expected values.", "anchor": "Step 4 — Verify the fix is real", "status": "verified"},
+    {"text": "order_total still sums already-rounded line totals 'exactly as before' the fix.", "anchor": "Step 3 — One change, then run the check", "status": "unverified"},
+    {"text": "A fresh reviewer subagent checked the diff against the brief and found no correctness or requirement gaps.", "anchor": "Result", "status": "unverified"},
+    {"text": "The baseline commit tracks __pycache__/*.pyc and .pytest_cache/, which caused `git stash pop` to fail mid-session.", "anchor": "Two things worth flagging, not fixed here", "status": "verified"},
+    {"text": "No pre-merge git history exists in the working copy (`git log --oneline --all` shows only one baseline commit), so bisecting to the offending merge was impossible.", "anchor": "Assumption stated up front", "status": "verified"},
+    {"text": "pricing.py is 12 lines and both failing paths live in line_total.", "anchor": "**Scope:**", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "Step 3 — One change, then run the check: \"that per-line rounding behavior is unchanged, only the accumulator is now exact\"", "note": "the pre-fix version of pricing.py is not shown in this chunk, so the 'unchanged from before' comparison can't be checked against evidence in the chunk."},
+    {"kind": "unsupported-claim", "anchor": "Result: \"A fresh reviewer with no stake in the patch checked the diff against the brief and found no correctness or requirement gaps\"", "note": "the reviewer's actual output is summarized secondhand, not quoted or shown."},
+    {"kind": "uncited-number", "anchor": "**Scope:** `pricing.py` (12 lines, both failing paths live in `line_total`)", "note": "line count is stated but the file itself is not shown in this chunk."}
+  ],
+  "least_confident": "Whether order_total's line-by-line rounding-then-summing behavior is truly identical before and after the fix, since the original pricing.py source is not included in this chunk to compare against."
+}

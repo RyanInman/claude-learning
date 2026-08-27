@@ -1,0 +1,12 @@
+{
+  "eval_id": 3,
+  "eval_name": "code-diff-risk-tier",
+  "prompt": "what does the diff since 5e3c12b~3 actually change? too big to read",
+  "expectations": [
+    "Output brief.md covers the diff with per-file or per-chunk summaries anchored to file paths",
+    "High-risk chunks or files (scripts, tests, fixtures with subprocess/open) are listed before low-risk prose",
+    "Brief states at least one behavior claim with an anchor of the form path:line",
+    "Brief includes a least-confident or uncertainty statement",
+    "Brief is at most 1500 words, because a brief longer than the reader can absorb in one sitting defeats its purpose"
+  ]
+}

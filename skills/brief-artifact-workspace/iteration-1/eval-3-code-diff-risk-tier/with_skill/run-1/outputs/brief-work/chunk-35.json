@@ -1,0 +1,18 @@
+{
+  "summary": "This chunk adds eval artifacts for the 'vague-login-failure' debug-loop benchmark, comparing a with_skill run against a without_skill run. It includes user_notes.md documenting assumptions and a workaround for a git stash/pytest .pyc conflict, plus grading.json and metrics.json for both configs, and a duplicated timing.json. The with_skill run passes all 5 expectations (brief, ranked hypotheses, failing test before fix, root-cause fix on version, real pytest evidence). The without_skill run passes only 2 of 5, failing on brief, hypotheses, and test-before-fix, but still lands on the correct fix and real evidence.",
+  "claims": [
+    {"text": "refresh() bug traced to selecting session row by created_at instead of version, fixed by keying get_session on r['version']", "anchor": "user_notes.md:1+ (Assumptions/Fix), grading.json (with_skill):1+", "status": "verified"},
+    {"text": "git stash pop failed because __pycache__/*.pyc files were tracked and rewritten by pytest between stash and pop", "anchor": "user_notes.md:1+ (Workaround)", "status": "verified"},
+    {"text": "with_skill run passed all 5 grading expectations (5/5, pass_rate 1.0)", "anchor": "run-1/grading.json:1+", "status": "verified"},
+    {"text": "without_skill run passed only 2 of 5 grading expectations (pass_rate 0.4), missing the debug brief, ranked hypotheses, and a red test shown before the fix", "anchor": "without_skill/grading.json:1+", "status": "verified"},
+    {"text": "with_skill run used 21 tool calls across 20 steps and 48434 tokens over 156.1s", "anchor": "run-1/metrics.json:1+, run-1/timing.json:1+", "status": "verified"},
+    {"text": "without_skill run used 15 tool calls across 16 steps with 0 errors encountered", "anchor": "without_skill/outputs/metrics.json:1+", "status": "verified"},
+    {"text": "without_skill run's single commit contained both tests and fix together, with no red-test run shown, only a hand-run repro snippet", "anchor": "without_skill/grading.json:1+ (third expectation evidence)", "status": "verified"},
+    {"text": "Committing build artifacts (__pycache__) is described as a pre-existing repo issue, not one introduced by this bug", "anchor": "user_notes.md:1+ (Workaround, final line)", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "duplicate-logic", "anchor": "with_skill/run-1/timing.json:1+ vs with_skill/timing.json:1+", "note": "Identical timing.json content (same tokens/duration) committed at two separate paths"},
+    {"kind": "unsupported-claim", "anchor": "user_notes.md:1+ (Workaround, final line)", "note": "Claim that committing __pycache__ is a pre-existing repo issue is asserted without evidence visible in this chunk"}
+  ],
+  "least_confident": "Whether the __pycache__/.gitignore workaround in user_notes.md was applied only to this eval's project fixture or reflects a broader repo-wide pre-existing issue, since no other evidence of prior __pycache__ commits appears in this chunk."
+}

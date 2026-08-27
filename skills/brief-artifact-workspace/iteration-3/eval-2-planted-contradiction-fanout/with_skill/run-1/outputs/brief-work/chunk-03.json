@@ -1,0 +1,58 @@
+{
+  "summary": "The chunk states the risk-engine timeout (30 seconds) and retry policy (two retries with backoff), then fills the rest with repeated boilerplate sentences about dashboards, low-priority backfills, structured logging, alert routing, secret rotation, schema review, unit tests, health endpoints, a three-phase migration, a 200 ms p95 read latency target, and single-YAML configuration. No sentence conflicts with another inside this chunk; the padding repeats the same claims many times.",
+  "claims": [
+    {
+      "text": "Downstream calls to the risk engine time out after 30 seconds.",
+      "anchor": "L37 'time out after 30 seconds' vs L85 'timeout is 90 seconds'",
+      "status": "contradicted"
+    },
+    {
+      "text": "The client retries risk-engine calls twice with backoff.",
+      "anchor": "L37",
+      "status": "unverified"
+    },
+    {
+      "text": "Alerts route to the payments channel and page after five minutes.",
+      "anchor": "L39",
+      "status": "unverified"
+    },
+    {
+      "text": "Secrets rotate every ninety days through the platform vault.",
+      "anchor": "L41",
+      "status": "unverified"
+    },
+    {
+      "text": "Read latency target is under 200 ms at the 95th percentile.",
+      "anchor": "L43",
+      "status": "unverified"
+    },
+    {
+      "text": "The migration ran in three phases over two weekends without downtime.",
+      "anchor": "L39",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "L37",
+      "note": "30-second timeout and two retries stated with no source or rationale."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "L43",
+      "note": "200 ms p95 read target has no measurement or source."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "L39",
+      "note": "Migration completed without downtime is asserted, not evidenced."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "L39",
+      "note": "Paragraphs repeat identical sentences; reads as filler, not design content."
+    }
+  ],
+  "least_confident": "I could not check whether the 30-second timeout with two retries is compatible with the 200 ms p95 latency target or other sections' timeout values."
+}

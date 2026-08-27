@@ -1,0 +1,16 @@
+{
+  "summary": "Extends re-presentation to prose and research output (claim extraction, citation verification pipelines, numeric registries, summary-first reading). Then lays out staged recommendations: this week cap units near 200 LOC and sessions at 60-90 minutes, require self-explanation blocks, name a human of record; this quarter adopt spec-driven review, adversarial second-model pass, package validation, risk tiering; ongoing, auto-generate summaries and track churn. Gives thresholds that trigger tighter review and closes with caveats on vendor sources, 2006-era data, and preprint status.",
+  "claims": [
+    {"text": "Hallucinated legal citations have produced sanctions in more than a thousand tracked cases worldwide.", "anchor": "L91", "status": "unverified"},
+    {"text": "If AI PR defect or churn exceeds ~1.5x human baseline, tighten to full line-by-line review and shrink chunks.", "anchor": "L111", "status": "unverified"},
+    {"text": "Approval faster than ~300-500 LOC/hour signals rubber-stamping and should trigger friction.", "anchor": "L111", "status": "unverified"},
+    {"text": "The 200-400 LOC and 60-90 minute limits come from 2006 human-code data, not re-derived for AI diffs.", "anchor": "L115", "status": "verified"},
+    {"text": "EASE 2026's 64.53% figure merges evaluative and workflow comments, so it is not pure substantive review.", "anchor": "L117", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L91", "note": "'More than a thousand tracked cases' has no tracker or source named."},
+    {"kind": "uncited-number", "anchor": "L111", "note": "The 1.5x and 300-500 LOC/hour thresholds are author-chosen, no derivation given."},
+    {"kind": "unsupported-claim", "anchor": "L92", "note": "Numeric registry approach recommended with no evidence it works in practice."}
+  ],
+  "least_confident": "Whether the Stage 2 and 3 thresholds are backed by any study or are the author's judgment calls."
+}

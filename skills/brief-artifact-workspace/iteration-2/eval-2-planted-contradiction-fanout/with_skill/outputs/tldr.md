@@ -1,0 +1,4 @@
+- The doc describes a Ledger service that records account transfers: idempotency keys on requests (L21), a monthly-partitioned transfers table with a covering index on account_id (L53), a nightly bank-feed reconciliation job that opens tickets on mismatch (L69), and risk-engine calls with retries.
+- One direct contradiction: "Timeouts and retries" says the risk-engine call times out after 30 seconds (L37); "Operations" tells on-call the timeout is 90 seconds (L85). One of these is wrong and on-call runbooks depend on it.
+- Every number (200 ms p95, five-minute page, ninety-day secret rotation, three-phase migration) is asserted with no source, so the brief marks all of them unverified.
+- Most of the text is the same dozen operational sentences repeated in shuffled order under every heading; only the first sentence of each section carries section-specific content.

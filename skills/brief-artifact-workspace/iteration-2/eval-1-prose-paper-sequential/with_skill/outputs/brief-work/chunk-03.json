@@ -1,0 +1,43 @@
+{
+  "summary": "Closing sections. Section 6 extends re-presentation to prose and research output: extract atomic claims, verify citation presence and correctness separately, run a DOI/bibliographic/LLM pipeline to classify references, keep a numeric registry, and read a structured summary first. Recommendations come in three stages: this week cap units near 200 LOC and sessions at 60-90 minutes, require a self-explanation block, and name one human per PR; this quarter adopt spec-driven review, isolated test-writing agents, an adversarial second-model pass, CI package validation and security scanning, and risk-tiered review; ongoing, auto-generate summaries and diagrams and track churn against a human baseline. Caveats flag vendor sources, 2006-era LOC data, correlational GitClear trends, preprint 2026 studies, and the older Codex model.",
+  "claims": [
+    {
+      "text": "Hallucinated legal citations have produced sanctions in more than a thousand tracked cases worldwide",
+      "anchor": "L91",
+      "status": "unverified"
+    },
+    {
+      "text": "If post-merge defect or churn/redundancy on AI PRs exceeds ~1.5x the human baseline, tighten to full line-by-line review",
+      "anchor": "L111",
+      "status": "unverified"
+    },
+    {
+      "text": "Approval faster than ~300-500 LOC/hour should be treated as rubber-stamping",
+      "anchor": "L111",
+      "status": "unverified"
+    },
+    {
+      "text": "The 200-400 LOC and 60-90 minute limits come from 2006 human-code data and have not been re-derived for AI diffs",
+      "anchor": "L115",
+      "status": "verified"
+    },
+    {
+      "text": "The 'These Aren't the Reviews' 64.53% figure merges evaluative feedback with workflow acknowledgments, so it is not a pure measure of substantive review",
+      "anchor": "L117",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "L91",
+      "note": "'More than a thousand tracked cases' of legal-citation sanctions names no tracker."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "L111",
+      "note": "The 1.5x churn threshold and 300-500 LOC/hour trigger are author-chosen thresholds, not sourced findings."
+    }
+  ],
+  "least_confident": "Whether the Stage 2 and Stage 3 recommendations are drawn from the cited sources or are the author's own synthesis."
+}

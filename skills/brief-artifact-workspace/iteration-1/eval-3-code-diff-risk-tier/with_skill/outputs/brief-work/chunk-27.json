@@ -1,0 +1,25 @@
+{
+  "summary": "This diff adds two new files: report.md, a red-team review of a follow-the-sun (US/Krakow) on-call rotation plan, and user_notes.md, a short log from the agent that wrote it. The report grades findings Critical to Low: a 6-hour nightly coverage hole from the ET/CET offset, Krakow lacking prod access and experience at go-live, a US-only IC pool that wakes US engineers on every Sev1 anyway, an unsustainable 3-person rotation, a sleeping cross-region escalation path, unverified runbooks, insufficient shadowing, a metric that rewards under-escalation, no rollback plan, undefined handovers, DST drift, and ambiguous timezone naming. It closes with three alternative fixes. user_notes.md records a tool refusal workaround and a timezone assumption underlying the report.",
+  "claims": [
+    {"text": "Krakow's 08:00-20:00 CET and US's 08:00-20:00 ET shifts leave 20:00-02:00 ET uncovered because CET is 6 hours ahead of ET", "anchor": "report.md: ## Critical > ### C1", "status": "verified"},
+    {"text": "Krakow engineers joined 6 weeks ago, have never shipped to production, and have prod SSH/dashboard/PagerDuty access still 'in progress'", "anchor": "report.md: ### C2", "status": "unverified"},
+    {"text": "The incident commander pool is entirely US-based and stays as-is, so every Sev1 in the Krakow shift pages a sleeping US engineer", "anchor": "report.md: ### C3", "status": "unverified"},
+    {"text": "Krakow's rotation is 3 engineers with no secondary in-region and no headcount budget this half", "anchor": "report.md: ### H1", "status": "unverified"},
+    {"text": "A missed page escalates after 15 minutes to the other region's primary, who is off-shift and asleep", "anchor": "report.md: ### H2", "status": "unverified"},
+    {"text": "'US will tidy up the runbooks' has no owner, deadline, or definition of done", "anchor": "report.md: ### H3", "status": "unverified"},
+    {"text": "Krakow gets one week of shadowing the US daytime shift before going live on its own (different) shift", "anchor": "report.md: ### H4", "status": "unverified"},
+    {"text": "The stated success metric is zero overnight pages for US-East within the first month, which can be hit by misrouting or under-escalating rather than by improving outcomes", "anchor": "report.md: ### M1", "status": "unverified"},
+    {"text": "The plan has no rollback criteria or fallback if the new rotation performs badly", "anchor": "report.md: ### M2", "status": "unverified"},
+    {"text": "US and EU shift clocks on different dates, so the offset drops to 5 hours and the nightly gap grows to 7 hours for about three weeks a year", "anchor": "report.md: ### M4", "status": "verified"},
+    {"text": "The plan says 'CET' but Krakow is on CEST from late March to late October", "anchor": "report.md: ### L1", "status": "verified"},
+    {"text": "The Write tool refused to create report.md directly, citing a harness guard that subagents should return findings as text not write report files, so the report was written via a Bash heredoc instead", "anchor": "user_notes.md:1+ (Notes, bullet 1)", "status": "unverified"},
+    {"text": "The session hit a limit after the report was written; on resume the author verified report.md ends cleanly and added metrics.json and user_notes.md", "anchor": "user_notes.md:1+ (Notes, bullet 3)", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "report.md: ### H2 ('Realistic time-to-first-responder: 45-60 minutes on a Sev1')", "note": "Specific minute estimate given with no supporting data or source, only narrative reasoning."},
+    {"kind": "uncited-number", "anchor": "report.md: ### H1 ('Industry floor for a sustainable rotation is 4-6 people')", "note": "Stated as an industry norm without citation."},
+    {"kind": "unsupported-claim", "anchor": "report.md: ### C2 ('the realistic outcome is engineers acking pages they cannot act on')", "note": "Predicted behavior presented as certain outcome without evidence from the plan or prior incidents."},
+    {"kind": "uncited-number", "anchor": "user_notes.md:1+ (Notes, bullet 1, 'counted as 1 error in metrics.json')", "note": "References a metrics.json count not included in this chunk, so the number can't be checked here."}
+  ],
+  "least_confident": "Whether the Critical/High/Medium/Low severity assignments and the underlying plan facts (Krakow's 3-person headcount, US-only IC pool, 15-minute escalation window) are accurate, since the chunk only contains the review's assertions about the plan, not the plan itself."
+}

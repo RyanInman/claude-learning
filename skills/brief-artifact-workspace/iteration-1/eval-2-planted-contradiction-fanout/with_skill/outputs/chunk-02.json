@@ -1,0 +1,26 @@
+{
+  "summary": "This chunk is the \"Request handling\" section of the Ledger Service Design. It opens with one substantive request-handling claim: each request carries an idempotency key so a retried transfer does not post twice. The remaining five paragraphs are heavy repetition of about a dozen operational statements, unrelated to request handling: alert routing and paging after five minutes, low-priority backfills, a 200 ms p95 read latency target, health and readiness endpoints, unit test coverage, structured logging with request ids, a three-phase migration over two weekends, per-region dashboards, spring planning review, schema review for index impact, ninety-day secret rotation, and single-YAML-file configuration. No sentence contradicts another; the section is padded, not inconsistent.",
+  "claims": [
+    {"text": "Each request carries an idempotency key so a retried transfer does not post twice.", "anchor": "Request handling, L3", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "Backfills run at low priority so they do not starve live traffic.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "Read latency target is under 200 ms at the 95th percentile.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "The service exposes health and readiness endpoints for the orchestrator.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "Unit tests cover the parser, the validator, and the posting logic.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "Every write path emits a structured log line with the request id.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "Dashboards show throughput, error rate, and queue depth per region.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "The team reviewed this design in the spring planning cycle.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "Schema changes go through a review that checks index impact.", "anchor": "Request handling, L5", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "Request handling, L7", "status": "unverified"},
+    {"text": "Configuration lives in a single YAML file loaded at startup.", "anchor": "Request handling, L11", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "Request handling, L5", "note": "200 ms p95 read latency target is stated with no measurement or source."},
+    {"kind": "uncited-number", "anchor": "Request handling, L5", "note": "Five-minute paging delay is stated with no rationale or source."},
+    {"kind": "uncited-number", "anchor": "Request handling, L5", "note": "Migration in three phases over two weekends without downtime is asserted with no incident data or dates."},
+    {"kind": "unsupported-claim", "anchor": "Request handling, L3", "note": "Idempotency key is asserted but the chunk never says where the key is stored or how long duplicates are detected; the only request-handling sentence in the section."},
+    {"kind": "unsupported-claim", "anchor": "Request handling, L5-L15", "note": "The section repeats the same twelve sentences many times; almost none concern request handling, so the heading does not match the content."}
+  ],
+  "least_confident": "I could not check whether the idempotency claim on L3 is consistent with request-handling details in other chunks, since this section contains no further request-handling material."
+}

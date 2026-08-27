@@ -1,0 +1,245 @@
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/grading.json b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/grading.json
+new file mode 100644
+index 0000000..8fff15a
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 0,
++  "eval_name": "vague-login-failure",
++  "config": "without_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": false,
++      "evidence": "No brief. Opens with '# Fixed: stale session row wins on same-second refresh' and the cause"
++    },
++    {
++      "text": "Lists at least two ranked hypotheses before the first edit",
++      "passed": false,
++      "evidence": "No ranked hypotheses; went straight to the confirmed cause"
++    },
++    {
++      "text": "Adds a test reproducing the failure and shows it failing before the fix",
++      "passed": false,
++      "evidence": "Regression test added but not committed before the fix, and no red run is shown"
++    },
++    {
++      "text": "Fixes the root cause by selecting the session row with the highest version, not by patching created_at handling or widening the expiry comparison",
++      "passed": true,
++      "evidence": "get_session keys on (version, created_at), so version is authoritative"
++    },
++    {
++      "text": "Shows real pytest output as evidence in the final message rather than asserting the fix works",
++      "passed": true,
++      "evidence": "Reports 6 passed"
++    }
++  ],
++  "passed": 2,
++  "total": 5,
++  "summary": {
++    "passed": 2,
++    "failed": 3,
++    "total": 5,
++    "pass_rate": 0.4
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/metrics.json b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/metrics.json
+new file mode 100644
+index 0000000..6957d59
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/metrics.json
+@@ -0,0 +1,18 @@
++{
++  "tool_calls": {
++    "Bash": 4,
++    "Read": 2,
++    "Edit": 2,
++    "Write": 3
++  },
++  "total_tool_calls": 11,
++  "total_steps": 9,
++  "files_created": [
++    "response.md",
++    "transcript-notes.md",
++    "metrics.json"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 3423,
++  "transcript_chars": 1466
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/project b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/project
+new file mode 160000
+index 0000000..932ccdb
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/project
+@@ -0,0 +1 @@
++Subproject commit 932ccdbe2fe2bb5d5ee7c3fc12d5b8f081d793e8
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/response.md b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/response.md
+new file mode 100644
+index 0000000..7bd2a8a
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/response.md
+@@ -0,0 +1,50 @@
++# Fixed: stale session row wins on same-second refresh
++
++## Root cause
++
++`sessions.py` stores sessions append-only, so a refresh writes a **new row** with `version = previous + 1`. `get_session` picked the newest row like this:
++
++```python
++return max(rows, key=lambda r: r["created_at"])
++```
++
++`created_at` is stored at **one-second resolution**. When a refresh lands in the same second as the row it replaces, both rows carry an identical `created_at`. Python's `max` returns the *first* maximal element, so the tie resolves to whichever row was appended first — the **old, already-expiring row**. `refresh` then reads that row's `expires_at`, sees it in the past, and returns `401`, bouncing the user to login even though a valid session exists.
++
++That explains both things you noticed:
++
++- **Not everyone.** It only hits users whose refresh happens to complete inside the same clock second as the previous write. That's a timing race, so it looks random.
++- **Can't get back in.** The stale row keeps winning the tie on every subsequent read, so the user stays wedged rather than recovering on retry.
++
++## The fix
++
++`version` is strictly increasing per `session_id`, so it — not the truncated timestamp — is the authoritative ordering:
++
++```python
++# created_at has one-second resolution, so two rows for the same session can
++# tie. version is strictly increasing per session_id, so it is the
++# authoritative ordering; created_at only backstops rows sharing a version.
++return max(rows, key=lambda r: (r["version"], r["created_at"]))
++```
++
++One line changed in `sessions.py`. No behavior change for the non-tied case: when timestamps differ, versions already order the same way.
++
++## Tests
++
++Added two regression tests in `tests/test_sessions.py`:
++
++- `test_refresh_within_same_second_uses_new_row` — two rows, same `created_at`, old one appended first. This **failed with `401` before the fix** and passes now. It's the direct reproduction of the reported bug.
++- `test_same_second_tie_is_order_independent` — same tie with insertion order reversed, so the fix can't be faked by row ordering.
++
++Full suite: **6 passed**, including all four original tests.
++
++## Assumptions I made
++
++You weren't around to ask, so I'm flagging these:
++
++1. **`version` is genuinely monotonic per `session_id`.** The module docstring states it (`version = previous version + 1`), and I've relied on it. If some path can write a duplicate or out-of-order version, `created_at` still acts as the secondary key, but the ordering guarantee would be worth confirming.
++2. **The one-second timestamp resolution is fixed upstream** (a DB column type, most likely). Widening it to millisecond precision would shrink the race window but not close it — two writes can still land in the same millisecond. The version tie-break is the correct fix regardless, so I did that rather than touch the schema.
++3. **The `<=` in `expires_at <= now` is intentional** — a session expiring exactly at `now` counts as expired. I left it alone; it wasn't implicated in your report.
++
++## Worth checking next
++
++If any other code path reads sessions with its own "latest row" query — an analytics job, a login handler, a SQL `ORDER BY created_at LIMIT 1` — it has the identical tie-break bug. `get_session` was the only such spot in this module, but I couldn't see beyond it. Grepping for `created_at` ordering elsewhere in the codebase would be a cheap way to rule that out.
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/transcript-notes.md b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/transcript-notes.md
+new file mode 100644
+index 0000000..728d8b2
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/transcript-notes.md
+@@ -0,0 +1,12 @@
++# Transcript notes
++
++1. `cp -R .../evals/fixtures/expired-sessions .../without_skill/outputs/project` — copied fixture.
++2. `git init -q && printf '__pycache__/\n.pytest_cache/\n' > .gitignore && git add -A && git commit -qm baseline` — baseline commit. `ls -R` confirmed `sessions.py`, `tests/test_sessions.py`.
++3. Read `sessions.py` and `tests/test_sessions.py` (parallel).
++4. Hypothesis from read: `get_session` uses `max(rows, key=lambda r: r["created_at"])`; docstring says `created_at` has one-second resolution; Python `max` returns first maximal element → on a tie the older (expired) row wins.
++5. `python3 -m pytest -q` → 4 passed (baseline green). Then inline `python3 -c` repro: two rows for `s1`, both `created_at=100`, v1 expired / v2 live → printed `{'status': 401}`. Hypothesis confirmed.
++6. Edited `tests/test_sessions.py` — added `test_refresh_within_same_second_uses_new_row` and `test_same_second_tie_is_order_independent`.
++7. `python3 -m pytest -q` → 1 failed, 5 passed. New same-second test failed with `assert 401 == 200` (red confirmed; the order-independent test passed incidentally since `max` picks the first maximal).
++8. Edited `sessions.py` — `get_session` key changed to `(r["version"], r["created_at"])` plus explanatory comment.
++9. `python3 -m pytest -q` → 6 passed. `git commit -qm "fix: break created_at ties by version in get_session"`.
++10. Wrote `response.md`, `transcript-notes.md`, `metrics.json` in outputs dir.
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/grading.json b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/grading.json
+new file mode 100644
+index 0000000..8fff15a
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 0,
++  "eval_name": "vague-login-failure",
++  "config": "without_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": false,
++      "evidence": "No brief. Opens with '# Fixed: stale session row wins on same-second refresh' and the cause"
++    },
++    {
++      "text": "Lists at least two ranked hypotheses before the first edit",
++      "passed": false,
++      "evidence": "No ranked hypotheses; went straight to the confirmed cause"
++    },
++    {
++      "text": "Adds a test reproducing the failure and shows it failing before the fix",
++      "passed": false,
++      "evidence": "Regression test added but not committed before the fix, and no red run is shown"
++    },
++    {
++      "text": "Fixes the root cause by selecting the session row with the highest version, not by patching created_at handling or widening the expiry comparison",
++      "passed": true,
++      "evidence": "get_session keys on (version, created_at), so version is authoritative"
++    },
++    {
++      "text": "Shows real pytest output as evidence in the final message rather than asserting the fix works",
++      "passed": true,
++      "evidence": "Reports 6 passed"
++    }
++  ],
++  "passed": 2,
++  "total": 5,
++  "summary": {
++    "passed": 2,
++    "failed": 3,
++    "total": 5,
++    "pass_rate": 0.4
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/metrics.json b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/metrics.json
+new file mode 100644
+index 0000000..6957d59
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/metrics.json
+@@ -0,0 +1,18 @@
++{
++  "tool_calls": {
++    "Bash": 4,
++    "Read": 2,
++    "Edit": 2,
++    "Write": 3
++  },
++  "total_tool_calls": 11,
++  "total_steps": 9,
++  "files_created": [
++    "response.md",
++    "transcript-notes.md",
++    "metrics.json"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 3423,
++  "transcript_chars": 1466
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/timing.json b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/timing.json
+new file mode 100644
+index 0000000..66b8fc4
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 31746, "duration_ms": 70241, "total_duration_seconds": 70.2}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/timing.json b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/timing.json
+new file mode 100644
+index 0000000..66b8fc4
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 31746, "duration_ms": 70241, "total_duration_seconds": 70.2}

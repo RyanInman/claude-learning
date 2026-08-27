@@ -1,0 +1,17 @@
+{
+  "summary": "Adds a new skill file skills/debug-loop/SKILL.md. It defines a debug-loop skill: gather four facts (symptom, repro, check, scope), emit a Debug Brief with ranked hypotheses, take a fast path for trivial bugs, commit a failing test before fixing, instrument runtime values, change one thing at a time, verify by reverting, and reset via a handoff block after two failed fixes. Includes an example brief, gotchas, and pointers to references/tactics.md.",
+  "claims": [
+    {"text": "Skill supersedes the diagnose skill; when both match, run debug-loop only.", "anchor": "skills/debug-loop/SKILL.md:12", "status": "unverified"},
+    {"text": "Fast path requires all three conditions: error names file and line, line explains failure, fix touches one place.", "anchor": "skills/debug-loop/SKILL.md:96", "status": "verified"},
+    {"text": "Failing test must be committed before any fix, overriding the commit-only-when-asked default.", "anchor": "skills/debug-loop/SKILL.md:117", "status": "verified"},
+    {"text": "After two failed fixes on the same issue, stop and write a Debug Handoff block.", "anchor": "skills/debug-loop/SKILL.md:184", "status": "verified"},
+    {"text": "/rewind checkpoints track only file-editing-tool edits, not shell command changes.", "anchor": "skills/debug-loop/SKILL.md:239", "status": "unverified"},
+    {"text": "references/tactics.md contains sections on building a check, git bisect, and overfitting.", "anchor": "skills/debug-loop/SKILL.md:47", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "skills/debug-loop/SKILL.md:47", "note": "references/tactics.md and its named sections are cited repeatedly but not present in this chunk."},
+    {"kind": "unsupported-claim", "anchor": "skills/debug-loop/SKILL.md:239", "note": "Claim about /rewind checkpoint behavior stated without source."},
+    {"kind": "unsupported-claim", "anchor": "skills/debug-loop/SKILL.md:166", "note": "Revert-skip rules (check takes minutes, Step 3 proved link) weaken verification with no stated evidence."}
+  ],
+  "least_confident": "I could not check whether references/tactics.md exists or whether a diagnose skill exists for the supersedes rule to apply to."
+}

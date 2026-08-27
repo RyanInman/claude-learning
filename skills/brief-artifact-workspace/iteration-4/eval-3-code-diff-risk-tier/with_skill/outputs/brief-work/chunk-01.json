@@ -1,0 +1,58 @@
+{
+  "summary": "Diff adds two new markdown files. First is a plan for a `brief-artifact` skill: chunk a large doc, code, or diff, have fresh readers write per-chunk JSON (summary, anchored claims, risks, least-confident), then render a layered brief; includes layout, scripts, workflow, evals. Second is a debug-loop playbook for Claude Code: verification-gated loops, context management (/clear after two failed corrections, /compact at ~60%), prompting tips, hooks, subagents, git bisect, anti-pattern table, staged recommendations, caveats.",
+  "claims": [
+    {
+      "text": "No existing skill in `skills/` re-presents artifacts as layered briefs; closest is `session-review`.",
+      "anchor": "docs/plans/brief-artifact-plan.md:5",
+      "status": "unverified"
+    },
+    {
+      "text": "Reading path picks by size: under 4 chunks sequential, 4+ chunks one subagent per chunk.",
+      "anchor": "docs/plans/brief-artifact-plan.md:11",
+      "status": "verified"
+    },
+    {
+      "text": "Chroma Context Rot report (July 14, 2025) evaluated 18 frontier models and found performance degrades with input length.",
+      "anchor": "resources/efficient-debug-loop-strategies.md:15",
+      "status": "unverified"
+    },
+    {
+      "text": "Spracklen et al. USENIX Security 2025 found 19.7% of recommended packages across 576,000 samples were hallucinated.",
+      "anchor": "resources/efficient-debug-loop-strategies.md:85",
+      "status": "unverified"
+    },
+    {
+      "text": "Extended-thinking budgets: 'think' ~4,000, 'think hard' ~10,000, 'ultrathink' 31,999, per Simon Willison decompilation.",
+      "anchor": "resources/efficient-debug-loop-strategies.md:64",
+      "status": "unverified"
+    },
+    {
+      "text": "Plan caps chunk summary at 120 words, but this reader prompt schema says 80 words; schema documents may disagree.",
+      "anchor": "docs/plans/brief-artifact-plan.md:40 vs docs/plans/brief-artifact-plan.md:37",
+      "status": "contradicted"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "resources/efficient-debug-loop-strategies.md:41",
+      "note": "Compact at 60%, auto-compact at ~80% attributed to unnamed practitioners; no source cited."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "resources/efficient-debug-loop-strategies.md:67",
+      "note": "15x and ~4x subagent token multipliers and 80% variance figure cited without link; caveat admits context-specific."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "resources/efficient-debug-loop-strategies.md:85",
+      "note": "2026 re-evaluation with 4.6-6.1% rates and 127 identical fake names has no named source."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "resources/efficient-debug-loop-strategies.md:45",
+      "note": "Lost-in-the-middle 30+ point accuracy drop stated without citation."
+    }
+  ],
+  "least_confident": "I could not check whether any of the quoted Anthropic doc passages, the Chroma report, or the USENIX study exist or say what the playbook attributes to them."
+}

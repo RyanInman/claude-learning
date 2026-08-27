@@ -1,0 +1,24 @@
+{
+  "summary": "New file skills/debug-loop-workspace/grade.py: a mechanical eval grader for debug-loop runs. It walks eval-*/{with_skill,without_skill,old_skill}/outputs directories, reads each run's response.md and git history in the project fixture, runs the pytest suite, and computes signals like whether a debug brief heading/fields were present, whether tests were committed before the fix, and suite pass/fail. It then branches per eval name (vague-login, traceback, trivial-typo, red-tests) to check task-specific behaviors (e.g. version- vs created_at-based selection, BOM-aware reads, typo fix without other changes, unchanged pricing assertions with Decimal/cents usage). Emits one JSON blob per run.",
+  "claims": [
+    {"text": "sh() runs a shell command in a given cwd with a 120s timeout, returning a CompletedProcess even on exception", "anchor": "grade.py:24-31", "status": "verified"},
+    {"text": "brief_checks() detects a 'debug brief' heading, counts symptom/repro/check field mentions, counts numbered list items, and checks for command-output evidence via regex", "anchor": "grade.py:38-46", "status": "verified"},
+    {"text": "git_facts() returns per-commit subject and changed files via git log/git show", "anchor": "grade.py:49-56", "status": "verified"},
+    {"text": "test_first() returns True if any non-baseline commit touches only files containing 'test' in the name", "anchor": "grade.py:59-64", "status": "verified"},
+    {"text": "suite() runs 'python3 -m pytest tests -q' in the project dir and returns exit code plus last 300 chars of output", "anchor": "grade.py:67-69", "status": "verified"},
+    {"text": "grade() errors out with 'no project directory' if outputs/project is missing, otherwise aggregates brief checks, commit facts, suite result, and eval-specific checks", "anchor": "grade.py:80-129", "status": "verified"},
+    {"text": "For vague-login evals, it checks selection by version vs still by created_at, new test files added, and lines added to test_sessions.py relative to the fixture baseline", "anchor": "grade.py:99-113", "status": "verified"},
+    {"text": "For traceback evals, it checks BOM-aware reads (utf-8-sig/\\ufeff), masking via row.get('region...), and presence of a BOM regression test", "anchor": "grade.py:114-119", "status": "verified"},
+    {"text": "For trivial-typo evals, it checks the typo is fixed, source is otherwise unchanged (byte-for-byte after reverting the fix), tests are unmodified, and counts extra test files and response.md line count", "anchor": "grade.py:120-129", "status": "verified"},
+    {"text": "For red-tests evals, it compares assertion lines before/after test_pricing.py to flag any removed or edited assertions, and checks pricing.py for Decimal/cents usage vs still using plain round(float*...)", "anchor": "grade.py:130-140", "status": "verified"},
+    {"text": "main() defaults to grading ROOT/iteration-1 and iterates eval-* dirs across with_skill/without_skill/old_skill configs, printing a JSON array", "anchor": "grade.py:144-151", "status": "verified"},
+    {"text": "FIXTURES path is hardcoded to /Users/admin/claude-learning/skills/debug-loop/evals/fixtures", "anchor": "grade.py:15-17", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "hallucinated-api", "anchor": "grade.py:15-17", "note": "FIXTURES is an absolute, machine-specific path (/Users/admin/...); the script will break if run on another machine or after the repo moves."},
+    {"kind": "missing-edge-case", "anchor": "grade.py:59-64", "note": "test_first() requires ALL changed files in a commit to contain 'test' in the name; a commit that adds a test alongside an unrelated renamed file would be misclassified as not test-first."},
+    {"kind": "missing-edge-case", "anchor": "grade.py:120-124", "note": "source_otherwise_unchanged compares src.replace('.strip()', '.stip()') to the fixture; if the fix touches formatting/whitespace elsewhere too it would falsely flag as changed, and conversely a coincidental '.strip()' elsewhere in source not related to the typo would be silently replaced too."},
+    {"kind": "duplicate-logic", "anchor": "grade.py:96-140", "note": "Each eval-specific branch repeats the same read/regex/compare pattern; could be factored, though this is a style note not a correctness risk."}
+  ],
+  "least_confident": "Whether the eval-name substring matching (e.g. 'vague-login', 'traceback', 'trivial-typo', 'red-tests') reliably maps to the actual eval directory names used elsewhere in the workspace, since only this chunk's code is visible and not the directory listing it's meant to match."
+}

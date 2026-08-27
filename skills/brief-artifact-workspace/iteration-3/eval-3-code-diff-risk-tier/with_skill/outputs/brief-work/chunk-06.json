@@ -1,0 +1,16 @@
+{
+  "summary": "Adds a new file eval_queries.json for the debug-loop skill: a JSON array of 20 trigger-test cases. Each entry pairs a user query with a should_trigger boolean. Eleven positive cases cover build failures, red tests, pasted tracebacks, CI logs, regressions, intermittent bugs, performance slowdowns, and a trivial typo. Nine negative cases cover feature work, PR review, refactoring, TDD, cleanup, code explanation, lint fixes, brainstorming, and theory questions.",
+  "claims": [
+    {"text": "File is new; 82 lines added, none removed.", "anchor": "skills/debug-loop/evals/eval_queries.json:1", "status": "verified"},
+    {"text": "Array holds 20 entries: 11 should_trigger true, 9 false.", "anchor": "skills/debug-loop/evals/eval_queries.json:7", "status": "verified"},
+    {"text": "A trivial typo blowing up the suite is expected to trigger the skill.", "anchor": "skills/debug-loop/evals/eval_queries.json:33", "status": "verified"},
+    {"text": "Performance regressions and nightly queue backups are expected to trigger.", "anchor": "skills/debug-loop/evals/eval_queries.json:45", "status": "verified"},
+    {"text": "Lint violations and error-handling cleanup are expected not to trigger.", "anchor": "skills/debug-loop/evals/eval_queries.json:69", "status": "verified"},
+    {"text": "Traceback query embeds escaped newlines and quotes; JSON remains valid.", "anchor": "skills/debug-loop/evals/eval_queries.json:25", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/eval_queries.json:73", "note": "\"broken by design\" query marked false; contains word broken, likely false-positive trigger boundary worth checking."},
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/eval_queries.json:77", "note": "Linter \"complaining\" case marked false; ambiguous with fix-the-suite positives like line 33."}
+  ],
+  "least_confident": "I cannot check whether the schema (query/should_trigger) matches what the eval runner expects, or whether the file parses."
+}

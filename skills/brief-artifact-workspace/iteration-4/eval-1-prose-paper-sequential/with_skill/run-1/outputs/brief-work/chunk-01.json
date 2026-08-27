@@ -1,0 +1,18 @@
+{
+  "summary": "Opens the report: argues that reviewing AI code as a raw diff fails because comprehension is the bottleneck, and that reviewers should read re-presentations (spec first, AI self-explanation, tests as specs, risk-tiered ~200 LOC chunks, layered summaries, adversarial second model). Grounds this in cognitive load theory, working-memory limits, the SmartBear/Cisco review-size data, the Stanford over-trust study, AI-specific defect patterns, and Bacchelli & Bird's finding that review is mainly a comprehension exercise.",
+  "claims": [
+    {"text": "Defect detection is highest under 200 LOC, falls past 400 LOC; 200-400 LOC over 60-90 minutes yields 70-90% defect discovery", "anchor": "L12", "status": "verified"},
+    {"text": "AI-assisted participants wrote less secure code yet believed it more secure (Perry et al., CCS 2023, 47 participants)", "anchor": "L14", "status": "verified"},
+    {"text": "Approximately 40% (39.33%) of Copilot top suggestions across 89 security scenarios were vulnerable (Pearce et al., IEEE S&P 2022)", "anchor": "L16", "status": "verified"},
+    {"text": "GitClear 2025: moved code fell 24.8% to 9.5%, copy/paste rose 8.4% to 12.3%, 5+ line duplicate blocks up eightfold", "anchor": "L16", "status": "verified"},
+    {"text": "AI agents' Average Max Redundancy 0.2867 vs 0.1532 for humans, ~1.87x, p<0.001 (MSR 2026 'More Code, Less Reuse')", "anchor": "L20", "status": "verified"},
+    {"text": "Working memory holds about four chunks; re-presentation reduces extraneous load and frees capacity for schema-building", "anchor": "L26", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "L10", "note": "'Developers spend a majority of their time reading' has no source cited."},
+    {"kind": "uncited-number", "anchor": "L39", "note": "Slower than 400-500 LOC/hour threshold restated with a range that differs from L12's 450 figure."},
+    {"kind": "unsupported-claim", "anchor": "L40", "note": "Author-annotation lowering defect density asserts a mechanism (self-review) without data."},
+    {"kind": "unsupported-claim", "anchor": "L41", "note": "Checklist superiority is called 'mixed' evidence but no study is named."}
+  ],
+  "least_confident": "Whether the four-chunk working memory figure and the cognitive theory attributions (Sweller, Paivio, Brooks, Soloway) are accurately summarized, since no specific papers are cited for them."
+}

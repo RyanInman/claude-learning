@@ -1,0 +1,18 @@
+{
+  "summary": "Details AI-specific review concerns (automation bias, vigilance decrement, GitClear quality erosion, 40% vulnerable suggestions, package hallucination at 19.7% across 16 LLMs), then ranks nine re-presentation techniques in three tiers: spec-before-code, AI self-explanation with a least-confident section, tests as specs; chunking by risk, layered summaries, diagrams; back-translation, adversarial second model, review-friendly prompting. Closes with 2025-2026 vendor workflows (Google SRE, Anthropic, GitHub) and the EASE 2026 finding that review effort on AI PRs is structured differently.",
+  "claims": [
+    {"text": "Spracklen et al. (USENIX 2025): 19.7% of generated packages fictitious across 16 LLMs; commercial 5.2% vs open-source 21.7%.", "anchor": "L50", "status": "verified"},
+    {"text": "2026 re-evaluation: frontier models still hallucinate packages at 4.6-6.1%; 127 names invented identically by five models.", "anchor": "L50", "status": "verified"},
+    {"text": "Hallucinated 'huggingface-cli' PyPI package got over 30,000 downloads in three months (Lasso Security).", "anchor": "L50", "status": "verified"},
+    {"text": "Google SRE: line-by-line review does not scale with 4x-10x code volume; oversight must move to designs, intent, policies.", "anchor": "L81", "status": "verified"},
+    {"text": "Direct human review share of human comments on AI-authored PRs is 64.53% and also 65.53% in the same paragraph.", "anchor": "L84 '64.53% were direct human review' vs L84 '65.53% direct review'", "status": "contradicted"},
+    {"text": "Anthropic usage data shows experienced users shift from per-action approval to monitoring and intervening.", "anchor": "L82", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "L84", "note": "64.53% vs 65.53% for the same direct-review share; one figure is wrong."},
+    {"kind": "unsupported-claim", "anchor": "L61", "note": "'Often faster and higher-signal' to review tests than code is asserted without a study."},
+    {"kind": "unsupported-claim", "anchor": "L73", "note": "Mutation-style consistency checking called 'the research backbone' with no citation."},
+    {"kind": "uncited-number", "anchor": "L47", "note": "'~30 minutes' vigilance decrement stated without a named source."}
+  ],
+  "least_confident": "The EASE 2026 percentages at L84: the paragraph mixes two category schemes and I cannot tell which figure is the intended direct-review share."
+}

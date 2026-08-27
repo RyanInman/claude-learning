@@ -1,0 +1,58 @@
+{
+  "summary": "Adds a new 78-line markdown resource arguing that a good adversarial review of an AI chatbot depends on discipline: explicit impact-first threat model, diverse and partly independent testers, taxonomy-anchored reproducible methodology, manual plus automated probing, severity grading, and a closed remediate-retest loop. It cites NIST, OWASP, MITRE ATLAS, Microsoft, OpenAI, Anthropic, DeepMind, and Feffer et al., lists pitfalls of weak reviews, gives a four-stage recommendation, and closes with caveats about field immaturity and metric fragility.",
+  "claims": [
+    {
+      "text": "Feffer et al. (AIES 2024) found red-teaming purposes often vague and warned unstructured red teaming verges on security theater.",
+      "anchor": "resources/good-adversarial-review.md:31",
+      "status": "verified"
+    },
+    {
+      "text": "NIST AI 600-1 defines 12 GenAI risk categories and places red teaming under Measure as a recurring activity.",
+      "anchor": "resources/good-adversarial-review.md:33",
+      "status": "unverified"
+    },
+    {
+      "text": "OpenAI white paper arXiv 2503.16431 lays out four campaign design steps and cohort diversity axes.",
+      "anchor": "resources/good-adversarial-review.md:38",
+      "status": "verified"
+    },
+    {
+      "text": "Crescendomation achieves 29-61% higher performance on GPT-4 and 49-71% on Gemini-Pro, 98% binary success on GPT-4.",
+      "anchor": "resources/good-adversarial-review.md:50",
+      "status": "unverified"
+    },
+    {
+      "text": "Constitutional Classifiers cut jailbreak success from 86% to 4.4% at 23.7% compute overhead and 0.38% refusal rise.",
+      "anchor": "resources/good-adversarial-review.md:56",
+      "status": "unverified"
+    },
+    {
+      "text": "Constitutional Classifiers++ released January 9, 2026 at ~1% additional compute with no universal jailbreak found.",
+      "anchor": "resources/good-adversarial-review.md:56",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "resources/good-adversarial-review.md:56",
+      "note": "Bug-bounty figures (405 of ~800, 339 participants, 300,000 interactions, 8 levels) have no source link."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "resources/good-adversarial-review.md:53",
+      "note": "'One 2026 methodological paper warns' about ASR validity is unnamed and uncited."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "resources/good-adversarial-review.md:61",
+      "note": "'Most processes remain limited to English' attributed to no source."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "resources/good-adversarial-review.md:45",
+      "note": "OWASP Top 10 for Agentic Applications dated 2026 with no citation; line 72 calls it 'ASI Top 10'."
+    }
+  ],
+  "least_confident": "I could not check the many specific numbers and dates (Crescendo percentages, Constitutional Classifiers stats, the January 9, 2026 release) against their primary sources."
+}

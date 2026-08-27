@@ -1,0 +1,20 @@
+{
+  "summary": "This chunk adds four new files from an eval run of an adversarial on-call-plan review. user_notes.md documents workarounds (charter filled without a live user, outputs redirected to with_skill/outputs/, report.md written via shell heredoc after a harness guard rejected Write, retest stage deliberately left pending). grading.json records six passed expectations (0 failed) about the review report's quality, execution metrics (10 tool calls, 1 error), timing (1203.5s, 62457 tokens), a claims list distinguishing verified factual claims from unverifiable process claims, and eval_feedback suggesting new expectations for severity calibration and fabrication resistance. timing.json (appearing twice, in run-1/ and at the top level) holds the same token/duration totals.",
+  "claims": [
+    {"text": "A harness guard rejected the Write tool for report.md, so it was written via a shell heredoc instead, counted as the one error in metrics.json", "anchor": "user_notes.md:14-16", "status": "verified"},
+    {"text": "Stage 5 (retest) is pending by design, intended to run cold in a later session", "anchor": "user_notes.md:17-18", "status": "verified"},
+    {"text": "All six expectations passed with a 1.0 pass rate", "anchor": "grading.json:59-64", "status": "verified"},
+    {"text": "Execution had 10 total tool calls, 7 steps, and 1 error", "anchor": "grading.json:65-72", "status": "verified"},
+    {"text": "Total run took 1203.5 seconds and used 62457 tokens", "anchor": "grading.json:73-75 / timing.json:2-4", "status": "verified"},
+    {"text": "Twelve raw findings were merged to eight, with none killed", "anchor": "grading.json:102-106", "status": "unverified"},
+    {"text": "Three fresh-eyes adversaries attacked in parallel", "anchor": "grading.json:108-112", "status": "unverified"},
+    {"text": "The database failover runbook contains a destructive branch and runbooks hold unstated tribal knowledge", "anchor": "grading.json:114-118", "status": "unverified"},
+    {"text": "top-level timing.json duplicates run-1/timing.json exactly (62457 tokens, 1203549 ms)", "anchor": "timing.json (run-1) vs timing.json (top-level) lines 153-171", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "duplicate-logic", "anchor": "run-1/timing.json:153-159 vs timing.json:161-171", "note": "Identical timing.json content is written to two separate paths (run-1/ and top-level); redundant duplication rather than a single source of truth."},
+    {"kind": "unsupported-claim", "anchor": "grading.json:101-106", "note": "The claim that 12 findings were merged to 8 with none killed is explicitly marked unverified in the same file because no transcript exists to check it."},
+    {"kind": "unsupported-claim", "anchor": "grading.json:113-118", "note": "Runbook content claims (destructive branch, tribal knowledge) are marked verified:false since the artifact never describes actual runbook contents; the report itself self-flags these as Plausible rather than Confirmed."}
+  ],
+  "least_confident": "Whether the harness guard behavior described in user_notes.md (rejecting Write for report.md) reflects a general policy or a one-off condition specific to this run is not something this chunk clarifies."
+}

@@ -1,0 +1,18 @@
+{
+  "summary": "Adds three new files. A slug-typo eval fixture: slug.py with a deliberate typo (`.stip()` instead of `.strip()`) and a pytest file with three slugify tests that will fail on AttributeError. And references/tactics.md, a debug guide covering git bisect, building a check when none exists, PostToolUse/Stop hooks as gates, delegating disposable investigation to subagents, catching overfitted fixes, and context hygiene (compact at ~60%, /clear between bugs).",
+  "claims": [
+    {"text": "slug.py calls text.lower().stip(), a misspelling of strip(); every test raises AttributeError.", "anchor": "skills/debug-loop/evals/fixtures/slug-typo/slug.py:7", "status": "verified"},
+    {"text": "Tests insert parent directory into sys.path to import slug directly.", "anchor": "skills/debug-loop/evals/fixtures/slug-typo/tests/test_slug.py:3", "status": "verified"},
+    {"text": "Git bisect finds the culprit in about 10 steps across 1,000 commits.", "anchor": "skills/debug-loop/references/tactics.md:19", "status": "verified"},
+    {"text": "Claude Code overrides a Stop hook after 8 consecutive blocks.", "anchor": "skills/debug-loop/references/tactics.md:63", "status": "unverified"},
+    {"text": "A subagent run costs about three times the tokens of the same work inline.", "anchor": "skills/debug-loop/references/tactics.md:81", "status": "unverified"},
+    {"text": "Auto-compaction fires exactly when reliability is already lowest; compact at about 60% instead.", "anchor": "skills/debug-loop/references/tactics.md:100", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "skills/debug-loop/references/tactics.md:63", "note": "The 8-consecutive-blocks Stop hook limit is stated without source."},
+    {"kind": "uncited-number", "anchor": "skills/debug-loop/references/tactics.md:81", "note": "3x subagent token cost has no citation."},
+    {"kind": "uncited-number", "anchor": "skills/debug-loop/references/tactics.md:100", "note": "60% compaction threshold and reliability claim unsupported."},
+    {"kind": "unsupported-claim", "anchor": "skills/debug-loop/references/tactics.md:108", "note": "\"Claude ignores a bloated file wholesale\" asserted without evidence."}
+  ],
+  "least_confident": "I cannot check whether the Stop-hook override after 8 blocks and the 3x subagent cost figure match current Claude Code behavior."
+}

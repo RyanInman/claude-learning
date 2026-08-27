@@ -1,0 +1,555 @@
+{
+  "target": "diff 5e3c12b~3",
+  "chunk_count": 61,
+  "chunks": [
+    {
+      "id": "chunk-01",
+      "type": "diff",
+      "anchor": "docs/plans/brief-artifact-plan.md:1+, resources/efficient-debug-loop-strategies.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-01.txt",
+      "risk_tier": "low",
+      "size": 188,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-02",
+      "type": "diff",
+      "anchor": "resources/good-adversarial-review.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-02.txt",
+      "risk_tier": "low",
+      "size": 80,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-03",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/benchmark.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-03.txt",
+      "risk_tier": "low",
+      "size": 282,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-04",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/benchmark.md:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/eval_metadata.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/session-cache-design.md:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/with_skill/grading.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-04.txt",
+      "risk_tier": "high",
+      "size": 174,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-05",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/with_skill/outputs/charter.md:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/with_skill/outputs/metrics.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/with_skill/outputs/report.md:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/with_skill/outputs/user_notes.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-05.txt",
+      "risk_tier": "low",
+      "size": 198,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-06",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/with_skill/run-1/grading.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/with_skill/run-1/timing.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/with_skill/timing.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-06.txt",
+      "risk_tier": "low",
+      "size": 125,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-07",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/grading.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/outputs/metrics.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-07.txt",
+      "risk_tier": "low",
+      "size": 127,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-08",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/outputs/redteam-report.md:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/outputs/user_notes.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-08.txt",
+      "risk_tier": "low",
+      "size": 131,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-09",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/run-1/grading.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/run-1/timing.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/timing.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/eval_metadata.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/oncall-rotation-plan.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-09.txt",
+      "risk_tier": "low",
+      "size": 166,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-10",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/with_skill/grading.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/with_skill/outputs/charter.md:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/with_skill/outputs/metrics.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-10.txt",
+      "risk_tier": "low",
+      "size": 172,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-11",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/with_skill/outputs/report.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-11.txt",
+      "risk_tier": "low",
+      "size": 241,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-12",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/with_skill/outputs/user_notes.md:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/with_skill/run-1/grading.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/with_skill/run-1/timing.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/with_skill/timing.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-12.txt",
+      "risk_tier": "low",
+      "size": 148,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-13",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/without_skill/grading.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/without_skill/outputs/metrics.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/without_skill/outputs/redteam-report.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-13.txt",
+      "risk_tier": "low",
+      "size": 200,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-14",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/without_skill/run-1/grading.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/without_skill/run-1/timing.json:1+, skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/without_skill/timing.json:1+, skills/adversarial-review-2-workspace/iteration-1/feedback.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-14.txt",
+      "risk_tier": "low",
+      "size": 134,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-15",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/benchmark.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-15.txt",
+      "risk_tier": "low",
+      "size": 335,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-16",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/benchmark.md:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/eval_metadata.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/session-cache-design.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-16.txt",
+      "risk_tier": "high",
+      "size": 63,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-17",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/grading.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/outputs/charter.md:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/outputs/metrics.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-17.txt",
+      "risk_tier": "low",
+      "size": 187,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-18",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/outputs/report.md:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/outputs/user_notes.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-18.txt",
+      "risk_tier": "low",
+      "size": 177,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-19",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/run-1/grading.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/run-1/timing.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/with_skill/timing.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-19.txt",
+      "risk_tier": "low",
+      "size": 154,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-20",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/grading.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/outputs/metrics.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-20.txt",
+      "risk_tier": "low",
+      "size": 135,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-21",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/outputs/redteam-report.md:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/outputs/user_notes.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-21.txt",
+      "risk_tier": "low",
+      "size": 156,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-22",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/grading.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/timing.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/timing.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/eval_metadata.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/oncall-rotation-plan.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-22.txt",
+      "risk_tier": "low",
+      "size": 179,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-23",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/with_skill/grading.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/with_skill/outputs/charter.md:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/with_skill/outputs/metrics.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-23.txt",
+      "risk_tier": "low",
+      "size": 172,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-24",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/with_skill/outputs/report.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-24.txt",
+      "risk_tier": "low",
+      "size": 260,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-25",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/with_skill/outputs/user_notes.md:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/with_skill/run-1/grading.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/with_skill/run-1/timing.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/with_skill/timing.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-25.txt",
+      "risk_tier": "low",
+      "size": 149,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-26",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/without_skill/grading.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/without_skill/outputs/metrics.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-26.txt",
+      "risk_tier": "low",
+      "size": 137,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-27",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/without_skill/outputs/report.md:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/without_skill/outputs/user_notes.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-27.txt",
+      "risk_tier": "low",
+      "size": 152,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-28",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/without_skill/run-1/grading.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/without_skill/run-1/timing.json:1+, skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/without_skill/timing.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-28.txt",
+      "risk_tier": "low",
+      "size": 141,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-29",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2/SKILL.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-29.txt",
+      "risk_tier": "low",
+      "size": 229,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-30",
+      "type": "diff",
+      "anchor": "skills/adversarial-review-2/evals/evals.json:1+, skills/adversarial-review-2/evals/files/oncall-rotation-plan.md:1+, skills/adversarial-review-2/evals/files/session-cache-design.md:1+, skills/adversarial-review/SKILL.md:7+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-30.txt",
+      "risk_tier": "high",
+      "size": 110,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-31",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/grade.py:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-31.txt",
+      "risk_tier": "high",
+      "size": 155,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-32",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/benchmark.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-32.txt",
+      "risk_tier": "low",
+      "size": 325,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-33",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/benchmark.md:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/eval_metadata.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/outputs/project:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-33.txt",
+      "risk_tier": "high",
+      "size": 107,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-34",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/outputs/transcript-notes.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-34.txt",
+      "risk_tier": "high",
+      "size": 175,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-35",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/outputs/user_notes.md:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/with_skill/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/project:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-35.txt",
+      "risk_tier": "high",
+      "size": 161,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-36",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/outputs/user_notes.md:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-0-vague-login-failure/without_skill/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/eval_metadata.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-36.txt",
+      "risk_tier": "high",
+      "size": 190,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-37",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/outputs/project:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/outputs/response.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-37.txt",
+      "risk_tier": "high",
+      "size": 182,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-38",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/outputs/user_notes.md:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/with_skill/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/project:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-38.txt",
+      "risk_tier": "low",
+      "size": 158,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-39",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-1-pasted-traceback/without_skill/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/eval_metadata.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-39.txt",
+      "risk_tier": "high",
+      "size": 164,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-40",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/project:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-40.txt",
+      "risk_tier": "low",
+      "size": 70,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-41",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/transcript-notes.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-41.txt",
+      "risk_tier": "low",
+      "size": 177,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-42",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/user_notes.md:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/project:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-42.txt",
+      "risk_tier": "low",
+      "size": 158,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-43",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/without_skill/timing.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-43.txt",
+      "risk_tier": "low",
+      "size": 131,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-44",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/benchmark.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-44.txt",
+      "risk_tier": "low",
+      "size": 412,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-45",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/benchmark.md:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/eval_metadata.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/outputs/project:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-45.txt",
+      "risk_tier": "high",
+      "size": 105,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-46",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/with_skill/timing.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-46.txt",
+      "risk_tier": "high",
+      "size": 200,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-47",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/project:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-0-vague-login-failure/without_skill/timing.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-47.txt",
+      "risk_tier": "high",
+      "size": 192,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-48",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/eval_metadata.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/project:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/response.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-48.txt",
+      "risk_tier": "high",
+      "size": 193,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-49",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/with_skill/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/project:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-49.txt",
+      "risk_tier": "low",
+      "size": 147,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-50",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/eval_metadata.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/grading.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-50.txt",
+      "risk_tier": "high",
+      "size": 200,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-51",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/outputs/project:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/outputs/transcript-notes.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-51.txt",
+      "risk_tier": "low",
+      "size": 193,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-52",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/outputs/user_notes.md:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/without_skill/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/without_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/without_skill/outputs/project:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-52.txt",
+      "risk_tier": "low",
+      "size": 142,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-53",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/without_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/without_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/without_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/without_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/without_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/without_skill/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/eval_metadata.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-53.txt",
+      "risk_tier": "high",
+      "size": 190,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-54",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/with_skill/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/with_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/with_skill/outputs/project:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/with_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/with_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/with_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/with_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/with_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/with_skill/timing.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-54.txt",
+      "risk_tier": "low",
+      "size": 182,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-55",
+      "type": "diff",
+      "anchor": "skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/project:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/response.md:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/outputs/transcript-notes.md:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/grading.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/metrics.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/run-1/timing.json:1+, skills/debug-loop-workspace/iteration-2/eval-3-trivial-typo-fast-path/without_skill/timing.json:1+, skills/debug-loop/.gitignore:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-55.txt",
+      "risk_tier": "low",
+      "size": 152,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-56",
+      "type": "diff",
+      "anchor": "skills/debug-loop/SKILL.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-56.txt",
+      "risk_tier": "low",
+      "size": 255,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-57",
+      "type": "diff",
+      "anchor": "skills/debug-loop/evals/eval_queries.json:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-57.txt",
+      "risk_tier": "low",
+      "size": 83,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-58",
+      "type": "diff",
+      "anchor": "skills/debug-loop/evals/evals.json:1+, skills/debug-loop/evals/fixtures/csv-report/data/sales-2026-08.csv:1+, skills/debug-loop/evals/fixtures/csv-report/report.py:1+, skills/debug-loop/evals/fixtures/csv-report/tests/data/clean.csv:1+, skills/debug-loop/evals/fixtures/csv-report/tests/data/header_only.csv:1+, skills/debug-loop/evals/fixtures/csv-report/tests/test_report.py:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-58.txt",
+      "risk_tier": "high",
+      "size": 171,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-59",
+      "type": "diff",
+      "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/sessions.py:1+, skills/debug-loop/evals/fixtures/expired-sessions/tests/test_sessions.py:1+, skills/debug-loop/evals/fixtures/pricing-regression/pricing.py:1+, skills/debug-loop/evals/fixtures/pricing-regression/tests/test_pricing.py:1+, skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py:1+, skills/debug-loop/evals/fixtures/slow-enrichment/run_nightly.py:1+, skills/debug-loop/evals/fixtures/slow-enrichment/tests/test_enrich.py:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-59.txt",
+      "risk_tier": "high",
+      "size": 196,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-60",
+      "type": "diff",
+      "anchor": "skills/debug-loop/evals/fixtures/slug-typo/slug.py:1+, skills/debug-loop/evals/fixtures/slug-typo/tests/test_slug.py:1+, skills/debug-loop/references/tactics.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-60.txt",
+      "risk_tier": "low",
+      "size": 136,
+      "unit": "lines"
+    },
+    {
+      "id": "chunk-61",
+      "type": "diff",
+      "anchor": "skills/p-review/SKILL.md:1+ (diff)",
+      "text_path": "skills/brief-artifact-workspace/iteration-1/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-61.txt",
+      "risk_tier": "low",
+      "size": 131,
+      "unit": "lines"
+    }
+  ]
+}

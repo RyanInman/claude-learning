@@ -1,0 +1,58 @@
+{
+  "summary": "This diff adds a new file, report.md, an Adversarial Review 2 report critiquing a follow-the-sun on-call rotation plan (Krakow/US-East). It concludes the plan fails from day one: a 6-hour nightly coverage hole caused by undefined \"closest\" routing, and an all-US incident-commander pool that forces overnight US pages, undermining the plan's own success metric. It ranks ten findings (two Critical, three High, four Medium, one Low), proposes four minimum fixes (UTC-based schedule tiling, IC reconciliation, deeper escalation, and a verified go-live readiness gate), and includes a summary table, per-finding failure scenarios and root causes, a killed-findings section (none killed), open verification items, and yes/no retest criteria.",
+  "claims": [
+    {
+      "text": "The plan leaves a 6-hour nightly coverage hole (01:00-07:00 UTC / 20:00-02:00 ET) with routing left to an undefined \"closest\" rule.",
+      "anchor": "### Finding: 6-hour nightly coverage hole with undefined \"closest\" routing (F1)",
+      "status": "verified"
+    },
+    {
+      "text": "The incident-commander pool is entirely US-based with no IC paging schedule defined, so a Sev1 inside Krakow's window still requires waking a US engineer.",
+      "anchor": "### Finding: All-US IC pool forces overnight US pages for every Krakow-window Sev1 (F2)",
+      "status": "verified"
+    },
+    {
+      "text": "The escalation chain defines exactly one hop, which by construction lands on an off-shift (asleep) engineer, then dead-ends with no further tier.",
+      "anchor": "### Finding: Escalation chain is one hop into a sleeping engineer, then dead-ends (F4)",
+      "status": "verified"
+    },
+    {
+      "text": "The 3-person, 12-hour Krakow rotation collapses on the first absence, degrading into a page-forwarding delay in front of the old US overnight rotation.",
+      "anchor": "### Finding: 3-person, 12-hour rotation collapses on the first absence (F5)",
+      "status": "verified"
+    },
+    {
+      "text": "Go-live is gated by a calendar date while Krakow's prod access provisioning is still \"in progress,\" with severity rated Plausible pending verification of the actual provisioning completion date.",
+      "anchor": "### Finding: Go-live is calendar-gated while Krakow prod access is incomplete (F3)",
+      "status": "unverified"
+    },
+    {
+      "text": "The single success metric (zero overnight PagerDuty pages) can go green while incidents are displaced into escalations, calls, IC activations, or suppressed/downgraded alerts.",
+      "anchor": "### Finding: Success metric can go green while every real failure mode worsens (F6)",
+      "status": "verified"
+    },
+    {
+      "text": "All twelve adversary findings survived verification and merged into seven; none were killed.",
+      "anchor": "## Killed findings",
+      "status": "verified"
+    },
+    {
+      "text": "Polish statutory minimum leave exceeds 20 days, used to justify the two-week absence scenario.",
+      "anchor": "### Finding: 3-person, 12-hour rotation collapses on the first absence (F5)",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "### Finding: 3-person, 12-hour rotation collapses on the first absence (F5)",
+      "note": "States \"Polish statutory minimum exceeds 20 days\" with no source or citation given."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "### Finding: All-US IC pool forces overnight US pages for every Krakow-window Sev1 (F2)",
+      "note": "Asserts \"Krakow's window is 02:00-14:00 ET, so roughly half of it overlaps US night\" without showing the hour-by-hour breakdown that backs this fraction."
+    }
+  ],
+  "least_confident": "Least confident about the DST arithmetic in F7 (that the CET-ET offset narrows from 6 to 5 hours and the hole grows to 7 hours for about 4 weeks a year), since verifying the exact US and EU transition dates is outside what this chunk itself shows."
+}

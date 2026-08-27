@@ -1,0 +1,43 @@
+{
+  "summary": "This chunk adds a new file, benchmark.json, holding results from benchmarking the 'running-debug-loops' skill across 3 eval scenarios, each run with_skill and without_skill. For each run it records pass_rate, timing, tokens, and per-expectation pass/fail with evidence. With_skill runs pass all 5 expectations every time; without_skill runs consistently fail the 'emits debug brief before editing' and 'ranked hypotheses' expectations. A run_summary aggregates mean/stddev/min/max per configuration and computes deltas (pass_rate +0.40, time +81.2s, tokens +14244) favoring with_skill.",
+  "claims": [
+    {
+      "text": "Metadata declares 3 runs per configuration, but the runs array only contains one run_number (1) per eval/configuration pair",
+      "anchor": "chunk-32.txt:19 vs chunk-32.txt:21-278",
+      "status": "contradicted"
+    },
+    {
+      "text": "with_skill achieves pass_rate 1.0 (5/5) on all three evals shown",
+      "anchor": "chunk-32.txt:27-30,66-72,109-112",
+      "status": "verified"
+    },
+    {
+      "text": "without_skill fails to emit a debug brief before editing in all three evals shown",
+      "anchor": "chunk-32.txt:154-157,192-196,238-241",
+      "status": "verified"
+    },
+    {
+      "text": "without_skill eval 2's evidence itself states round(1.995, 2) returns 2.0 in CPython, contradicting the model's asserted claim that round() would produce 1.99 via banker's rounding",
+      "anchor": "chunk-32.txt:270",
+      "status": "unverified"
+    },
+    {
+      "text": "run_summary reports delta of pass_rate +0.40, time_seconds +81.2, tokens +14244 between with_skill and without_skill means",
+      "anchor": "chunk-32.txt:322-326",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "chunk-32.txt:19",
+      "note": "metadata.runs_per_configuration states 3, but only 1 run per eval/configuration is present in the runs array (6 runs total, not 18)"
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "chunk-32.txt:270",
+      "note": "evidence field asserts the without_skill model's rounding explanation was wrong (round(1.995,2) actually returns 2.0) yet still marks the overall expectation as failed based on that same reasoning without showing the run's actual printed float value"
+    }
+  ],
+  "least_confident": "Whether the mismatch between metadata.runs_per_configuration (3) and the single run shown per eval/configuration is a chunking artifact (other runs live outside this chunk) or a genuine inconsistency in the file itself."
+}

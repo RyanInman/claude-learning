@@ -1,0 +1,247 @@
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/response.md b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/response.md
+new file mode 100644
+index 0000000..336848e
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/response.md
+@@ -0,0 +1,53 @@
++Fixed. Root cause: `data/sales-2026-08.csv` starts with a UTF-8 BOM (bytes `EF BB BF`), so the first header cell parsed as `﻿region`, not `region`.
++
++## Why the tests stayed green
++
++Your fixtures (`tests/data/clean.csv`, `tests/data/header_only.csv`) have no BOM. The suite never exercised a BOM'd file, so the bug had nowhere to show up. The export tool that produced this month's file writes one (Excel and several BI exporters do this by default).
++
++Confirmed with a hexdump:
++
++```
++$ od -c data/sales-2026-08.csv | head -1
++0000000  357 273 277   r   e   g   i   o   n   ,   a   m   o   u   n   t
++```
++
++`357 273 277` is octal for `EF BB BF`. `csv.DictReader` treats it as part of the first field name, so `row["region"]` misses and raises `KeyError`.
++
++## The fix
++
++One character in `report.py`:
++
++```python
++-    with open(path, newline="", encoding="utf-8") as fh:
+++    with open(path, newline="", encoding="utf-8-sig") as fh:
++```
++
++`utf-8-sig` strips a leading BOM if present and is a no-op on files without one, so existing non-BOM exports keep working.
++
++## Regression test
++
++Added `tests/data/bom.csv` (same content as `clean.csv`, with a BOM prepended) and a test in `tests/test_report.py`:
++
++```python
++def test_utf8_bom_header_is_parsed():
++    totals = report.total_by_region(os.path.join(HERE, "data", "bom.csv"))
++    assert totals == {"east": 30.0, "west": 12.5}
++```
++
++I checked it actually catches the bug: with the fix stashed, that test fails with the original `KeyError: 'region'`; with the fix applied, it passes.
++
++## Verification
++
++```
++$ python3 report.py data/sales-2026-08.csv
++east	30.00
++west	12.50
++
++$ python3 -m pytest -q
++...                                                                      [100%]
++3 passed in 0.01s
++```
++
++Your original command now produces the report, and the suite is green at 3 tests.
++
++Assumption I made without asking: the BOM is coming from the export tool and will keep appearing, so the right place to fix it is the reader rather than one-off cleaning of this month's file. If instead this file is a fluke from a manual re-save, the fix is still correct and harmless — just less necessary.
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/transcript-notes.md b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/transcript-notes.md
+new file mode 100644
+index 0000000..1b0801a
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/outputs/transcript-notes.md
+@@ -0,0 +1,12 @@
++# Transcript notes
++
++1. `mkdir -p .../outputs` + `cp -R .../fixtures/csv-report .../outputs/project`; `git init -q`, wrote `.gitignore` (`__pycache__/`, `.pytest_cache/`), `git add -A && git commit -qm baseline`; `find` to list files.
++2. Read `project/report.py` and `project/tests/test_report.py` (parallel).
++3. `od -c data/sales-2026-08.csv` and `od -c tests/data/clean.csv` — export file starts `357 273 277` (UTF-8 BOM), fixture does not. Root cause identified.
++4. Reproduced: `python3 report.py data/sales-2026-08.csv` → `KeyError: 'region'`, exit 1. `python3 -m pytest -q` → 2 passed (confirms green suite).
++5. Edited `project/report.py`: `encoding="utf-8"` → `encoding="utf-8-sig"` in `load()`.
++6. Created `project/tests/data/bom.csv` via `printf '\xef\xbb\xbf...'`; verified BOM with `od -c`.
++7. Edited `project/tests/test_report.py`: added `test_utf8_bom_header_is_parsed`.
++8. Verified: script prints `east 30.00 / west 12.50`, exit 0; `pytest -q` → 3 passed.
++9. Verified test is meaningful: `git stash push -q report.py`, ran the new test alone → FAILED with `KeyError: 'region'`; `git stash pop -q`, `pytest -q` → 3 passed.
++10. Wrote `response.md`, `transcript-notes.md`, `metrics.json` in outputs dir.
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/grading.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/grading.json
+new file mode 100644
+index 0000000..daf97d2
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 1,
++  "eval_name": "pasted-traceback",
++  "config": "without_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": false,
++      "evidence": "No brief"
++    },
++    {
++      "text": "Reproduces the crash by running the exact failing command and shows the output",
++      "passed": true,
++      "evidence": "Reproduced the crash and showed the output"
++    },
++    {
++      "text": "Identifies the UTF-8 BOM in the export header as the cause, with evidence from the file bytes or the parsed header keys",
++      "passed": true,
++      "evidence": "BOM identified as the cause with byte-level evidence"
++    },
++    {
++      "text": "Fixes the root cause by reading the file with BOM-aware decoding, not by defaulting the missing key or renaming columns after the fact",
++      "passed": true,
++      "evidence": "encoding='utf-8-sig'"
++    },
++    {
++      "text": "Adds a regression test covering a BOM-prefixed file and shows the suite passing",
++      "passed": true,
++      "evidence": "BOM test added and confirmed red without the fix; 3 passed"
++    }
++  ],
++  "passed": 4,
++  "total": 5,
++  "summary": {
++    "passed": 4,
++    "failed": 1,
++    "total": 5,
++    "pass_rate": 0.8
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/metrics.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/metrics.json
+new file mode 100644
+index 0000000..14ee0c8
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/metrics.json
+@@ -0,0 +1,20 @@
++{
++  "tool_calls": {
++    "Bash": 5,
++    "Read": 2,
++    "Edit": 2,
++    "Write": 3
++  },
++  "total_tool_calls": 12,
++  "total_steps": 10,
++  "files_created": [
++    "project/tests/data/bom.csv",
++    "project/.gitignore",
++    "response.md",
++    "transcript-notes.md",
++    "metrics.json"
++  ],
++  "errors_encountered": 0,
++  "output_chars": 2126,
++  "transcript_chars": 1227
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/timing.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/timing.json
+new file mode 100644
+index 0000000..e5611ed
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/run-1/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 31649, "duration_ms": 62493, "total_duration_seconds": 62.5}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/timing.json b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/timing.json
+new file mode 100644
+index 0000000..e5611ed
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-1-pasted-traceback/without_skill/timing.json
+@@ -0,0 +1 @@
++{"total_tokens": 31649, "duration_ms": 62493, "total_duration_seconds": 62.5}
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/eval_metadata.json b/skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/eval_metadata.json
+new file mode 100644
+index 0000000..eaa95b6
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/eval_metadata.json
+@@ -0,0 +1,22 @@
++{
++  "eval_id": 2,
++  "eval_name": "red-tests-after-merge",
++  "prompt": "Tests are red after I merged main: 2 failures in tests/test_pricing.py. Get them passing.",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file"
++    },
++    {
++      "text": "Leaves every assertion in tests/test_pricing.py unchanged"
++    },
++    {
++      "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance"
++    },
++    {
++      "text": "Explains why binary float rounding produced 1.99 instead of 2.00"
++    },
++    {
++      "text": "Shows the full pytest run passing as evidence in the final message"
++    }
++  ]
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/grading.json b/skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/grading.json
+new file mode 100644
+index 0000000..8a6a565
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-2/eval-2-red-tests-after-merge/with_skill/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 2,
++  "eval_name": "red-tests-after-merge",
++  "config": "with_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": true,
++      "evidence": "Debug Brief emitted before any edit"
++    },
++    {
++      "text": "Leaves every assertion in tests/test_pricing.py unchanged",
++      "passed": true,
++      "evidence": "tests/test_pricing.py byte-identical to the fixture"
++    },
++    {
++      "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance",
++      "passed": true,
++      "evidence": "Decimal with ROUND_HALF_UP; no tolerance, no assertion change"
++    },
++    {
++      "text": "Explains why binary float rounding produced 1.99 instead of 2.00",
++      "passed": true,
++      "evidence": "Instrumented and printed 1.9949999999999997, showing the product falls below the half-cent rather than attributing it to banker's rounding"
++    },
++    {
++      "text": "Shows the full pytest run passing as evidence in the final message",
++      "passed": true,
++      "evidence": "Pasted green run, revert to red, and green again"
++    }
++  ],
++  "passed": 5,
++  "total": 5,
++  "summary": {
++    "passed": 5,
++    "failed": 0,
++    "total": 5,
++    "pass_rate": 1.0
++  }
++}
+\ No newline at end of file

@@ -1,0 +1,18 @@
+{
+  "summary": "This chunk is a diff adding a new file, skills/debug-loop/SKILL.md, a 254-line skill definition for a 'Debug Loop' agent workflow. It defines a two-stage process: first turning a bug report into a structured 'Debug Brief' (symptom, repro, check, ranked hypotheses), then running a verification-gated loop that reproduces the bug, commits a failing test, instruments code, changes one variable at a time, verifies the fix, and resets to a handoff block if the loop stalls. It includes a fast path for obvious one-line bugs and references a separate tactics.md file for advanced cases.",
+  "claims": [
+    {"text": "The skill supersedes an existing 'diagnose' skill and should run alone when both match", "anchor": "skills/debug-loop/SKILL.md:17-18", "status": "verified"},
+    {"text": "Step 0 requires four facts before reading implementation code: exact symptom, a repro, a check, and a scope hint", "anchor": "skills/debug-loop/SKILL.md:33-42", "status": "verified"},
+    {"text": "Step 1a fast path applies only when error names a specific file/line, that line explains the failure, and the fix touches only one place", "anchor": "skills/debug-loop/SKILL.md:76-83", "status": "verified"},
+    {"text": "Step 2 requires committing a failing test before writing any fix, overriding the default 'commit only when asked' behavior", "anchor": "skills/debug-loop/SKILL.md:96-99", "status": "verified"},
+    {"text": "Step 5 requires reverting the fix once to confirm the check goes red again, except when the check takes minutes or Step 3 already proved the link", "anchor": "skills/debug-loop/SKILL.md:134-137", "status": "verified"},
+    {"text": "Step 6 requires stopping and handing off after two failed fixes on the same issue, with a handoff block telling the user to run /clear", "anchor": "skills/debug-loop/SKILL.md:146-165", "status": "verified"},
+    {"text": "/rewind checkpoints only track edits made through file-editing tools, not shell command changes", "anchor": "skills/debug-loop/SKILL.md:221-222", "status": "unverified"},
+    {"text": "references/tactics.md covers git bisect, hooks that run tests after every edit, subagent delegation cost, and overfitting checks", "anchor": "skills/debug-loop/SKILL.md:246-254", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "skills/debug-loop/SKILL.md:221-222", "note": "Claim about /rewind checkpoint behavior is asserted as fact with no evidence shown in this chunk (no source cited, no test of the claim)."},
+    {"kind": "unsupported-claim", "anchor": "skills/debug-loop/SKILL.md:246-254", "note": "References a separate file, references/tactics.md, whose contents are not shown in this chunk, so its described coverage cannot be verified here."}
+  ],
+  "least_confident": "I could not verify the claim about /rewind checkpoint behavior (SKILL.md:221-222) or the actual contents of the referenced references/tactics.md file, since neither is shown as evidence within this chunk."
+}

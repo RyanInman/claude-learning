@@ -1,0 +1,36 @@
+{
+  "expectations": [
+    {
+      "text": "Output brief.md covers the diff with per-file or per-chunk summaries anchored to file paths",
+      "passed": true,
+      "evidence": "98 path references"
+    },
+    {
+      "text": "High-risk chunks or files (scripts, tests, fixtures with subprocess/open) are listed before low-risk prose",
+      "passed": true,
+      "evidence": "high before low"
+    },
+    {
+      "text": "Brief states at least one behavior claim with an anchor of the form path:line",
+      "passed": true,
+      "evidence": "path:line anchor found"
+    },
+    {
+      "text": "Brief includes a least-confident or uncertainty statement",
+      "passed": true,
+      "evidence": "uncertainty statement present"
+    },
+    {
+      "text": "Brief is at most 1500 words, because a brief longer than the reader can absorb in one sitting defeats its purpose",
+      "passed": false,
+      "evidence": "3861 words (limit 1500)"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 1,
+    "total": 5,
+    "pass_rate": 0.8
+  },
+  "notes": "brief words=3861"
+}

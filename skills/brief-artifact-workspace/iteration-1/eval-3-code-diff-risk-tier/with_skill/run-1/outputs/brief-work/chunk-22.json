@@ -1,0 +1,73 @@
+{
+  "summary": "This chunk adds five new files for an adversarial-review eval workspace. It adds grading.json for eval-1 (cache-design-redteam without_skill run-1), scoring the baseline report on 9 expectations: 6 pass (concrete scenarios, KEYS/sizing/staleness flaws flagged, falsifiable retest, coverage of rollout gating) and 3 fail (no stated total rank order, no explicit ranked-harm charter, no bottom-line verdict with minimum-changes path). It duplicates a timing.json (17.1s, 33980 tokens) at run-1 and workspace level. It adds eval_metadata.json for a new eval-2 (oncall-plan-redteam) with 9 expectations about timezone gaps, Krakow readiness, IC pool, verdict, and retest checks. It adds the oncall-rotation-plan.md source plan itself: a follow-the-sun rotation with stated coverage/escalation/IC gaps.",
+  "claims": [
+    {
+      "text": "grading.json reports 6 passed, 3 failed, 9 total expectations, pass_rate 0.67 for the without_skill eval-1 run-1",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/grading.json:+94-99",
+      "status": "verified"
+    },
+    {
+      "text": "The report fails on requiring a stated total rank order because sequential finding IDs (F-01..F-13) are ambiguous evidence of ranking",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/grading.json:+9",
+      "status": "verified"
+    },
+    {
+      "text": "The report fails on stating an explicit charter/threat model with ranked harm categories before findings",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/grading.json:+27-29",
+      "status": "verified"
+    },
+    {
+      "text": "The report fails on giving a bottom-line verdict plus a minimum-changes path collapsing all findings, since the collapse covers only 9 of 13 findings",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/grading.json:+30-32",
+      "status": "verified"
+    },
+    {
+      "text": "F-01 (Critical) flags KEYS as O(N), blocking the Redis event loop on a cluster shared with rate limiting and feature flags, ranked above the conditional F-07 sizing finding (High)",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/grading.json:+15",
+      "status": "verified"
+    },
+    {
+      "text": "F-07 flags sizing math 40KB x 200k sessions = 8GB, exactly the stated free capacity, leaving no room for overhead",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/grading.json:+17",
+      "status": "verified"
+    },
+    {
+      "text": "timing.json (run-1 and workspace-level copies) records total_tokens 33980 and duration_ms 17146, noting the run was killed by a session limit and resumed",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/timing.json:+1-6",
+      "status": "verified"
+    },
+    {
+      "text": "eval-2's oncall-rotation-plan.md leaves the window 20:00-02:00 ET covered by neither Krakow (08:00-20:00 CET) nor US-East (08:00-20:00 ET) explicitly, per its own coverage rule of paging 'whichever shift is closest'",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/oncall-rotation-plan.md:+7-8",
+      "status": "verified"
+    },
+    {
+      "text": "The plan's Sev1 incident-commander pool is all US-based and stays as-is, despite the plan's goal of eliminating overnight pages for US-East",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/oncall-rotation-plan.md:+13-14",
+      "status": "verified"
+    },
+    {
+      "text": "Krakow team joined 6 weeks ago, has not shipped to production, and access provisioning is still 'in progress'",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/oncall-rotation-plan.md:+19-20",
+      "status": "verified"
+    },
+    {
+      "text": "eval_metadata.json for eval-2 lists 9 expectations covering timezone gap, Krakow readiness, IC pool, verdict-on-goal-failure, handover/holiday/DST/rollback coverage, retest mechanism, and bottom-line verdict",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-2-oncall-plan-redteam/eval_metadata.json:+1-16",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/grading.json:+9",
+      "note": "The eval_feedback flags its own expectation as weakly discriminating: sequential finding IDs are ambiguous evidence for 'total rank order,' so the pass/fail on this criterion rests on interpretation rather than a clear-cut check."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-2/eval-1-cache-design-redteam/without_skill/run-1/grading.json:+58-60",
+      "note": "Fix-direction numeric values (timeouts, headroom fractions) are self-disclosed as conventional starting points, not measured, per user_notes_summary."
+    }
+  ],
+  "least_confident": "I could not verify how the 'anchor' field's suffix like ':+94-99' maps to exact original file line numbers, since I inferred offsets from the diff's '+' hunks rather than a provided line index."
+}

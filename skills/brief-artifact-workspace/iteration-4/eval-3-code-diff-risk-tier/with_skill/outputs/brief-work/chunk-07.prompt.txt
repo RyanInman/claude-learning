@@ -1,0 +1,29 @@
+You are reading one chunk of a larger artifact. Read only the chunk text below.
+Do not look at other files, run code, or search the web.
+
+Chunk id: chunk-07
+Anchor: skills/debug-loop/evals/evals.json:1+, skills/debug-loop/evals/fixtures/csv-report/data/sales-2026-08.csv:1+, skills/debug-loop/evals/fixtures/csv-report/report.py:1+, skills/debug-loop/evals/fixtures/csv-report/tests/data/clean.csv:1+, skills/debug-loop/evals/fixtures/csv-report/tests/data/header_only.csv:1+, skills/debug-loop/evals/fixtures/csv-report/tests/test_report.py:1+ (diff)
+Type: diff   (prose | code | diff)
+
+Write a JSON object to /Users/admin/claude-learning/skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-07.json with exactly these fields:
+- summary: 80 words max. Say what this chunk does or argues, top-down, in plain language.
+- claims: at most 6 atomic claims (prose) or behaviors (code), the ones a reviewer
+  must check. Each has text (25 words max), anchor (source line number from the "NNN|" prefix,
+  or file:line for diffs), and status:
+    verified      the chunk shows the evidence (code visible, source cited, data shown)
+    unverified    stated with no evidence in the chunk; use this when unsure
+    contradicted  two places in the chunk disagree; anchor must read "A vs B"
+- risks: at most 4 {kind, anchor, note}. note is 20 words max. kind is one of
+    hallucinated-api, duplicate-logic, missing-edge-case (code)
+    uncited-number, unsupported-claim (prose)
+  Flag only what you see. Do not invent risks to fill the list.
+- least_confident: one sentence naming the part you understood least or could not check.
+
+Rules:
+- Every claim and risk needs an anchor copied from the chunk, because the reader
+  will drill in from that pointer.
+- Do not summarize anything outside the chunk text.
+- Output the JSON file only. No prose reply.
+
+Chunk text:
+(read the file /Users/admin/claude-learning/skills/brief-artifact-workspace/iteration-4/eval-3-code-diff-risk-tier/with_skill/outputs/brief-work/chunk-07.txt first; that file is the chunk text)

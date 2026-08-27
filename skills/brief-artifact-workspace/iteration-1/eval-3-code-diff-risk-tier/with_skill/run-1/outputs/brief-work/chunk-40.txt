@@ -1,0 +1,87 @@
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/grading.json b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/grading.json
+new file mode 100644
+index 0000000..95ca42d
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/grading.json
+@@ -0,0 +1,40 @@
++{
++  "eval_id": 2,
++  "eval_name": "red-tests-after-merge",
++  "config": "with_skill",
++  "expectations": [
++    {
++      "text": "Emits a debug brief (symptom, repro, check) before editing any source file",
++      "passed": true,
++      "evidence": "Debug Brief emitted before any edit, including an explicit note that the pre-existing failing tests already satisfy the commit-test-first gate"
++    },
++    {
++      "text": "Leaves every assertion in tests/test_pricing.py unchanged",
++      "passed": true,
++      "evidence": "Diff of tests/test_pricing.py against the fixture is empty; all four assertions byte-identical"
++    },
++    {
++      "text": "Fixes the root cause in pricing.py by computing in integer cents or applying half-up rounding, not by loosening the assertions or adding a tolerance",
++      "passed": true,
++      "evidence": "Decimal with ROUND_HALF_UP and Decimal(str(v)) input conversion; no tolerance, no assertion change"
++    },
++    {
++      "text": "Explains why binary float rounding produced 1.99 instead of 2.00",
++      "passed": true,
++      "evidence": "Instrumented and printed repr(0.70*3*0.95) = 1.9949999999999997, then killed the banker's-rounding hypothesis by showing round(1.995, 2) returns 2.0"
++    },
++    {
++      "text": "Shows the full pytest run passing as evidence in the final message",
++      "passed": true,
++      "evidence": "Pasted the red run, the green run, a stash-revert back to red, an overfit probe over six extra cases, and the full-suite run"
++    }
++  ],
++  "passed": 5,
++  "total": 5,
++  "summary": {
++    "passed": 5,
++    "failed": 0,
++    "total": 5,
++    "pass_rate": 1.0
++  }
++}
+\ No newline at end of file
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/metrics.json b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/metrics.json
+new file mode 100644
+index 0000000..d9ed98c
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/metrics.json
+@@ -0,0 +1,25 @@
++{
++  "tool_calls": {
++    "Bash": 15,
++    "Read": 3,
++    "Write": 5,
++    "Edit": 3,
++    "Agent": 1,
++    "ToolSearch": 1
++  },
++  "total_tool_calls": 28,
++  "total_steps": 22,
++  "files_created": [
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/project/",
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/response.md",
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/transcript-notes.md",
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/user_notes.md",
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/metrics.json"
++  ],
++  "files_modified": [
++    "/Users/admin/claude-learning/skills/running-debug-loops-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/project/pricing.py"
++  ],
++  "errors_encountered": 2,
++  "output_chars": 9096,
++  "transcript_chars": 2151
++}
+
+diff --git a/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/project b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/project
+new file mode 160000
+index 0000000..d7b8ef7
+--- /dev/null
++++ b/skills/debug-loop-workspace/iteration-1/eval-2-red-tests-after-merge/with_skill/outputs/project
+@@ -0,0 +1 @@
++Subproject commit d7b8ef79d8addd15a3927a1c88c1a5b31b407039-dirty

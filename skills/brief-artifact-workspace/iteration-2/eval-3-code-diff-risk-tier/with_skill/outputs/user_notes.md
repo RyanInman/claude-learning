@@ -1,0 +1,3 @@
+- Chunker excluded 51 chunks by its default path filter (`*-workspace/`, `outputs/`); the brief covers only the 10 remaining source chunks. Excluded content was eval workspace output under skills/*-workspace/.
+- No cross-chunk contradictions found. Chunk-level unverified claims about sibling files (tactics.md sections, fixture dirs, adversarial-review-2 existing) do resolve within other chunks, but per the skill I left the reader's `unverified` marks unchanged.
+- Brief written to the outputs dir instead of the skill's default `./diff-<ref>.brief.md` in repo root, per task instructions.

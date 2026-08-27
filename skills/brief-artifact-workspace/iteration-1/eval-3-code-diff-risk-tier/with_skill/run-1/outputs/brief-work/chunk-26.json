@@ -1,0 +1,53 @@
+{
+  "summary": "This diff adds two new files: grading.json and outputs/metrics.json for the 'without_skill' oncall-plan-redteam eval. grading.json scores a redteam review against 9 expectations (6 passed, 3 failed), covering severity grading/ranking, failure-scenario detail, timezone coverage math, Krakow team readiness, IC-pool contradiction, DST/handover coverage, retest checks, and a prioritized fix list. It also includes verified factual claims, user notes on workarounds (a Write-tool failure worked around via Bash heredoc), and eval_feedback suggesting the expectation set be refined. metrics.json duplicates the same tool-call and error counts.",
+  "claims": [
+    {
+      "text": "9 expectations were graded: 6 passed, 3 failed (pass_rate 0.67)",
+      "anchor": "grading.json:+114-119 (summary block)",
+      "status": "verified"
+    },
+    {
+      "text": "Strict total rank order expectation failed because within-tier findings are only enumerated, not ranked",
+      "anchor": "grading.json:+9-14 (expectations[0])",
+      "status": "verified"
+    },
+    {
+      "text": "Krakow 08:00-20:00 CET converts to 02:00-14:00 ET, leaving 20:00-02:00 ET uncovered",
+      "anchor": "grading.json:+21-24 (expectations[2])",
+      "status": "verified"
+    },
+    {
+      "text": "The US-based IC pool still pages a sleeping US engineer for Krakow-shift Sev1s, undermining the zero-overnight-page metric",
+      "anchor": "grading.json:+31-33 (expectations[4])",
+      "status": "verified"
+    },
+    {
+      "text": "No per-finding falsifiable retest checks exist; only a couple of findings embed fix gates",
+      "anchor": "grading.json:+45-48 (expectations[7])",
+      "status": "verified"
+    },
+    {
+      "text": "Industry floor for a sustainable oncall rotation is 4-6 people",
+      "anchor": "grading.json:+96-101 (claims[4])",
+      "status": "unverified"
+    },
+    {
+      "text": "Write tool refused to create report.md due to a harness guard; executor used a Bash heredoc instead, counted as the one error in metrics",
+      "anchor": "grading.json:+105-108 (user_notes_summary.workarounds)",
+      "status": "verified"
+    },
+    {
+      "text": "metrics.json tool-call and error counts (Read:1, Write:3, Bash:2, errors:1, output_chars:12264)",
+      "anchor": "outputs/metrics.json:+2-8",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "uncited-number",
+      "anchor": "grading.json:+96-101 (claims[4])",
+      "note": "The '4-6 people' industry floor claim is explicitly marked verified: false / uncited by the chunk's own text."
+    }
+  ],
+  "least_confident": "Whether the 'strict total rank order' and 'prioritized minimum-changes list' failures reflect a genuine skill gap versus an overly strict expectation design, since the chunk's own eval_feedback questions whether the ranking sub-check should be split out."
+}

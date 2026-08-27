@@ -1,0 +1,17 @@
+{
+  "summary": "The Request handling section states that each request carries an idempotency key so retried transfers do not post twice. The rest of the section is a repeated list of operational assertions: 200 ms p95 read latency target, low-priority backfills, alerts paging after five minutes, health and readiness endpoints, structured logs per write, unit test coverage, ninety-day secret rotation, schema review for index impact, single YAML config, per-region dashboards, and a three-phase migration with no downtime. No evidence supports any assertion.",
+  "claims": [
+    {"text": "Each request carries an idempotency key so a retried transfer does not post twice.", "anchor": "21", "status": "unverified"},
+    {"text": "Read latency target is under 200 ms at the 95th percentile.", "anchor": "23", "status": "unverified"},
+    {"text": "Alerts route to the payments channel and page after five minutes.", "anchor": "23", "status": "unverified"},
+    {"text": "Secrets rotate every ninety days through the platform vault.", "anchor": "25", "status": "unverified"},
+    {"text": "The migration ran in three phases over two weekends without downtime.", "anchor": "23", "status": "unverified"},
+    {"text": "Configuration lives in a single YAML file loaded at startup.", "anchor": "29", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "23", "note": "200 ms p95 target and five-minute page delay stated with no measurement or source."},
+    {"kind": "unsupported-claim", "anchor": "23", "note": "Migration claimed complete without downtime; no dates, metrics, or reference given."},
+    {"kind": "unsupported-claim", "anchor": "23", "note": "Sentences repeat verbatim across paragraphs; text reads as padding, not design content."}
+  ],
+  "least_confident": "I could not tell whether the heavy sentence repetition is intentional filler or a corrupted draft, and no sentence in the chunk carries supporting evidence."
+}

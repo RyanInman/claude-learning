@@ -1,0 +1,3 @@
+- render_brief.py rejected chunk-02 on first render (summary 81 words, max 80). Re-ran the chunk-02 reader subagent per SKILL.md Step 4; second pass hit exactly 80 words.
+- My first reconcile edit matched "timeout" and missed chunk-03's "time out" phrasing, so only the L85 side was marked contradicted on the first render. Fixed the L37 side and re-rendered.
+- Every chunk reader marked all claims unverified; the document cites no sources, so 0 verified is expected, not a reader failure.

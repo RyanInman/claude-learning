@@ -1,0 +1,33 @@
+{
+  "target": "resources/human-level-ai-review.md",
+  "chunk_count": 3,
+  "chunks": [
+    {
+      "id": "chunk-01",
+      "type": "prose",
+      "anchor": "Reviewing AI-Generated Output: Principles and Techniques for Comprehension Under Load .. Details > 2. Code-review empirical findings (L1-L43)",
+      "text_path": "skills/brief-artifact-workspace/iteration-2/eval-1-prose-paper-sequential/with_skill/outputs/brief-work/chunk-01.txt",
+      "risk_tier": "low",
+      "size": 1269,
+      "unit": "words"
+    },
+    {
+      "id": "chunk-02",
+      "type": "prose",
+      "anchor": "Details > 3. AI-specific concerns .. Details > 5. Practical workflows (2025\u20132026) (L44-L86)",
+      "text_path": "skills/brief-artifact-workspace/iteration-2/eval-1-prose-paper-sequential/with_skill/outputs/brief-work/chunk-02.txt",
+      "risk_tier": "low",
+      "size": 1439,
+      "unit": "words"
+    },
+    {
+      "id": "chunk-03",
+      "type": "prose",
+      "anchor": "Details > 6. Beyond code \u2014 prose, analysis, research output .. Reviewing AI-Generated Output: Principles and Techniques for Comprehension Under Load > Caveats (L87-L118)",
+      "text_path": "skills/brief-artifact-workspace/iteration-2/eval-1-prose-paper-sequential/with_skill/outputs/brief-work/chunk-03.txt",
+      "risk_tier": "low",
+      "size": 584,
+      "unit": "words"
+    }
+  ]
+}

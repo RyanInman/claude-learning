@@ -1,0 +1,58 @@
+{
+  "summary": "This diff adds a new file, skills/debug-loop-workspace/iteration-2/benchmark.json, containing eval results for a 'running-debug-loops' skill. It runs 4 evals (0-3) under both with_skill and without_skill configurations, each with 5 expectations, and includes a run_summary comparing pass_rate, time_seconds, and tokens. With_skill scores a perfect 1.0 mean pass rate across all runs; without_skill averages 0.7, with eval 0 (0.4) and eval 2 (0.6) showing missing debug briefs, missing ranked hypotheses, and a wrong rounding explanation. The delta section reports with_skill improves pass_rate by +0.30 but costs +43.4s and +10847 tokens on average.",
+  "claims": [
+    {
+      "text": "With with_skill, all 4 evals (0-3) achieve pass_rate 1.0 (5/5 passed) in a single run each.",
+      "anchor": "benchmark.json: \"runs\" entries with configuration \"with_skill\", eval_id 0-3",
+      "status": "verified"
+    },
+    {
+      "text": "Without_skill, eval 0 scores 0.4 (2/5 passed): fails to emit a debug brief, fails to list ranked hypotheses, and fails to show a failing test before the fix.",
+      "anchor": "benchmark.json: eval_id 0, configuration \"without_skill\" expectations block",
+      "status": "verified"
+    },
+    {
+      "text": "Without_skill, eval 2 scores 0.6 (3/5 passed): no debug brief, and the rounding explanation incorrectly invokes banker's rounding since round(1.995, 2) returns 2.0 in CPython.",
+      "anchor": "benchmark.json: eval_id 2, configuration \"without_skill\", expectation \"Explains why binary float rounding produced 1.99 instead of 2.00\"",
+      "status": "verified"
+    },
+    {
+      "text": "Without_skill, eval 1 scores 0.8 (4/5 passed), failing only on emitting a debug brief.",
+      "anchor": "benchmark.json: eval_id 1, configuration \"without_skill\" expectations block",
+      "status": "verified"
+    },
+    {
+      "text": "Without_skill, eval 3 (the fast-path/typo case) scores 1.0 (5/5 passed) even without an explicit brief, because the response's brevity itself satisfies the no-ceremony expectation.",
+      "anchor": "benchmark.json: eval_id 3, configuration \"without_skill\", expectation \"Takes the fast path...\"",
+      "status": "verified"
+    },
+    {
+      "text": "Aggregate run_summary: with_skill mean pass_rate 1.0 (stddev 0.0), mean time 105.65s, mean tokens 41899.75; without_skill mean pass_rate 0.7 (stddev 0.2582), mean time 62.275s, mean tokens 31052.5.",
+      "anchor": "benchmark.json: \"run_summary\" object (with_skill and without_skill blocks)",
+      "status": "verified"
+    },
+    {
+      "text": "Delta section states with_skill improves pass_rate by +0.30 at a cost of +43.4 seconds and +10847 tokens on average.",
+      "anchor": "benchmark.json: \"run_summary\".\"delta\"",
+      "status": "verified"
+    },
+    {
+      "text": "Metadata lists skill_path and executor_model/analyzer_model as placeholder values rather than concrete identifiers.",
+      "anchor": "benchmark.json: \"metadata\" block, fields \"skill_path\", \"executor_model\", \"analyzer_model\"",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "benchmark.json: eval_id 2, configuration \"without_skill\", evidence text for the rounding explanation expectation",
+      "note": "The evidence claims the model asserted round() 'applies banker's rounding' as the cause, and asserts this is factually wrong (round(1.995,2) == 2.0 in CPython) -- this is an internal claim about correctness embedded in the eval data itself, not independently verifiable from the diff alone, though the chunk does state it as settled fact."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "benchmark.json: metadata.timestamp \"2026-08-15T01:18:40Z\"",
+      "note": "Timestamp is presented with no corroborating context (e.g., commit date) within this chunk."
+    }
+  ],
+  "least_confident": "I could not verify whether the stated CPython rounding behavior (round(1.995, 2) == 2.0) used to flag the without_skill eval-2 explanation as wrong is itself accurate, since the chunk only asserts it as evidence text rather than showing a computation."
+}

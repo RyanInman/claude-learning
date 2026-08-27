@@ -1,0 +1,53 @@
+{
+  "summary": "Adds three new debug-loop eval fixtures, each a small Python module plus pytest tests. expired-sessions: an append-only in-memory session store where get_session picks the newest row by created_at and refresh returns 404/401/200. pricing-regression: line_total and order_total with cent rounding. slow-enrichment: enrich_orders attaches customers to orders via a linear scan over a list, plus a nightly runner that times 20000x20000 records.",
+  "claims": [
+    {
+      "text": "get_session selects the row with the greatest created_at, ignoring version; created_at has one-second resolution per docstring.",
+      "anchor": "sessions.py:37",
+      "status": "verified"
+    },
+    {
+      "text": "refresh treats expires_at equal to now as expired (<=), returning status 401.",
+      "anchor": "sessions.py:45",
+      "status": "verified"
+    },
+    {
+      "text": "line_total computes round(unit_price*qty*(1-discount_pct/100), 2) with float arithmetic and Python round.",
+      "anchor": "pricing.py:95",
+      "status": "verified"
+    },
+    {
+      "text": "test_half_cent_rounds_up expects line_total(0.70,3,5)==2.00; float 1.995 rounds to 1.99 in Python, so this test fails.",
+      "anchor": "tests/test_pricing.py:128",
+      "status": "unverified"
+    },
+    {
+      "text": "index_customers returns a list of dict copies; enrich_orders scans it linearly per order, giving O(orders*customers).",
+      "anchor": "enrich.py:146",
+      "status": "verified"
+    },
+    {
+      "text": "run_nightly builds 20000 customers and 20000 orders and prints elapsed seconds for enrich_orders.",
+      "anchor": "run_nightly.py:177",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "missing-edge-case",
+      "anchor": "sessions.py:37",
+      "note": "Two rows with same created_at (same-second refresh) tie; max returns first, not highest version."
+    },
+    {
+      "kind": "missing-edge-case",
+      "anchor": "pricing.py:95",
+      "note": "Float round on half-cent values (1.995) yields 1.99; test and order_total assertion likely fail."
+    },
+    {
+      "kind": "duplicate-logic",
+      "anchor": "enrich.py:154",
+      "note": "index_customers builds a list, not a dict; nested loop does 400M comparisons on nightly input."
+    }
+  ],
+  "least_confident": "Whether the pricing rounding failure and session tie-break are intentional planted bugs for the debug-loop evals or accidental; the chunk gives no eval metadata."
+}

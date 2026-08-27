@@ -1,0 +1,58 @@
+{
+  "summary": "New debug-loop skill file. Description triggers on any bug report and supersedes the diagnose skill. Workflow: gather symptom, repro, check, scope (Step 0); emit a Debug Brief with ranked hypotheses or a three-line fast-path brief (Step 1/1a); commit a failing test before fixing (Step 2); instrument (Step 3); one change then run the check (Step 4); verify via full run and revert (Step 5); hand off after two failed fixes (Step 6). Ends with example, gotchas, and references/tactics.md pointers.",
+  "claims": [
+    {
+      "text": "Skill supersedes the diagnose skill; when both match, run debug-loop only.",
+      "anchor": "skills/debug-loop/SKILL.md:18",
+      "status": "unverified"
+    },
+    {
+      "text": "Step 2 commits the failing test before any fix, overriding the commit-only-when-asked default.",
+      "anchor": "skills/debug-loop/SKILL.md:119",
+      "status": "verified"
+    },
+    {
+      "text": "Fast path applies only when all three conditions hold: file/line named, line explains failure, single-place fix.",
+      "anchor": "skills/debug-loop/SKILL.md:95",
+      "status": "verified"
+    },
+    {
+      "text": "Reset trigger fires after two failed fixes on the same issue, then hand off via Debug Handoff block.",
+      "anchor": "skills/debug-loop/SKILL.md:80",
+      "status": "verified"
+    },
+    {
+      "text": "references/tactics.md contains sections on building a check, git bisect, hooks, and overfitting.",
+      "anchor": "skills/debug-loop/SKILL.md:252",
+      "status": "unverified"
+    },
+    {
+      "text": "/rewind checkpoints track only file-editing tool edits, not shell command changes.",
+      "anchor": "skills/debug-loop/SKILL.md:247",
+      "status": "unverified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/debug-loop/SKILL.md:247",
+      "note": "Claim about /rewind checkpoint behavior stated without citation; product behavior may differ."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/debug-loop/SKILL.md:252",
+      "note": "references/tactics.md referenced four times but not in this chunk; sections may not exist."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "skills/debug-loop/SKILL.md:28",
+      "note": "Assertion that accumulated dead ends bias re-trying ruled-out fixes given without evidence."
+    },
+    {
+      "kind": "uncited-number",
+      "anchor": "skills/debug-loop/SKILL.md:246",
+      "note": "Run flaky check five times: threshold given without justification."
+    }
+  ],
+  "least_confident": "Whether references/tactics.md exists with the named sections and whether the diagnose skill supersession interacts correctly with skill triggering."
+}

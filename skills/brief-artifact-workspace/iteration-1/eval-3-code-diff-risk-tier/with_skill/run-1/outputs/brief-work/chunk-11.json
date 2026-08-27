@@ -1,0 +1,22 @@
+{
+  "summary": "This chunk is a diff adding a new file, report.md, for an adversarial review of a follow-the-sun on-call rotation plan. Three fresh-eyes adversaries merged twelve raw findings into eight, none killed. Findings cover an uncovered 6-hour nightly paging gap (F1), Sev1s stalling on a sleeping US incident commander (F2), go-live gated by calendar rather than access provisioning (F3), a too-short training ramp (F4), a fragile 3-person rotation (F5), a dead-ending escalation chain (F6), a perverse success metric (F7), and unvalidated runbooks (F8). Three verification items and a retest list follow.",
+  "claims": [
+    {"text": "Twelve raw findings from three adversaries were merged into eight, with none killed.", "anchor": "report.md:9-11", "status": "unverified"},
+    {"text": "No finding is graded Critical because every failure is recoverable; F4 would become Critical if verification item V1 confirms destructive runbook branches exist.", "anchor": "report.md:23-25", "status": "verified"},
+    {"text": "F1: the Krakow (08:00-20:00 CET) and US-East (02:00-14:00 ET / 08:00-20:00 ET) windows leave 20:00-02:00 ET uncovered daily, with 'closest' undefined as a routing rule.", "anchor": "report.md:27-55", "status": "verified"},
+    {"text": "F2: the entire incident-commander pool is US-based with no overnight IC schedule, so Sev1s during Krakow's shift lack a reachable IC.", "anchor": "report.md:51-76", "status": "verified"},
+    {"text": "F3: go-live is scheduled 'starting next month' with no gate on access provisioning, which is still 'in progress' per the plan's own notes.", "anchor": "report.md:72-97", "status": "verified"},
+    {"text": "F4: a single shadow week does not guarantee exposure to any real incidents and has no reverse-shadow (Krakow-drives, US-watches) phase.", "anchor": "report.md:93-114", "status": "unverified"},
+    {"text": "F5: the 3-person Krakow rotation covers 12h/7d with no secondary layer or minimum-staffing threshold, versus an industry floor of 4-6 for a sustainable single-site rotation.", "anchor": "report.md:110-136", "status": "verified"},
+    {"text": "F6: the escalation chain has exactly one hop and no terminal fallback, so two consecutive missed acks leave a Sev1 unacknowledged indefinitely.", "anchor": "report.md:132-155", "status": "verified"},
+    {"text": "F7: the success metric (zero overnight pages to US-East) is defined so that legitimate overnight escalations under step 4 count as metric failures, pressuring Krakow engineers to suppress escalation.", "anchor": "report.md:151-176", "status": "verified"},
+    {"text": "F8: runbook readiness is defined only as 'tidy them up,' with no completion criterion and no validation by a non-author reader.", "anchor": "report.md:172-193", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "report.md:35-37", "note": "F1's corroboration cites '~42 hours/week' of overnight paging absorbed silently, with no computation or source shown in this chunk."},
+    {"kind": "uncited-number", "anchor": "report.md:134-136", "note": "F5's root cause asserts an 'industry floor for a sustainable single-site rotation is 4-6' with no citation."},
+    {"kind": "unsupported-claim", "anchor": "report.md:9-11", "note": "The claim that twelve raw findings were merged into exactly eight, with none killed, is stated without showing the original twelve or the merge reasoning in this chunk."},
+    {"kind": "unsupported-claim", "anchor": "report.md:1-240", "note": "All findings are assessed against 'oncall-rotation-plan.md' and 'charter.md', neither of which appears in this chunk, so severity and status labels cannot be checked against the source artifact here."}
+  ],
+  "least_confident": "Whether F1's, F5's, and F7's severity/status labels (e.g. 'Confirmed', 'High') are justified cannot be checked here because the underlying oncall-rotation-plan.md and charter.md are not part of this chunk."
+}

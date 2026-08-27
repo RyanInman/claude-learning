@@ -1,0 +1,17 @@
+{
+  "summary": "Adds a new skill file skills/p-review/SKILL.md. It defines a single-pass adversarial review: the conductor establishes artifact, baseline, and intent, dispatches one fresh subagent with a verbatim reviewer brief, then rules on findings and presents them as Concerns, Noted, Rejected, and Minor. Findings are rated /10. An --inline flag skips the subagent and the Ruling step. Minor findings go to a minor-findings.md file for a downstream auto-fix agent.",
+  "claims": [
+    {"text": "Skill always dispatches a fresh subagent as Reviewer unless --inline is passed.", "anchor": "skills/p-review/SKILL.md:35", "status": "verified"},
+    {"text": "Baseline resolves via git merge-base HEAD @{u}, falling back to origin/HEAD, then asks the user.", "anchor": "skills/p-review/SKILL.md:26", "status": "verified"},
+    {"text": "Reviewer must not surface issues a compiler, linter, or existing tests would catch.", "anchor": "skills/p-review/SKILL.md:69", "status": "verified"},
+    {"text": "Ruling rejects a finding only when it rests on a false premise; other findings stay.", "anchor": "skills/p-review/SKILL.md:113", "status": "verified"},
+    {"text": "Minor list is written verbatim to minor-findings.md beside the artifact, or at repo root, never printed.", "anchor": "skills/p-review/SKILL.md:125", "status": "verified"},
+    {"text": "Description claims this pass is cheaper than debate-review and adversarial-review skills.", "anchor": "skills/p-review/SKILL.md:12", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/p-review/SKILL.md:26", "note": "git merge-base HEAD @{u} on a branch behind upstream diffs against merge-base, not upstream tip; intended?"},
+    {"kind": "missing-edge-case", "anchor": "skills/p-review/SKILL.md:125", "note": "minor-findings.md overwrites silently on repeated runs; no naming or append rule given."},
+    {"kind": "duplicate-logic", "anchor": "skills/p-review/SKILL.md:12", "note": "Overlaps debate-review, adversarial-review, adversarial-review-2; boundary is only stated in description prose."}
+  ],
+  "least_confident": "I cannot check whether the referenced sibling skills (debate-review, adversarial-review, adversarial-review-2) exist or how their triggers overlap with this description."
+}

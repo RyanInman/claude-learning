@@ -1,0 +1,17 @@
+{
+  "summary": "Adds three planted-bug eval fixtures for the debug-loop skill, each a small Python module plus pytest tests. expired-sessions: append-only session store where get_session picks the newest row by one-second created_at. pricing-regression: line_total rounds with Python round(), tests expect half-cent rounds up. slow-enrichment: enrich_orders does a linear scan per order over a copied customer list; run_nightly times 20000x20000 to expose the O(n*m) cost. Tests are light and mostly pass.",
+  "claims": [
+    {"text": "get_session returns the row with the max created_at; ties between same-second rows resolve arbitrarily rather than by version.", "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/sessions.py:27-31", "status": "verified"},
+    {"text": "refresh returns 404 for unknown session, 401 when expires_at <= now, else 200 with token.", "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/sessions.py:34-41", "status": "verified"},
+    {"text": "line_total uses Python round(), which is banker's rounding on floats; test expects 1.995 to bill as 2.00.", "anchor": "skills/debug-loop/evals/fixtures/pricing-regression/pricing.py:3 vs skills/debug-loop/evals/fixtures/pricing-regression/tests/test_pricing.py:17-18", "status": "contradicted"},
+    {"text": "enrich_orders scans the full customer list per order, O(orders*customers).", "anchor": "skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py:14-22", "status": "verified"},
+    {"text": "run_nightly builds 20000 customers and 20000 orders and prints elapsed seconds.", "anchor": "skills/debug-loop/evals/fixtures/slow-enrichment/run_nightly.py:7-28", "status": "verified"},
+    {"text": "Unknown customer_id yields customer=None and order fields are preserved.", "anchor": "skills/debug-loop/evals/fixtures/slow-enrichment/tests/test_enrich.py:18-28", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/fixtures/expired-sessions/sessions.py:31", "note": "Docstring promises version ordering; max by created_at ignores version on same-second refresh. Tests never cover tie."},
+    {"kind": "missing-edge-case", "anchor": "skills/debug-loop/evals/fixtures/pricing-regression/tests/test_pricing.py:17-18", "note": "Float 0.70*3*0.95 may not equal exactly 1.995; round() result depends on float repr, test may fail."},
+    {"kind": "duplicate-logic", "anchor": "skills/debug-loop/evals/fixtures/slow-enrichment/enrich.py:4-6", "note": "index_customers only copies dicts; name implies index but builds none. Intentional planted slowness."}
+  ],
+  "least_confident": "Whether round(0.70*3*0.95, 2) actually yields 2.00 or 1.99 in CPython, which decides if the pricing test is the intended planted failure."
+}

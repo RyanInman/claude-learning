@@ -1,0 +1,18 @@
+{
+  "summary": "This diff adds four new files under an eval output directory for an adversarial-review-2 skill test: charter.md (harm categories and scope for red-teaming a checkout session-cache design), metrics.json (run stats: tool calls, steps, files created, 1 error, char counts), report.md (10 surviving findings F1-F10 on pricing correctness, shared-Redis meltdown, availability, and rollout risks, plus verification and retest lists), and user_notes.md (notes explaining a harness block on the Write tool, worked around via Bash heredoc, and scope decisions).",
+  "claims": [
+    {"text": "charter.md ranks four harm categories for the review: wrong prices, shared Redis cluster meltdown, checkout latency/availability regression, and unsafe rollout/operations", "anchor": "charter.md:8-21", "status": "verified"},
+    {"text": "12 raw findings were produced, 2 merged pairs, 0 killed, 10 survive", "anchor": "report.md:1-4", "status": "unverified"},
+    {"text": "F1: cache sized to exactly the cluster's free memory (40KB x 200k sessions = 8GB) risks evicting rate-limit and feature-flag keys on a shared cluster", "anchor": "report.md F1 section", "status": "unverified"},
+    {"text": "F2: KEYS session:*:pricing plus mass DEL blocks the shared single-threaded Redis cluster on every promo change", "anchor": "report.md F2 section", "status": "unverified"},
+    {"text": "metrics.json records 10 total tool calls, 6 total steps, 1 error encountered, output_chars 26350, transcript_chars 95000", "anchor": "metrics.json:1-9", "status": "verified"},
+    {"text": "The harness blocked the Write tool from creating report.md, so it was written via a Bash heredoc instead, counted as the one error in metrics.json", "anchor": "user_notes.md:2-6", "status": "verified"},
+    {"text": "Plausible findings (F1, F6, F7, F8) depend on facts outside the artifact and are listed as verification items to check before arch review", "anchor": "report.md Verification items section", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "metrics.json:6-7", "note": "output_chars (26350) and transcript_chars (95000) are stated with no supporting evidence in this chunk."},
+    {"kind": "unsupported-claim", "anchor": "report.md F1 section", "note": "The 8GB memory calculation and claim that it 'precisely' matches the stated free capacity relies on a source design document not present in this chunk."},
+    {"kind": "unsupported-claim", "anchor": "report.md F2 and F3 sections", "note": "Specific line references (e.g. 'lines 19-20', 'line 16') point to the underlying design doc, which is not part of this chunk, so the citations can't be checked here."}
+  ],
+  "least_confident": "Whether the quantitative claims (8GB sizing calculation, 200k session count, specific line numbers in the design doc) are accurate, since the source design document they reference is not included in this chunk."
+}

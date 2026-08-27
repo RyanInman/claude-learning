@@ -1,0 +1,17 @@
+{
+  "summary": "This chunk adds output artifacts for eval-1-pasted-traceback (a debug-loop skill eval on a UTF-8 BOM CSV bug). It includes with_skill transcript-notes.md and user_notes.md documenting a 16-step debug session (repro KeyError, isolate BOM via od -c, add failing test, fix with encoding='utf-8-sig', verify via git stash, clean up tracked __pycache__), with_skill grading.json (5/5 passed) and metrics/timing JSON, plus without_skill grading.json (4/5 passed, missing the debug-brief-before-editing requirement) and its metrics.json and a new submodule pointer for outputs/project.",
+  "claims": [
+    {"text": "with_skill run identified UTF-8 BOM (EF BB BF) in CSV header via od -c comparison against a clean fixture", "anchor": "transcript-notes.md:4", "status": "verified"},
+    {"text": "Fix was a one-line encoding change from 'utf-8' to 'utf-8-sig' in report.py", "anchor": "transcript-notes.md:10", "status": "verified"},
+    {"text": "with_skill run passed all 5 grading expectations including emitting a debug brief before editing", "anchor": "with_skill/run-1/grading.json:1-39", "status": "verified"},
+    {"text": "without_skill run failed the 'emits a debug brief before editing' expectation, opening instead with 'Fixed. Root cause: ...'", "anchor": "without_skill/grading.json:8-12", "status": "verified"},
+    {"text": "without_skill run still passed 4/5 expectations, including root-cause fix and regression test", "anchor": "without_skill/grading.json:33-39", "status": "verified"},
+    {"text": "git stash pop was initially blocked by tracked __pycache__/*.pyc files, resolved with git checkout -- __pycache__ then .gitignore cleanup", "anchor": "transcript-notes.md:12-14", "status": "verified"},
+    {"text": "with_skill run used 17 total tool calls and 40351 tokens over 116.8 seconds; without_skill used 12 tool calls (token/timing not shown in this chunk)", "anchor": "with_skill/run-1/metrics.json:1-21 vs without_skill/outputs/metrics.json:1-19", "status": "verified"},
+    {"text": "Skipped subagent diff review step called for by SKILL.md Step 5, justified as low-risk single-token change", "anchor": "user_notes.md:5", "status": "unverified"}
+  ],
+  "risks": [
+    {"kind": "duplicate-logic", "anchor": "with_skill/run-1/timing.json:1 vs with_skill/timing.json:1", "note": "Identical timing.json content (same tokens/duration) committed at two different paths in the same run."}
+  ],
+  "least_confident": "I could not verify the user_notes.md claim about skipping the subagent diff review being a reasonable judgment call, since the SKILL.md referenced (running-debug-loops/SKILL.md) is outside this chunk."
+}

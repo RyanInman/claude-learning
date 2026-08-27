@@ -1,0 +1,20 @@
+{
+  "summary": "Diff adds three new files for eval-2-oncall-plan-redteam (with_skill run). grading.json scores a red-team review of a US-East/Krakow on-call rotation plan: all 9 expectations pass, covering severity ranking, failure scenarios, the timezone coverage gap, Krakow readiness risk, the US-only IC pool undermining the zero-overnight-pages goal, a verdict of structural failure, DST/handover/rollback coverage, per-finding retest checks, and a minimum-changes list. It also records execution metrics, timing, five re-derived claims (two unverified), workarounds, and eval feedback flagging that process/corroboration claims can't be checked without a transcript. charter.md is the red-team charter (artifact, harm categories, out-of-scope, success criterion) for that review. metrics.json duplicates the tool-call/step counts.",
+  "claims": [
+    {"text": "grading.json summary reports 9 passed, 0 failed, 9 total, pass_rate 1.0", "anchor": "grading.json:55-60", "status": "verified"},
+    {"text": "Winter coverage gap is 01:00-07:00 UTC (20:00-02:00 ET), 6 hours, with a 13:00-19:00 UTC overlap between shifts", "anchor": "grading.json:80-84", "status": "verified"},
+    {"text": "DST mismatch weeks shrink the US/Krakow offset to 5h and grow the coverage gap to 7 hours", "anchor": "grading.json:86-90", "status": "verified"},
+    {"text": "F1 and F2 were found independently by all three adversaries, F4 by two, and twelve adversary findings merged into seven with none killed", "anchor": "grading.json:92-96", "status": "unverified"},
+    {"text": "Report claims Polish statutory leave minimum 'exceeds 20 days'", "anchor": "grading.json:98-102", "status": "unverified"},
+    {"text": "Timezone/DST arithmetic was independently re-derived during Stage 3 verification and held", "anchor": "grading.json:104-108", "status": "verified"},
+    {"text": "Write tool rejected report.md, so report was written via shell heredoc with identical content", "anchor": "grading.json:113-114", "status": "verified"},
+    {"text": "Executor's tool calls: Read 2, Write 2, Agent 3, Bash 1, totaling 8 tool calls over 5 steps", "anchor": "grading.json:62-69", "status": "verified"},
+    {"text": "metrics.json independently lists the same tool_calls (Read 2, Write 2, Agent 3, Bash 1), 8 total, 5 steps, and files_created list", "anchor": "metrics.json:182-189", "status": "verified"},
+    {"text": "Charter scopes review to whether the on-call plan actually achieves coverage, cost, risk, and maintainability, excluding hiring/org/tooling decisions", "anchor": "charter.md:163-173", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "unsupported-claim", "anchor": "grading.json:92-96", "note": "Corroboration counts ('found independently by all three adversaries', 'twelve merged into seven, none killed') are marked verified:false in the source because no transcript exists to check them — the report narrates process claims that can't be audited from outputs alone."},
+    {"kind": "uncited-number", "anchor": "grading.json:98-102", "note": "Report states Polish statutory leave 'exceeds 20 days' but the grading entry notes actual minimum is exactly 20 (26 with 10+ years); flagged as imprecise though not load-bearing."}
+  ],
+  "least_confident": "Whether the underlying report.md findings themselves (not shown in this chunk) actually contain the wording the grading.json evidence quotes, since this chunk only shows the grading/metrics/charter files, not the report content being graded."
+}

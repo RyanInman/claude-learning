@@ -1,0 +1,73 @@
+{
+  "summary": "This chunk adds new eval-tracking files for the adversarial-review-2 skill workspace. It adds grading.json and two timing.json files recording a baseline (without_skill) run of eval-1 (cache design red-team), which passed all 7 expectations in 120.6s and 33,200 tokens. It also adds eval-2's metadata (an on-call rotation red-team prompt with 6 expectations) and the target artifact for that eval: a follow-the-sun on-call plan with a stated timezone gap, an inexperienced Krakow team, incomplete access provisioning, and a US-only incident-commander pool.",
+  "claims": [
+    {
+      "text": "The without_skill run for eval-1 (cache-design-redteam) passed all 7 expectations (pass_rate 1.0)",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/run-1/grading.json:1-30",
+      "status": "verified"
+    },
+    {
+      "text": "The run-1 execution used 5 tool calls (Read:1, Write:3, Bash:1), 3 steps, 0 errors, and took 120.6 seconds",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/run-1/grading.json:38-46",
+      "status": "verified"
+    },
+    {
+      "text": "Total tokens for the run-1 timing.json entry is 33,200 over a duration of 120,606 ms",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/run-1/timing.json:1-5",
+      "status": "verified"
+    },
+    {
+      "text": "The without_skill/timing.json (run-level, not run-1) has identical values to run-1/timing.json (33200 tokens, 120606 ms)",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/timing.json:1-5",
+      "status": "verified"
+    },
+    {
+      "text": "The eval_feedback notes the 'or equivalent' clause in the threat-model expectation lets a severity-scale definition pass, so it may not discriminate skill from baseline",
+      "anchor": "grading.json eval_feedback.suggestions[0]",
+      "status": "verified"
+    },
+    {
+      "text": "Eval-2 (oncall-plan-redteam) has 6 expectations, including a specific timezone-gap claim: Krakow 08:00-20:00 CET equals 02:00-14:00 ET, leaving 20:00-02:00 ET uncovered",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-2-oncall-plan-redteam/eval_metadata.json:1-13",
+      "status": "verified"
+    },
+    {
+      "text": "The on-call rotation plan's goal is to eliminate overnight pages for the 6-engineer US-East platform team by splitting on-call with a new 3-engineer Krakow team",
+      "anchor": "oncall-rotation-plan.md:1-4 (Goal)",
+      "status": "verified"
+    },
+    {
+      "text": "Krakow covers 08:00-20:00 CET and US-East covers 08:00-20:00 ET, with gaps outside those windows paging 'whichever shift is closest'",
+      "anchor": "oncall-rotation-plan.md:8-9 (Plan item 1)",
+      "status": "verified"
+    },
+    {
+      "text": "The current incident-commander pool is all US-based and stays as-is",
+      "anchor": "oncall-rotation-plan.md:15-16 (Plan item 5)",
+      "status": "verified"
+    },
+    {
+      "text": "The Krakow team joined 6 weeks ago, has not shipped to production, and its access provisioning (prod SSH, dashboards, PagerDuty) is 'in progress'",
+      "anchor": "oncall-rotation-plan.md:19-20 (Notes)",
+      "status": "verified"
+    },
+    {
+      "text": "Runbooks live in the internal wiki and the US team will 'tidy them up' before handover",
+      "anchor": "oncall-rotation-plan.md:11-12 (Plan item 3)",
+      "status": "verified"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "duplicate-logic",
+      "anchor": "skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/run-1/timing.json:1-5 vs skills/adversarial-review-2-workspace/iteration-1/eval-1-cache-design-redteam/without_skill/timing.json:1-5",
+      "note": "Two timing.json files at different path depths (run-1/ vs the run root) hold byte-identical content; unclear if one is a stray duplicate or an intentional rollup copy."
+    },
+    {
+      "kind": "unsupported-claim",
+      "anchor": "oncall-rotation-plan.md:9 (\"page whichever shift is 'closest'\")",
+      "note": "The plan itself leaves the overnight gap's escalation rule vague/undefined ('closest' is not quantified), which is the kind of gap the eval-2 expectations are designed to catch, but the chunk only shows the plan text, not a review of it."
+    }
+  ],
+  "least_confident": "Whether the duplicate timing.json content (run-1/timing.json vs the parent without_skill/timing.json) reflects an intended rollup pattern used elsewhere in this workspace or is simply an accidental duplicate, since this chunk shows no other run's directory structure for comparison."
+}

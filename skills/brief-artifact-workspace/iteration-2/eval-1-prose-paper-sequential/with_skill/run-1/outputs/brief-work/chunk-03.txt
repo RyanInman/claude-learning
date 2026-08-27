@@ -1,0 +1,32 @@
+   87| ### 6. Beyond code — prose, analysis, research output
+   88| 
+   89| Apply the same re-presentation logic:
+   90| - **Claim extraction:** decompose long output into atomic factual claims, then verify each against a trusted source; check *citation presence* and *citation correctness* separately (a footnote that exists is not a footnote that supports the claim).
+   91| - **Citation verification pipeline:** resolve DOIs, match titles against bibliographic databases (CrossRef, OpenAlex, Semantic Scholar, arXiv), then run an LLM relevance check to classify each reference as Verified / Suspicious / Hallucinated. Hallucinated legal citations have already produced sanctions in more than a thousand tracked cases worldwide.
+   92| - **Numeric registry:** for generated analysis, verify every number against a whitelist of actually-computed values; reject or flag unmatched claims.
+   93| - **Structured summary first:** as with code, read an executive summary and a claim list before the full prose, and drill into flagged claims.
+   94| 
+   95| ## Recommendations
+   96| 
+   97| **Stage 1 — Adopt immediately (this week):**
+   98| 1. Cap each reviewable unit near 200 LOC and each session at 60–90 minutes; split large AI PRs by system boundary.
+   99| 2. Require every AI output to include a self-explanation block: summary, assumptions, risk callouts, and an explicit "least-confident / untested" section.
+  100| 3. Name one human of record per PR; ban "the model wrote it" as an explanation.
+  101| 
+  102| **Stage 2 — Restructure the workflow (this quarter):**
+  103| 4. Move to spec-driven review: approve spec, then plan, then code, each steerable. Review tests/properties before or instead of scanning the full implementation, with the test-defining agent isolated from the code-generating agent.
+  104| 5. Add a mandatory adversarial second-model pass ("find the 3 most likely bugs, missing edge cases, and any nonexistent packages") plus automated package-existence validation and a security scanner (CodeQL/Bandit-class) in CI.
+  105| 6. Tier review by risk: full scrutiny for security-critical/irreversible code; sampling for low-risk boilerplate.
+  106| 
+  107| **Stage 3 — Tooling and measurement (ongoing):**
+  108| 7. Generate multi-level summaries, NL outlines, and diagrams automatically as review artifacts.
+  109| 8. Track AI-code churn and duplication versus the human baseline; a churn or redundancy ratio well above baseline signals the review gate is leaking (recall AI redundancy ran ~1.87x human levels in the MSR 2026 study).
+  110| 
+  111| **Thresholds that change the plan:** If post-merge defect or churn/redundancy on AI PRs exceeds ~1.5x the human baseline, tighten to full line-by-line review and shrink chunk sizes. If reviewers are approving faster than ~300–500 LOC/hour, treat it as rubber-stamping and enforce friction (require a written expected-behavior statement before viewing the diff). If a security scanner or package validator is not in CI, do not raise autonomy levels for agents.
+  112| 
+  113| ## Caveats
+  114| - Several sources are vendor/marketing (SmartBear, CodeRabbit, Qodo, GitClear) with a commercial interest; their directional findings are corroborated by peer-reviewed work but treat specific magnitudes cautiously.
+  115| - The 200–400 LOC and 60–90 minute figures come from 2006 human-written-code data; they describe reader limits and plausibly transfer to AI code, but no large controlled study has re-derived them specifically for AI-generated diffs.
+  116| - The GitClear churn/duplication trends are correlational with AI adoption, not proven causal.
+  117| - Some 2026-dated items ("These Aren't the Reviews," "More Code, Less Reuse," the slopsquatting re-evaluation) are preprints accepted at EASE/MSR 2026 but not yet archival; their numbers should be cited as preliminary. Note also that "These Aren't the Reviews" merged evaluative feedback with workflow acknowledgments into one category, so its 64.53% figure is not a pure measure of substantive evaluation.
+  118| - "Do Users Write More Insecure Code" used an older Codex model (codex-davinci-002); newer models are stronger, but the over-confidence effect — not the exact model — is the durable finding.

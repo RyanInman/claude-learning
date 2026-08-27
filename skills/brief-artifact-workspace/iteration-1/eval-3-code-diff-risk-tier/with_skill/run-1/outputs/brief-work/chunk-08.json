@@ -1,0 +1,26 @@
+{
+  "summary": "This diff adds two new files: a red-team report and a notes file for a session pricing cache design review. The report lists 12 findings (F1-F12) ranked Critical/High/Medium/Low against two nightmare scenarios: wrong prices and Redis cluster meltdown. Each finding has severity, explanation, fix direction, and a re-check step, ending in a checklist table and a note that three design changes (versioned keys, enumerating pricing inputs, dedicated cache instance) would clear most Critical/High findings. The notes file records interpretive assumptions: how 're-check' was defined, the severity scale's anchoring, no codebase/Redis access assumed, and that F8 could escalate to Critical under certain conditions.",
+  "claims": [
+    {"text": "KEYS session:*:pricing blocks the whole Redis cluster including rate limiting and feature flags", "anchor": "F1. `KEYS session:*:pricing` blocks the shared cluster", "status": "unverified"},
+    {"text": "Only invalidation trigger is promo_changed, so catalog/tax price changes serve stale data for up to 30 minutes", "anchor": "F2. Catalog price and tax changes never invalidate the cache", "status": "unverified"},
+    {"text": "Cache key is session ID only and hash is written once, missing mid-session pricing-affecting changes (address, coupon, currency, cart)", "anchor": "F3. Cache key ignores everything that changes pricing within a session", "status": "unverified"},
+    {"text": "40KB x 200k sessions = ~8GB, exactly the stated free capacity, with no headroom for overhead/growth", "anchor": "F4. Sizing has zero headroom on a shared cluster", "status": "unverified"},
+    {"text": "The cache_pricing_v1 kill switch flag is served from the same Redis cluster it is meant to protect against", "anchor": "F5. Kill switch lives inside the failure it must stop", "status": "unverified"},
+    {"text": "\"No circuit breaker needed\" is wrong for slow Redis and for stampede scenarios", "anchor": "F6. \"No circuit breaker needed\" is wrong for slow Redis and for stampedes", "status": "unverified"},
+    {"text": "Event-driven invalidation has a lost-event window and a write-after-delete race condition", "anchor": "F7. Event-driven invalidation has a lost-event and a race window", "status": "unverified"},
+    {"text": "The doc does not specify whether the charge path uses the same price as the cached quote", "anchor": "F8. Quote/charge consistency is unspecified", "status": "unverified"},
+    {"text": "Rollout plan of 5% for a day then 100% defines no gating metrics and is a 20x step with untested memory math above 5%", "anchor": "F9. Rollout plan has no success criteria and a blunt ramp", "status": "unverified"},
+    {"text": "No observability exists for cache staleness or invalidation (hit/miss counter, cache-age histogram, invalidation-lag gauge, mismatch comparison)", "anchor": "F10. No observability for staleness or invalidation", "status": "unverified"},
+    {"text": "30-minute TTL versus session length relationship is unstated in the doc", "anchor": "F11. 30-minute TTL vs. session length is unstated", "status": "unverified"},
+    {"text": "The key namespace session:{id}:pricing has no ownership/namespace convention within the shared cluster", "anchor": "F12. Shared keyspace has no namespace or ownership convention", "status": "unverified"},
+    {"text": "Three design changes (versioned keys for F1+F7, enumerating pricing inputs for F2+F3, dedicated cache instance for F4+F5) would clear all five Criticals and most Highs", "anchor": "Fastest path to arch-review-ready", "status": "unverified"},
+    {"text": "F8 would escalate from Medium to Critical if the charge path reprices independently of the quote", "anchor": "user_notes.md: F8 (quote vs. charge price source) is rated Medium because the doc is silent", "status": "unverified"},
+    {"text": "No script was written for re-checks because the checks are judgments about a design doc rather than machine-checkable properties", "anchor": "user_notes.md: A way to re-check them after I fix things", "status": "verified"},
+    {"text": "Numbers cited (8GB, 200k sessions, 40KB) were taken at face value from the target doc with no independent verification", "anchor": "user_notes.md: No codebase or Redis cluster access was assumed", "status": "verified"}
+  ],
+  "risks": [
+    {"kind": "uncited-number", "anchor": "F4. Sizing has zero headroom on a shared cluster", "note": "40KB per session, 200k sessions, and 8GB free capacity are asserted without a source visible in this chunk; user_notes.md confirms these were taken at face value from the target doc, not independently verified."},
+    {"kind": "unsupported-claim", "anchor": "F1. `KEYS session:*:pricing` blocks the shared cluster", "note": "The claim that this specific scan would trip client timeouts fleet-wide is argued from general Redis behavior, not from evidence in this chunk (no benchmark or log cited)."}
+  ],
+  "least_confident": "Whether the severity ratings (e.g., F4 and F6 as High rather than Critical) reflect a consistent, defensible standard is hard to judge without seeing the original design doc these findings respond to."
+}

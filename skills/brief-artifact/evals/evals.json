@@ -1,0 +1,49 @@
+{
+  "skill_name": "brief-artifact",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "prose-paper-sequential",
+      "prompt": "brief me on resources/human-level-ai-review.md, I don't have time to read the whole thing",
+      "expected_output": "A brief file beside the paper with TL;DR, structure map, chunk summaries, claims with anchors and statuses, risks, least-confident block; sequential path (3 chunks).",
+      "files": [
+        "../../resources/human-level-ai-review.md"
+      ],
+      "expectations": [
+        "Output brief.md exists and contains sections TL;DR, Claims, Risks, Least confident",
+        "Every claim row has a source anchor (line number or heading)",
+        "Each claim carries a status of verified, unverified, or contradicted",
+        "Brief is at most 1/3 the word count of the source (about 1066 words of 3200)",
+        "TL;DR has 5 or fewer bullets and names the comprehension bottleneck thesis"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "planted-contradiction-fanout",
+      "prompt": "summarize evals/fixtures/ledger-design.md for me and flag anything that doesn't add up",
+      "expected_output": "Fan-out path (4+ chunks). Brief flags the 30 second vs 90 second risk engine timeout as contradicted with both anchors.",
+      "files": [
+        "evals/fixtures/ledger-design.md"
+      ],
+      "expectations": [
+        "Brief flags the risk-engine timeout as contradicted (30 seconds vs 90 seconds)",
+        "The contradiction cites both locations (Timeouts and retries section and Operations section)",
+        "Output brief.md has sections TL;DR, Claims, Risks, Least confident",
+        "Brief is at most 1500 words (1/3 of source, capped)"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "code-diff-risk-tier",
+      "prompt": "what does the diff since 5e3c12b~3 actually change? too big to read",
+      "expected_output": "Brief for git diff with code/diff chunks, high-risk chunks listed first, claims anchored to file:line.",
+      "expectations": [
+        "Output brief.md covers the diff with per-file or per-chunk summaries anchored to file paths",
+        "High-risk chunks or files (scripts, tests, fixtures with subprocess/open) are listed before low-risk prose",
+        "Brief states at least one behavior claim with an anchor of the form path:line",
+        "Brief includes a least-confident or uncertainty statement",
+        "Brief is at most 1500 words, because a brief longer than the reader can absorb in one sitting defeats its purpose"
+      ]
+    }
+  ]
+}

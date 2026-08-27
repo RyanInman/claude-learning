@@ -1,0 +1,61 @@
+{
+  "skill_name": "interview",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "fuzzy-oncall-handoff",
+      "prompt": "I want to make a skill for our on-call handoffs but I'm honestly not sure what it should do. Right now the outgoing person writes something in Slack and it's different every time - sometimes just 'nothing broke', sometimes a wall of text. We use PagerDuty and Datadog. The incoming person mostly wants to know: open incidents, anything degraded but not paged, and anything they need to babysit. Help me figure out what this skill needs before we write it.",
+      "expected_output": "A skill brief at all 12 sections, passing check_brief.py, with the fixed-template output shape and the PagerDuty/Datadog fetch identified as a script candidate. Unanswerable slots moved to Open Questions rather than invented.",
+      "expectations": [
+        "Writes a skill brief file containing all 12 numbered sections",
+        "scripts/check_brief.py exits 0 on the produced brief",
+        "Section 7 names a fixed template as the output form",
+        "Section 9 names a PagerDuty or Datadog fetch as a script candidate",
+        "Section 12 lists at least one open question and what would settle it",
+        "Does not create any SKILL.md file"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "guarantee-is-a-hook",
+      "prompt": "Let's build a skill that makes sure nobody on the team ever commits straight to main. It should also stop force-pushes to release branches. Every single time, no exceptions - that's the whole point.",
+      "expected_output": "Routes out at the container gate: names a hook as the right container with the reason, offers update-config, and does NOT produce a 12-section skill brief or run the remaining phases.",
+      "expectations": [
+        "Names a hook as the correct container",
+        "States why a hook and not a skill, naming that skill prose is a request re-issued every turn while a hook is enforced once",
+        "Offers update-config or an equivalent hook-authoring route",
+        "Does not write a skill brief file",
+        "Reaches the container verdict without asking any question beyond the container itself"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "mine-before-asking",
+      "prompt": "Every sprint I paste our closed Jira tickets into Claude and ask for release notes. Three problems: the format changes every single time (sometimes bullets, sometimes prose), it keeps including internal refactor tickets that customers don't care about, and I have to re-explain our four sections every time - Added, Fixed, Changed, Known Issues, in that order, each bullet one line, no ticket IDs. I'd type this as 'draft the release notes', 'write this sprint's changelog', or 'sprint notes for the customers'. Make this a skill.",
+      "expected_output": "Mines the prompt for the baseline failure, output template, and trigger phrases rather than re-asking them; asks only the genuine gaps (container confirmation, anti-triggers, gotchas). Brief carries the exact four-section template and the internal-ticket filter as a gotcha.",
+      "expectations": [
+        "scripts/check_brief.py exits 0 on the produced brief",
+        "Asks 3 or fewer questions in total",
+        "Brief section 7 lists Added, Fixed, Changed, Known Issues in that order",
+        "Brief section 10 names the exclusion of internal refactor tickets",
+        "Brief section 6 reuses the user's three verbatim phrasings",
+        "Every question asked names a slot the prompt left genuinely open - container, anti-triggers, or gotchas",
+        "Asks at least one question, covering gotchas or anti-triggers"
+      ]
+    },
+    {
+      "id": 4,
+      "eval_name": "lighter-authoring-handoff",
+      "prompt": "I want a skill that turns my raw meeting notes into a decisions-and-owners table. The notes are messy bullet points from Notion; the table needs three columns - decision, owner, due date - and rows only for things someone actually committed to, not open discussion. Today Claude keeps inventing owners for decisions where nobody was named. And just use write-a-skill for the authoring, I don't need the eval stuff.",
+      "expected_output": "Writes the brief, then invokes write-a-skill with the brief path and an explicit statement that sections 1 through 11 are settled input. Does not route to skill-creator despite the brief naming a measurable baseline failure.",
+      "expectations": [
+        "Writes a skill brief file that check_brief.py exits 0 on",
+        "Invokes write-a-skill rather than skill-creator",
+        "Passes the brief path to write-a-skill",
+        "States that brief sections 1 through 11 are settled input",
+        "Brief section 3 names the invented-owner failure",
+        "Does not create the SKILL.md itself"
+      ]
+    }
+  ]
+}

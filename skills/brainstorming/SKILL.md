@@ -1,147 +1,156 @@
 ---
 name: brainstorming
-description: "Turns an idea into an approved design and implementation plan through one-question-at-a-time dialogue in plan mode, with an optional browser-based visual companion for mockups, diagrams, and side-by-side options. Use before any creative work - creating features, building components, adding functionality, or modifying behavior - whenever the user says \"let's build X\", \"add a feature\", or \"help me design/plan this\", even when the change seems too simple to plan. Do NOT use when an approved plan already exists (follow the plan) or to diagnose bugs."
+description: Turns a vague build request into an agreed plan: checks whether the request is genuinely ambiguous, interviews the user with 3-7 batched multiple-choice questions via AskUserQuestion, then emits a plan with EARS requirements, a build order, and a marked assumptions log. Use whenever the user asks for something to be built, added, changed, or designed and real decisions are left open - "let's build X", "add a feature for Y", "help me design this", "we need a dashboard/importer/API for..." - or any request where two competent engineers would build different things from the same sentence. Also use when the user wants an idea scoped or asks for a spec before code. Do NOT use when the change is describable in one sentence with no open decisions, when an approved plan already exists (follow it), or when diagnosing a bug. Prefer the brainstorming skill for open-ended back-and-forth, mockups, or diagrams; use this one for the fewest possible questions, batched multiple choice, and a spec-shaped plan.
 ---
 
-# Brainstorming Ideas Into Designs
+# Brainstorming
 
-Help turn ideas into fully formed designs and plans through natural collaborative dialogue.
+Turn a vague request into a plan both sides agree on, using as few questions as the request actually needs.
 
-Run this skill in plan mode. Enter plan mode with the EnterPlanMode tool before asking the first question. Plan mode blocks file edits until the user approves the plan, and that block is the gate this skill relies on.
+Language models under-ask by default. Preference training rewards a complete, confident answer over an incomplete clarifying question, so the trained reflex is to guess at the fork and keep going. Benchmarks put the rate at which models ask when they should near 13%. This skill overrides that reflex — but only where a question would change what gets built, because the opposite failure, interrogating someone about a one-line change, drives them away just as fast.
 
-Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design, then the plan. Get user approval through plan mode.
+## Step 0: Before starting
 
-<HARD-GATE>
-Do not write code, scaffold a project, or take any implementation action until the user approves the plan and you write the plan file. This applies to every project, because "simple" projects hide the most wrong assumptions.
-</HARD-GATE>
+Collect these before you ask the user anything, because a question whose answer is already in the conversation wastes the user's turn and reads as inattention:
 
-## Anti-Pattern: "This Is Too Simple To Need A Design"
+- What the user wants built, in their words.
+- Which files, systems, or products it touches.
+- Any constraint already stated: deadline, stack, existing pattern to follow, thing not to break.
+- Whether a spec, ticket, or plan for this already exists.
 
-Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short — a few sentences for a truly simple project. Present it and get approval every time.
+Mine the conversation history and the repository first. Read the code the request touches. If every item above is already known, say nothing about this step and move to Step 1.
 
-## Checklist
+## Step 1: Detect the ambiguity before asking about it
 
-Create a task for each of these items. Complete them in order:
+Silently write 2-3 different competent readings of the request. Do not show them yet. Each reading must be a thing someone could actually build.
 
-1. **Enter plan mode** — use the EnterPlanMode tool if plan mode is not already active
-2. **Explore project context** — check files, docs, recent commits
-3. **Offer the visual companion just-in-time** — not upfront. The first time a question would be clearer shown than told, offer it in its own message. If the user approves, the companion's browser tab opens for them. If no visual question ever arises, never offer it. See the Visual Companion section below.
-4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
-5. **Propose 2-3 approaches** — with trade-offs and your recommendation
-6. **Present design** — in sections scaled to their complexity, get user approval after each section
-7. **Draft the plan** — assemble the approved design and implementation steps (see Plan Document below)
-8. **Plan self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-9. **Present plan for approval** — use the ExitPlanMode tool. The user approves or requests changes
-10. **Write plan file** — after approval, save to `docs/plans/<name>-plan.md` and commit
+Then compare them on three axes:
 
-**The terminal state is the approved plan written to `docs/plans/<name>-plan.md`.** Do not invoke any implementation skill during brainstorming. Implementation starts only after you write the plan file, and it follows the plan.
+1. **Artifact** — do the readings produce different files, screens, or endpoints?
+2. **Behavior** — would a test pass under one reading and fail under another?
+3. **Cost** — do the readings differ by more than roughly 2x in work?
 
-## The Process
+A fork on any axis is material. A fork on none is cosmetic.
 
-**Understanding the idea:**
+Example. Request: "add export to the reports page."
 
-- Explore the current project state first (files, docs, recent commits)
-- Assess scope before asking detailed questions. If the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag that immediately. Don't spend questions refining a project that needs decomposition first.
-- If the project is too large for a single plan, help the user decompose it into sub-projects. Ask: what are the independent pieces, how do they relate, and in what order does the user build them? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own plan → implementation cycle.
-- For a project that fits a single plan, ask questions one at a time to refine the idea
-- Prefer multiple choice questions when possible, but open-ended is fine too
-- Ask one question per message. If a topic needs more exploration, break it into multiple questions
-- Focus on understanding: purpose, constraints, success criteria
+- Reading A: a CSV download button on the existing report table.
+- Reading B: a scheduled email that sends the report as a PDF weekly.
+- Reading C: an API endpoint other systems pull from.
 
-**Exploring approaches:**
+These differ on all three axes. Ask.
 
-- Propose 2-3 different approaches with trade-offs
-- Present options conversationally with your recommendation and reasoning
-- Lead with your recommended option and explain why
-- YAGNI ruthlessly - remove unnecessary features from every approach and design
+Counter-example. Request: "the date column should show relative time like '3 days ago'."
 
-**Presenting the design:**
+- Reading A: format the existing date field with a relative formatter.
+- Reading B: same, plus a tooltip with the absolute date.
 
-- Once you believe you understand what you're building, present the design
-- Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced
-- Ask after each section whether it looks right so far
-- Cover: architecture, components, data flow, error handling, testing
-- Be ready to go back and clarify if something doesn't make sense
+These differ only in a detail you can propose in the plan. Do not run an interview.
 
-**Design for isolation and clarity:**
+## Step 2: The skip gate
 
-- Break the system into units that each have one clear purpose and communicate through well-defined interfaces. Make each unit understandable and testable on its own
-- For each unit, you should be able to answer: what does it do, how do you use it, and what does it depend on?
-- Can someone understand what a unit does without reading its internals? Can you change the internals without breaking consumers? If not, the boundaries need work.
-- Smaller, well-bounded units are also easier for you to work with. You reason better about code you can hold in context at once. Your edits are more reliable when files are focused. When a file grows large, that's often a signal that it's doing too much.
+Skip the interview and go straight to a short plan when any of these holds:
 
-**Working in existing codebases:**
+- No material fork survived Step 1.
+- You can describe the finished change in one sentence, naming the files.
+- The user already gave a spec, a ticket, or a detailed prompt covering the forks.
+- The user said to just build it.
 
-- Explore the current structure before proposing changes. Follow existing patterns.
-- Where an existing-code problem affects the work — a file grown too large, unclear boundaries, tangled responsibilities — include targeted improvements in the design. That is how a good developer improves code they work in.
-- Don't propose unrelated refactoring. Stay focused on what serves the current goal.
+When you skip, do not use the Step 6 plan template. A rename does not survive a Won't-have section, and a requirement that restates the request in EARS costume is a sentence the user skims past. Write four lines instead:
 
-## Plan Document
+- The reading you chose, in one sentence.
+- The files or symbols you will touch.
+- Any call you made on the user's behalf, marked ASSUMED.
+- How you will check it worked.
 
-After the user approves the design sections, assemble the plan. Cover:
+Then start. Do not ask for approval on the skip path, because a change describable in one sentence costs less to correct after the fact than to pre-approve.
 
-- **Goal** — what the change accomplishes and how to tell it worked
-- **Design** — chosen approach, alternatives considered, why
-- **Implementation steps** — ordered, each with a verification check ("add parser → verify: unit test passes")
-- **Testing** — how the work gets verified overall
-- **Out of scope** — what this plan deliberately excludes
+## Step 3: Ask, in batches, by theme
 
-Scale detail to the work: a config change gets a few lines per section; a new subsystem gets the full treatment.
+Ask 3-7 questions total across the whole interview. Below 3 you have not covered the forks. Above 7 the user starts answering carelessly to make it stop.
 
-**Plan self-review:**
-Before presenting the plan, look at it with fresh eyes:
+Use `AskUserQuestion`. Send one theme per call, questions batched inside it. Move general to specific across calls.
 
-1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
-2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
-3. **Scope check:** Is this focused enough for a single implementation pass, or does it need decomposition?
-4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
+The five themes, in order:
 
-Fix any issues inline. No need to re-review — fix and move on.
+| Theme | Resolves |
+|---|---|
+| Scope and users | Who uses it, what is in and out of this change |
+| Data and integrations | Where data comes from, what it touches, what format |
+| Edge cases and errors | Empty, huge, malformed, concurrent, failed |
+| Non-functionals | Speed, scale, security, offline, accessibility |
+| Success criteria | How the user will know it works |
 
-**Approval gate:**
-Present the plan with the ExitPlanMode tool. Plan mode blocks file edits until the user approves, so this is the review gate — do not substitute a plain-text "does this look good?" message. If the user requests changes, revise the plan and present it again through ExitPlanMode.
+Skip any theme the request already settles. Most requests need two or three themes, not five.
 
-**After approval:**
+Rules for each question:
 
-- Write the plan to `docs/plans/<name>-plan.md`, where `<name>` is a short kebab-case topic (e.g., `docs/plans/csv-export-plan.md`)
-  - (User preferences for plan location override this default)
-- Commit the plan file to git
-- Follow the plan steps in order. Check each step's verification before you move on
+- **Ask only about forks.** Before writing a question, answer this: would a different answer change the plan or the code? If not, delete the question. Ranking questions by whether the answer changes the outcome is the whole selection principle.
+- **Offer concrete options, not open prompts.** Two to four options the user can recognize, each naming a real outcome. An option like "standard approach" tells the user nothing; "one CSV per report, downloaded in the browser" tells them everything.
+- **Keep options balanced.** Do not write three weak options around your preferred one. A leading question returns your own opinion with the user's name on it.
+- **Never ask what the user cannot answer, and never ask what you can look up.** The user owns product and preference decisions. You own technical ones — library choice, file layout, algorithm — and every fact already sitting in the repo: row counts, schema, versions, whether a symbol is exported. A question whose answer is in the code spends the user's turn on work you skipped.
+- **Recommend when you have grounds.** Put your recommended option first and mark it, because a user with no strong opinion wants a default, not homework.
 
-## Visual Companion
+Read `references/question-themes.md` for worked option sets per theme when you need a starting point.
 
-A browser-based companion for showing mockups, diagrams, and visual options during brainstorming. Available as a tool — not a mode. When the user accepts the companion, it becomes available for questions that benefit from visual treatment. It does not mean every question goes through the browser.
+## Step 4: Keep an assumptions log
 
-**Offering the companion (just-in-time):** Do not offer it upfront. Wait until a question would genuinely be clearer shown than told — a real mockup, layout, or diagram question, not merely a UI *topic*. The first time that happens, offer it then, as its own message:
-> "This next part might be easier if I show you — I can put together mockups, diagrams, and comparisons in a browser tab as we go. It's still new and can be token-intensive. Want me to? I'll open it for you."
+Every fact in your plan is either CONFIRMED — the user said it — or ASSUMED — you filled it in. Mark each one. Never let an assumption reach the plan unlabeled, because an unlabeled assumption is indistinguishable from a requirement and gets built as one.
 
-**Send this offer as its own message.** Only the offer — no clarifying question, summary, or other content. Wait for the user's response. If they accept, start the server with `--open` so their browser opens to the first screen automatically. If they decline, continue text-only and don't offer again unless they raise it.
+A decision you made is not an assumption. When you pick a library, a limit, a window, or a threshold, put it in the requirements and the build order where the reader will act on it. Reserve ASSUMED for facts you could not verify and the user might reverse, and say what changes if the guess is wrong. Readers scan the two differently: the plan body is what gets built, the log is what might be wrong, so a decision filed in the log gets skimmed past.
 
-**Per-question decision:** Even after the user accepts, decide for each question whether to use the browser or the terminal. The test: **would the user understand this better by seeing it than reading it?**
+## Step 5: Stop
 
-- **Use the browser** for content that IS visual — mockups, wireframes, layout comparisons, architecture diagrams, side-by-side visual designs
-- **Use the terminal** for content that is text — requirements questions, conceptual choices, tradeoff lists, A/B/C/D text options, scope decisions
+Stop asking when the next question would not change the plan, when you have spent 7 questions, or when the user shows impatience. Then say what you still do not know and what you assumed for it, rather than asking again.
 
-A question about a UI topic is not automatically a visual question. "What does personality mean in this context?" is a conceptual question — use the terminal. "Which wizard layout works better?" is a visual question — use the browser.
+## Step 6: Emit the plan
 
-If they accept the companion, read the detailed guide before proceeding:
-`visual-companion.md`, next to this SKILL.md in the skill's own directory. Do not
-resolve it against the working directory, because the skill can be installed
-anywhere.
+Present the plan in the conversation. Do not write a spec file unless the user asks for one.
 
-## Example
+Read `references/plan-format.md` for the template and a filled example. Its shape:
 
-User: "let's build a little CLI that dedupes my photo library, shouldn't take long"
+1. **Outcome** — one paragraph, written as though the change already shipped and you are telling a user what they can now do.
+2. **Requirements** — EARS syntax, grouped Must / Should / Could / Won't.
+3. **Acceptance criteria** — Given/When/Then, only for requirements that could plausibly fail. A criterion that restates its requirement in different words tests nothing and pads the plan, so skip it.
+4. **Non-functional requirements** — only the ones that constrain the build.
+5. **Build order** — numbered steps, each naming the files it touches and how to verify it.
+6. **Assumptions and open questions** — the Step 4 log, CONFIRMED and ASSUMED marked.
+7. **Out of scope** — what you are deliberately not building.
 
-First response (after entering plan mode and exploring the project):
+Two rules govern the content, because a plan can satisfy the template and still be unusable:
 
-> Quick scope question before design: what counts as a duplicate? A) byte-identical files only, B) same image at different resolutions or formats, C) visually similar shots (burst photos, slight crops). This decides whether we need hashing only or image comparison.
+**Name real things.** Every requirement names the actual table, endpoint, file, or symbol it governs. "The system shall aggregate the main transactional record" is a placeholder wearing a requirement's clothes — nobody can test it or build from it. Read the schema and use the real name. Where you cannot, write the name you are guessing and mark it ASSUMED.
 
-The exchange continues one question at a time until the design is clear. The terminal state is an approved plan at `docs/plans/photo-dedupe-plan.md`. No code is written during this exchange.
+**Order the work so it can stop early.** Sequence the steps so the user still has something that runs if they halt after any one of them. A plan that only pays off at step 9 gives them no way to cut scope once the estimate lands.
+
+Then ask the user to approve, correct, or cut. Start building only after they answer.
 
 ## Gotchas
 
-- Present the plan through ExitPlanMode, never as a plain-text "does this look good?" message, because only plan mode blocks file edits until the user approves.
-- Do not skip the design for a "simple" project, because unexamined assumptions cost the most on projects that look trivial.
-- A UI topic is not automatically a visual question. Ask conceptual questions in the terminal, because a mockup adds nothing to a text decision and costs tokens.
-- Resolve `visual-companion.md` against the skill's own directory, not the working directory, because the skill can be installed anywhere.
+| Failure | What it looks like | Fix |
+|---|---|---|
+| Under-asking | You picked a reading silently and built the wrong thing | Step 1 forces the competing readings into the open |
+| Over-asking | Five questions about a rename | The Step 2 skip gate |
+| Leading question | Options are your preference plus decoys | Write each option as a real outcome someone would pick |
+| Sycophancy | You ask "this looks right?" and the user agrees with your framing | Ask the user to choose between options, never to confirm yours |
+| Silent assumption | The plan states a requirement the user never gave | Mark every line CONFIRMED, ASSUMED, or OPEN |
+| Unanswerable question | You ask the user which caching layer to use | Route technical questions to yourself; ask the user only decisions |
+| Premature convergence | You generate one reading, then question its details | Generate the readings before writing any question |
+| Ceremony over substance | The plan satisfies the template but names no file and gives no order | Name real things; give a stoppable build order |
+| Asking what the repo knows | You ask the user how many rows a table has | Read the schema; ask the user only what the code cannot tell you |
+
+## Worked example
+
+**Input:** "we need some kind of notification thing for when orders fail"
+
+**Step 1, silent readings:** (A) in-app banner for the ops team on the orders screen; (B) email or Slack alert to an on-call rotation; (C) webhook other systems subscribe to. Different artifacts, different behavior, roughly 3x cost spread. Material fork — ask.
+
+**Step 3, one AskUserQuestion call, Scope and users theme:**
+
+- Who needs to know when an order fails? → Ops team watching the dashboard / On-call engineer away from the screen / Both / The customer
+- How fast do they need to know? → Within seconds / Within the hour / Next business day
+- Which failures count? → Payment declines only / Any failed order / Any order stuck over N minutes
+
+**Answers:** on-call engineer, within seconds, any failed order.
+
+That collapses the fork to reading B and settles the trigger. A second call on Data and integrations asks two more — which channel receives the alert, and what the message must carry — and that is enough. Five questions total, then the plan.

@@ -1,54 +1,49 @@
 {
-  "skill_name": "brainstorming",
+  "skill": "brainstorming-2",
   "evals": [
     {
-      "id": 0,
-      "name": "feature-request-enters-dialogue",
-      "prompt": "Let's build a CLI tool that finds and removes duplicate photos in a folder.",
-      "expected_output": "The run enters plan mode before anything else, explores project context, then asks exactly one clarifying question (purpose, constraints, or success criteria) and stops for the answer. No code, no scaffolding, no plan file yet. The visual companion is not offered upfront.",
-      "assertions": [
-        {
-          "text": "plan mode is entered (EnterPlanMode) before the first clarifying question",
-          "type": "structure"
-        },
-        {
-          "text": "the first response asks exactly one question, not a batch",
-          "type": "structure"
-        },
-        {
-          "text": "no source files, scaffolding, or plan file are created in the first turn",
-          "type": "structure"
-        },
-        {
-          "text": "the visual companion is not offered in the first message",
-          "type": "content"
-        }
+      "eval_id": 0,
+      "eval_name": "vague-reporting",
+      "prompt": "we need some kind of reporting for the admin panel",
+      "tests": "Full interview path. Iteration-2 expectations drop the presence checks the baseline already passed and measure whether the plan is actionable.",
+      "expectations": [
+        "No question asks for a fact that could be read from the repo, schema, or package files",
+        "Plan names at least three concrete artifacts - table, endpoint, file, or column names - rather than generic nouns like 'the main record'",
+        "Plan gives a numbered build order",
+        "Every build step names the files or modules it touches",
+        "Every build step carries a verification",
+        "Build order is stoppable: halting after an early step still leaves something that runs",
+        "Plan puts the load-bearing decisions in the plan body, not buried in the assumptions log",
+        "Assumptions log marks every entry CONFIRMED, ASSUMED, or OPEN"
       ]
     },
     {
-      "id": 1,
-      "name": "too-simple-still-gated",
-      "prompt": "Add a --version flag to my CLI. It's trivial, just do it real quick.",
-      "expected_output": "Despite the 'just do it' framing, the run enters plan mode and presents a short design (a few sentences is enough) for approval before touching code. After approval via ExitPlanMode, the plan is written to docs/plans/<name>-plan.md and committed before implementation starts.",
-      "assertions": [
-        {
-          "text": "no code is written before the plan is approved through ExitPlanMode",
-          "type": "structure"
-        },
-        {
-          "text": "a design is presented for approval even though the request is framed as trivial",
-          "type": "content"
-        },
-        {
-          "text": "the design is scaled down (short, a few sentences), not a full multi-section treatment",
-          "type": "content"
-        },
-        {
-          "text": "after approval the plan is saved to docs/plans/ and committed before implementation",
-          "type": "structure"
-        }
+      "eval_id": 1,
+      "eval_name": "trivial-rename",
+      "prompt": "rename the getUserData function to fetchUserProfile everywhere",
+      "tests": "Skip-gate path. Iteration 1 fired the gate but still emitted a full spec, so these expectations now measure plan weight, not just question count.",
+      "expectations": [
+        "Asks zero questions",
+        "Final output is under 20 lines",
+        "Emits no EARS requirements section",
+        "Emits no MoSCoW Must/Should/Could/Won't section",
+        "Names the calls it made on the user's behalf, marked ASSUMED",
+        "Proceeds to the work rather than closing with a request for approval"
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "rate-limiting",
+      "prompt": "add rate limiting to the API",
+      "tests": "Mid-ambiguity path. Keeps the keying-fork check, adds the actionability checks the baseline won on in iteration 1.",
+      "expectations": [
+        "At least one question resolves what the limit is keyed on (per IP, per user, per API key)",
+        "Plan states concrete limit values and windows in the plan body",
+        "Plan names the middleware file and the library in the plan body, not only in the assumptions log",
+        "Plan gives a numbered build order where each step names files and a verification",
+        "Plan includes a rollout that can be stopped or reversed, such as a flag or shadow mode",
+        "Assumptions log marks every entry CONFIRMED, ASSUMED, or OPEN"
       ]
     }
-  ],
-  "notes": "Both evals are interactive: the skill asks questions and waits, so a non-interactive harness only validates the first turn of eval 0. Eval 1 needs a scripted approval turn to check the post-approval assertions. Compare against a no-skill baseline, which typically implements the --version flag immediately."
+  ]
 }

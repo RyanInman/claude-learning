@@ -1,6 +1,6 @@
 ---
 name: create
-description: Create new skills, modify and improve existing skills, and measure skill performance. Use whenever the user wants to create a skill from scratch, turn a workflow into a reusable skill, edit or optimize an existing skill, run evals or benchmark a skill with variance analysis, or sharpen a skill's description for better triggering accuracy, even if they don't say the word "skill" but describe wanting Claude to do a repeatable task the same way every time. Do NOT use when the user wants Claude to perform the task itself (write code, fix a bug, draft a doc) rather than package it, or when a lighter container fits - an always-true convention belongs in CLAUDE.md, a per-path rule in .claude/rules, and a guarantee that must hold every time in a hook, not a skill. Do NOT use for a read-only audit or feedback pass on a skill with no edits requested - use skillit:review for that.
+description: Create new skills, modify and improve existing skills, and measure skill performance. Use whenever the user wants to create a skill from scratch, turn a workflow into a reusable skill, edit or optimize an existing skill, run evals or benchmark a skill with variance analysis, or sharpen a skill's description for better triggering accuracy, even if they don't say the word "skill" but describe wanting Claude to do a repeatable task the same way every time. Do NOT use when the user wants Claude to perform the task itself (write code, fix a bug, draft a doc) rather than package it, or when a lighter container fits - an always-true convention belongs in CLAUDE.md, a per-path rule in .claude/rules, and a guarantee that must hold every time in a hook, not a skill. Do NOT use for a read-only audit or feedback pass on a skill with no edits requested - use skillit:review for that, and do NOT use it when the requirements are still fuzzy and no brief exists - run skillit:interview first.
 ---
 
 # Skill Creator
@@ -37,9 +37,13 @@ Before writing a skill, confirm a skill is the right container. A skill body loa
 - **Guarantee that must hold every time** → a hook. Prose is a polite request re-issued every turn; a hook is enforced once and free forever, so it's the right tool for "never push to main"-style invariants.
 - **Multi-step procedure, needs scripts, or only matters in one corner of the work** → a skill. That's the case the rest of this section covers.
 
+If a skill brief exists, its section 2 already answered this - confirm the container it names and move on rather than re-deciding.
+
 ### Capture Intent
 
-Start by understanding the user's intent. The current conversation might already contain a workflow the user wants to capture (e.g., they say "turn this into a skill"). If so, extract answers from the conversation history first — the tools used, the sequence of steps, corrections the user made, input/output formats observed. Ask the user to fill the gaps and confirm before you proceed.
+**If a skill brief already exists** — a `skill-brief-*.md` path was passed in, or one sits in the conversation from `skillit:interview` — read it and treat sections 1 through 11 as settled input. Do not re-ask any of it; re-asking a question the user already answered in the interview is the fastest way to make the brief worthless. Ask only about section 12's open questions, then skip to **Write the SKILL.md**.
+
+Otherwise, start by understanding the user's intent. The current conversation might already contain a workflow the user wants to capture (e.g., they say "turn this into a skill"). If so, extract answers from the conversation history first — the tools used, the sequence of steps, corrections the user made, input/output formats observed. Ask the user to fill the gaps and confirm before you proceed.
 
 1. What should this skill enable Claude to do?
 2. When should this skill trigger? (what user phrases/contexts)
@@ -116,6 +120,8 @@ Prefer using the imperative form in instructions.
 
 **Examples pattern** - Include at least one concrete example — one input→output pair teaches more than paragraphs of abstract rules. `references/writing-instructions.md` §Examples beat rules has the format (deviate a little if "Input"/"Output" already appear in your example text).
 
+**Match the form to the failure** - before writing a rule, name the failure it prevents, then pick the form that holds against it: a prohibition for a rule broken under pressure, a positive recipe for output that comes out the wrong shape, a required slot in a template for something omitted, a conditional on an observable predicate for context-dependent behavior. Reason: the form that bulletproofs one failure backfires on another - a prohibition aimed at a shaping problem gets negotiated with, and a count (`one per requirement`) gets satisfied by padding. Read `${CLAUDE_SKILL_DIR}/../../references/form-fit.md` before writing rules; it also carries the skill-type table that decides which sections a skill actually needs.
+
 **Calibrate degrees of freedom**: give text-level direction when many approaches are valid (e.g., code review), and exact, unparameterized script commands when an operation is fragile and consistency matters. Favor concrete input→output examples over abstract rules, and capture real failure points in a **Gotchas** section — often the highest-signal content in a skill. See `references/writing-instructions.md` for voice, templates, and validation loops; the anti-pattern catalog is canon in `${CLAUDE_SKILL_DIR}/../../references/best-practices.md` §4–5.
 
 ### Writing Style
@@ -130,7 +136,7 @@ Before writing test cases, grade the draft with the **skillit:review** skill. It
 
 ### Test Cases
 
-After writing the skill draft, come up with 2-3 realistic test prompts — the kind of thing a real user would actually say. Share them with the user: [you don't have to use this exact language] "Here are a few test cases I'd like to try. Do these look right, or do you want to add more?" Then run them.
+If a brief exists, use its section 11 prompts as the test cases and only confirm them with the user; its third prompt is the near-miss that catches an over-broad description. Otherwise, after writing the skill draft, come up with 2-3 realistic test prompts — the kind of thing a real user would actually say. Share them with the user: [you don't have to use this exact language] "Here are a few test cases I'd like to try. Do these look right, or do you want to add more?" Then run them.
 
 Save test cases to `evals/evals.json`. Don't write expectations yet — just the prompts. Draft the expectations in the next step while the runs are in progress. See `references/schemas.md` for the evals.json structure (including the `expectations` field, which you'll add later).
 
@@ -153,6 +159,8 @@ This is the heart of the loop. Once the user has reviewed the test results, impr
 3. **Explain the why.** Attach the reason behind everything you ask the model to do, because with a good harness models go beyond rote instructions. When the user's feedback is terse or frustrated, work out what they meant and why, then transmit that understanding into the instructions. ALL-CAPS ALWAYS/NEVER and rigid structures are a yellow flag — reframe as rule plus reason so the model can generalize.
 
 4. **Look for repeated work across test cases.** Run exactly: `python3 ${CLAUDE_SKILL_DIR}/scripts/find_repeated_work.py <workspace>/iteration-<N> --json`. Exit 1 → its JSON lists files with the same name written independently by 2+ runs; judge each repeat. If all 3 test runs each wrote a `create_docx.py` or a `build_chart.py`, that's a strong signal the skill should bundle that script. Write it once, put it in `scripts/`, and tell the skill to use it. This saves every future invocation from reinventing the wheel. Exit 0 → no repeated files, but still read the transcripts and notice if the subagents took the same multi-step approach to something — the file scan can't see approaches.
+
+5. **Micro-test a wording before you spend a full eval round on it.** A paired eval run answers "does the skill work" and costs six subagents; it is the wrong instrument for "does this sentence bind better than that one." Read `references/micro-testing.md` and run the cheap version first — it also settles the low-confidence findings skillit:review hands you with a named test attached.
 
 Spend the thinking time — it isn't the blocker here. Draft a revision, then reread it cold from the user's point of view before applying.
 

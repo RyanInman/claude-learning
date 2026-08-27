@@ -44,8 +44,23 @@ Everything below serves finding and fixing those.
    mechanical severity guess. Add `--json` if you want to parse it. The script
    handles its own errors and exits non-interactively.
 
-3. **Apply judgment the script can't.** The audit catches the countable things;
-   you catch the rest. Determine the skill's target platform first (Claude Code
+3. **Classify the skill, then apply judgment the script can't.** First decide
+   which of the four types it is — discipline, technique, pattern, or reference
+   — because the type decides which criteria apply. Flagging a reference skill
+   for a missing Gotchas section wastes the finding slot that should have gone
+   to a real problem. `${CLAUDE_SKILL_DIR}/../../references/form-fit.md` has the type table.
+
+   Then read `${CLAUDE_SKILL_DIR}/../../references/form-fit.md` in full whenever the skill contains rules.
+   It covers the question the rest of this review does not ask: whether each
+   rule's *shape* matches the failure it prevents. A rule can be correctly
+   scoped and sized and still be the form that invites the behavior it forbids —
+   a prohibition where the failure is wrong-shaped output, a count where the
+   model can pad to pass, a hedge that reopens the negotiation. This is a
+   different axis from best-practices §4's freedom-to-fragility, which asks how
+   much latitude to grant; say which one a finding answers, because an author
+   who conflates them will tighten latitude and change nothing.
+
+   The audit catches the countable things; you catch the rest. Determine the skill's target platform first (Claude Code
    vs claude.ai/API upload) — frontmatter validity and several criteria differ;
    audit.py flags platform-specific fields as INFO. Read the two reference files
    for the full criteria and the *why* behind each, so your suggestions explain
@@ -66,7 +81,17 @@ Everything below serves finding and fixing those.
    Read the actual files and scripts before reporting on them. Report only what
    you confirmed in the content — no guessing at what a script "probably" does.
 
-4. **Score each suggestion by confidence (1–10).** The script's severity is a
+4. **Review the evals, if the skill has any.** When `evals/evals.json` exists,
+   read the expectations and ask of each one: *would a run without this skill
+   also pass it?* An expectation the baseline passes anyway inflates the
+   measured delta while testing nothing, and it hides real losses — a skill can
+   post a healthy pass-rate gain while losing the case a user actually cares
+   about. Flag presence checks ("the plan includes a requirements section")
+   and recommend substance checks ("every build step names the files it
+   touches"). This is a high-value finding because it corrupts the evidence the
+   author will use for every future decision about the skill.
+
+5. **Score each suggestion by confidence (1–10).** The script's severity is a
    mechanical starting guess; replace it with a confidence score that answers two
    questions at once:
    - **Will the fix actually do what it claims?** Will applying it work as
@@ -91,7 +116,7 @@ Everything below serves finding and fixing those.
    clarity or tokens on its own; otherwise style belongs to
    steyle:grading-markdown-style.
 
-5. **Write the review** in the format below.
+6. **Write the review** in the format below.
 
 ## Output format
 
@@ -130,6 +155,11 @@ Rules for the write-up:
 - **Quantify token impact** when you can ("this 200-line section loads every
   turn; as a reference it would cost zero until read").
 - **Don't railroad.** Offer the change and the reason; let the author decide.
+- **Give every 6–7 finding its test.** End the item with the one check that
+  would settle it: a micro-test of the wording against a no-guidance control,
+  five or more runs, and what to look for in the output. Reason: a
+  lower-confidence finding is a hypothesis, and handing the author a way to
+  resolve it beats handing them a hunch. `skillit:create` runs the test.
 
 ## Scope
 

@@ -56,6 +56,8 @@ Write an `eval_metadata.json` for each test case (expectations can be empty for 
 
 While the runs execute, draft quantitative expectations for each test case and explain them to the user. If expectations already exist in `evals/evals.json`, review them and explain what they check.
 
+**Delete every expectation a baseline run would pass anyway.** Before keeping one, ask: would the no-skill run satisfy this too? If yes, it inflates the measured delta while testing nothing, and it hides real losses — a skill can post a healthy pass-rate gain while losing the case the user actually cares about, because the checks that moved were ones only the skill had reason to satisfy. Presence checks are the usual culprit ("the plan includes a requirements section"); replace them with substance checks ("every build step names the files it touches"). This matters more than it looks: the expectations become the evidence behind every later decision about the skill, including whether to retire it. Step 4's analyst pass catches non-discriminating expectations after the fact; deleting them here is cheaper, because by then they have already shaped a benchmark the user has read.
+
 Good expectations are objectively verifiable and have descriptive names — they should read clearly in the benchmark viewer so someone glancing at the results immediately understands what each one checks. Subjective skills (writing style, design quality) are better evaluated qualitatively — don't force expectations onto things that need human judgment.
 
 Update the `eval_metadata.json` files and `evals/evals.json` with the expectations once drafted. Also explain to the user what they'll see in the viewer — both the qualitative outputs and the quantitative benchmark.

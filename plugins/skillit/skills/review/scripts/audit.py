@@ -53,6 +53,49 @@ LISTING_CAP_CHARS = 1536
 # Recommended (not hard) body-token ceiling once a skill has triggered.
 BODY_TOKEN_RECOMMENDED_MAX = 5000
 
+# --- Form-fit patterns (Phase 2) -------------------------------------------
+# These detect guidance whose *shape* invites the wrong behavior, even when the
+# skill is structurally valid. Each is deliberately narrow: a form finding that
+# fires on clean skills trains the reviewer to ignore the category.
+
+# Process sequencing inside the description. A description that summarizes the
+# workflow gives the agent a shortcut it can follow instead of reading the body
+# (superpowers writing-skills, SDO section). Stating the OUTCOME is fine; the
+# step sequence is what creates the shortcut. Needs 2+ markers to fire.
+DESC_SEQUENCE_PATTERNS = [
+    re.compile(r"\bfirst\b[^.]{0,80}?\bthen\b", re.I),
+    re.compile(r"\bthen\b", re.I),
+    re.compile(r"\bstep\s*\d\b", re.I),
+    re.compile(r"(?:^|\s)\d\.\s"),
+    re.compile(r"\s->\s|\s→\s"),
+]
+
+# Count-based instructions the model can satisfy by generating filler: it emits
+# one item per element of an enumerable set whether or not the item carries
+# information. Scoped to "per/for each" forms; "at least one example" is benign
+# guidance and is deliberately NOT matched.
+COUNT_INSTRUCTION_PATTERN = re.compile(
+    r"\b(?:one|two|three|\d+)\s+(?:per|for\s+each)\s+\w+", re.I)
+
+# Work-unit nouns. A count that distributes work across agents or runs is not
+# the padding anti-pattern -- only a count that sets an output quota is.
+WORK_UNIT_PATTERN = re.compile(
+    r"\b(?:subagent|agent|worker|thread|process|run|task|job|call|"
+    r"instance|shard|batch)s?\b", re.I)
+
+# Hedges appended to a rule. "Don't X unless it matters" reopens the negotiation
+# the rule was meant to close; a real exception belongs in its own conditional
+# keyed to something observable.
+NUANCE_CLAUSE_PATTERN = re.compile(
+    r"\b(?:unless|except\s+when)\b[^.\n]{0,60}?"
+    r"\b(?:it\s+matters|necessary|appropriate|relevant|needed|useful)\b"
+    r"|\b(?:where|when|if)\s+(?:appropriate|relevant|needed)\b"
+    r"|\bas\s+(?:needed|appropriate)\b", re.I)
+
+# @-style imports. They work in CLAUDE.md and load NOTHING in a SKILL.md, so the
+# author believes content is present that never arrives.
+AT_IMPORT_PATTERN = re.compile(r"^\s*@[\w./-]+\.(?:md|txt|py|json)\s*$", re.M)
+
 # Caps-lock directive words we count to detect "the shouting file" anti-pattern.
 CAPS_DIRECTIVES = ["MUST", "ALWAYS", "NEVER", "DO NOT", "DON'T", "SHOULD NOT", "REQUIRED", "MANDATORY"]
 
@@ -455,10 +498,13 @@ def check_name_matches_dir(name, skill_dir, findings):
     if not name:
         return  # missing name is already a HIGH finding elsewhere
     name = str(name).strip()
-    if name and name != skill_dir.name:
+    # Resolve first: a relative invocation ("audit.py .") leaves .name empty and
+    # would report a false mismatch against every skill.
+    dir_name = skill_dir.resolve().name
+    if name and name != dir_name:
         _add(findings, "medium", "frontmatter",
-             f"name '{name}' does not match parent directory '{skill_dir.name}'.",
-             f"Rename the frontmatter 'name' to '{skill_dir.name}', or rename the "
+             f"name '{name}' does not match parent directory '{dir_name}'.",
+             f"Rename the frontmatter 'name' to '{dir_name}', or rename the "
              f"folder to '{name}'.")
 
 
@@ -633,6 +679,103 @@ def _scan_security_text(label, text, findings):
              location=label)
 
 
+def _strip_code(text):
+    """Remove fenced code blocks and inline code spans.
+
+    Form-fit checks look at prose only. A skill that shows a bad pattern inside
+    a code block is teaching, not committing, the anti-pattern -- matching there
+    produces findings the author cannot act on.
+    """
+    text = re.sub(r"```.*?```", "", text, flags=re.S)
+    text = re.sub(r"^\s{4,}\S.*$", "", text, flags=re.M)
+    return re.sub(r"`[^`\n]*`", "", text)
+
+
+def check_desc_summarizes_workflow(desc, findings):
+    """A description that walks through the skill's steps hands the agent a
+    shortcut: it can act on the summary and skip the body. Naming what the skill
+    produces is fine -- naming the order it works in is the problem."""
+    if not desc:
+        return
+    hits = sum(len(pat.findall(desc)) for pat in DESC_SEQUENCE_PATTERNS)
+    if hits >= 2:
+        _add(findings, "low", "description",
+             "Description narrates the skill's step sequence, not just what it "
+             "produces. An agent can follow the summarized workflow instead of "
+             "reading the body, and then skips steps the body actually defines.",
+             "Keep the outcome and the trigger phrases; cut the ordering words "
+             "(first/then/step N). State what the skill delivers, not the route "
+             "it takes to get there.")
+
+
+def check_count_instructions(body, findings):
+    """Counts tied to an enumerable set ("one per requirement") are satisfiable
+    by padding: the model emits an item per element whether or not it carries
+    information. Ask for the ones that do work instead."""
+    prose = _strip_code(body)
+    for m in COUNT_INSTRUCTION_PATTERN.finditer(prose):
+        # "one subagent per output doc" distributes work; "one criterion per
+        # requirement" sets an output quota. Only the second pads.
+        window = prose[max(0, m.start() - 60):m.start()]
+        if WORK_UNIT_PATTERN.search(window):
+            continue
+        # "+1 for each flow-break" is a scoring formula, not an output quota.
+        if window.rstrip().endswith(("+", "-", "*", "=")):
+            continue
+        _add(findings, "low", "form-fit",
+             "Body sets a count tied to an enumerable set (\"%s\"). A model can "
+             "satisfy a count by restating each item rather than adding "
+             "information, which pads the output while passing the rule."
+             % m.group(0).strip(),
+             "Replace the count with the property that makes an item worth "
+             "including -- e.g. 'acceptance criteria only for requirements that "
+             "could plausibly fail' instead of 'one per requirement'.")
+        return
+
+
+def check_nuance_clauses(body, findings):
+    """A hedge appended to a rule reopens the negotiation the rule closed."""
+    prose = _strip_code(body)
+    m = NUANCE_CLAUSE_PATTERN.search(prose)
+    if m:
+        _add(findings, "low", "form-fit",
+             "A rule carries an open-ended hedge (\"%s\"). The model decides "
+             "when the exception applies, so the rule binds only when it "
+             "already agreed with it." % m.group(0).strip(),
+             "Drop the hedge, or express the exception as its own conditional "
+             "on something observable -- 'if the file has no tests, ...' rather "
+             "than 'unless it matters'.")
+
+
+def check_at_imports(body, findings):
+    """@path imports work in CLAUDE.md and load nothing in a SKILL.md."""
+    m = AT_IMPORT_PATTERN.search(body)
+    if m:
+        _add(findings, "medium", "structure",
+             "Body uses an @-import line (\"%s\"). Those resolve in CLAUDE.md "
+             "only -- in a SKILL.md the file is never loaded, so the skill runs "
+             "without content the author believes is present."
+             % m.group(0).strip(),
+             "Replace with an instruction naming when to read it: "
+             "\"Read references/x.md when ...\".")
+
+
+def check_baseline_evidence(skill_dir, findings):
+    """A skill earns its recurring cost only by beating no-skill baseline. This
+    reports whether that evidence exists -- it never judges the result."""
+    evals = skill_dir / "evals" / "evals.json"
+    if not evals.exists():
+        return
+    workspace_hits = list(skill_dir.parent.glob(f"{skill_dir.name}-workspace/**/benchmark.json"))
+    if not workspace_hits:
+        _add(findings, "info", "evals",
+             "Skill defines evals but no benchmark.json was found in a sibling "
+             "'%s-workspace' folder, so there is no record of it beating a "
+             "no-skill baseline." % skill_dir.name,
+             "Run the paired baseline loop in skillit:create. A skill that only "
+             "ties baseline is recurring token cost for no gain.")
+
+
 def check_script_security(skill_dir, body, findings):
     """Scan SKILL.md's body and bundled scripts/ for env+network exfiltration
     shape, URL parameter interpolation, base64 blobs, prompt-injection
@@ -735,6 +878,11 @@ def main(argv=None):
     check_name_redundancy(name, desc, findings)
     check_desc_shouting(desc, findings)
     check_reasoning_extraction(desc, body, findings)
+    check_desc_summarizes_workflow(desc, findings)
+    check_count_instructions(body, findings)
+    check_nuance_clauses(body, findings)
+    check_at_imports(body, findings)
+    check_baseline_evidence(skill_dir, findings)
     check_script_security(skill_dir, body, findings)
 
     when_to_use = str((fm or {}).get("when_to_use") or "").strip()

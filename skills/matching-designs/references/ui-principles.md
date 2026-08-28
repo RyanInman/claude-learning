@@ -26,3 +26,10 @@ Read this only for a decision the design image does not settle. Where the image 
 - Put one primary action per region. Make it the highest-contrast element.
 - Align text to a common left edge. Center only what the design centers.
 - Give cards the same height in a row, because ragged rows read as broken.
+
+## Structure
+
+- Decompose by repeated unit, not by visual nesting alone: a card, a list row, a nav item each get their own component or named block, because a flat wall of markup hides which piece to change later.
+- Reuse the project's existing component before writing a new one. Match on function, not name: a design's pill-shaped filter chip can be the project's existing `Badge` even if the design calls it something else.
+- Prefer composition (small pieces combined) over one component with many boolean or enum props, because a mega-component with `variant`, `isSmall`, `hasIcon` props grows a new conditional branch per design tweak.
+- Model an interactive state the design doesn't show (loading, empty, error, disabled, hover) as its own explicit branch, not an added boolean flag next to the ones the design does show. A `status` value with one state per branch stays readable; stacked booleans permit combinations the design never intended.

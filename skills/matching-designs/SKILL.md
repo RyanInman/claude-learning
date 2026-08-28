@@ -87,6 +87,8 @@ If the target page lives inside an existing project, look for its component libr
 
 Otherwise write plain HTML and CSS unless the repo already uses a framework. Put every token value from the spec into the CSS verbatim. Set `body{margin:0}` and the fonts the design uses, with a fallback stack.
 
+When you write new markup, decompose it the way the design's own hierarchy suggests: one component or named block per repeated unit (a card, a nav item, a form row), not one flat wall of markup for the whole page. Follow the project's naming convention if it has one; otherwise use PascalCase for components, `handleX` for event handlers, and `onX` for event props. If the page has interactive states the design doesn't show by itself (loading, empty, error, hover, disabled), model each as its own explicit branch instead of a pile of boolean flags — see `references/ui-principles.md` for when the design leaves a state undetermined.
+
 Read `references/ui-principles.md` when the image leaves a decision open. Open decisions include: the spacing step between two unlabeled blocks, the pairing of a heading with implied body copy, and the contrast a secondary text color needs.
 
 ## Step 4: Verify one round

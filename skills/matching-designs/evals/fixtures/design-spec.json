@@ -1,0 +1,11 @@
+{"viewport":{"width":1024,"height":640},
+ "tokens":[
+  {"selector":"h1","property":"color","expected":"#1a1a1a"},
+  {"selector":"h1","property":"font-size","expected":"40px"},
+  {"selector":".btn","property":"background-color","expected":"#2563eb"},
+  {"selector":".cards","property":"gap","expected":"24px"},
+  {"selector":"header","property":"height","expected":"64px"},
+  {"selector":"body","property":"background-color","expected":"#ffffff"},
+  {"selector":"p","property":"color","expected":"#475569"},
+  {"selector":".btn","property":"color","expected":"#ffffff"}
+ ]}

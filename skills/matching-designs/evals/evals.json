@@ -1,0 +1,24 @@
+{
+  "evals": [
+    {
+      "id": "landing-from-png",
+      "prompt": "here's the design (skills/matching-designs/evals/fixtures/design.png, 1024x640). build it as landing.html in the current folder and make sure it actually matches",
+      "expected_output": "landing.html plus design-spec.json; a passing check.mjs report with diffPercent <= 3 and zero token mismatches; the baseline path reported",
+      "assertions": [
+        "check.mjs was run at least once",
+        "design-spec.json has at least 8 tokens with hex colors and px values",
+        "final message states diffPercent and round count, not 'looks close'"
+      ]
+    },
+    {
+      "id": "fix-existing-page",
+      "prompt": "my page skills/matching-designs/evals/fixtures/page-wrong.html is supposed to match skills/matching-designs/evals/fixtures/design.png but something is off, can you fix it so it matches",
+      "expected_output": "the three drifted rules (h1 color, .btn background, .cards gap) corrected and nothing else rewritten; a passing report",
+      "assertions": [
+        "only the mismatched CSS rules changed",
+        "check.mjs ran before and after the fix",
+        "final message cites the mismatches found and the passing diffPercent"
+      ]
+    }
+  ]
+}

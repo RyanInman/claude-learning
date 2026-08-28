@@ -5,24 +5,24 @@ description: Turns a vague build request into an agreed plan: checks whether the
 
 # Brainstorming
 
-Turn a vague request into a plan both sides agree on, using as few questions as the request actually needs.
+Turn a vague request into a plan both sides agree on, using as few questions as the request needs.
 
-Language models under-ask by default. Preference training rewards a complete, confident answer over an incomplete clarifying question, so the trained reflex is to guess at the fork and keep going. Benchmarks put the rate at which models ask when they should near 13%. This skill overrides that reflex — but only where a question would change what gets built, because the opposite failure, interrogating someone about a one-line change, drives them away just as fast.
+Language models under-ask by default. Preference training rewards a complete, confident answer over a clarifying question. The trained reflex is to guess at the fork and keep going. This skill overrides that reflex only where a question would change what you build. The opposite failure, interrogating someone about a one-line change, drives them away just as fast.
 
 ## Step 0: Before starting
 
-Collect these before you ask the user anything, because a question whose answer is already in the conversation wastes the user's turn and reads as inattention:
+Collect these before you ask the user anything. A question the conversation already answers wastes the user's turn and reads as inattention:
 
 - What the user wants built, in their words.
 - Which files, systems, or products it touches.
 - Any constraint already stated: deadline, stack, existing pattern to follow, thing not to break.
 - Whether a spec, ticket, or plan for this already exists.
 
-Mine the conversation history and the repository first. Read the code the request touches. If every item above is already known, say nothing about this step and move to Step 1.
+Mine the conversation history and the repository first. Read the code the request touches. If the conversation and repository already answer every item above, say nothing about this step and move to Step 1.
 
 ## Step 1: Detect the ambiguity before asking about it
 
-Silently write 2-3 different competent readings of the request. Do not show them yet. Each reading must be a thing someone could actually build.
+Silently write 2-3 different competent readings of the request. Do not show them yet. Each reading must be a thing someone could build.
 
 Then compare them on three axes:
 
@@ -56,18 +56,18 @@ Skip the interview and go straight to a short plan when any of these holds:
 - The user already gave a spec, a ticket, or a detailed prompt covering the forks.
 - The user said to just build it.
 
-When you skip, do not use the Step 6 plan template. A rename does not survive a Won't-have section, and a requirement that restates the request in EARS costume is a sentence the user skims past. Write four lines instead:
+When you skip, do not use the Step 6 plan template. A rename has no Won't section. An Easy Approach to Requirements Syntax (EARS) requirement that restates the request adds nothing. The user skips it. Write four lines instead:
 
 - The reading you chose, in one sentence.
 - The files or symbols you will touch.
-- Any call you made on the user's behalf, marked ASSUMED.
+- Any decision you made on the user's behalf, marked ASSUMED.
 - How you will check it worked.
 
 Then start. Do not ask for approval on the skip path, because a change describable in one sentence costs less to correct after the fact than to pre-approve.
 
 ## Step 3: Ask, in batches, by theme
 
-Ask 3-7 questions total across the whole interview. Below 3 you have not covered the forks. Above 7 the user starts answering carelessly to make it stop.
+Ask 3-7 questions total across the whole interview. Below 3 the forks stay uncovered. Above 7 the user starts answering carelessly to make it stop.
 
 Use `AskUserQuestion`. Send one theme per call, questions batched inside it. Move general to specific across calls.
 
@@ -78,50 +78,54 @@ The five themes, in order:
 | Scope and users | Who uses it, what is in and out of this change |
 | Data and integrations | Where data comes from, what it touches, what format |
 | Edge cases and errors | Empty, huge, malformed, concurrent, failed |
-| Non-functionals | Speed, scale, security, offline, accessibility |
+| Non-functional requirements | Speed, scale, security, offline, accessibility |
 | Success criteria | How the user will know it works |
 
 Skip any theme the request already settles. Most requests need two or three themes, not five.
 
 Rules for each question:
 
-- **Ask only about forks.** Before writing a question, answer this: would a different answer change the plan or the code? If not, delete the question. Ranking questions by whether the answer changes the outcome is the whole selection principle.
+- **Ask only about forks.** Before you write a question, answer this: would a different answer change the plan or the code? If not, delete the question.
 - **Offer concrete options, not open prompts.** Two to four options the user can recognize, each naming a real outcome. An option like "standard approach" tells the user nothing; "one CSV per report, downloaded in the browser" tells them everything.
 - **Keep options balanced.** Do not write three weak options around your preferred one. A leading question returns your own opinion with the user's name on it.
-- **Never ask what the user cannot answer, and never ask what you can look up.** The user owns product and preference decisions. You own technical ones — library choice, file layout, algorithm — and every fact already sitting in the repo: row counts, schema, versions, whether a symbol is exported. A question whose answer is in the code spends the user's turn on work you skipped.
+- **Ask the user only what they alone can answer.** The user owns product and preference decisions. You own technical ones: library choice, file layout, algorithm. You also own every fact in the repository: row counts, schema, versions, whether a symbol is exported. A question whose answer is in the repository spends the user's turn on work you skipped.
 - **Recommend when you have grounds.** Put your recommended option first and mark it, because a user with no strong opinion wants a default, not homework.
 
 Read `references/question-themes.md` for worked option sets per theme when you need a starting point.
 
 ## Step 4: Keep an assumptions log
 
-Every fact in your plan is either CONFIRMED — the user said it — or ASSUMED — you filled it in. Mark each one. Never let an assumption reach the plan unlabeled, because an unlabeled assumption is indistinguishable from a requirement and gets built as one.
+Every fact in your plan is either CONFIRMED or ASSUMED. CONFIRMED means the user said it. ASSUMED means you filled it in. Mark each one. Never let an assumption reach the plan unmarked, because an unmarked assumption is indistinguishable from a requirement, and you build it as one.
 
-A decision you made is not an assumption. When you pick a library, a limit, a window, or a threshold, put it in the requirements and the build order where the reader will act on it. Reserve ASSUMED for facts you could not verify and the user might reverse, and say what changes if the guess is wrong. Readers scan the two differently: the plan body is what gets built, the log is what might be wrong, so a decision filed in the log gets skimmed past.
+A decision you made is not an assumption. When you pick a library, a limit, a window, or a threshold, put it in the requirements and the build order. Reserve ASSUMED for facts you could not verify and the user can reverse. Say what changes if the assumption is wrong.
+
+The user scans the two differently. The plan body is what you build. The log is what can be wrong, so the user skims past a decision filed there.
 
 ## Step 5: Stop
 
-Stop asking when the next question would not change the plan, when you have spent 7 questions, or when the user shows impatience. Then say what you still do not know and what you assumed for it, rather than asking again.
+Stop asking when any of these holds:
+
+- The next question would not change the plan.
+- You reach 7 questions.
+- The user shows impatience.
+
+Then state what you still do not know and what you assumed for it. Do not ask again.
 
 ## Step 6: Emit the plan
 
-Present the plan in the conversation. Do not write a spec file unless the user asks for one.
+Present the plan in the conversation. Write a plan file only when the user asks for one. A file the user did not ask for is one more thing to review and delete.
 
 Read `references/plan-format.md` for the template and a filled example. Its shape:
 
-1. **Outcome** — one paragraph, written as though the change already shipped and you are telling a user what they can now do.
-2. **Requirements** — EARS syntax, grouped Must / Should / Could / Won't.
+1. **Outcome** — one paragraph, written as though the change already shipped. Tell a user what they can now do.
+2. **Requirements** — EARS syntax, grouped into Must, Should, Could, and Won't.
 3. **Acceptance criteria** — Given/When/Then, only for requirements that could plausibly fail. A criterion that restates its requirement in different words tests nothing and pads the plan, so skip it.
 4. **Non-functional requirements** — only the ones that constrain the build.
 5. **Build order** — numbered steps, each naming the files it touches and how to verify it.
 6. **Assumptions and open questions** — the Step 4 log, CONFIRMED and ASSUMED marked.
-7. **Out of scope** — what you are deliberately not building.
+7. **Out of scope** — what you deliberately leave unbuilt.
 
-Two rules govern the content, because a plan can satisfy the template and still be unusable:
-
-**Name real things.** Every requirement names the actual table, endpoint, file, or symbol it governs. "The system shall aggregate the main transactional record" is a placeholder wearing a requirement's clothes — nobody can test it or build from it. Read the schema and use the real name. Where you cannot, write the name you are guessing and mark it ASSUMED.
-
-**Order the work so it can stop early.** Sequence the steps so the user still has something that runs if they halt after any one of them. A plan that only pays off at step 9 gives them no way to cut scope once the estimate lands.
+Follow the Naming real things and Build order sections of `references/plan-format.md`, because a plan can satisfy the template and still be unusable.
 
 Then ask the user to approve, correct, or cut. Start building only after they answer.
 
@@ -129,15 +133,15 @@ Then ask the user to approve, correct, or cut. Start building only after they an
 
 | Failure | What it looks like | Fix |
 |---|---|---|
-| Under-asking | You picked a reading silently and built the wrong thing | Step 1 forces the competing readings into the open |
-| Over-asking | Five questions about a rename | The Step 2 skip gate |
-| Leading question | Options are your preference plus decoys | Write each option as a real outcome someone would pick |
-| Sycophancy | You ask "this looks right?" and the user agrees with your framing | Ask the user to choose between options, never to confirm yours |
-| Silent assumption | The plan states a requirement the user never gave | Mark every line CONFIRMED, ASSUMED, or OPEN |
-| Unanswerable question | You ask the user which caching layer to use | Route technical questions to yourself; ask the user only decisions |
-| Premature convergence | You generate one reading, then question its details | Generate the readings before writing any question |
-| Ceremony over substance | The plan satisfies the template but names no file and gives no order | Name real things; give a stoppable build order |
-| Asking what the repo knows | You ask the user how many rows a table has | Read the schema; ask the user only what the code cannot tell you |
+| Under-asking | You picked a reading silently and built the wrong thing | Step 1 forces the competing readings into the open, because a fork you cannot see is a fork you cannot ask about |
+| Over-asking | Five questions about a rename | Apply the Step 2 skip gate, because a one-sentence change costs less to correct than to pre-approve |
+| Leading question | Options are your preference plus decoys | Write each option as a real outcome someone would pick, because a decoy option steers rather than asks |
+| Sycophancy | You ask "this looks right?" and the user agrees with your framing | Ask the user to choose between options, never to confirm yours, because users agree with a framing they did not build |
+| Silent assumption | The plan states a requirement the user never gave | Mark every line CONFIRMED, ASSUMED, or OPEN, because an unmarked assumption reads as a user decision |
+| Unanswerable question | You ask the user which caching layer to use | Route technical questions to yourself. Ask the user only decisions, because a technical question spends the user's turn on your work |
+| Premature convergence | You generate one reading, then question its details | Generate the readings before writing any question, because questions about one reading never surface the others |
+| Ceremony over substance | The plan satisfies the template but names no file and gives no order | Name real things. Give a stoppable build order, because nobody can build from a plan that names nothing |
+| Asking what the repository knows | You ask the user how many rows a table has | Read the schema. Ask the user only what the repository cannot tell you, because the repository answers faster and more exactly |
 
 ## Worked example
 
@@ -153,4 +157,4 @@ Then ask the user to approve, correct, or cut. Start building only after they an
 
 **Answers:** on-call engineer, within seconds, any failed order.
 
-That collapses the fork to reading B and settles the trigger. A second call on Data and integrations asks two more — which channel receives the alert, and what the message must carry — and that is enough. Five questions total, then the plan.
+That collapses the fork to reading B and settles the trigger. A second call on Data and integrations asks two more: which channel receives the alert, and what the message must carry. That is enough. Five questions total, then the plan.

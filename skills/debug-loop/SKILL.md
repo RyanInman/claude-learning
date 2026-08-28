@@ -16,7 +16,7 @@ description: >-
 
 # Debug Loop
 
-Two moves make agentic debugging work, and both are missing by default. First, **give the loop a
+Two moves make agentic debugging work. A default session lacks both. First, **give the loop a
 check it can run**. Without a command that returns pass or fail, "looks fixed" is the only signal.
 The user then becomes the verification loop. Second, **spend the context on signal, not on failed
 attempts**. A session that accumulates dead ends biases the model toward re-trying ruled-out fixes.
@@ -75,7 +75,7 @@ assertion, no clamped value.
 ```
 
 Rank hypotheses **before** editing. Enumerate the causes first. This prevents the jump-to-a-fix
-reflex, which produces a plausible fix for the wrong fault. Three is the usual count. Use two for
+reflex, which produces a plausible fix for the wrong cause. Three is the usual count. Use two for
 an obvious bug and four for an unfamiliar subsystem. For a multi-file or unfamiliar bug, think hard
 while drafting them.
 
@@ -124,13 +124,13 @@ write a repro script that exits non-zero. Say why a test was not possible.
 ### Step 3: Instrument before guessing
 
 Add logging that shows the runtime values along the path to the failure. Run the repro. Read the
-output. Runtime state is the bridge between a symptom and its root cause. Without it, a fix masks
+output. Runtime values are the bridge between a symptom and its root cause. Without them, a fix masks
 the symptom.
 
 For a latency regression, instrument with a profiler rather than prints: `cProfile`, `py-spy`,
 `node --cpu-prof`, or the platform's equivalent. Read where the time concentrates, not what the
-values are. A hot loop shows up as call count times cost per call, and that product is the
-observation that names the cause.
+values are. A hot loop shows up as call count times cost per call. That product names the
+cause.
 
 For a regression with an unknown origin, read `references/tactics.md`, "Locating a regression with
 git bisect", before you instrument.
@@ -159,16 +159,15 @@ fix. Note the adjacent problems for the user instead of solving them here.
 
 ### Step 5: Verify the fix is real
 
-Before declaring done:
+Before you declare done:
 
 - Run the full check, not just the new test. Paste the output.
 - Revert the fix once. Confirm the check goes red again. Re-apply the fix. A check that already goes
-  green for another reason hides the live bug. Skip the revert only when the check takes minutes.
-  Skip the revert also when Step 3 already proved the link. The instrumentation showed that the
-  value change flipped the outcome.
+  green for another reason hides the live bug. Skip the revert if the check takes minutes,
+  or if the Step 3 instrumentation already showed that the value change flipped the outcome.
 - Confirm the fix addresses the cause named in the brief. If another change turned the test green,
   name that change.
-- Two cases need a review: the fix touches more than one source file, or the cause was not the
+- Request a review in two cases: the fix touches more than one source file, or the cause was not the
   top-ranked hypothesis. The committed test does not count as a source file. In those cases, have a
   fresh subagent review the diff against the brief. Tell it to flag only correctness or requirement
   gaps. A reviewer that shares the code's context approves it too readily. A reviewer told to find
@@ -227,11 +226,11 @@ assertion, no clamped value.
 **Reset trigger:** after 2 failed fixes on the same issue, stop and hand off.
 ```
 
-Then: add the failing test for hypothesis 1, commit it, instrument `refreshSession`, run the repro.
+Next steps: add the failing test for hypothesis 1. Commit it. Instrument `refreshSession`. Run the repro.
 
 ## Gotchas
 
-- **Never edit the test to make it pass.** If the test looks wrong, say so and ask. A silent change
+- **Never edit the test to make it pass.** If the test looks wrong, say so. Ask the user before you change it. A silent change
   converts a bug report into a false all-clear.
 - **Verify package and API names against the registry or the installed version before use.**
   Invented package names and methods are a common failure. A type checker or linter catches them

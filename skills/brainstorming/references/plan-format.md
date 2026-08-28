@@ -1,20 +1,20 @@
 # Plan format
 
-Read this when the interview ends and you are ready to present the plan. Follow the template exactly, because a plan that looks the same on run 50 as on run 1 is the reason the user reached for this skill.
+Read this when the interview ends and you are ready to present the plan. Follow the template exactly. The user reached for this skill to get a plan that looks the same on run 50 as on run 1.
 
 ## Contents
 
 - [Template](#template)
-- [EARS syntax](#ears-syntax)
 - [Naming real things](#naming-real-things)
 - [Build order](#build-order)
+- [EARS syntax](#ears-syntax)
 - [Filled example](#filled-example)
 
 ---
 
 ## Template
 
-Present in the conversation. Do not write a file unless the user asks.
+Present in the conversation. Write a file only when the user asks. A file the user did not ask for is one more thing to review and delete.
 
 ```
 ## Outcome
@@ -74,9 +74,9 @@ Close with one line asking the user to approve, correct, or cut.
 
 ## Naming real things
 
-A requirement that names no file, table, endpoint, or symbol cannot be tested and cannot be built from. "The system shall aggregate the main transactional record" tells a reader nothing they did not already know.
+Nobody can test or build from a requirement that names no file, table, endpoint, or symbol. "The system shall aggregate the main transactional record" tells a reader nothing they did not already know.
 
-Read the schema and the routes, then use the real names. Where you cannot find one, write your best guess and mark it ASSUMED, because a named guess is correctable and a generic noun is not.
+Read the schema and the routes, then use the real names. Where you cannot find one, write your best assumption and mark it ASSUMED. A named assumption is correctable. A generic noun is not.
 
 | Instead of | Write |
 |---|---|
@@ -90,9 +90,9 @@ Read the schema and the routes, then use the real names. Where you cannot find o
 The user approves a plan to find out what it costs and where they can cut. A plan with no order gives them nothing to cut, so sequence the work before you present it.
 
 - **Number the steps and name the files each one touches.** A step that names no file is a wish.
-- **Give every step a verification** — a command, a test, a thing to look at. Reason: a step nobody can check is a step nobody can hand off.
-- **Order so the user can stop early.** Each step should leave something that runs. When the payoff only lands at the final step, the user cannot trade scope for time once the estimate arrives.
-- **Put the riskiest unknown first** where the order allows, because finding out in step 2 that the approach fails is far cheaper than finding out in step 8.
+- **Give every step a check**: a command, a test, a thing to look at. A step nobody can check is a step nobody can hand off.
+- **Order so the user can stop early.** Each step must leave something that runs. When the payoff lands only at the final step, the estimate arrives too late for the user to trade scope for time.
+- **Put the riskiest unknown first** where the order allows. A failed approach discovered in step 2 costs far less than one discovered in step 8.
 
 ## EARS syntax
 
@@ -103,12 +103,12 @@ Five patterns. Pick the one that matches the trigger condition, because a requir
 | Ubiquitous | The «system» shall «response». | Always true |
 | Event-driven | When «trigger», the «system» shall «response». | A discrete event fires it |
 | State-driven | While «state», the «system» shall «response». | True throughout a state |
-| Unwanted | If «condition», then the «system» shall «response». | Error and edge handling |
+| Unwanted | If «condition», then the «system» shall «response». | An error or edge case |
 | Optional | Where «feature included», the «system» shall «response». | Behind a flag or tier |
 
 Combine conditions front to back: "While the order is pending, when the payment gateway returns a decline, the system shall mark the order failed."
 
-Keep one requirement per sentence. A requirement containing "and" is two requirements and will be tested as one.
+Keep one requirement per sentence. A requirement containing "and" is two requirements, and the test checks only one of them.
 
 ## Filled example
 

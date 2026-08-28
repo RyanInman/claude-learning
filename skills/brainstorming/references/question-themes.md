@@ -7,7 +7,7 @@ Read this when you know a theme applies but not what to ask inside it. Every set
 - [Theme 1 — Scope and users](#theme-1--scope-and-users)
 - [Theme 2 — Data and integrations](#theme-2--data-and-integrations)
 - [Theme 3 — Edge cases and errors](#theme-3--edge-cases-and-errors)
-- [Theme 4 — Non-functionals](#theme-4--non-functionals)
+- [Theme 4 — Non-functional requirements](#theme-4--non-functional-requirements)
 - [Theme 5 — Success criteria](#theme-5--success-criteria)
 - [Writing good options](#writing-good-options)
 
@@ -73,7 +73,7 @@ Ask here when a failure would be visible to someone. Skip when the operation is 
 - Generic message to the user, detail to the logs
 - Silent, logged only
 
-## Theme 4 — Non-functionals
+## Theme 4 — Non-functional requirements
 
 Ask here only when a constraint would change the design. Do not ask about performance on a screen three people open weekly.
 
@@ -114,8 +114,8 @@ Ask here when you cannot state a test that would prove the change worked.
 ## Writing good options
 
 - **Name the outcome, not the technique.** "A CSV the user downloads from the table" beats "client-side export".
-- **Make options mutually exclusive.** Overlapping options force the user to explain instead of choose, which defeats the format.
+- **Make options mutually exclusive.** Overlapping options force the user to explain instead of choose. That defeats the format.
 - **Two to four options.** More than four turns a choice into a reading task.
 - **Put your recommendation first and mark it,** because a user with no strong view wants a default.
 - **Let the user escape.** `AskUserQuestion` always offers a free-text "Other", so never pad the list with a weak catch-all option.
-- **Set `multiSelect` when the options genuinely combine,** such as which user roles are in scope. Leave it off for real forks, because a multi-select fork returns "both" and resolves nothing.
+- **Set `multiSelect` when the options combine,** such as which user roles are in scope. Leave it off for real forks, because a multi-select fork returns "both" and resolves nothing.

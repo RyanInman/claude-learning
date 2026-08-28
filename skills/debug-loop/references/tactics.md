@@ -15,7 +15,7 @@ A fix passes the check but looks suspicious.
 
 ## Locating a regression with git bisect
 
-Use bisect when the code worked at an earlier commit. Nobody knows which commit broke it.
+Use bisect when the code worked at an earlier commit and nobody knows which commit broke it.
 Binary search finds the culprit in about 10 steps across 1,000 commits, which beats reading diffs.
 
 1. Turn the repro into a script that exits 0 on pass and non-zero on fail.
@@ -68,9 +68,9 @@ mid-loop without asking — an unexpected hook changes the behavior of every lat
 
 ## Delegating investigation to subagents
 
-**Run the work in a subagent when its output is disposable.** Discard that output once it answers
-the question. A subagent can read 20 files to find where the code sets a config value. Nobody needs that output after the answer
-arrives. That output must not occupy the main context for the rest of the session.
+**Run the work in a subagent when its output is disposable.** A subagent can read 20 files to find
+where the code sets a config value. Keep only the answer, because the 20 file reads must not occupy
+the main context for the rest of the session.
 
 Good subagent tasks:
 

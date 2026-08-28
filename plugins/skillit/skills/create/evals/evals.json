@@ -1,0 +1,44 @@
+{
+  "skill_name": "create-2",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "every time i ask claude to write release notes for our app it formats them differently. sometimes bullet lists, sometimes paragraphs. can you set something up so it always does: Summary section, then Breaking Changes, then Fixes, pulling from git log since the last tag?",
+      "expected_output": "A skill folder with a trigger-rich description, a body encoding the fixed three-section format with a verbatim example, and a git-log step (likely scripted).",
+      "assertions": [
+        "A SKILL.md is created with valid frontmatter (name and description)",
+        "The description states when to trigger, in third person, with concrete trigger phrases",
+        "The body specifies the exact section order: Summary, Breaking Changes, Fixes",
+        "The body or a script covers pulling commits since the last git tag",
+        "At least one concrete input-to-output example is included"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I wrote this skill for generating our weekly metrics report but claude never seems to use it unless I literally type the skill name. here's the SKILL.md:\n\n---\nname: metrics-report\ndescription: Generates the weekly metrics report.\n---\n\n# Metrics Report\n\nYou MUST ALWAYS query the analytics DB first. You should then handle the data appropriately and process it as needed into a report. NEVER use the staging DB.\n\ncan you fix it?",
+      "expected_output": "A diagnosis that the one-line description under-triggers, a rewritten pushy third-person description with trigger phrases and negative triggers, and a body rewrite replacing MUST/ALWAYS/handle/appropriately with rule-plus-reason instructions.",
+      "assertions": [
+        "The response identifies the thin description as the triggering root cause",
+        "The rewritten description includes concrete trigger phrases and when-to-use language",
+        "ALL-CAPS directives (MUST, ALWAYS, NEVER) are removed or reframed with reasons",
+        "Vague verbs (handle, process, appropriately, as needed) are replaced with specific actions",
+        "The staging-DB rule survives, restated with its reason"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "we keep pasting the same instructions into chat for cleaning vendor CSVs before import (drop rows with empty SKU, normalize date columns to ISO, fail if more than 5% of rows get dropped). make this a proper reusable thing for the team. it should be deterministic - same file in, same file out.",
+      "expected_output": "A skill whose deterministic cleaning steps live in a bundled script (not prose), with the body invoking the script, and a description matching casual phrasings like 'clean this vendor csv'.",
+      "assertions": [
+        "The deterministic cleaning logic is delivered as a bundled script, not as prose instructions",
+        "The script is non-interactive and reports errors with specifics (e.g., which rows dropped, the drop percentage)",
+        "The 5% drop threshold appears in the script or body with its failure behavior",
+        "The SKILL.md body instructs running the script rather than re-deriving the logic",
+        "The description covers casual trigger phrasings for CSV cleaning"
+      ],
+      "files": []
+    }
+  ]
+}

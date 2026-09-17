@@ -1,0 +1,45 @@
+{
+  "skill_name": "aon-flow",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "loose-request-with-mockup",
+      "prompt": "we need csv export on the orders screen, I think there's a mockup somewhere. plan this out before we build",
+      "expected_output": "A plan file at plans/<slug>-plan.md carrying requirements, acceptance criteria, a test plan naming the repo's runner, a UAT checklist, and a build order, after a repo scan and a short batched interview.",
+      "expectations": [
+        "The run scans the repo for resources before asking the user anything",
+        "The run asks between 3 and 7 questions total via AskUserQuestion",
+        "A plan file is written under plans/ and its path is named back to the user",
+        "The test plan names existing tests separately from tests to write",
+        "The test plan names the runner and where it was identified",
+        "Every fact in the plan is marked CONFIRMED or ASSUMED",
+        "No source file outside plans/ is modified"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "pasted-ticket-no-resources",
+      "prompt": "ENG-412: Users report the invoice PDF download times out on large accounts. Fix it. --- turn this ticket into an implementation plan with the tests we need",
+      "expected_output": "A plan file that asks for resource paths when the scan finds nothing relevant, inventories existing invoice tests, and proposes tests anchored to requirements.",
+      "expectations": [
+        "The run does not proceed resource-blind: it either finds resources or asks the user for paths",
+        "The plan names real files and symbols rather than generic nouns",
+        "Each proposed test names a file, a Given/When/Then, and the requirement it proves",
+        "The UAT checklist holds only checks a runner cannot make",
+        "The run ends by asking the user to approve, correct, or cut"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "revise-existing-plan",
+      "prompt": "the plan we wrote for the orders export is out of date, we dropped the column picker and now need a server-side stream. update it",
+      "expected_output": "The existing plan file is rewritten in place at its original path, with the dropped scope moved to Out of scope and the test plan adjusted.",
+      "expectations": [
+        "The existing plan file is read before any question is asked",
+        "The plan is rewritten at its original path, with no second plan file created",
+        "Questions cover only what changed since the plan was written",
+        "Tests tied to the dropped column picker are removed or moved out of scope"
+      ]
+    }
+  ]
+}

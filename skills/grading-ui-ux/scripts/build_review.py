@@ -6,7 +6,8 @@ Two modes:
   decisions page build_review.py review.json --selections "1B,2A,3-" -o decisions.html
 
 The options page opens with the reviewed screenshot beside the context and
-scorecard, then one collapsible section per raised item (score, evidence, and
+scorecard, then the component inventory (what each control on the screen does,
+with a confidence level), then one collapsible section per raised item (score, evidence, and
 2-3 option cards (live HTML previews in sandboxed iframes) followed by a
 "Change nothing" card for the current state). Every preview has an Expand
 button that opens it in a full-screen dialog with a zoom control. A "Save
@@ -27,6 +28,7 @@ from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent.parent
 PRINCIPLES_FILE = SKILL_DIR / "references" / "principles.md"
+CONFIDENCE = {"stated", "inferred", "unknown"}
 IMAGE_MIME = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
               ".webp": "image/webp", ".gif": "image/gif"}
 
@@ -80,6 +82,20 @@ def validate(review):
     ctx = review.get("context")
     if not isinstance(ctx, dict) or not ctx.get("form_factor") or not ctx.get("real_world_use"):
         errors.append("'context' must be an object with 'form_factor' and 'real_world_use' (see references/review-schema.md)")
+    comps = review.get("components")
+    names = set()
+    if not isinstance(comps, list) or not comps:
+        errors.append("'components' must be a non-empty list: one entry per component with name, does, confidence (see references/review-schema.md)")
+    else:
+        for c in comps:
+            for key in ("name", "does", "confidence"):
+                if not c.get(key):
+                    errors.append(f"component {c.get('name')!r}: missing '{key}'")
+            if c.get("confidence") not in CONFIDENCE:
+                errors.append(f"component {c.get('name')!r}: 'confidence' must be one of {sorted(CONFIDENCE)}")
+            if c.get("name") in names:
+                errors.append(f"component {c.get('name')!r}: duplicate name")
+            names.add(c.get("name"))
     if not isinstance(review.get("items"), list) or not review["items"]:
         errors.append("'items' must be a non-empty list")
         return errors
@@ -107,6 +123,9 @@ def validate(review):
                 errors.append(f"item {iid} option {o.get('key')}: cite at least one principle ID")
             if o.get("recommended") and not o.get("why_recommended"):
                 errors.append(f"item {iid} option {o.get('key')}: recommended option needs 'why_recommended'")
+            for a in o.get("affects") or []:
+                if a not in names:
+                    errors.append(f"item {iid} option {o.get('key')}: 'affects' names unknown component {a!r}; inventory has {sorted(names)}")
     return errors
 
 
@@ -168,6 +187,10 @@ dialog[open]{display:flex;flex-direction:column}
 .zbar .ghost{background:var(--chip);color:var(--ink)}
 #zframe{flex:1;height:auto;border:0;border-radius:0}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
+.affects{font-size:13px;color:var(--muted)}.affects b{color:var(--ink);font-weight:600}
+.conf{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px;color:#fff}
+.conf.stated{background:var(--good)}.conf.inferred{background:var(--warn)}.conf.unknown{background:var(--bad)}
+.comp td:first-child{font-weight:600;white-space:nowrap}
 .chip{background:var(--chip);border-radius:6px;padding:2px 8px;font-size:12px}
 .why{font-size:14px}.why b{color:var(--accent)}
 .proj{font-size:13px;color:var(--muted)}
@@ -235,9 +258,33 @@ def option_card(item, opt, names, chosen, interactive):
 <p><b>Change:</b> {esc(opt["change"])}</p>
 <p><b>Reasoning:</b> {esc(opt["reasoning"])}</p>
 {chips(opt.get("principles", []), names)}
+{affects_line(opt)}
 <p class="proj">Projected score: {esc(opt["projected"])}/5</p>
 {why}
 </{tag}>"""
+
+
+def affects_line(opt):
+    aff = opt.get("affects") or []
+    if not aff:
+        return ""
+    return '<p class="affects"><b>Affects:</b> ' + ", ".join(esc(a) for a in aff) + "</p>"
+
+
+def components_block(review):
+    comps = review.get("components") or []
+    if not comps:
+        return ""
+    rows = []
+    for c in comps:
+        conf = esc(c.get("confidence", "unknown"))
+        detail = "".join(f'<div><span style="color:var(--muted)">{lbl}:</span> {esc(c[k])}</div>'
+                         for k, lbl in (("triggers", "Triggers"), ("state", "State shown"), ("evidence", "Evidence")) if c.get(k))
+        rows.append(f'<tr><td>{esc(c["name"])}<div style="font-weight:400;color:var(--muted);font-size:13px">{esc(c.get("region", ""))}</div></td>'
+                    f'<td>{esc(c["does"])}{detail}</td><td><span class="conf {conf}">{conf}</span></td></tr>')
+    return (f'<details class="card" open><summary style="cursor:pointer"><h2 style="display:inline">Components and what they do</h2>'
+            f'<span class="proj" style="margin-left:12px">{len(comps)} on screen. Options name the ones they change; correct a wrong guess before choosing.</span></summary>'
+            f'<table class="comp" style="margin-top:12px"><tr><th>Component</th><th>Does</th><th>Confidence</th></tr>{"".join(rows)}</table></details>')
 
 
 def keep_card(item, chosen, interactive):
@@ -319,6 +366,7 @@ def render(review, base, selections=None, sel_file="selections.txt"):
 <body><main>
 <h1>{esc(page_title)}</h1><p class="sub">{intro}</p>
 {top}
+{components_block(review)}
 {items_head}
 {items}
 </main>{DIALOG}{bar}{script}</body></html>"""

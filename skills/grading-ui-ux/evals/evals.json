@@ -20,7 +20,8 @@
         "Placeholder-only inputs, outline:none, and red-only error text are each flagged",
         "States the form factor, estimated viewport, and the real-world use with its design analog before scoring",
         "Review pages are served from a local http server URL, not published as a claude.ai artifact",
-        "Each item's option list ends with a Change nothing card showing the current state"
+        "Each item's option list ends with a Change nothing card showing the current state",
+        "review.json lists every component on the screen with what it does and a confidence level, and options name the components they change"
       ]
     },
     {
@@ -42,7 +43,8 @@
         "Perceptual categories that the unstyled JSX cannot show are scored n/a or explicitly caveated rather than guessed",
         "States the form factor, estimated viewport, and the real-world use with its design analog before scoring",
         "Review pages are served from a local http server URL, not published as a claude.ai artifact",
-        "Each item's option list ends with a Change nothing card showing the current state"
+        "Each item's option list ends with a Change nothing card showing the current state",
+        "review.json lists every component on the screen with what it does and a confidence level, and options name the components they change"
       ]
     },
     {
@@ -65,7 +67,8 @@
         "The message ends in a build spec or offers one, not a code-edit plan, because no source code exists",
         "States the form factor, estimated viewport, and the real-world use with its design analog before scoring",
         "Review pages are served from a local http server URL, not published as a claude.ai artifact",
-        "Each item's option list ends with a Change nothing card showing the current state"
+        "Each item's option list ends with a Change nothing card showing the current state",
+        "review.json lists every component on the screen with what it does and a confidence level, and options name the components they change"
       ]
     }
   ]

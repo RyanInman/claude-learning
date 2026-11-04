@@ -24,7 +24,11 @@ Confirm these before grading, because a wrong answer here redoes the whole round
 
 Extract answers from the conversation first. Ask only for what is missing. If all six are known, proceed without asking. Record 5 and 6 in the `context` field of `review.json`, because the script refuses a review without them and renders them above the scorecard.
 
-### Step 1: Grade
+### Step 1: Inventory the components, then grade
+
+Before scoring, list every component on the screen and write your best understanding of what each one does: the user action it takes, what it triggers or navigates to, the state it reflects, and how sure you are. Mark confidence `stated` when a label, code, or tooltip says it, `inferred` when platform convention says it, `unknown` when you are guessing. Record the list in the `components` field of `review.json`, because a redesign that drops a control nobody understood breaks a job the user still has, and the script renders the inventory so the user can correct a wrong guess before choosing options.
+
+Infer function from evidence, not from wishful reading: a button labelled "Customize" on every menu item probably opens an options dialog that ends in an add, so its `does` says that and its confidence is `inferred`. When the code is available, read the handler and cite it.
 
 Score all twelve rubric categories using the 0-5 anchors in `references/rubric.md`. Write one or two sentences of evidence per category with principle IDs. For code input cite `file:line` and quote the offending attribute or style. For screenshot input name the region. Report only what you observed in the image or file, because a plausible finding that is not there costs the user's trust in every other finding.
 
@@ -38,6 +42,7 @@ For every category scored 0-3, write 2 or 3 options. Each option needs:
 - **Reasoning.** Why this change raises the score, tied to named principle IDs.
 - **Projected score.** The 0-5 score after the change.
 - **Preview.** A self-contained HTML snippet (inline styles only) showing the affected region after the change. Keep it under about 40 lines and 220 px tall.
+- **Affects.** The component names from the inventory this option changes, removes, or merges. The script refuses a name not in the inventory. For each affected component, the `change` text says where its job goes: kept as is, moved to another component, or dropped with a reason. A redesign may change how a job is done, never lose the job silently.
 
 Order items worst score first. When more than 6 categories score 0-3, ask the user whether they want all of them or only the worst 6, because a 12-item page with 25 radio buttons buries the decisions that matter.
 
@@ -122,7 +127,7 @@ Item 4, option B in `review.json`:
 {"key":"B","title":"Darken helper text and add a 'Required' label",
  "change":"Helper and placeholder color #9aa0a6 -> #5f6368 (7.0:1 on white); replace the red asterisk with the word 'Required' after the label.",
  "reasoning":"Fixes contrast (W1) and color-only meaning (W6); a text label survives grayscale and screen readers (W4).",
- "principles":["W1","W6","W4"],"projected":5,"recommended":true,
+ "principles":["W1","W6","W4"],"projected":5,"recommended":true,"affects":["Required marker","Helper text"],
  "why_recommended":"Clears every cited violation for one extra word per field.",
  "preview_html":"<div style='font:14px system-ui;padding:16px'><label style='display:block;color:#1a1d23'>Email <span style='color:#5f6368'>Required</span></label><input style='width:100%;padding:8px;border:1px solid #777' placeholder='you@example.com'><p style='color:#5f6368;margin:4px 0 0'>We never share your email.</p></div>"}
 ```
@@ -141,4 +146,5 @@ Item 4, option B in `review.json`:
 - `serve.py` also accepts `POST /selections?name=<file>.txt` and writes the body into the served directory. A stale server from an older skill version has no POST handler, so `serve.py` replaces it when `.serve.json` lacks the current `version`.
 - Read `selections.txt` fresh each round. The Save button overwrites it, so a stale read from round 1 would replay old choices into round 2; later rounds write `selections-2.txt`.
 - Never publish review pages with the Artifact tool, even when it is available, because the page cannot send selections back and the user wants the files locally.
+- Fill `components` before writing options, not after. Options written first describe the look; options written against the inventory describe what still has to work, which is what the user is deciding.
 - Do not grade a phone screenshot by desktop norms or the reverse. Check `context.form_factor` before scoring Affordance (7), Layout (2), and Responsiveness (12).

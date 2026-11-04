@@ -12,6 +12,10 @@
     "real_world_use": "Online food ordering for a single restaurant, pickup only",
     "analog": "Restaurant menu joined to an online storefront"
   },
+  "components": [
+    {"name": "Customize button", "region": "one per item card", "does": "Opens the item's options dialog (size, extras); the dialog ends in adding the item to the order", "triggers": "item options dialog", "state": "none shown; no count or added marker", "confidence": "inferred", "evidence": "Label 'Customize' with a '+' icon on every card; the cart says 'Add items to get started'"},
+    {"name": "Category tabs", "region": "sticky strip under the info bar", "does": "Scrolls the menu to the chosen section", "triggers": "section scroll", "state": "active tab underlined in orange", "confidence": "inferred", "evidence": "Tab text matches the section heading below"}
+  ],
   "strengths": [
     {"category": "Typography", "score": 4, "evidence": "One scale (14/16/20/28), measure about 60 characters. T1, T3."},
     {"category": "Responsiveness and adaptivity", "score": null, "evidence": "Single static screenshot; cannot judge."}
@@ -41,6 +45,7 @@
           "reasoning": "Fixes both findings: contrast (W1) and color-only meaning (W6). Text labels also survive grayscale and screen readers (W4).",
           "principles": ["W1", "W6", "W4"],
           "projected": 5,
+          "affects": ["Required marker"],
           "recommended": true,
           "why_recommended": "Resolves every cited violation for one extra word per field.",
           "preview_html": "<div style='font:14px sans-serif;padding:16px'>...</div>"
@@ -53,6 +58,8 @@
 
 Field rules:
 
+- `components`: required, non-empty. One entry per component on the screen. `name` (unique, used by `affects`), `does` (what it accomplishes for the user, one sentence), and `confidence` (`stated`, `inferred`, or `unknown`) are mandatory; `region`, `triggers`, `state`, and `evidence` are shown when present. The script renders the inventory under the scorecard, because the user corrects a wrong guess there before choosing options built on it.
+- `options[].affects`: optional list of component names from `components`. The script refuses an unknown name and renders the names on the option card. When present, the option's `change` says what happens to each component's job.
 - `items[].id`: integer, 1-based, unique. The terminal reply uses it (`1B`).
 - `items[].score`: integer 0-5. Items are the categories scored 0-3.
 - `items[].options`: 2 or 3 entries. Exactly one has `recommended: true` with a `why_recommended`.

@@ -1,0 +1,72 @@
+{
+  "skill_name": "grading-ui-ux",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "login-html-grade-and-options",
+      "prompt": "Grade the UI/UX of evals/files/login.html and show me options to fix the worst problems.",
+      "files": [
+        "evals/files/login.html"
+      ],
+      "expected_output": "A 12-category 0-5 scorecard with file:line evidence, 2-3 principle-cited options per weak item, an options.html page built by the bundled script, and a terminal prompt asking the user to click Save selections on the page.",
+      "expectations": [
+        "Every one of the 12 rubric categories receives a 0-5 score or an explicit n/a",
+        "Each weak finding offers 2 or 3 distinct fix options",
+        "Each option names at least one founding UI/UX principle (Nielsen, Gestalt, Fitts, Hick, WCAG, etc.)",
+        "Exactly one option per finding is marked recommended with a stated reason",
+        "An HTML page exists that shows the options with visual previews and a way to select one per item",
+        "The final message asks the user to choose options and explains the reply format",
+        "Evidence cites file:line locations in login.html",
+        "Placeholder-only inputs, outline:none, and red-only error text are each flagged",
+        "States the form factor, estimated viewport, and the real-world use with its design analog before scoring",
+        "Review pages are served from a local http server URL, not published as a claude.ai artifact",
+        "Each item's option list ends with a Change nothing card showing the current state"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "react-settings-form-review",
+      "prompt": "Can you review this settings form component and tell me what a designer would change? evals/files/SettingsForm.jsx",
+      "files": [
+        "evals/files/SettingsForm.jsx"
+      ],
+      "expected_output": "Scorecard that scores perceptual categories null or with explicit caveats (no rendered styles), raises accessibility (div onClick, placeholder-only labels), error prevention (delete with no confirmation), feedback (no loading state), with options and the options page.",
+      "expectations": [
+        "Every one of the 12 rubric categories receives a 0-5 score or an explicit n/a",
+        "Each weak finding offers 2 or 3 distinct fix options",
+        "Each option names at least one founding UI/UX principle (Nielsen, Gestalt, Fitts, Hick, WCAG, etc.)",
+        "Exactly one option per finding is marked recommended with a stated reason",
+        "An HTML page exists that shows the options with visual previews and a way to select one per item",
+        "The final message asks the user to choose options and explains the reply format",
+        "The div-with-onClick buttons and the delete action with no confirmation are both flagged",
+        "Perceptual categories that the unstyled JSX cannot show are scored n/a or explicitly caveated rather than guessed",
+        "States the form factor, estimated viewport, and the real-world use with its design analog before scoring",
+        "Review pages are served from a local http server URL, not published as a claude.ai artifact",
+        "Each item's option list ends with a Change nothing card showing the current state"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "screenshot-only-rating",
+      "prompt": "Here is a screenshot of our sign-in page: evals/files/login-screenshot.png. Rate it out of 5 on the usual UX stuff and give me a couple of ways to improve each weak area.",
+      "files": [
+        "evals/files/login-screenshot.png"
+      ],
+      "expected_output": "Reads the image, scores categories with region-named evidence, marks responsiveness and loading states n/a, options with previews, and ends in a build spec rather than a code plan because no code exists.",
+      "expectations": [
+        "Every one of the 12 rubric categories receives a 0-5 score or an explicit n/a",
+        "Each weak finding offers 2 or 3 distinct fix options",
+        "Each option names at least one founding UI/UX principle (Nielsen, Gestalt, Fitts, Hick, WCAG, etc.)",
+        "Exactly one option per finding is marked recommended with a stated reason",
+        "An HTML page exists that shows the options with visual previews and a way to select one per item",
+        "The final message asks the user to choose options and explains the reply format",
+        "Evidence names screen regions rather than file lines",
+        "Responsiveness and loading/feedback states are marked n/a or caveated because only a static screenshot exists",
+        "The message ends in a build spec or offers one, not a code-edit plan, because no source code exists",
+        "States the form factor, estimated viewport, and the real-world use with its design analog before scoring",
+        "Review pages are served from a local http server URL, not published as a claude.ai artifact",
+        "Each item's option list ends with a Change nothing card showing the current state"
+      ]
+    }
+  ]
+}
